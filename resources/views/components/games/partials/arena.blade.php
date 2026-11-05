@@ -94,6 +94,10 @@
         @if (! $turn)
             {{-- Between turns: who explains next, and their Start. --}}
             <div class="flex flex-1 flex-col items-center justify-center gap-5 py-6 text-center">
+                {{-- A one-tap Join skips the waiting screen, so the first Start teaches too. --}}
+                @if (($pairGame->turns ?? []) === [])
+                    @include('components.games.partials.role-guide')
+                @endif
                 @if ($previousTurn && $pairGame->isRolePlay())
                     @include('components.games.partials.role-reveal', ['revealTurn' => $previousTurn, 'revealIndex' => count($pairGame->turns) - 1])
                 @elseif ($previousTurn && $pairGame->isStoryChain())

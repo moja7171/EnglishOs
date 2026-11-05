@@ -4,6 +4,7 @@ use App\Livewire\Concerns\ChecksGameVoice;
 use App\Models\PairGame;
 use App\Notifications\PairGameInvite;
 use App\Services\PairGames;
+use App\Services\UsageGuides;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
@@ -43,6 +44,11 @@ new class extends Component
     public function join(): void
     {
         $this->act(fn (PairGame $pairGame) => $pairGame->join(auth()->user()));
+    }
+
+    public function readRoleGuide(): void
+    {
+        auth()->user()->markGuideRead(UsageGuides::keyForGame($this->pairGame->game));
     }
 
     public function startTurn(): void
@@ -409,6 +415,7 @@ new class extends Component
                         <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Not together? Call on any app.</p>
                     </div>
                 </div>
+                @include('components.games.partials.role-guide')
                 <button type="button" wire:click="end" class="mx-auto block cursor-pointer text-xs font-semibold text-ink-faint hover:text-ink-soft dark:text-ink-faint-dark dark:hover:text-ink-soft-dark">Cancel</button>
             @endif
         </div>

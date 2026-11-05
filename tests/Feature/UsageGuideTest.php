@@ -129,6 +129,7 @@ class UsageGuideTest extends TestCase
             'listening' => ['listening.show', [], 'listening_page'],
             'daily talk' => ['pi.practice', [], 'daily_talk'],
             'pair practice' => ['pair-practice.index', [], 'pair_practice'],
+            'games' => ['games.index', [], 'games'],
         ];
     }
 
@@ -172,25 +173,19 @@ class UsageGuideTest extends TestCase
             ->assertSeeHtml(self::OPENS_BY_ITSELF);
     }
 
-    public function test_an_invited_friend_gets_the_game_guide_on_the_invite_but_never_over_a_running_turn(): void
+    public function test_an_invited_friend_learns_their_part_before_the_first_turn_but_never_over_a_running_one(): void
     {
         $pairGame = PairGame::factory()->create(['stage' => PairGame::STAGE_WAITING, 'joined_at' => null]);
         $friend = $pairGame->partnerFor($pairGame->startedBy);
+        $part = PairGame::roleGuide($pairGame->game)['second']['title'];
 
-        $this->actingAs($friend)
-            ->get(route('games.play', $pairGame))
-            ->assertOk()
-            ->assertSee(PairGame::guide($pairGame->game)[0])
-            ->assertSeeHtml(self::OPENS_BY_ITSELF);
+        $this->actingAs($friend)->get(route('games.play', $pairGame))->assertOk()->assertSee($part);
 
         $pairGame->join($friend);
-        $pairGame->startTurn($pairGame->refresh()->explainer());
+        $this->get(route('games.play', $pairGame))->assertOk()->assertSee($part);
 
-        $this->actingAs($friend)
-            ->get(route('games.play', $pairGame))
-            ->assertOk()
-            ->assertSee(PairGame::guide($pairGame->game)[0])
-            ->assertDontSeeHtml(self::OPENS_BY_ITSELF);
+        $pairGame->startTurn($pairGame->startedBy);
+        $this->get(route('games.play', $pairGame))->assertOk()->assertDontSee($part);
     }
 
     private function freshM01Run(): MissionRun

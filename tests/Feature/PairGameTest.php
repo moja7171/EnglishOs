@@ -1068,4 +1068,46 @@ class PairGameTest extends TestCase
 
         $this->assertSame([$online->id, $partner->id, $other->id], array_map(fn (array $row) => $row['user']->id, $page->instance()->friends));
     }
+
+    public function test_every_playable_game_teaches_each_part_with_an_example_and_its_points(): void
+    {
+        foreach (PairGame::PLAYABLE as $game) {
+            $guide = PairGame::roleGuide($game);
+
+            $this->assertNotNull($guide, $game.' has no role guide.');
+            $this->assertTrue(isset($guide['both']) || (isset($guide['first']) && isset($guide['second'])), $game.' misses a part.');
+            $this->assertNotEmpty($guide['example']['line']);
+            $this->assertNotEmpty($guide['points']);
+        }
+    }
+
+    public function test_each_phone_shows_its_owners_part_the_first_time_and_reading_it_closes_it(): void
+    {
+        $pairGame = PairGame::factory()->create(['game' => PairGame::GAME_TABOO, 'stage' => PairGame::STAGE_WAITING]);
+        [$starter, $friend] = [$pairGame->startedBy, $pairGame->partnerFor($pairGame->startedBy)];
+        $guide = PairGame::roleGuide(PairGame::GAME_TABOO);
+
+        $this->actingAs($friend);
+        Livewire::test('games.play', ['pairGame' => $pairGame])
+            ->assertSee($guide['second']['title'])
+            ->assertDontSee($guide['first']['title']);
+
+        $this->actingAs($starter);
+        Livewire::test('games.play', ['pairGame' => $pairGame])
+            ->assertSee($guide['first']['title'])
+            ->assertSee($guide['example']['label'])
+            ->call('readRoleGuide')
+            ->assertDontSee($guide['first']['title']);
+
+        $this->assertTrue($starter->refresh()->hasReadGuide('game_taboo'));
+    }
+
+    public function test_the_guide_sheet_waits_for_the_info_button_on_game_pages(): void
+    {
+        $pairGame = PairGame::factory()->create(['game' => PairGame::GAME_TABOO, 'stage' => PairGame::STAGE_WAITING]);
+        $this->actingAs($pairGame->startedBy);
+
+        Livewire::test('usage-guide', ['guide' => 'game_taboo', 'auto' => false])->assertSet('opensByItself', false);
+        $this->get(route('games.play', $pairGame))->assertOk()->assertSee('How to play');
+    }
 }
