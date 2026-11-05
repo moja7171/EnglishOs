@@ -1,7 +1,9 @@
 <?php
 
+use App\Models\AiPractice;
 use App\Models\PairGame;
 use App\Models\User;
+use App\Services\AiPractices;
 use App\Services\PairGames;
 use App\Services\PairPractice;
 use App\Services\TabooDeck;
@@ -143,6 +145,18 @@ new class extends Component
     }
 
     /**
+     * The same game with the AI as a classmate, no friend needed.
+     */
+    public function playWithAi(): void
+    {
+        $practice = in_array($this->game, AiPractice::GAMES, true) ? app(AiPractices::class)->start(auth()->user(), $this->game) : null;
+
+        if ($practice) {
+            $this->redirectRoute('ai-practice.show', $practice, navigate: true);
+        }
+    }
+
+    /**
      * Invites the friend (or picks up / joins the pair's open game) and
      * opens the game.
      */
@@ -281,6 +295,11 @@ new class extends Component
                 wire:target="play"
                 class="block w-full cursor-pointer rounded-full bg-accent px-5 py-4 text-base font-extrabold text-white transition-opacity hover:opacity-90 disabled:opacity-50 dark:bg-accent-dark"
             >Invite {{ $picked['user']->name ?? '' }} · Play</button>
+        @endif
+
+        @if (in_array($game, AiPractice::GAMES, true))
+            <button type="button" wire:click="playWithAi" wire:loading.attr="disabled" wire:target="playWithAi" class="block w-full cursor-pointer rounded-full border-2 border-accent px-5 py-3.5 text-base font-extrabold text-accent-ink disabled:opacity-50 dark:border-accent-dark dark:text-accent-ink-dark">Play with AI</button>
+            <p class="text-center text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">With AI your voice is recorded.</p>
         @endif
     </div>
 </div>

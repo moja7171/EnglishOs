@@ -206,12 +206,14 @@ class PairPracticeTest extends TestCase
 
         $this->actingAs($me);
 
-        Livewire::test('pair-practice.index')
+        $page = Livewire::test('pair-practice.index')
             ->assertSee('M01 · Day 1')
             ->assertSee('Practice · 12 min')
-            ->assertSeeHtml("toggle('M01-1')")
-            ->assertDontSeeHtml("toggle('M01-2')")
             ->assertSee('Not finished by both of you yet');
+
+        // Day 2 is mine alone, so only the AI's card offers it.
+        $this->assertSame(2, substr_count($page->html(), "toggle('M01-1')"));
+        $this->assertSame(1, substr_count($page->html(), "toggle('M01-2')"));
     }
 
     public function test_without_a_shared_finished_day_a_round_cannot_start(): void

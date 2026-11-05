@@ -1,8 +1,10 @@
 <?php
 
+use App\Models\AiPractice;
 use App\Models\PairPracticeSession;
 use App\Models\User;
 use App\Notifications\PairPracticeInvite;
+use App\Services\AiPractices;
 use App\Services\PairPractice;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
@@ -90,6 +92,33 @@ new class extends Component
     }
 
     /**
+     * A round with the AI, for when no friend is around: the learner's
+     * open one, or a new one from the days they finished.
+     *
+     * @param  list<string>|null  $days
+     */
+    public function startWithAi(?array $days = null): void
+    {
+        $days = $days === null ? null : array_values(array_filter($days, 'is_string'));
+        $practice = app(AiPractices::class)->start(auth()->user(), AiPractice::KIND_PRACTICE, $days ?: null);
+
+        if ($practice) {
+            $this->redirectRoute('ai-practice.show', $practice, navigate: true);
+        }
+    }
+
+    /**
+     * Every day the learner finished, to pick from for the AI.
+     *
+     * @return list<array{code: string, days: list<array{key: string, day: int, shared: bool}>}>
+     */
+    #[Computed]
+    public function myDays(): array
+    {
+        return app(PairPractice::class)->dayChoices(auth()->user(), auth()->user());
+    }
+
+    /**
      * One nudge per friend per day — a bell row plus a phone push.
      */
     public function nudge(int $friendId): void
@@ -147,6 +176,46 @@ new class extends Component
         </div>
         <x-usage-guide-button />
     </header>
+
+    @php $openWithAi = AiPractice::where('learner_id', auth()->id())->where('kind', AiPractice::KIND_PRACTICE)->open()->exists(); @endphp
+    <div
+        x-data="{
+            sheet: false,
+            mode: 'auto',
+            days: [],
+            toggle(key) {
+                this.days = this.days.includes(key) ? this.days.filter((day) => day !== key) : [...this.days, key];
+            },
+            toggleAll(keys) {
+                this.days = keys.every((key) => this.days.includes(key))
+                    ? this.days.filter((day) => ! keys.includes(day))
+                    : [...new Set([...this.days, ...keys])];
+            },
+        }"
+        class="card space-y-2.5 rounded-3xl p-4"
+    >
+        <div class="flex items-center gap-3">
+            <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">@svg('heroicon-o-sparkles', 'h-6 w-6')</span>
+            <div class="min-w-0 flex-1">
+                <p class="font-semibold text-ink dark:text-ink-dark">Practice with AI</p>
+                <p class="text-xs text-ink-faint dark:text-ink-faint-dark">No friend around? Your voice is recorded.</p>
+            </div>
+        </div>
+
+        @if ($openWithAi)
+            <button type="button" wire:click="startWithAi" wire:loading.attr="disabled" wire:target="startWithAi" class="block w-full cursor-pointer rounded-2xl border-2 border-accent px-4 py-3 text-base font-extrabold text-accent-ink disabled:opacity-50 dark:border-accent-dark dark:text-accent-ink-dark">Continue</button>
+        @elseif ($this->myDays === [])
+            <p class="rounded-full border border-dashed border-line px-4 py-2.5 text-center text-xs font-semibold text-ink-faint dark:border-line-dark dark:text-ink-faint-dark">Finish a day first</p>
+        @else
+            <button type="button" x-on:click="sheet = true" class="block w-full cursor-pointer rounded-2xl border-2 border-accent px-4 py-3 text-base font-extrabold text-accent-ink dark:border-accent-dark dark:text-accent-ink-dark">Start with AI</button>
+
+            <x-bottom-sheet show="sheet" label="Practice with AI">
+                <x-slot:title>Practice with AI</x-slot:title>
+                @include('components.pair-practice.partials.day-picker', ['autoLine' => 'Your latest days', 'missions' => $this->myDays, 'keyPrefix' => 'ai'])
+                <button type="button" x-bind:disabled="mode === 'choose' && days.length === 0" x-on:click="$wire.startWithAi(mode === 'auto' ? null : days); sheet = false" class="block w-full cursor-pointer rounded-full bg-accent px-4 py-3 text-sm font-semibold text-white disabled:opacity-40 dark:bg-accent-dark">Start</button>
+            </x-bottom-sheet>
+        @endif
+    </div>
 
     @forelse ($this->pairs as $pair)
         @php

@@ -269,6 +269,53 @@ class PairPractice
             return null;
         }
 
+        ['deck' => $deck, 'latest' => $latest, 'chosen' => $chosen] = $this->drawCards($starter, $friend, $shared, $days);
+        $deck['game_pick'] = app(PairGames::class)->practiceOrder($starter, $friend)[0];
+
+        [$lowId, $highId] = $starter->id < $friend->id ? [$starter->id, $friend->id] : [$friend->id, $starter->id];
+
+        return PairPracticeSession::create([
+            'user_a_id' => $lowId,
+            'user_b_id' => $highId,
+            'started_by_id' => $starter->id,
+            'mission_code' => $latest['mission']->code,
+            'day_number' => $latest['day'],
+            'days' => $chosen->isNotEmpty() ? $chosen->keys()->values()->all() : null,
+            'deck' => $deck,
+            'results' => [],
+            'stage' => PairPracticeSession::STAGE_WAITING,
+        ]);
+    }
+
+    /**
+     * The cards of a round with the AI, drawn the same way from the days
+     * the learner finished. Null with no finished day.
+     *
+     * @param  list<string>|null  $days
+     * @return array{cards: array<string, list<array<string, mixed>>>, days: list<string>|null}|null
+     */
+    public function soloDeck(User $learner, ?array $days = null): ?array
+    {
+        $learned = $this->learnedDays($learner);
+
+        if ($learned->isEmpty()) {
+            return null;
+        }
+
+        ['deck' => $deck, 'chosen' => $chosen] = $this->drawCards($learner, $learner, $learned, $days);
+
+        return ['cards' => $deck, 'days' => $chosen->isNotEmpty() ? $chosen->keys()->values()->all() : null];
+    }
+
+    /**
+     * The word, grammar and speaking cards of a round.
+     *
+     * @param  Collection<string, array{mission: Mission, day: int, completedAt: ?Carbon}>  $shared
+     * @param  list<string>|null  $days
+     * @return array{deck: array<string, list<array<string, mixed>>>, latest: array{mission: Mission, day: int}, chosen: Collection<string, array{mission: Mission, day: int, completedAt: ?Carbon}>}
+     */
+    private function drawCards(User $starter, User $friend, Collection $shared, ?array $days): array
+    {
         $chosen = $days === null ? collect() : $shared->only($days);
         $history = $this->recentHistory($starter, $friend);
         $authoredSpeaking = self::SPEAKING_CARDS - self::WORD_TALK_CARDS;
@@ -297,24 +344,10 @@ class PairPractice
             ];
         }
 
-        $deck[PairPracticeSession::STAGE_GRAMMAR] = $this->withOwnErrors($deck[PairPracticeSession::STAGE_GRAMMAR], [$starter, $friend], $chosen->isNotEmpty() ? $chosen : $shared, $history);
+        $deck[PairPracticeSession::STAGE_GRAMMAR] = $this->withOwnErrors($deck[PairPracticeSession::STAGE_GRAMMAR], collect([$starter, $friend])->unique('id')->all(), $chosen->isNotEmpty() ? $chosen : $shared, $history);
         $deck[PairPracticeSession::STAGE_SPEAKING] = $this->withWordTalks($deck[PairPracticeSession::STAGE_SPEAKING], $deck[PairPracticeSession::STAGE_VOCABULARY]);
 
-        $deck['game_pick'] = app(PairGames::class)->practiceOrder($starter, $friend)[0];
-
-        [$lowId, $highId] = $starter->id < $friend->id ? [$starter->id, $friend->id] : [$friend->id, $starter->id];
-
-        return PairPracticeSession::create([
-            'user_a_id' => $lowId,
-            'user_b_id' => $highId,
-            'started_by_id' => $starter->id,
-            'mission_code' => $latest['mission']->code,
-            'day_number' => $latest['day'],
-            'days' => $chosen->isNotEmpty() ? $chosen->keys()->values()->all() : null,
-            'deck' => $deck,
-            'results' => [],
-            'stage' => PairPracticeSession::STAGE_WAITING,
-        ]);
+        return ['deck' => $deck, 'latest' => $latest, 'chosen' => $chosen];
     }
 
     /**

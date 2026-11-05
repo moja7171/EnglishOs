@@ -1,7 +1,6 @@
 {{--
     Reads $text aloud (window.eosVoice, SpeechSynthesis — see resources/js/app.js)
-    only when the learner explicitly clicks it — the AI Instructor never
-    speaks on its own anywhere in the app, only on request.
+    only when the learner explicitly clicks it.
 
     @param string|null $text The question/prompt to speak.
 --}}

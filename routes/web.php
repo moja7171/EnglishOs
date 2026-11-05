@@ -7,6 +7,7 @@ use App\Http\Controllers\DictionaryPersianController;
 use App\Http\Controllers\ListeningAudioController;
 use App\Http\Controllers\ServiceHealthController;
 use App\Http\Controllers\VocabularyWordController;
+use App\Models\AiPractice;
 use App\Models\DirectMessage;
 use App\Models\InstructorMessage;
 use App\Models\Mission;
@@ -214,6 +215,13 @@ Route::middleware(['auth', 'session.absolute_timeout', 'ai_keys.saved'])->group(
 
         return view('pair-practice-session', compact('session'));
     })->name('pair-practice.show');
+
+    // Practice with the AI as a classmate, when no friend is around.
+    Route::get('/practice-ai/{practice}', function (AiPractice $practice) {
+        abort_unless($practice->learner_id === auth()->id(), 403);
+
+        return view('ai-practice', compact('practice'));
+    })->name('ai-practice.show');
 
     // Games: two friends, each on their own phone, 5 or 10 minutes of one
     // game. The photo-tile list, one game's setup (friend + length) and
