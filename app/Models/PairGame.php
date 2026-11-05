@@ -109,6 +109,14 @@ class PairGame extends Model
     public const LENGTHS = [5, 10];
 
     /**
+     * Games whose cards come from mission days, so the two can choose
+     * them; Who am I and Two Truths draw on general topics instead.
+     *
+     * @var list<string>
+     */
+    public const DAY_BASED = [self::GAME_TABOO, self::GAME_MINUTE, self::GAME_STORY, self::GAME_ROLE, self::GAME_RATHER];
+
+    /**
      * A game's tile on the Games page: its name, one line, what it trains
      * and its photo (public/images/games/<slug>.jpg, from Pexels).
      *

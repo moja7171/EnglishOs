@@ -12,6 +12,7 @@ use App\Notifications\PairGameInvite;
 use App\Services\GeminiClient;
 use App\Services\GroqClient;
 use App\Services\JustAMinuteDeck;
+use App\Services\PairGames;
 use App\Services\RolePlayDeck;
 use App\Services\StoryChainDeck;
 use App\Services\TabooDeck;
@@ -1109,5 +1110,86 @@ class PairGameTest extends TestCase
 
         Livewire::test('usage-guide', ['guide' => 'game_taboo', 'auto' => false])->assertSet('opensByItself', false);
         $this->get(route('games.play', $pairGame))->assertOk()->assertSee('How to play');
+    }
+
+    /**
+     * Me and a mutual friend who both finished M01 Day 1 and M02 Day 1;
+     * only I finished M03 Day 1.
+     *
+     * @return array{User, User}
+     */
+    private function friendsSharingTwoDays(): array
+    {
+        $me = User::factory()->create();
+        $friend = $this->makeMutualFriend($me);
+
+        foreach (['M01' => ['apple'], 'M02' => ['river']] as $code => $words) {
+            $mission = $this->makeMission($code, $words);
+            $this->finishDayOne($me, $mission);
+            $this->finishDayOne($friend, $mission);
+        }
+
+        $this->finishDayOne($me, $this->makeMission('M03', ['mountain']));
+
+        return [$me, $friend];
+    }
+
+    public function test_a_game_never_uses_a_day_only_one_of_the_two_finished(): void
+    {
+        [$me, $friend] = $this->friendsSharingTwoDays();
+
+        $pairGame = app(PairGames::class)->start($me, $friend, PairGame::GAME_TABOO, 5);
+
+        $this->assertEqualsCanonicalizing(['apple', 'river'], collect($pairGame->deck)->pluck('word')->all());
+    }
+
+    public function test_chosen_days_give_only_those_days_words_and_play_again_keeps_them(): void
+    {
+        [$me, $friend] = $this->friendsSharingTwoDays();
+        $this->actingAs($me);
+
+        Livewire::test('games.setup', ['game' => 'taboo'])
+            ->set('friend', $friend->id)
+            ->set('dayMode', 'choose')
+            ->set('days', ['M02-1'])
+            ->call('play');
+
+        $pairGame = PairGame::latest('id')->first();
+        $this->assertSame(['river'], collect($pairGame->deck)->pluck('word')->all());
+        $this->assertSame(['M02-1'], $pairGame->rules['days']);
+
+        $pairGame->update(['stage' => PairGame::STAGE_DONE, 'finished_at' => now()]);
+        Livewire::test('games.play', ['pairGame' => $pairGame])->call('playAgain');
+        $this->assertSame(['M02-1'], PairGame::latest('id')->first()->rules['days']);
+    }
+
+    public function test_a_day_the_friend_did_not_finish_cannot_be_chosen(): void
+    {
+        [$me, $friend] = $this->friendsSharingTwoDays();
+
+        $pairGame = app(PairGames::class)->start($me, $friend, PairGame::GAME_TABOO, 5, ['M03-1']);
+
+        $this->assertNotContains('mountain', collect($pairGame->deck)->pluck('word')->all());
+    }
+
+    public function test_two_friends_with_no_shared_day_start_from_the_first_day(): void
+    {
+        $me = User::factory()->create();
+        $friend = $this->makeMutualFriend($me);
+        $this->makeMission('M01', ['apple']);
+        $this->finishDayOne($me, $this->makeMission('M02', ['river']));
+
+        $pairGame = app(PairGames::class)->start($me, $friend, PairGame::GAME_TABOO, 5);
+
+        $this->assertSame(['apple'], collect($pairGame->deck)->pluck('word')->all());
+    }
+
+    public function test_only_games_built_on_mission_days_offer_choose_days(): void
+    {
+        [$me, $friend] = $this->friendsSharingTwoDays();
+        $this->actingAs($me);
+
+        Livewire::test('games.setup', ['game' => 'taboo', 'friend' => $friend->id])->assertSee('Choose days');
+        Livewire::test('games.setup', ['game' => 'who-am-i', 'friend' => $friend->id])->assertDontSee('Choose days');
     }
 }

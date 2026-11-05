@@ -39,7 +39,9 @@ class RolePlayDeck
      */
     public function cardsFor(User $a, User $b, array $rules): array
     {
-        $codes = $this->pairPractice->sharedDays($a, $b)->map(fn (array $day) => $day['mission']->code)->unique()->values();
+        $shared = $this->pairPractice->sharedDays($a, $b);
+        $picked = $shared->only($rules['days'] ?? []);
+        $codes = ($picked->isNotEmpty() ? $picked : $shared)->map(fn (array $day) => $day['mission']->code)->unique()->values();
 
         if ($codes->isEmpty()) {
             $codes = collect(array_keys(config('role_play', [])))->filter(fn (string $code) => (int) substr($code, 1) <= max(1, $rules['level']))->values();

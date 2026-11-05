@@ -15,7 +15,10 @@ class PairGames
 {
     public function __construct(private readonly TabooDeck $taboo, private readonly WhoAmIDeck $whoAmI, private readonly JustAMinuteDeck $justAMinute, private readonly StoryChainDeck $storyChain, private readonly RolePlayDeck $rolePlay, private readonly TwoTruthsDeck $twoTruths, private readonly WouldYouRatherDeck $wouldYouRather) {}
 
-    public function start(User $starter, User $friend, string $game, int $minutes): ?PairGame
+    /**
+     * @param  list<string>|null  $days  chosen mission days ("M03-2"); null = every day both finished
+     */
+    public function start(User $starter, User $friend, string $game, int $minutes, ?array $days = null): ?PairGame
     {
         if (! in_array($game, PairGame::PLAYABLE, true) || ! in_array($minutes, PairGame::LENGTHS, true)) {
             return null;
@@ -38,7 +41,7 @@ class PairGames
             PairGame::GAME_RATHER => $this->wouldYouRather,
             default => $this->taboo,
         };
-        $rules = $deckMaker->rulesFor($starter, $friend, $minutes);
+        $rules = [...$deckMaker->rulesFor($starter, $friend, $minutes), 'days' => $days ?: null];
         $deck = $deckMaker->cardsFor($starter, $friend, $rules);
 
         if ($deck === []) {

@@ -52,15 +52,7 @@ class JustAMinuteDeck
      */
     public function cardsFor(User $a, User $b, array $rules): array
     {
-        $days = $this->pairPractice->sharedDays($a, $b);
-
-        if ($days->isEmpty()) {
-            $days = $this->pairPractice->learnedDays($a)->union($this->pairPractice->learnedDays($b));
-        }
-
-        if ($days->isEmpty() && $first = Mission::where('code', 'M01')->first()) {
-            $days = collect(['M01-1' => ['mission' => $first, 'day' => 1]]);
-        }
+        $days = $this->pairPractice->gameDays($a, $b, $rules['days'] ?? null);
 
         $recent = PairGame::forPair($a, $b)->where('game', PairGame::GAME_MINUTE)->where('created_at', '>=', now()->subDay())->get()
             ->flatMap(fn (PairGame $game) => collect($game->playedCards())->pluck('word'))

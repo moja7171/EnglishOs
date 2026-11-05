@@ -85,15 +85,17 @@ class TabooDeck
 
     /**
      * The cards: shared mission words and both notebooks, mixed, the
-     * pair's recently played words last.
+     * pair's recently played words last. Chosen days mean only those
+     * days' words.
      *
-     * @param  array{turns: int, bonus: bool}  $rules
+     * @param  array{turns: int, bonus: bool, days?: ?list<string>}  $rules
      * @return list<array{word: string, source: string, bonus: list<string>, key: string}>
      */
     public function cardsFor(User $a, User $b, array $rules): array
     {
         $recent = $this->recentlyPlayed($a, $b);
-        $words = $this->missionWords($a, $b)->concat($this->notebookWords($a))->concat($this->notebookWords($b))
+        $notebooks = ($rules['days'] ?? null) === null ? $this->notebookWords($a)->concat($this->notebookWords($b)) : collect();
+        $words = $this->missionWords($a, $b, $rules['days'] ?? null)->concat($notebooks)
             ->unique('key')
             ->shuffle()
             ->sortBy(fn (array $card) => isset($recent[$card['key']]) ? 1 : 0)
@@ -111,22 +113,14 @@ class TabooDeck
     }
 
     /**
-     * Words of the mission days both finished — or, when they share none
-     * yet, of the days either finished (M01 Day 1 for two newcomers).
+     * Words of the days the game draws from (see PairPractice::gameDays()).
      *
+     * @param  list<string>|null  $chosen
      * @return Collection<int, array{word: string, source: string, key: string}>
      */
-    private function missionWords(User $a, User $b): Collection
+    private function missionWords(User $a, User $b, ?array $chosen): Collection
     {
-        $days = $this->pairPractice->sharedDays($a, $b);
-
-        if ($days->isEmpty()) {
-            $days = $this->pairPractice->learnedDays($a)->union($this->pairPractice->learnedDays($b));
-        }
-
-        if ($days->isEmpty() && $first = Mission::where('code', 'M01')->first()) {
-            $days = collect(['M01-1' => ['mission' => $first, 'day' => 1]]);
-        }
+        $days = $this->pairPractice->gameDays($a, $b, $chosen);
 
         return $days->flatMap(fn (array $day) => collect($this->pairPractice->dayContent($day['mission'], $day['day'])['vocabulary'])
             ->map(fn (array $card) => [

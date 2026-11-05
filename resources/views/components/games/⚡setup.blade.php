@@ -3,6 +3,7 @@
 use App\Models\PairGame;
 use App\Models\User;
 use App\Services\PairGames;
+use App\Services\PairPractice;
 use App\Services\TabooDeck;
 use App\Services\JustAMinuteDeck;
 use App\Services\RolePlayDeck;
@@ -28,6 +29,12 @@ new class extends Component
 
     #[Url]
     public int $minutes = 5;
+
+    /** "auto" = every day both finished, "choose" = the days picked below. */
+    public string $dayMode = 'auto';
+
+    /** @var list<string> */
+    public array $days = [];
 
     public function mount(string $game): void
     {
@@ -112,7 +119,27 @@ new class extends Component
 
     public function updatedFriend(): void
     {
-        unset($this->friends);
+        $this->dayMode = 'auto';
+        $this->days = [];
+        unset($this->friends, $this->dayChoices);
+    }
+
+    /**
+     * The days to pick from with the friend on screen.
+     *
+     * @return list<array{code: string, days: list<array{key: string, day: int, shared: bool}>}>
+     */
+    #[Computed]
+    public function dayChoices(): array
+    {
+        $friend = $this->allFriends->firstWhere('id', $this->friend);
+
+        return $friend ? app(PairPractice::class)->dayChoices(auth()->user(), $friend) : [];
+    }
+
+    public function usesDays(): bool
+    {
+        return in_array($this->game, PairGame::DAY_BASED, true) && collect($this->dayChoices)->flatMap(fn (array $mission) => $mission['days'])->contains('shared', true);
     }
 
     /**
@@ -125,7 +152,9 @@ new class extends Component
 
         abort_unless(auth()->user()->canMessageWith($friend), 403);
 
-        $pairGame = app(PairGames::class)->start(auth()->user(), $friend, $this->game, $this->minutes);
+        $days = $this->dayMode === 'choose' && $this->usesDays() ? array_values(array_filter($this->days, 'is_string')) : null;
+
+        $pairGame = app(PairGames::class)->start(auth()->user(), $friend, $this->game, $this->minutes, $days);
 
         if ($pairGame) {
             $this->redirectRoute('games.play', $pairGame, navigate: true);
@@ -227,6 +256,28 @@ new class extends Component
                     @endforeach
                 </div>
             </div>
+
+            @if ($this->usesDays())
+                <div
+                    wire:key="days-{{ $friend }}"
+                    x-data="{
+                        mode: $wire.entangle('dayMode'),
+                        days: $wire.entangle('days'),
+                        toggle(key) {
+                            this.days = this.days.includes(key) ? this.days.filter((day) => day !== key) : [...this.days, key];
+                        },
+                        toggleAll(keys) {
+                            this.days = keys.every((key) => this.days.includes(key))
+                                ? this.days.filter((day) => ! keys.includes(day))
+                                : [...new Set([...this.days, ...keys])];
+                        },
+                    }"
+                    class="space-y-2"
+                >
+                    <p class="text-xs font-extrabold tracking-wider text-ink-faint uppercase dark:text-ink-faint-dark">Days</p>
+                    @include('components.pair-practice.partials.day-picker', ['autoLine' => 'All the days you both finished', 'missions' => $this->dayChoices, 'keyPrefix' => $friend])
+                </div>
+            @endif
 
             @include('components.games.partials.voice-switch', ['voiceOn' => auth()->user()->games_voice_feedback])
 

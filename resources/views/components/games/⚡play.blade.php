@@ -208,7 +208,7 @@ new class extends Component
 
         abort_unless($me->canMessageWith($friend), 403);
 
-        $next = app(PairGames::class)->start($me, $friend, $this->pairGame->game, $this->pairGame->minutes);
+        $next = app(PairGames::class)->start($me, $friend, $this->pairGame->game, $this->pairGame->minutes, $this->pairGame->rules['days'] ?? null);
 
         if ($next) {
             $this->redirectRoute('games.play', $next, navigate: true);

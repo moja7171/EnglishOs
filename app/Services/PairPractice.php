@@ -115,6 +115,53 @@ class PairPractice
     }
 
     /**
+     * The days a game draws from: the chosen ones, otherwise every day
+     * both finished. Two friends who share no day yet start from M01 Day 1.
+     *
+     * @param  list<string>|null  $chosen  keys like "M03-2"
+     * @return Collection<string, array{mission: Mission, day: int, completedAt?: ?Carbon}>
+     */
+    public function gameDays(User $a, User $b, ?array $chosen = null): Collection
+    {
+        $shared = $this->sharedDays($a, $b);
+        $picked = $chosen === null ? collect() : $shared->only($chosen);
+        $days = $picked->isNotEmpty() ? $picked : $shared;
+
+        if ($days->isEmpty() && $first = Mission::where('code', 'M01')->first()) {
+            return collect(['M01-1' => ['mission' => $first, 'day' => 1]]);
+        }
+
+        return $days;
+    }
+
+    /**
+     * Every day either of the two finished, newest mission first, for
+     * "Choose days": only a day both finished can be picked.
+     *
+     * @return list<array{code: string, days: list<array{key: string, day: int, shared: bool}>}>
+     */
+    public function dayChoices(User $me, User $friend): array
+    {
+        $mine = $this->learnedDays($me);
+        $theirs = $this->learnedDays($friend);
+        $shared = $mine->intersectByKeys($theirs);
+
+        return $mine->union($theirs)
+            ->sortByDesc(fn (array $day) => $day['mission']->number() * 10 + $day['day'])
+            ->groupBy(fn (array $day) => $day['mission']->code)
+            ->map(fn ($days, string $code) => [
+                'code' => $code,
+                'days' => $days->sortBy('day')->map(fn (array $day) => [
+                    'key' => self::dayKey($day['mission'], $day['day']),
+                    'day' => $day['day'],
+                    'shared' => $shared->has(self::dayKey($day['mission'], $day['day'])),
+                ])->values()->all(),
+            ])
+            ->values()
+            ->all();
+    }
+
+    /**
      * Steps done out of the steps in today's mission day.
      *
      * @return array{done: int, total: int, finished: bool}
