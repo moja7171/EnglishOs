@@ -5,17 +5,23 @@ namespace App\Services;
 use RuntimeException;
 
 /**
- * The AI as a classmate: what it says in a game. It talks like a student
- * at the learner's own level, in short, correct sentences, and never
- * teaches. Card answers need no AI: they are the deck's own sentences.
+ * Tara, the AI classmate: what she says in a game. She talks like a
+ * student at the learner's own level, in short, correct sentences, and
+ * never teaches. Card answers need no AI: they are the deck's own
+ * sentences. Her made-up life is the same in every game.
  */
 class AiPartner
 {
+    public const NAME = 'Tara';
+
+    private const PERSONA = 'You are Tara, a cheerful, talkative young woman who loves travel and food. You live in Shiraz with your parents '
+        .'and your little brother, you work part-time at a small travel agency, and you are learning English too.';
+
     public function __construct(private readonly GeminiClient $gemini) {}
 
     private function classmate(string $learnerDescription): string
     {
-        return "You are a friendly classmate of {$learnerDescription}, at the same level. Use short, simple, correct English. Never teach or correct.";
+        return self::PERSONA." You are a classmate of {$learnerDescription}, at the same level. Use short, simple, correct English and sound warm. Never teach or correct.";
     }
 
     /**

@@ -369,6 +369,26 @@ new class extends Component
             </button>
         @endif
 
+        {{-- Tara always, then who practised today with a green ring. --}}
+        <div class="-mx-4 flex gap-3 overflow-x-auto px-4 pt-2 pb-1" aria-label="Today">
+            <a href="{{ route('friends.tara') }}" wire:navigate class="flex w-14 shrink-0 flex-col items-center gap-1 text-[11px] font-bold text-ink-soft dark:text-ink-soft-dark">
+                <span class="relative rounded-full ring-[2.5px] ring-accent ring-offset-2 ring-offset-ground dark:ring-accent-dark dark:ring-offset-ground-dark">
+                    <x-tara-avatar class="h-12 w-12" />
+                    <span class="absolute -right-1 -bottom-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-accent text-white dark:bg-accent-dark">@svg('heroicon-s-sparkles', 'h-3 w-3')</span>
+                </span>
+                <span class="w-full truncate text-center">Tara</span>
+            </a>
+            @foreach ($activeToday as $row)
+                <a href="{{ route('friends.conversation', $row['friend']) }}" wire:navigate wire:key="today-{{ $row['friend']->id }}" class="flex w-14 shrink-0 flex-col items-center gap-1 text-[11px] font-bold text-ink-soft dark:text-ink-soft-dark">
+                    <span class="relative rounded-full ring-[2.5px] ring-success ring-offset-2 ring-offset-ground dark:ring-success-dark dark:ring-offset-ground-dark">
+                        <x-user-avatar :user="$row['friend']" class="h-12 w-12 text-sm" />
+                        <span class="sr-only">practiced today</span>
+                    </span>
+                    <span class="w-full truncate text-center">{{ $row['friend']->name }}</span>
+                </a>
+            @endforeach
+        </div>
+
         @if ($invited = $this->invitedPerson)
             <div wire:key="invited-{{ $invited->id }}" class="flex items-center gap-3 rounded-2xl bg-surface px-3 py-2.5 shadow-sm dark:bg-surface-dark">
                 <x-user-avatar :user="$invited" class="h-10 w-10 text-xs" />
@@ -386,21 +406,6 @@ new class extends Component
                 <p class="text-lg font-extrabold text-ink dark:text-ink-dark">Practice is better with a friend</p>
                 <p class="text-sm font-semibold text-ink-faint dark:text-ink-faint-dark">Find a classmate by name or @username.</p>
                 <button type="button" x-on:click="adding = true; $nextTick(() => $refs.search.focus())" class="mt-2 w-full cursor-pointer rounded-2xl bg-accent px-5 py-3.5 text-base font-extrabold text-white shadow-sm hover:opacity-90 dark:bg-accent-dark">Add a friend</button>
-            </div>
-        @endif
-
-        @if ($activeToday->isNotEmpty())
-            {{-- Who practised today: a green ring. --}}
-            <div class="-mx-4 flex gap-3 overflow-x-auto px-4 pt-2 pb-1" aria-label="Today">
-                @foreach ($activeToday as $row)
-                    <a href="{{ route('friends.conversation', $row['friend']) }}" wire:navigate wire:key="today-{{ $row['friend']->id }}" class="flex w-14 shrink-0 flex-col items-center gap-1 text-[11px] font-bold text-ink-soft dark:text-ink-soft-dark">
-                        <span class="relative rounded-full ring-[2.5px] ring-success ring-offset-2 ring-offset-ground dark:ring-success-dark dark:ring-offset-ground-dark">
-                            <x-user-avatar :user="$row['friend']" class="h-12 w-12 text-sm" />
-                            <span class="sr-only">practiced today</span>
-                        </span>
-                        <span class="w-full truncate text-center">{{ $row['friend']->name }}</span>
-                    </a>
-                @endforeach
             </div>
         @endif
 

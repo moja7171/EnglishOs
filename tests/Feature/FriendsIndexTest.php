@@ -414,7 +414,7 @@ class FriendsIndexTest extends TestCase
         $this->friendOf($me);
         $this->actingAs($me);
 
-        Livewire::test('friends.index')->assertDontSee('aria-label="Today"', false);
+        Livewire::test('friends.index')->assertSee('Tara')->assertDontSee('practiced today');
     }
 
     public function test_the_lesson_friend_picker_lists_the_latest_partner_first_with_usernames(): void

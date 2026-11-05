@@ -7,7 +7,7 @@ use App\Models\PairGame;
 use App\Models\User;
 
 /**
- * Starting a practice with the AI: the learner's open one is picked up,
+ * Starting a practice with Tara: the learner's open one is picked up,
  * otherwise a new one is drawn from the days they finished.
  */
 class AiPractices
@@ -43,10 +43,7 @@ class AiPractices
             return null;
         }
 
-        $practice = new AiPractice(['deck' => [
-            ...$deck['cards'],
-            'game' => $this->gameDeck($learner, $this->nextGame($learner), $deck['days'], inRound: true),
-        ]]);
+        $practice = new AiPractice(['deck' => [...$deck['cards'], 'game' => $this->roundGame($learner, $deck['days'])]]);
 
         return $practice->stages() === [] ? null : $this->create($learner, $kind, $deck['days'], $practice->deck, $practice->stages()[0]);
     }
@@ -61,13 +58,28 @@ class AiPractices
     }
 
     /**
-     * The game a round ends with: not the one the last round ended with.
+     * The game a round ends with: the one after the last round's, skipping
+     * any the chosen days have no cards for.
+     *
+     * @param  list<string>|null  $days
+     * @return array{game: string, cards: list<array<string, mixed>>}
      */
-    private function nextGame(User $learner): string
+    private function roundGame(User $learner, ?array $days): array
     {
         $last = AiPractice::where('learner_id', $learner->id)->where('kind', AiPractice::KIND_PRACTICE)->latest('id')->first()?->game();
+        $after = array_search($last, AiPractice::GAMES, true);
+        $games = collect(AiPractice::GAMES);
+        $inTurn = $after === false ? $games : $games->slice($after + 1)->concat($games->take($after + 1));
 
-        return collect(AiPractice::GAMES)->first(fn (string $game) => $game !== $last);
+        foreach ($inTurn as $game) {
+            $deck = $this->gameDeck($learner, $game, $days, inRound: true);
+
+            if ($deck['cards'] !== []) {
+                return $deck;
+            }
+        }
+
+        return ['game' => AiPractice::GAMES[0], 'cards' => []];
     }
 
     /**

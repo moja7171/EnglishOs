@@ -1,7 +1,7 @@
 {{--
-    A word, grammar or speaking card with the AI. On the learner's turn they
-    answer aloud and the AI checks it; on the AI's turn it says the deck's
-    answer and the learner listens. Needs $practice, $card, $current, $stage.
+    A word, grammar or speaking card with Tara. On the learner's turn they
+    answer aloud and Tara checks it; on her turn she says the deck's answer
+    and the learner listens. Needs $practice, $card, $current, $stage.
 --}}
 @php
     $mine = $practice->learnerAnswers();
@@ -22,8 +22,8 @@
         </div>
     @else
         <div class="flex items-center gap-2 bg-surface-sunken px-5 py-3 dark:bg-surface-sunken-dark">
-            @svg('heroicon-o-sparkles', 'h-5 w-5 text-ink-soft dark:text-ink-soft-dark')
-            <p class="text-sm font-bold text-ink dark:text-ink-dark">AI’S TURN <span class="font-semibold text-ink-soft dark:text-ink-soft-dark">— listen</span></p>
+            <x-tara-avatar class="h-6 w-6" />
+            <p class="text-sm font-bold text-ink dark:text-ink-dark">TARA’S TURN <span class="font-semibold text-ink-soft dark:text-ink-soft-dark">— listen</span></p>
         </div>
     @endif
 

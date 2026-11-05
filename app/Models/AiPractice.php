@@ -11,11 +11,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * One practice with the AI as a classmate at the learner's level: a Pair
+ * One practice with Tara, the AI classmate at the learner's level: a Pair
  * Practice round's cards and game, or just one game. Turn about, with no
- * judging: the learner answers a card and the AI checks it, the next card
- * the AI answers and the learner listens. It is the learner's own practice:
- * it counts for their day, never for a pair's streak, the board, badges or
+ * judging: the learner answers a card and she checks it, the next card she
+ * answers and the learner listens. It is the learner's own practice: it
+ * counts for their day, never for a pair's streak, the board, badges or
  * records.
  */
 #[Fillable(['learner_id', 'kind', 'days', 'deck', 'stage', 'position', 'current', 'answered', 'score', 'finished_at'])]

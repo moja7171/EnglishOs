@@ -193,6 +193,11 @@ Route::middleware(['auth', 'session.absolute_timeout', 'ai_keys.saved'])->group(
         return view('friends-board');
     })->name('friends.board');
 
+    // Tara, the AI classmate: not a friend row, just her page in the friends' strip.
+    Route::get('/friends/tara', function () {
+        return view('friends-tara');
+    })->name('friends.tara');
+
     // A friend's page (or my own): their week, mission days and month,
     // what each day held, and what the two of us played. Mutual friends
     // only; counts and dates, never an answer.
@@ -216,7 +221,7 @@ Route::middleware(['auth', 'session.absolute_timeout', 'ai_keys.saved'])->group(
         return view('pair-practice-session', compact('session'));
     })->name('pair-practice.show');
 
-    // Practice with the AI as a classmate, when no friend is around.
+    // Practice with Tara, the AI classmate, when no friend is around.
     Route::get('/practice-ai/{practice}', function (AiPractice $practice) {
         abort_unless($practice->learner_id === auth()->id(), 403);
 

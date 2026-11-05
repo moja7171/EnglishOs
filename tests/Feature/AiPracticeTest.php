@@ -90,7 +90,7 @@ class AiPracticeTest extends TestCase
         $this->assertNull(app(AiPractices::class)->start($learner, AiPractice::KIND_PRACTICE));
 
         $this->actingAs($learner);
-        Livewire::test('pair-practice.index')->assertSee('Practice with AI')->assertSee('Your voice is recorded')->assertSee('Finish a day first');
+        Livewire::test('pair-practice.index')->assertSee('Tara')->assertSee('Your voice is recorded')->assertSee('Finish a day first');
     }
 
     public function test_the_open_practice_is_picked_up_and_a_new_round_ends_with_the_other_game(): void
@@ -119,7 +119,7 @@ class AiPracticeTest extends TestCase
         Livewire::test('ai-practice.session', ['practice' => $practice])
             ->assertSee('YOUR TURN')
             ->call('next')
-            ->assertSee('AI’S TURN')
+            ->assertSee('TARA’S TURN')
             ->assertSee('lunch');
 
         $this->assertFalse($practice->refresh()->learnerAnswers());
@@ -249,7 +249,7 @@ class AiPracticeTest extends TestCase
             ->call('answerAi', 'yes')
             ->assertSee('Are you a cat?')
             ->call('aiGotIt')
-            ->assertSee('The AI got it!');
+            ->assertSee('Tara got it!');
 
         $this->assertSame(1, $practice->refresh()->score);
         $component->call('next')->assertSee('Well done!');
@@ -306,6 +306,55 @@ class AiPracticeTest extends TestCase
         $this->assertSame(0, DayActivity::count());
     }
 
+    public function test_tara_is_at_the_top_of_friends_even_with_no_friends_and_is_not_a_friend(): void
+    {
+        $learner = $this->learnerWithAFinishedDay();
+        $this->actingAs($learner);
+
+        Livewire::test('friends.index')->assertSee('Tara')->assertSeeHtml(route('friends.tara'));
+
+        $this->assertSame(0, $learner->following()->count());
+    }
+
+    public function test_tara_s_page_starts_a_round_and_a_game_and_says_so_when_nothing_is_finished(): void
+    {
+        $learner = $this->learnerWithAFinishedDay();
+        $this->actingAs($learner);
+        $this->get(route('friends.tara'))->assertOk()->assertSee('Your AI classmate')->assertSee('Who am I?');
+
+        Livewire::test('friends.tara')->call('start', PairGame::GAME_WHO)->assertRedirect();
+        $this->assertSame(PairGame::GAME_WHO, AiPractice::latest('id')->first()->kind);
+
+        Livewire::test('friends.tara')->call('start', AiPractice::KIND_PRACTICE)->assertRedirect();
+        $this->assertSame(AiPractice::KIND_PRACTICE, AiPractice::latest('id')->first()->kind);
+
+        $this->actingAs(User::factory()->create());
+        Livewire::test('friends.tara')->call('start', AiPractice::KIND_PRACTICE)->assertSee('Finish a day first.');
+    }
+
+    public function test_tara_s_page_refuses_a_game_she_cannot_play(): void
+    {
+        $this->actingAs($this->learnerWithAFinishedDay());
+
+        Livewire::test('friends.tara')->call('start', PairGame::GAME_ROLE)->assertNotFound();
+
+        $this->assertSame(0, AiPractice::count());
+    }
+
+    public function test_rounds_take_the_games_in_turn_and_the_list_wraps_around(): void
+    {
+        $learner = $this->learnerWithAFinishedDay();
+        $played = [];
+
+        foreach (range(0, count(AiPractice::GAMES)) as $round) {
+            $practice = app(AiPractices::class)->start($learner, AiPractice::KIND_PRACTICE);
+            $played[] = $practice->game();
+            $practice->finish();
+        }
+
+        $this->assertNotSame($played[0], $played[1]);
+    }
+
     public function test_someone_elses_practice_cannot_be_opened(): void
     {
         $practice = AiPractice::factory()->create();
@@ -314,15 +363,15 @@ class AiPracticeTest extends TestCase
         $this->actingAs($practice->learner)->get(route('ai-practice.show', $practice))->assertOk();
     }
 
-    public function test_only_the_two_games_the_ai_can_play_offer_it(): void
+    public function test_tara_is_offered_only_on_the_games_she_can_play(): void
     {
         $learner = $this->learnerWithAFinishedDay();
         $this->actingAs($learner);
 
-        Livewire::test('games.setup', ['game' => PairGame::GAME_WHO])->assertSee('Play with AI')->call('playWithAi');
+        Livewire::test('games.setup', ['game' => PairGame::GAME_WHO])->assertSee('Tara')->call('playWithAi');
         $this->assertSame(PairGame::GAME_WHO, AiPractice::latest('id')->first()->kind);
 
-        Livewire::test('games.setup', ['game' => PairGame::GAME_RATHER])->assertSee('Play with AI');
-        Livewire::test('games.setup', ['game' => PairGame::GAME_TABOO])->assertDontSee('Play with AI');
+        Livewire::test('games.setup', ['game' => PairGame::GAME_RATHER])->assertSee('With Tara your voice is recorded');
+        Livewire::test('games.setup', ['game' => PairGame::GAME_ROLE])->assertDontSee('With Tara');
     }
 }

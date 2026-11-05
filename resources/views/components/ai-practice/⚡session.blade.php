@@ -267,7 +267,7 @@ new class extends Component
     $current = $practice->current;
     $game = $practice->game();
     $partLabels = [AiPractice::STAGE_VOCABULARY => 'Words', AiPractice::STAGE_GRAMMAR => 'Grammar', AiPractice::STAGE_SPEAKING => 'Speaking', AiPractice::STAGE_GAME => $game ? PairGame::info($game)['name'] : 'Game'];
-    $backHref = $isRound ? route('pair-practice.index') : route('games.setup', $practice->kind);
+    $backHref = route('friends.tara');
 @endphp
 
 <div class="mx-auto flex min-h-dvh max-w-xl flex-col gap-4 p-4">
@@ -288,7 +288,7 @@ new class extends Component
             <a href="{{ $backHref }}" wire:navigate class="block text-sm font-semibold text-ink-soft dark:text-ink-soft-dark">Done</a>
         </div>
     @else
-        {{-- The same top bar as a round with a friend, with no clock: the AI is never in a hurry. --}}
+        {{-- The same top bar as a round with a friend, with no clock: Tara is never in a hurry. --}}
         <header class="space-y-3">
             <div class="flex items-center gap-1">
                 <button type="button" wire:click="end" wire:confirm="End this practice?" aria-label="End practice" class="-ms-2 inline-flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-soft hover:bg-surface-sunken dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">@svg('heroicon-o-x-mark', 'h-6 w-6')</button>
@@ -306,7 +306,7 @@ new class extends Component
             </div>
             <div class="flex items-center justify-between gap-2 text-[13px] font-extrabold text-ink-soft dark:text-ink-soft-dark">
                 <span>{{ $partLabels[$stage] }}</span>
-                <span class="flex items-center gap-1.5">@svg('heroicon-o-sparkles', 'h-4 w-4') With AI · {{ $practice->score }}</span>
+                <span class="flex items-center gap-1.5"><x-tara-avatar class="h-5 w-5" /> With Tara · {{ $practice->score }}</span>
             </div>
         </header>
 
