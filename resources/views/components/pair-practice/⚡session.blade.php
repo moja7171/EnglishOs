@@ -488,6 +488,7 @@ new class extends Component
                     x-bind:class="left <= 15 ? 'bg-warning-soft text-warning-ink animate-pulse' : 'bg-surface-sunken text-ink dark:bg-surface-sunken-dark dark:text-ink-dark'"
                     class="shrink-0 rounded-full px-2.5 py-1 text-sm font-extrabold tabular-nums transition-colors"
                 ></span>
+                <x-usage-guide-button />
             </div>
         </header>
 

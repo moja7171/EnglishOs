@@ -12,30 +12,30 @@
 @endphp
 
 <div class="space-y-4 p-4">
-    <div class="dark relative overflow-hidden rounded-3xl bg-surface-dark px-5 py-6 text-center text-ink-dark">
+    <div class="card relative overflow-hidden p-6 text-center">
         @if ($newRecord)
             {{-- A few confetti bits, plain shapes. --}}
             <div class="pointer-events-none absolute inset-0" aria-hidden="true">
-                @foreach ([['7%', '10%', 'bg-accent-dark', 20], ['90%', '14%', 'bg-success-dark', -25], ['14%', '30%', 'bg-warning', 40], ['84%', '32%', 'bg-accent-dark', -30], ['26%', '6%', 'bg-success-dark', 15], ['70%', '7%', 'bg-warning', -15]] as [$left, $top, $color, $turn])
+                @foreach ([['7%', '10%', 'bg-accent', 20], ['90%', '14%', 'bg-success', -25], ['14%', '30%', 'bg-warning', 40], ['84%', '32%', 'bg-accent', -30], ['26%', '6%', 'bg-success', 15], ['70%', '7%', 'bg-warning', -15]] as [$left, $top, $color, $turn])
                     <span class="animate-badge-pop absolute h-3.5 w-2 rounded-sm {{ $color }}" style="left: {{ $left }}; top: {{ $top }}; transform: rotate({{ $turn }}deg)"></span>
                 @endforeach
             </div>
         @endif
-        <p @class(['relative text-xs font-extrabold tracking-widest', 'text-accent-ink-dark' => $newRecord, 'text-ink-soft-dark' => ! $newRecord])>{{ $newRecord ? 'NEW RECORD!' : 'TEAM SCORE' }}</p>
-        <p class="animate-trophy-pop relative font-display text-7xl leading-none font-extrabold tabular-nums">{{ App\Models\PairGame::formatPoints($pairGame->score) }}</p>
-        <p class="relative mt-1 text-sm font-semibold text-ink-soft-dark">
+        <p @class(['relative text-xs font-extrabold tracking-widest', 'text-accent-ink dark:text-accent-ink-dark' => $newRecord, 'text-ink-soft dark:text-ink-soft-dark' => ! $newRecord])>{{ $newRecord ? 'NEW RECORD!' : 'TEAM SCORE' }}</p>
+        <p class="animate-trophy-pop relative font-display text-7xl leading-none font-extrabold text-ink tabular-nums dark:text-ink-dark">{{ App\Models\PairGame::formatPoints($pairGame->score) }}</p>
+        <p class="relative mt-1 text-sm font-semibold text-ink-soft dark:text-ink-soft-dark">
             points together{{ $best !== null ? ' · best '.($newRecord ? 'was ' : '').App\Models\PairGame::formatPoints($best) : '' }}
         </p>
         <div class="relative mt-4 grid grid-cols-2 gap-2 text-start">
             @foreach ([$me, $friend] as $player)
-                <div wire:key="explained-{{ $player->id }}" class="rounded-2xl bg-ground-dark/60 p-3">
-                    <p class="truncate text-xs font-bold text-ink-soft-dark">{{ $player->is($me) ? 'You' : $player->name }} {{ match ($pairGame->game) { App\Models\PairGame::GAME_WHO => 'guessed', App\Models\PairGame::GAME_TRUTHS => 'found (lies)', App\Models\PairGame::GAME_RATHER => 'guessed right', App\Models\PairGame::GAME_ROLE => 'reached (goals)', App\Models\PairGame::GAME_MINUTE, App\Models\PairGame::GAME_STORY => 'used (words)', default => 'explained' } }}</p>
-                    <p class="text-xl font-extrabold tabular-nums">{{ $pairGame->creditFor($player) }}</p>
+                <div wire:key="explained-{{ $player->id }}" class="rounded-2xl bg-surface-sunken p-3 dark:bg-surface-sunken-dark">
+                    <p class="truncate text-xs font-bold text-ink-soft dark:text-ink-soft-dark">{{ $player->is($me) ? 'You' : $player->name }} {{ match ($pairGame->game) { App\Models\PairGame::GAME_WHO => 'guessed', App\Models\PairGame::GAME_TRUTHS => 'found (lies)', App\Models\PairGame::GAME_RATHER => 'guessed right', App\Models\PairGame::GAME_ROLE => 'reached (goals)', App\Models\PairGame::GAME_MINUTE, App\Models\PairGame::GAME_STORY => 'used (words)', default => 'explained' } }}</p>
+                    <p class="text-xl font-extrabold text-ink tabular-nums dark:text-ink-dark">{{ $pairGame->creditFor($player) }}</p>
                 </div>
             @endforeach
         </div>
         @if ($pairGame->endedBy)
-            <p class="relative mt-3 text-xs text-ink-soft-dark">{{ $pairGame->endedBy->is($me) ? 'You' : $pairGame->endedBy->name }} ended the game.</p>
+            <p class="relative mt-3 text-xs text-ink-soft dark:text-ink-soft-dark">{{ $pairGame->endedBy->is($me) ? 'You' : $pairGame->endedBy->name }} ended the game.</p>
         @endif
     </div>
 
@@ -62,7 +62,7 @@
     @endif
 
     @if ($pairGame->isWouldYouRather())
-        <div class="dark space-y-3 rounded-3xl bg-ground-dark p-4">
+        <div class="card space-y-3 p-4">
             @foreach ($pairGame->turns ?? [] as $index => $questionTurn)
                 @php $asked = $questionTurn['cards'][0] ?? null; @endphp
                 @if ($asked)
@@ -90,7 +90,7 @@
     @endif
 
     @if ($pairGame->isRolePlay())
-        <div class="dark space-y-3 rounded-3xl bg-ground-dark p-4">
+        <div class="card space-y-3 p-4">
             @foreach ($pairGame->turns ?? [] as $index => $sceneTurn)
                 @include('components.games.partials.role-reveal', ['revealTurn' => $sceneTurn, 'revealIndex' => $index])
             @endforeach

@@ -413,22 +413,19 @@ new class extends Component
                     <a href="{{ route('games.setup', ['game' => $pairGame->game, 'friend' => $friend->id, 'minutes' => $pairGame->minutes]) }}" wire:navigate class="mt-3 inline-block text-sm font-semibold text-accent-ink dark:text-accent-ink-dark">Invite again ›</a>
                 </div>
             @else
-                <div class="card space-y-4 overflow-hidden p-0 text-center">
-                    <img src="{{ $info['image'] }}" alt="" class="h-36 w-full object-cover">
-                    <div class="space-y-4 px-6 pb-6">
-                        <x-user-avatar :user="$friend" class="mx-auto -mt-12 h-16 w-16 text-lg ring-4 ring-surface dark:ring-surface-dark" />
-                        <div>
-                            <p class="font-display text-xl font-bold text-ink dark:text-ink-dark">{{ $isStarter ? 'Waiting for '.$friend->name.'…' : $friend->name.' wants to play' }}</p>
-                            <p class="mt-1 text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">{{ $info['name'] }} · {{ $pairGame->minutes }} min{{ $best !== null ? ' · Best '.PairGame::formatPoints($best) : '' }}</p>
-                        </div>
-                        @unless ($isStarter)
-                            <button type="button" wire:click="join" wire:loading.attr="disabled" wire:target="join" class="block w-full cursor-pointer rounded-2xl bg-accent px-4 py-3.5 text-base font-extrabold text-white disabled:opacity-50 dark:bg-accent-dark">Join</button>
-                        @endunless
-                        @include('components.games.partials.voice-switch')
-                        <p class="text-xs text-ink-faint dark:text-ink-faint-dark">Not together? Call on any app.</p>
+                <div class="card space-y-4 p-6 text-center">
+                    <x-user-avatar :user="$friend" class="mx-auto h-16 w-16 text-lg" />
+                    <div>
+                        <p class="font-display text-xl font-bold text-ink dark:text-ink-dark">{{ $isStarter ? 'Waiting for '.$friend->name.'…' : $friend->name.' wants to play' }}</p>
+                        <p class="mt-1 text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">{{ $info['name'] }}{{ ($pairGame->rules['days'] ?? null) ? ' · '.App\Models\PairPracticeSession::describeDays($pairGame->rules['days']) : '' }} · {{ $pairGame->minutes }} min{{ $best !== null ? ' · Best '.PairGame::formatPoints($best) : '' }}</p>
                     </div>
+                    @unless ($isStarter)
+                        <button type="button" wire:click="join" wire:loading.attr="disabled" wire:target="join" class="block w-full cursor-pointer rounded-full bg-accent px-4 py-3 text-sm font-semibold text-white disabled:opacity-50 dark:bg-accent-dark">Join</button>
+                    @endunless
                 </div>
                 @include('components.games.partials.role-guide')
+                @include('components.games.partials.voice-switch')
+                <p class="text-center text-xs text-ink-faint dark:text-ink-faint-dark">Not together? Call on any app.</p>
                 <button type="button" wire:click="end" class="mx-auto block cursor-pointer text-xs font-semibold text-ink-faint hover:text-ink-soft dark:text-ink-faint-dark dark:hover:text-ink-soft-dark">Cancel</button>
             @endif
         </div>
