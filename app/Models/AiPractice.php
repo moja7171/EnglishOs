@@ -41,10 +41,13 @@ class AiPractice extends Model
     public const CARD_STAGES = [self::STAGE_VOCABULARY, self::STAGE_GRAMMAR, self::STAGE_SPEAKING];
 
     /** The games Tara can play so far. */
-    public const GAMES = [PairGame::GAME_WHO, PairGame::GAME_RATHER, PairGame::GAME_MINUTE, PairGame::GAME_STORY];
+    public const GAMES = [PairGame::GAME_WHO, PairGame::GAME_RATHER, PairGame::GAME_MINUTE, PairGame::GAME_STORY, PairGame::GAME_TRUTHS];
 
     /** Questions about one secret: fewer than with a friend, each one is an AI call. */
     public const MAX_QUESTIONS = 8;
+
+    /** Two Truths: questions the learner may ask Tara before picking her lie. */
+    public const TRUTHS_QUESTIONS = 2;
 
     /** A practice ended with fewer answers than this doesn't count for the day. */
     public const MIN_COUNTED_ANSWERS = 3;

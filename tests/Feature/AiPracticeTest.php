@@ -496,6 +496,121 @@ class AiPracticeTest extends TestCase
         $this->assertSame(2, $practice->refresh()->position);
     }
 
+    /**
+     * @return list<array<string, mixed>>
+     */
+    private function truthsCards(): array
+    {
+        return [
+            ['word' => 'Your family', 'hint' => 'My brother is…', 'source' => 'Two Truths'],
+            ['word' => 'Your hobbies', 'hint' => 'I like…', 'source' => 'Two Truths'],
+        ];
+    }
+
+    public function test_two_truths_alone_has_topics_even_before_a_finished_day(): void
+    {
+        $practice = app(AiPractices::class)->start(User::factory()->create(), PairGame::GAME_TRUTHS);
+
+        $this->assertCount(4, $practice->cards(AiPractice::STAGE_GAME));
+    }
+
+    public function test_two_truths_i_mark_my_lie_first_and_only_then_can_speak(): void
+    {
+        $practice = $this->gamePractice(PairGame::GAME_TRUTHS, $this->truthsCards());
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldNotReceive('transcribe'));
+
+        $this->say($practice)->assertDontSee('I heard');
+        $this->assertNull($practice->refresh()->current);
+
+        Livewire::test('ai-practice.session', ['practice' => $practice])->call('markLie', 2)->assertSee('Say them')->call('markLie', 9);
+        $this->assertSame(2, $practice->refresh()->current['lie']);
+    }
+
+    public function test_two_truths_tara_finds_my_lie_for_a_point_and_missing_it_scores_nothing(): void
+    {
+        $practice = $this->gamePractice(PairGame::GAME_TRUTHS, $this->truthsCards());
+        $practice->update(['current' => ['lie' => 2]]);
+        $this->heard('One, I have a brother. Two, I have a horse. Three, I live in Tehran.');
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->andReturn('{"pick":2,"line":"Number two, a horse in the city?"}', '{"pick":1,"line":"Number one!"}'));
+
+        $this->say($practice->refresh())->assertSee('Tara found it!')->assertSee('a horse in the city?')->assertSee('Next');
+        $this->assertSame(1, $practice->refresh()->score);
+
+        $practice->update(['current' => ['lie' => 2]]);
+        $this->say($practice->refresh())->assertSee('You tricked Tara!');
+        $this->assertSame(1, $practice->refresh()->score);
+    }
+
+    public function test_two_truths_tara_still_guesses_when_the_ai_is_down(): void
+    {
+        $practice = $this->gamePractice(PairGame::GAME_TRUTHS, $this->truthsCards());
+        $practice->update(['current' => ['lie' => 1]]);
+        $this->heard('One. Two. Three.');
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->andReturn('not json'));
+
+        $this->say($practice->refresh())->assertSee('I think number')->assertSee('Next');
+
+        $this->assertSame(1, $practice->refresh()->answered);
+    }
+
+    public function test_two_truths_tara_says_three_things_i_ask_and_pick_her_lie(): void
+    {
+        $practice = $this->gamePractice(PairGame::GAME_TRUTHS, $this->truthsCards());
+        $practice->update(['current' => ['heard' => 'x', 'lie' => 1, 'pick' => 1, 'line' => 'y']]);
+        $this->heard('Do you have a dog?');
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->andReturn('{"statements":["I have a brother.","I have a dog.","I live in Shiraz."],"lie":2}', 'Yes, he is very small.'));
+
+        $component = Livewire::test('ai-practice.session', ['practice' => $practice->refresh()])
+            ->call('next')
+            ->assertSee('TARA’S TURN')
+            ->assertSee('I have a dog.')
+            ->assertDontSee('The lie')
+            ->set('audioFile', UploadedFile::fake()->create('answer.webm', 40, 'audio/webm'))
+            ->call('submitAnswer')
+            ->assertSee('Yes, he is very small.');
+
+        $current = $practice->refresh()->current;
+        $this->assertSame('I have a dog.', $current['statements'][$current['lie'] - 1]);
+
+        $component->call('pickLie', $current['lie'])->assertSee('You found it!')->assertSee('The lie');
+
+        $practice->refresh();
+        $this->assertSame(1, $practice->score);
+        $this->assertSame(2, $practice->answered);
+
+        $component->call('pickLie', $current['lie'] % 3 + 1);
+        $this->assertSame($current['lie'], $practice->refresh()->current['picked']);
+    }
+
+    public function test_two_truths_a_wrong_pick_scores_nothing_and_questions_stop_at_two(): void
+    {
+        $practice = $this->gamePractice(PairGame::GAME_TRUTHS, $this->truthsCards(), position: 1);
+        $practice->update(['current' => ['statements' => ['a', 'b', 'c'], 'lie' => 2, 'asked' => [['q' => '1', 'a' => '1'], ['q' => '2', 'a' => '2']]]]);
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldNotReceive('transcribe'));
+
+        $this->say($practice->refresh())->call('pickLie', 3)->assertSee('Tara tricked you!');
+
+        $practice->refresh();
+        $this->assertSame(0, $practice->score);
+        $this->assertCount(2, $practice->current['asked']);
+    }
+
+    public function test_two_truths_a_bad_ai_reply_offers_try_again_and_a_good_one_shows_her_three(): void
+    {
+        $practice = $this->gamePractice(PairGame::GAME_TRUTHS, $this->truthsCards(), position: 1);
+        $replies = ['{"statements":["only one"],"lie":1}', '{"statements":["a","b","c"],"lie":3}'];
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->andReturnUsing(function () use (&$replies) {
+            return array_shift($replies);
+        }));
+
+        $component = Livewire::test('ai-practice.session', ['practice' => $practice])->call('aiTellsThree')->assertSee('Try again');
+        $this->assertNull($practice->refresh()->current);
+
+        $component->call('aiTellsThree');
+        $current = $practice->refresh()->current;
+        $this->assertSame('c', $current['statements'][$current['lie'] - 1]);
+    }
+
     public function test_a_finished_practice_counts_for_my_day_and_never_as_a_game_with_a_friend(): void
     {
         $practice = AiPractice::factory()->create(['answered' => AiPractice::MIN_COUNTED_ANSWERS]);

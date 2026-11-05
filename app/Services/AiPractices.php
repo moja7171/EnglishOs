@@ -26,6 +26,7 @@ class AiPractices
         private readonly WouldYouRatherDeck $wouldYouRather,
         private readonly JustAMinuteDeck $justAMinute,
         private readonly StoryChainDeck $storyChain,
+        private readonly TwoTruthsDeck $twoTruths,
     ) {}
 
     /**
@@ -101,6 +102,7 @@ class AiPractices
             PairGame::GAME_WHO => $this->whoAmI,
             PairGame::GAME_MINUTE => $this->justAMinute,
             PairGame::GAME_STORY => $this->storyChain,
+            PairGame::GAME_TRUTHS => $this->twoTruths,
             default => $this->wouldYouRather,
         };
         $rules = [...$deckMaker->rulesFor($learner, $learner, PairGames::PRACTICE_MINUTES), 'days' => $days];

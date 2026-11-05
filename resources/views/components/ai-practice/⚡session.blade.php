@@ -71,6 +71,7 @@ new class extends Component
             $this->practice->game() === PairGame::GAME_WHO => $this->askAboutSecret(),
             $this->practice->game() === PairGame::GAME_MINUTE => $this->speakInMinute(),
             $this->practice->game() === PairGame::GAME_STORY => $this->tellStory(),
+            $this->practice->game() === PairGame::GAME_TRUTHS => $this->speakInTruths(),
             default => $this->sayWhy(),
         };
     }
@@ -239,6 +240,100 @@ new class extends Component
     }
 
     /**
+     * Two Truths, the learner's turn: which of their three things is the
+     * lie, marked before they speak.
+     */
+    public function markLie(int $statement): void
+    {
+        if ($this->practice->game() !== PairGame::GAME_TRUTHS || ! $this->practice->isLearnersGameTurn() || isset($this->practice->current['heard'])
+            || ! in_array($statement, range(1, PairGame::STATEMENTS), true)) {
+            return;
+        }
+
+        $this->practice->update(['current' => ['lie' => $statement]]);
+    }
+
+    /**
+     * Two Truths. On the learner's turn: their three things, and Tara's
+     * guess of the lie, a point for the two of you when she finds it. On
+     * her turn: a question about her three things.
+     */
+    private function speakInTruths(): void
+    {
+        $current = $this->practice->current;
+        $card = $this->practice->currentCard();
+        $mine = $this->practice->isLearnersGameTurn();
+
+        $canSpeak = $mine
+            ? isset($current['lie']) && ! isset($current['heard'])
+            : isset($current['statements']) && ! isset($current['picked']) && count($current['asked']) < AiPractice::TRUTHS_QUESTIONS;
+
+        if (! $canSpeak || ($heard = $this->hear()) === null) {
+            return;
+        }
+
+        $level = auth()->user()->levelDescription();
+
+        if (! $mine) {
+            $answer = $this->taraSays(fn (AiPartner $tara) => $tara->keepTheLieSafe($current['statements'], $current['lie'], $heard, $level), 'Ha! I can’t tell you that.');
+            $this->practice->update(['current' => [...$current, 'asked' => [...$current['asked'], ['q' => $heard, 'a' => $answer]]], 'answered' => $this->practice->answered + 1]);
+
+            return;
+        }
+
+        try {
+            $guess = app(AiPartner::class)->findTheLie($card['word'], $heard, $level);
+        } catch (Throwable) {
+            $pick = random_int(1, PairGame::STATEMENTS);
+            $guess = ['pick' => $pick, 'line' => "Hmm, I think number {$pick} is the lie."];
+        }
+
+        $this->practice->update([
+            'current' => [...$current, 'heard' => $heard, ...$guess],
+            'score' => $this->practice->score + ($guess['pick'] === $current['lie'] ? 1 : 0),
+            'answered' => $this->practice->answered + 1,
+        ]);
+    }
+
+    /**
+     * Two Truths, Tara's turn: her three things.
+     */
+    public function aiTellsThree(): void
+    {
+        $this->error = null;
+        $card = $this->practice->currentCard();
+
+        try {
+            $three = app(AiPartner::class)->threeThings($card['word'], $card['hint'] ?? null, auth()->user()->levelDescription());
+        } catch (Throwable $e) {
+            $this->error = AiFailure::checkMessage($e);
+
+            return;
+        }
+
+        $this->practice->update(['current' => [...$three, 'asked' => []]]);
+    }
+
+    /**
+     * Two Truths, Tara's turn: the learner's pick, a point when it's her lie.
+     */
+    public function pickLie(int $statement): void
+    {
+        $current = $this->practice->current;
+
+        if ($this->practice->game() !== PairGame::GAME_TRUTHS || $this->practice->isLearnersGameTurn() || ! isset($current['statements'])
+            || isset($current['picked']) || ! in_array($statement, range(1, PairGame::STATEMENTS), true)) {
+            return;
+        }
+
+        $this->practice->update([
+            'current' => [...$current, 'picked' => $statement],
+            'score' => $this->practice->score + ($statement === $current['lie'] ? 1 : 0),
+            'answered' => $this->practice->answered + 1,
+        ]);
+    }
+
+    /**
      * Who am I, the AI holding the secret: the learner's question gets its
      * answer; naming the secret, or running out of questions, ends the turn.
      */
@@ -388,6 +483,7 @@ new class extends Component
         match (true) {
             $this->practice->game() === PairGame::GAME_WHO && ! $this->practice->aiHoldsSecret() => $this->aiAsks(),
             $this->practice->game() === PairGame::GAME_MINUTE && ! $this->practice->isLearnersGameTurn() => $this->aiTalks(),
+            $this->practice->game() === PairGame::GAME_TRUTHS && ! $this->practice->isLearnersGameTurn() => $this->aiTellsThree(),
             default => null,
         };
     }
@@ -469,6 +565,8 @@ new class extends Component
             @include('components.ai-practice.partials.just-a-minute')
         @elseif ($stage === AiPractice::STAGE_GAME && $game === PairGame::GAME_STORY)
             @include('components.ai-practice.partials.story-chain')
+        @elseif ($stage === AiPractice::STAGE_GAME && $game === PairGame::GAME_TRUTHS)
+            @include('components.ai-practice.partials.two-truths')
         @elseif ($stage === AiPractice::STAGE_GAME)
             @include('components.ai-practice.partials.would-you-rather')
         @else
