@@ -484,8 +484,8 @@ window.eosConnectionNotice = {
  * Reads a question/prompt aloud via the browser's built-in
  * SpeechSynthesis — no TTS API call, no audio file, no new backend surface.
  * Used by <x-speak-button> (see that component), which only ever calls
- * this from an explicit learner click — the AI Instructor never speaks on
- * its own anywhere in the app. Silently does nothing on a browser without
+ * this from an explicit learner click, and by Practice with AI, where the
+ * classmate says its turn aloud. Silently does nothing on a browser without
  * SpeechSynthesis support, or if speech synthesis throws — the question's
  * text is always shown regardless, so this is a pure bonus, never
  * something a step depends on.
