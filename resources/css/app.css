@@ -730,7 +730,7 @@ html[data-refreshing] #nprogress {
             0 11px 0 -4px var(--color-line-dark);
     }
 
-    /* The dot-grid "room" behind a chat thread (friend chat and Sage). Both
+    /* The dot-grid "room" behind a chat thread (friend chat and Miss Rose). Both
        tokens are written out per theme because a plain var(--color-*) is the
        light value in dark mode too. */
     .chat-wallpaper {

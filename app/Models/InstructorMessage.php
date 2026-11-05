@@ -25,7 +25,7 @@ class InstructorMessage extends Model
 
     public const TYPE_FILE = 'file';
 
-    // Epic E: Sage is 3 separate persistent per-run threads, not one — see
+    // Epic E: Miss Rose is 3 separate persistent per-run threads, not one — see
     // ⚡ask-instructor.blade.php's topicForStep().
     public const TOPIC_GENERAL = 'general';
 

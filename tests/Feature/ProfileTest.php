@@ -62,7 +62,7 @@ class ProfileTest extends TestCase
         $this->actingAs(User::factory()->create(['is_admin' => true]));
 
         Livewire::test('profile')
-            ->assertSee('Gemini — chat (Sage, conversations)')
+            ->assertSee('Gemini — chat (Miss Rose, conversations)')
             ->assertSee('Skipped until')
             ->assertSee('Daily free quota used up.')
             ->assertSee('Last model left')

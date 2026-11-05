@@ -343,7 +343,7 @@ class GroqClient
         // occasionally 503s, hangs, or runs out of its per-day audio
         // allowance too, and this backs every transcription call site
         // (Activation, Story Sequence, Picture Description, both AI
-        // Conversation steps, partner sessions, friends conversation, Sage
+        // Conversation steps, partner sessions, friends conversation, Miss Rose
         // voice). The big upload is read once into a string above, so the
         // same bytes are safe to resend to the next model.
         $limits = [

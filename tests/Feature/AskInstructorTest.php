@@ -111,7 +111,7 @@ class AskInstructorTest extends TestCase
         Livewire::test('missions.ask-instructor', ['run' => $run, 'stepKey' => 'grammar_in_context'])
             ->set('question', 'Help?')
             ->call('ask')
-            ->assertSee("Couldn't reach Sage")
+            ->assertSee("Couldn't reach Miss Rose")
             ->assertDontSee('cURL error');
     }
 
@@ -203,7 +203,7 @@ class AskInstructorTest extends TestCase
     }
 
     /**
-     * Epic E: Sage keeps 3 separate persistent per-run threads instead of
+     * Epic E: Miss Rose keeps 3 separate persistent per-run threads instead of
      * one — a question asked from a grammar step must not leak into, or
      * pull context from, the vocabulary or general threads, and vice
      * versa, even within the very same mission run.
@@ -244,13 +244,13 @@ class AskInstructorTest extends TestCase
             ->assertSee('A grammar-only question.')
             ->assertDontSee('A vocabulary-only question.')
             ->assertDontSee('A general question.')
-            ->assertSee('Sage — Grammar chat');
+            ->assertSee('Miss Rose — Grammar chat');
 
         Livewire::test('missions.ask-instructor', ['run' => $run, 'stepKey' => 'vocabulary_builder_1'])
             ->assertSee('A vocabulary-only question.')
             ->assertDontSee('A grammar-only question.')
             ->assertDontSee('A general question.')
-            ->assertSee('Sage — Vocabulary chat');
+            ->assertSee('Miss Rose — Vocabulary chat');
 
         Livewire::test('missions.ask-instructor', ['run' => $run, 'stepKey' => 'listening'])
             ->assertSee('A general question.')
@@ -301,7 +301,7 @@ class AskInstructorTest extends TestCase
 
     /**
      * Voice used to only fill the text box for a manual send; it now
-     * sends straight to Sage the moment it's recorded, same as every
+     * sends straight to Miss Rose the moment it's recorded, same as every
      * other voice-recorder caller in the app — a real, playable message
      * (attachment + transcript) rather than a text-box shortcut.
      */
@@ -331,7 +331,7 @@ class AskInstructorTest extends TestCase
     }
 
     /**
-     * When transcription fails nothing goes to Sage (it used to receive a
+     * When transcription fails nothing goes to Miss Rose (it used to receive a
      * stand-in "Couldn't transcribe this recording." as if the learner had
      * typed it, and answer that it couldn't see their voice note): the
      * learner is told to retry or type instead.

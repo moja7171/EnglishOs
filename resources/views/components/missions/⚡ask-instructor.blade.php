@@ -25,7 +25,7 @@ new class extends Component
     public string $question = '';
 
     /**
-     * Sage keeps 3 separate persistent per-run threads (Epic E) instead of
+     * Miss Rose keeps 3 separate persistent per-run threads (Epic E) instead of
      * one — general / grammar / vocabulary — so a grammar-focused
      * conversation isn't buried under, or confused with, an unrelated
      * question asked from a different step. Derived from $stepKey, not a
@@ -104,7 +104,7 @@ new class extends Component
     }
 
     /**
-     * Voice sends straight to Sage the moment it's recorded — same
+     * Voice sends straight to Miss Rose the moment it's recorded — same
      * "no separate send step" behaviour as every other voice-recorder
      * caller in the app (Friends' voice messages, Speaking Recall, the
      * daily review). Kept as a real, playable message (attachment +
@@ -133,12 +133,12 @@ new class extends Component
 
         // The real cause (a thrown error, or Whisper answering with no text)
         // is recorded here — GroqClient only logs failures that happen
-        // inside its own requests. Nothing is sent to Sage: a stand-in line
+        // inside its own requests. Nothing is sent to Miss Rose: a stand-in line
         // like "Couldn't transcribe this recording." used to go out as if
-        // the learner had typed it, and Sage would reply that it couldn't
+        // the learner had typed it, and Miss Rose would reply that it couldn't
         // see their voice note. Tell the learner instead.
         if ($question === '') {
-            Log::error('Sage voice question could not be transcribed.', [
+            Log::error('Miss Rose voice question could not be transcribed.', [
                 'reason' => $failure ?? 'Whisper returned no text',
                 'bytes' => rescue(fn () => $recording->getSize(), null, false),
                 'mime' => rescue(fn () => $recording->getMimeType(), null, false),
@@ -234,7 +234,7 @@ new class extends Component
 
             $this->messages[] = $this->toDisplay($instructorMessage);
         } catch (ConnectionException|RequestException) {
-            $this->error = "Couldn't reach Sage — please try again.";
+            $this->error = "Couldn't reach Miss Rose — please try again.";
         } catch (Throwable $e) {
             $this->error = AiFailure::message($e, "Couldn't get an answer");
         } finally {
@@ -257,7 +257,7 @@ new class extends Component
     }
 
     /**
-     * A short reminder of which of Sage's 3 threads this is — mostly so
+     * A short reminder of which of Miss Rose's 3 threads this is — mostly so
      * the model doesn't drift into a different subject just because the
      * learner happens to mention one; the thread itself already keeps
      * history/questions properly separated (see topicForStep()).
@@ -277,7 +277,7 @@ new class extends Component
     {
         $stepLabel = $this->stepKey ? $this->run->mission->stepLabel($this->stepKey) : null;
 
-        $prompt = 'Your name is Sage. You are a warm, genuinely fun AI English Instructor with real personality — '
+        $prompt = 'Your name is Miss Rose. You are a warm, genuinely fun AI English Instructor with real personality — '
             .'not a stiff textbook voice. Be playful, use a light joke or a vivid everyday example when it helps '
             .'something click, react like a real person would ("Ooh, good question!", "Ha, English is weird '
             .'about that one too"), and make the learner enjoy stopping by, not just tolerate it. Talk like a '
@@ -313,9 +313,9 @@ new class extends Component
     public function topicLabel(): string
     {
         return match ($this->topicForStep()) {
-            InstructorMessage::TOPIC_GRAMMAR => 'Sage — Grammar chat',
-            InstructorMessage::TOPIC_VOCABULARY => 'Sage — Vocabulary chat',
-            default => 'Sage',
+            InstructorMessage::TOPIC_GRAMMAR => 'Miss Rose — Grammar chat',
+            InstructorMessage::TOPIC_VOCABULARY => 'Miss Rose — Vocabulary chat',
+            default => 'Miss Rose',
         };
     }
 };
@@ -333,7 +333,7 @@ new class extends Component
     x-data="{
         open: false,
         // Shown immediately on send/record, before the server round-trip
-        // even starts — otherwise the learner's own message and Sage's
+        // even starts — otherwise the learner's own message and Miss Rose's
         // reply only ever appeared together, in one sudden jump, once the
         // whole request (transcribe + AI call) finished.
         pendingMessage: null,
@@ -448,7 +448,7 @@ new class extends Component
             </template>
 
             <div wire:loading.delay wire:target="ask,sendVoiceQuestion,sendFile">
-                <x-ai-thinking label="Sage is answering…" class="bg-surface dark:bg-surface-dark" />
+                <x-ai-thinking label="Miss Rose is answering…" class="bg-surface dark:bg-surface-dark" />
             </div>
         </div>
 

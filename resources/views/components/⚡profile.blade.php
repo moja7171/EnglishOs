@@ -205,7 +205,7 @@ new class extends Component
         $gemini = new GeminiClient;
 
         $rowsByTitle = [
-            'Gemini — chat (Sage, conversations)' => $chains->status('gemini', $gemini->configuredChain(GeminiClient::PROFILE_CHAT)),
+            'Gemini — chat (Miss Rose, conversations)' => $chains->status('gemini', $gemini->configuredChain(GeminiClient::PROFILE_CHAT)),
             'Gemini — judge (grading the learner)' => $chains->status('gemini', $gemini->configuredChain(GeminiClient::PROFILE_JUDGE)),
             'Groq — chat (answers when Gemini can\'t)' => $chains->status('groq', (new GroqClient)->judgeChain()),
             'Groq — Whisper (speech to text)' => $chains->status('groq', (new GroqClient)->configuredChain()),
