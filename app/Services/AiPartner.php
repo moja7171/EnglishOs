@@ -79,6 +79,50 @@ class AiPartner
     }
 
     /**
+     * Just a Minute, Tara's turn: her short talk on the topic, in her own
+     * life, using the card's words.
+     *
+     * @param  list<string>  $words
+     */
+    public function talkAbout(string $topic, array $words, string $learnerDescription): string
+    {
+        return trim($this->gemini->chat(
+            [['role' => 'user', 'text' => "Topic: {$topic}\nWords to use: ".implode(', ', $words)]],
+            systemPrompt: $this->classmate($learnerDescription).' Talk about the topic in about 5 short sentences, from your own life. '
+                .'Use every word in the list, naturally. Plain text only, no lists.',
+            profile: GeminiClient::PROFILE_CHAT,
+        ));
+    }
+
+    /**
+     * Just a Minute, the learner's turn: one real question about what they
+     * just said.
+     */
+    public function questionAbout(string $topic, string $talk, string $learnerDescription): string
+    {
+        return trim($this->gemini->chat(
+            [['role' => 'user', 'text' => "Topic: {$topic}\nYour classmate said: \"{$talk}\""]],
+            systemPrompt: $this->classmate($learnerDescription).' This is an automatic transcript of speech, so be kind to small mishearings. '
+                .'Reply with ONLY one short question about something they said, at most 12 words, and nothing before or after it. Plain text only.',
+            profile: GeminiClient::PROFILE_CHAT,
+        ));
+    }
+
+    /**
+     * Just a Minute, Tara's turn: her answer to the learner's question
+     * about her talk.
+     */
+    public function replyToQuestion(string $talk, string $question, string $learnerDescription): string
+    {
+        return trim($this->gemini->chat(
+            [['role' => 'user', 'text' => "You said: \"{$talk}\"\nYour classmate asks: \"{$question}\""]],
+            systemPrompt: $this->classmate($learnerDescription).' The question is an automatic transcript of speech, so be kind to small mishearings. '
+                .'Answer in one or two short sentences. Plain text only.',
+            profile: GeminiClient::PROFILE_CHAT,
+        ));
+    }
+
+    /**
      * Would You Rather: one sentence saying why the AI took its side.
      */
     public function reasonFor(string $question, string $side, string $learnerDescription): string

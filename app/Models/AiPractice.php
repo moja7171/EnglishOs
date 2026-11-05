@@ -40,8 +40,8 @@ class AiPractice extends Model
     /** @var list<string> */
     public const CARD_STAGES = [self::STAGE_VOCABULARY, self::STAGE_GRAMMAR, self::STAGE_SPEAKING];
 
-    /** The games the AI can play so far. */
-    public const GAMES = [PairGame::GAME_WHO, PairGame::GAME_RATHER];
+    /** The games Tara can play so far. */
+    public const GAMES = [PairGame::GAME_WHO, PairGame::GAME_RATHER, PairGame::GAME_MINUTE];
 
     /** Questions about one secret: fewer than with a friend, each one is an AI call. */
     public const MAX_QUESTIONS = 8;
@@ -153,6 +153,33 @@ class AiPractice extends Model
     public function aiHoldsSecret(): bool
     {
         return $this->position % 2 === 0;
+    }
+
+    /**
+     * In the games played turn about the learner goes first, on even cards.
+     */
+    public function isLearnersGameTurn(): bool
+    {
+        return $this->position % 2 === 0;
+    }
+
+    /**
+     * Which of the words are in the text, by plain matching with no AI
+     * call: a word also counts with a common ending (cooks, cooked,
+     * cooking), and speech-to-text capitals and commas don't matter.
+     *
+     * @param  list<string>  $words
+     * @return list<string>
+     */
+    public static function wordsIn(string $text, array $words): array
+    {
+        $plainText = ' '.self::plain($text).' ';
+
+        return array_values(array_filter($words, function (string $word) use ($plainText) {
+            $plainWord = self::plain($word);
+
+            return $plainWord !== '' && preg_match('/ '.preg_quote($plainWord, '/').'(s|es|d|ed|ing)? /u', $plainText) === 1;
+        }));
     }
 
     /**

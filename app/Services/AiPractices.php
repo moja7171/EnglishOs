@@ -12,12 +12,17 @@ use App\Models\User;
  */
 class AiPractices
 {
-    /** Would You Rather questions: inside a round, and as a game of its own. */
-    private const RATHER_QUESTIONS_IN_ROUND = 2;
+    /** Turns in a game that sets its own length: inside a round, and as a game of its own. */
+    private const TURNS_IN_ROUND = 2;
 
-    private const RATHER_QUESTIONS = 4;
+    private const TURNS_ALONE = 4;
 
-    public function __construct(private readonly PairPractice $pairPractice, private readonly WhoAmIDeck $whoAmI, private readonly WouldYouRatherDeck $wouldYouRather) {}
+    public function __construct(
+        private readonly PairPractice $pairPractice,
+        private readonly WhoAmIDeck $whoAmI,
+        private readonly WouldYouRatherDeck $wouldYouRather,
+        private readonly JustAMinuteDeck $justAMinute,
+    ) {}
 
     /**
      * @param  string  $kind  AiPractice::KIND_PRACTICE or one of AiPractice::GAMES
@@ -88,13 +93,19 @@ class AiPractices
      */
     private function gameDeck(User $learner, string $game, ?array $days, bool $inRound): array
     {
-        $deckMaker = $game === PairGame::GAME_WHO ? $this->whoAmI : $this->wouldYouRather;
+        $deckMaker = match ($game) {
+            PairGame::GAME_WHO => $this->whoAmI,
+            PairGame::GAME_MINUTE => $this->justAMinute,
+            default => $this->wouldYouRather,
+        };
         $rules = [...$deckMaker->rulesFor($learner, $learner, PairGames::PRACTICE_MINUTES), 'days' => $days];
 
-        if ($game === PairGame::GAME_RATHER) {
-            $rules['turns'] = $inRound ? self::RATHER_QUESTIONS_IN_ROUND : self::RATHER_QUESTIONS;
+        if ($game === PairGame::GAME_WHO) {
+            return ['game' => $game, 'cards' => $deckMaker->cardsFor($learner, $learner, $rules)];
         }
 
-        return ['game' => $game, 'cards' => $deckMaker->cardsFor($learner, $learner, $rules)];
+        $rules['turns'] = $inRound ? self::TURNS_IN_ROUND : self::TURNS_ALONE;
+
+        return ['game' => $game, 'cards' => array_slice($deckMaker->cardsFor($learner, $learner, $rules), 0, $rules['turns'])];
     }
 }

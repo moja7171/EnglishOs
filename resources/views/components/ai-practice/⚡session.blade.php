@@ -67,9 +67,10 @@ new class extends Component
         }
 
         match (true) {
-            $this->practice->game() === PairGame::GAME_WHO && $this->practice->isGameStage() => $this->askAboutSecret(),
-            $this->practice->isGameStage() => $this->sayWhy(),
-            default => $this->answerCard(),
+            ! $this->practice->isGameStage() => $this->answerCard(),
+            $this->practice->game() === PairGame::GAME_WHO => $this->askAboutSecret(),
+            $this->practice->game() === PairGame::GAME_MINUTE => $this->speakInMinute(),
+            default => $this->sayWhy(),
         };
     }
 
@@ -100,6 +101,98 @@ new class extends Component
         } catch (Throwable) {
             return null;
         }
+    }
+
+    /**
+     * What Tara says, or a plain line when the AI can't answer: her
+     * words are never what holds the learner up.
+     *
+     * @param  \Closure(AiPartner): string  $saying
+     */
+    private function taraSays(\Closure $saying, string $plainLine): string
+    {
+        try {
+            return $saying(app(AiPartner::class)) ?: $plainLine;
+        } catch (Throwable) {
+            return $plainLine;
+        }
+    }
+
+    /**
+     * Just a Minute. On the learner's turn: their talk (the target words
+     * are found with no AI call, one point each, and Tara asks about it),
+     * then their answer. On Tara's turn: their question about her talk.
+     */
+    private function speakInMinute(): void
+    {
+        $current = $this->practice->current;
+        $card = $this->practice->currentCard();
+        $mine = $this->practice->isLearnersGameTurn();
+
+        if (isset($current['reply']) || (! $mine && blank($current['talk'] ?? null)) || ($heard = $this->hear()) === null) {
+            return;
+        }
+
+        $level = auth()->user()->levelDescription();
+
+        if ($mine && $current === null) {
+            $used = AiPractice::wordsIn($heard, $card['words']);
+            $question = $this->taraSays(fn (AiPartner $tara) => $tara->questionAbout($card['word'], $heard, $level), 'That sounds nice! Can you tell me more?');
+            $this->practice->update(['current' => ['heard' => $heard, 'used' => $used, 'question' => $question], 'score' => $this->practice->score + count($used), 'answered' => $this->practice->answered + 1]);
+
+            return;
+        }
+
+        if ($mine) {
+            $this->practice->update(['current' => [...$current, 'reply' => $heard], 'answered' => $this->practice->answered + 1]);
+
+            return;
+        }
+
+        $reply = $this->taraSays(fn (AiPartner $tara) => $tara->replyToQuestion($current['talk'], $heard, $level), 'Good question! I need to think about that one.');
+        $this->practice->update(['current' => [...$current, 'question' => $heard, 'reply' => $reply], 'score' => $this->practice->score + 1, 'answered' => $this->practice->answered + 1]);
+    }
+
+    /**
+     * Just a Minute, Tara's turn: her talk. The word chips count only the
+     * words she really said.
+     */
+    public function aiTalks(): void
+    {
+        $this->error = null;
+        $card = $this->practice->currentCard();
+
+        try {
+            $talk = app(AiPartner::class)->talkAbout($card['word'], $card['words'], auth()->user()->levelDescription());
+        } catch (Throwable $e) {
+            $this->error = AiFailure::checkMessage($e);
+
+            return;
+        }
+
+        $this->practice->update(['current' => ['talk' => $talk, 'used' => AiPractice::wordsIn($talk, $card['words']), 'ticked' => []]]);
+    }
+
+    /**
+     * Just a Minute, Tara's turn: a word the learner heard, a point when
+     * she really said it. A second tap takes it back.
+     */
+    public function tickWord(string $word): void
+    {
+        $current = $this->practice->current;
+
+        if ($this->practice->game() !== PairGame::GAME_MINUTE || $this->practice->isLearnersGameTurn() || ! isset($current['talk'])
+            || ! in_array($word, $this->practice->currentCard()['words'] ?? [], true)) {
+            return;
+        }
+
+        $ticked = in_array($word, $current['ticked'], true);
+        $points = in_array($word, $current['used'], true) ? ($ticked ? -1 : 1) : 0;
+
+        $this->practice->update([
+            'current' => [...$current, 'ticked' => $ticked ? array_values(array_diff($current['ticked'], [$word])) : [...$current['ticked'], $word]],
+            'score' => $this->practice->score + $points,
+        ]);
     }
 
     /**
@@ -238,9 +331,15 @@ new class extends Component
         $this->audioFile = null;
         $this->practice->next();
 
-        if (! $this->practice->isFinished() && $this->practice->isGameStage() && $this->practice->game() === PairGame::GAME_WHO && ! $this->practice->aiHoldsSecret()) {
-            $this->aiAsks();
+        if ($this->practice->isFinished() || ! $this->practice->isGameStage()) {
+            return;
         }
+
+        match (true) {
+            $this->practice->game() === PairGame::GAME_WHO && ! $this->practice->aiHoldsSecret() => $this->aiAsks(),
+            $this->practice->game() === PairGame::GAME_MINUTE && ! $this->practice->isLearnersGameTurn() => $this->aiTalks(),
+            default => null,
+        };
     }
 
     public function end(): void
@@ -316,6 +415,8 @@ new class extends Component
 
         @if ($stage === AiPractice::STAGE_GAME && $game === PairGame::GAME_WHO)
             @include('components.ai-practice.partials.who-am-i')
+        @elseif ($stage === AiPractice::STAGE_GAME && $game === PairGame::GAME_MINUTE)
+            @include('components.ai-practice.partials.just-a-minute')
         @elseif ($stage === AiPractice::STAGE_GAME)
             @include('components.ai-practice.partials.would-you-rather')
         @else

@@ -285,6 +285,122 @@ class AiPracticeTest extends TestCase
             ->assertSee('It sounds better to me.');
     }
 
+    /**
+     * @return list<array<string, mixed>>
+     */
+    private function minuteCards(): array
+    {
+        return [
+            ['word' => 'My morning', 'words' => ['coffee', 'early', 'bus', 'cook'], 'source' => 'M01 · Daily life'],
+            ['word' => 'My weekend', 'words' => ['park', 'friends', 'movie', 'sleep'], 'source' => 'M01 · Daily life'],
+        ];
+    }
+
+    public function test_just_a_minute_alone_draws_a_topic_and_its_words_from_the_finished_days(): void
+    {
+        $learner = $this->learnerWithAFinishedDay();
+
+        $practice = app(AiPractices::class)->start($learner, PairGame::GAME_MINUTE);
+
+        $this->assertSame(PairGame::GAME_MINUTE, $practice->game());
+        $this->assertNotEmpty($practice->currentCard()['words']);
+        $this->assertContains($practice->currentCard()['word'], config('just_a_minute.M01'));
+    }
+
+    public function test_just_a_minute_my_talk_scores_the_words_i_used_and_tara_asks_about_it(): void
+    {
+        $practice = $this->gamePractice(PairGame::GAME_MINUTE, $this->minuteCards());
+        $this->heard('I get up early, and I am cooking eggs with COFFEE.');
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn('What do you cook?'));
+
+        $this->say($practice)->assertSee('What do you cook?')->assertDontSee('Next');
+
+        $practice->refresh();
+        $this->assertEqualsCanonicalizing(['coffee', 'early', 'cook'], $practice->current['used']);
+        $this->assertSame(3, $practice->score);
+    }
+
+    public function test_just_a_minute_my_answer_to_tara_ends_my_turn_and_she_talks_next(): void
+    {
+        $practice = $this->gamePractice(PairGame::GAME_MINUTE, $this->minuteCards());
+        $practice->update(['current' => ['heard' => 'My talk.', 'used' => [], 'question' => 'Why?']]);
+        $this->heard('Because I like it.');
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn('I went to the park with friends.'));
+
+        $this->say($practice)->assertSee('Because I like it.')->assertSee('Next')->call('next')->assertSee('TARA’S TURN');
+
+        $practice->refresh();
+        $this->assertSame(1, $practice->answered);
+        $this->assertSame(['park', 'friends'], $practice->current['used']);
+    }
+
+    public function test_just_a_minute_a_failed_question_never_stops_my_turn(): void
+    {
+        $practice = $this->gamePractice(PairGame::GAME_MINUTE, $this->minuteCards());
+        $this->heard('I drink coffee.');
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->andThrow(new RuntimeException('down')));
+
+        $this->say($practice)->assertSee('Can you tell me more?');
+
+        $this->assertSame(1, $practice->refresh()->score);
+    }
+
+    public function test_just_a_minute_nothing_heard_keeps_my_turn(): void
+    {
+        $practice = $this->gamePractice(PairGame::GAME_MINUTE, $this->minuteCards());
+        $this->heard('');
+
+        $this->say($practice)->assertSee('I couldn’t hear you');
+
+        $this->assertNull($practice->refresh()->current);
+    }
+
+    public function test_just_a_minute_a_tapped_word_scores_only_if_tara_said_it_and_a_second_tap_takes_it_back(): void
+    {
+        $practice = $this->gamePractice(PairGame::GAME_MINUTE, $this->minuteCards(), position: 1);
+        $practice->update(['current' => ['talk' => 'I went to the park.', 'used' => ['park'], 'ticked' => []]]);
+
+        $component = Livewire::test('ai-practice.session', ['practice' => $practice->refresh()])->call('tickWord', 'park');
+        $this->assertSame(1, $practice->refresh()->score);
+
+        $component->call('tickWord', 'movie');
+        $this->assertSame(1, $practice->refresh()->score);
+
+        $component->call('tickWord', 'park')->call('tickWord', 'not on the card');
+        $practice->refresh();
+        $this->assertSame(0, $practice->score);
+        $this->assertSame(['movie'], $practice->current['ticked']);
+    }
+
+    public function test_just_a_minute_tara_answers_my_question_about_her_talk(): void
+    {
+        $practice = $this->gamePractice(PairGame::GAME_MINUTE, $this->minuteCards(), position: 1);
+        $practice->update(['current' => ['talk' => 'I went to the park.', 'used' => ['park'], 'ticked' => []]]);
+        $this->heard('Who went with you?');
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn('My little brother!'));
+
+        $this->say($practice->refresh())->assertSee('Who went with you?')->assertSee('My little brother!')->call('next')->assertSee('Well done!');
+
+        $practice->refresh();
+        $this->assertSame(1, $practice->score);
+        $this->assertSame(1, $practice->answered);
+    }
+
+    public function test_just_a_minute_tara_s_failed_talk_can_be_tried_again(): void
+    {
+        $practice = $this->gamePractice(PairGame::GAME_MINUTE, $this->minuteCards(), position: 1);
+        $failures = 1;
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->andReturnUsing(function () use (&$failures) {
+            return $failures-- > 0 ? throw new RuntimeException('down') : 'I love the park.';
+        }));
+
+        $component = Livewire::test('ai-practice.session', ['practice' => $practice])->call('aiTalks')->assertSee('Try again');
+        $this->assertNull($practice->refresh()->current);
+
+        $component->call('aiTalks')->assertDontSee('Try again');
+        $this->assertSame('I love the park.', $practice->refresh()->current['talk']);
+    }
+
     public function test_a_finished_practice_counts_for_my_day_and_never_as_a_game_with_a_friend(): void
     {
         $practice = AiPractice::factory()->create(['answered' => AiPractice::MIN_COUNTED_ANSWERS]);
@@ -352,7 +468,9 @@ class AiPracticeTest extends TestCase
             $practice->finish();
         }
 
-        $this->assertNotSame($played[0], $played[1]);
+        $this->assertSame(AiPractice::GAMES[0], $played[0]);
+        $this->assertSame(AiPractice::GAMES[1], $played[1]);
+        $this->assertSame($played[0], $played[count(AiPractice::GAMES)]);
     }
 
     public function test_someone_elses_practice_cannot_be_opened(): void
