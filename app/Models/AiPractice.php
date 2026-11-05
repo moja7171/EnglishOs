@@ -41,13 +41,16 @@ class AiPractice extends Model
     public const CARD_STAGES = [self::STAGE_VOCABULARY, self::STAGE_GRAMMAR, self::STAGE_SPEAKING];
 
     /** The games Tara can play so far. */
-    public const GAMES = [PairGame::GAME_WHO, PairGame::GAME_RATHER, PairGame::GAME_MINUTE, PairGame::GAME_STORY, PairGame::GAME_TRUTHS];
+    public const GAMES = [PairGame::GAME_WHO, PairGame::GAME_RATHER, PairGame::GAME_MINUTE, PairGame::GAME_STORY, PairGame::GAME_TRUTHS, PairGame::GAME_TABOO];
 
     /** Questions about one secret: fewer than with a friend, each one is an AI call. */
     public const MAX_QUESTIONS = 8;
 
     /** Two Truths: questions the learner may ask Tara before picking her lie. */
     public const TRUTHS_QUESTIONS = 2;
+
+    /** Taboo: tries at one word, for whichever of the two is guessing. */
+    public const TABOO_TRIES = 3;
 
     /** A practice ended with fewer answers than this doesn't count for the day. */
     public const MIN_COUNTED_ANSWERS = 3;
@@ -183,6 +186,15 @@ class AiPractice extends Model
 
             return $plainWord !== '' && preg_match('/ '.preg_quote($plainWord, '/').'(s|es|d|ed|ing)? /u', $plainText) === 1;
         }));
+    }
+
+    /**
+     * Whether the text names the word, with no AI call: said exactly, with
+     * a common ending, or close enough for speech-to-text.
+     */
+    public static function namesWord(string $text, string $word): bool
+    {
+        return self::wordsIn($text, [$word]) !== [] || self::saidCorrectly($text, $word);
     }
 
     /**

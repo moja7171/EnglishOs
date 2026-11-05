@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\AiPractice;
 use App\Models\PairGame;
 use Illuminate\Support\Arr;
 use RuntimeException;
@@ -210,6 +211,53 @@ class AiPartner
         }
 
         return ['pick' => $data['pick'], 'line' => trim($data['line'])];
+    }
+
+    /**
+     * Taboo, the learner's turn: Tara's guess at the word they are
+     * explaining. Whether it's right is checked with no AI call.
+     *
+     * @param  list<array{said: string, guess: string}>  $tries
+     */
+    public function guessTheWord(string $explanation, array $tries, string $learnerDescription): string
+    {
+        return trim($this->gemini->chat(
+            [['role' => 'user', 'text' => 'Earlier: '.json_encode($tries, JSON_UNESCAPED_UNICODE)."\nYour classmate says: \"{$explanation}\""]],
+            systemPrompt: $this->classmate($learnerDescription).' In a word game your classmate explains a word without saying it. This is an automatic transcript of speech, so be kind to small mishearings. '
+                .'Never repeat a wrong guess. Reply with ONLY your guess: one word or a short phrase, no sentence, no punctuation.',
+            profile: GeminiClient::PROFILE_CHAT,
+        ), " \t\n\r\0\x0B.\"'");
+    }
+
+    /**
+     * Taboo, Tara's turn: three clues for the word in one call, so the next
+     * clue costs nothing. A clue that lets the word slip is dropped.
+     *
+     * @return list<string>
+     *
+     * @throws RuntimeException when the reply isn't the expected JSON or no clue is left.
+     */
+    public function cluesFor(string $word, string $learnerDescription): array
+    {
+        $raw = $this->gemini->chat(
+            [['role' => 'user', 'text' => "The word: {$word}"]],
+            systemPrompt: $this->classmate($learnerDescription).' In a word game you explain a word without saying it, so your classmate can guess it. '
+                .'Give three clues, from hard to easy, each ONE short sentence. Never use the word or a part of it. Reply with ONLY valid JSON, no markdown fences: {"clues": ["...", "...", "..."]}.',
+            profile: GeminiClient::PROFILE_CHAT,
+        );
+
+        $data = AiJson::decode($raw);
+        $clues = collect(is_array($data) ? ($data['clues'] ?? []) : [])
+            ->filter(fn ($clue) => is_string($clue) && filled($clue) && AiPractice::wordsIn($clue, [$word]) === [])
+            ->map(fn (string $clue) => trim($clue))
+            ->values()
+            ->all();
+
+        if ($clues === []) {
+            throw new RuntimeException('Unexpected AI response format.');
+        }
+
+        return $clues;
     }
 
     /**

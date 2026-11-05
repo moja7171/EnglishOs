@@ -72,6 +72,7 @@ new class extends Component
             $this->practice->game() === PairGame::GAME_MINUTE => $this->speakInMinute(),
             $this->practice->game() === PairGame::GAME_STORY => $this->tellStory(),
             $this->practice->game() === PairGame::GAME_TRUTHS => $this->speakInTruths(),
+            $this->practice->game() === PairGame::GAME_TABOO => $this->speakInTaboo(),
             default => $this->sayWhy(),
         };
     }
@@ -334,6 +335,83 @@ new class extends Component
     }
 
     /**
+     * Taboo. On the learner's turn: their explanation (saying the word
+     * only asks for another try) and Tara's guess. On her turn: their
+     * guess, and a wrong one brings the next clue. Right or not is decided
+     * here, with no AI call; a right guess is a point for the two of you.
+     */
+    private function speakInTaboo(): void
+    {
+        $current = $this->practice->current ?? [];
+        $word = $this->practice->currentCard()['word'];
+        $mine = $this->practice->isLearnersGameTurn();
+
+        if (isset($current['won']) || (! $mine && ! isset($current['clues'])) || ($heard = $this->hear()) === null) {
+            return;
+        }
+
+        $this->practice->answered++;
+
+        if ($mine && AiPractice::wordsIn($heard, [$word]) !== []) {
+            $this->practice->save();
+            $this->error = 'You said the word! Try another way.';
+
+            return;
+        }
+
+        if ($mine) {
+            try {
+                $guess = app(AiPartner::class)->guessTheWord($heard, $current['tries'] ?? [], auth()->user()->levelDescription());
+            } catch (Throwable $e) {
+                $this->practice->save();
+                $this->error = AiFailure::checkMessage($e);
+
+                return;
+            }
+
+            $tries = [...$current['tries'] ?? [], ['said' => $heard, 'guess' => $guess]];
+            $this->endTabooTry(['tries' => $tries], AiPractice::namesWord($guess, $word), count($tries), AiPractice::TABOO_TRIES);
+
+            return;
+        }
+
+        $guesses = [...$current['guesses'], $heard];
+        $this->endTabooTry([...$current, 'guesses' => $guesses], AiPractice::namesWord($heard, $word), count($guesses), min(AiPractice::TABOO_TRIES, count($current['clues'])));
+    }
+
+    /**
+     * @param  array<string, mixed>  $current
+     */
+    private function endTabooTry(array $current, bool $isRight, int $tries, int $triesAllowed): void
+    {
+        if ($isRight || $tries >= $triesAllowed) {
+            $current['won'] = $isRight;
+        }
+
+        $this->practice->current = $current;
+        $this->practice->score += $isRight ? 1 : 0;
+        $this->practice->save();
+    }
+
+    /**
+     * Taboo, Tara's turn: her clues for the card's word.
+     */
+    public function aiGivesClues(): void
+    {
+        $this->error = null;
+
+        try {
+            $clues = app(AiPartner::class)->cluesFor($this->practice->currentCard()['word'], auth()->user()->levelDescription());
+        } catch (Throwable $e) {
+            $this->error = AiFailure::checkMessage($e);
+
+            return;
+        }
+
+        $this->practice->update(['current' => ['clues' => $clues, 'guesses' => []]]);
+    }
+
+    /**
      * Who am I, the AI holding the secret: the learner's question gets its
      * answer; naming the secret, or running out of questions, ends the turn.
      */
@@ -484,6 +562,7 @@ new class extends Component
             $this->practice->game() === PairGame::GAME_WHO && ! $this->practice->aiHoldsSecret() => $this->aiAsks(),
             $this->practice->game() === PairGame::GAME_MINUTE && ! $this->practice->isLearnersGameTurn() => $this->aiTalks(),
             $this->practice->game() === PairGame::GAME_TRUTHS && ! $this->practice->isLearnersGameTurn() => $this->aiTellsThree(),
+            $this->practice->game() === PairGame::GAME_TABOO && ! $this->practice->isLearnersGameTurn() => $this->aiGivesClues(),
             default => null,
         };
     }
@@ -567,6 +646,8 @@ new class extends Component
             @include('components.ai-practice.partials.story-chain')
         @elseif ($stage === AiPractice::STAGE_GAME && $game === PairGame::GAME_TRUTHS)
             @include('components.ai-practice.partials.two-truths')
+        @elseif ($stage === AiPractice::STAGE_GAME && $game === PairGame::GAME_TABOO)
+            @include('components.ai-practice.partials.taboo')
         @elseif ($stage === AiPractice::STAGE_GAME)
             @include('components.ai-practice.partials.would-you-rather')
         @else

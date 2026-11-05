@@ -27,6 +27,7 @@ class AiPractices
         private readonly JustAMinuteDeck $justAMinute,
         private readonly StoryChainDeck $storyChain,
         private readonly TwoTruthsDeck $twoTruths,
+        private readonly TabooDeck $taboo,
     ) {}
 
     /**
@@ -103,6 +104,7 @@ class AiPractices
             PairGame::GAME_MINUTE => $this->justAMinute,
             PairGame::GAME_STORY => $this->storyChain,
             PairGame::GAME_TRUTHS => $this->twoTruths,
+            PairGame::GAME_TABOO => $this->taboo,
             default => $this->wouldYouRather,
         };
         $rules = [...$deckMaker->rulesFor($learner, $learner, PairGames::PRACTICE_MINUTES), 'days' => $days];
@@ -116,6 +118,7 @@ class AiPractices
         }
 
         $rules['turns'] = $inRound ? self::TURNS_IN_ROUND : self::TURNS_ALONE;
+        $rules['bonus'] = false;
 
         return ['game' => $game, 'cards' => array_slice($deckMaker->cardsFor($learner, $learner, $rules), 0, $rules['turns'])];
     }

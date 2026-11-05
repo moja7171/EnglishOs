@@ -611,6 +611,123 @@ class AiPracticeTest extends TestCase
         $this->assertSame('c', $current['statements'][$current['lie'] - 1]);
     }
 
+    /**
+     * @return list<array<string, mixed>>
+     */
+    private function tabooCards(): array
+    {
+        return [
+            ['word' => 'breakfast', 'source' => 'M01 · Daily life', 'bonus' => [], 'key' => 'w:breakfast'],
+            ['word' => 'kitchen', 'source' => 'M01 · Daily life', 'bonus' => [], 'key' => 'w:kitchen'],
+        ];
+    }
+
+    public function test_taboo_alone_draws_four_words_and_asks_no_ai_for_bonus_words(): void
+    {
+        $learner = $this->learnerWithAFinishedDay();
+        $learner->vocabularyWords()->create(['word' => 'umbrella', 'meaning_fa' => 'چتر', 'next_review_at' => now()->addDay()]);
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldNotReceive('chat'));
+
+        $practice = app(AiPractices::class)->start($learner, PairGame::GAME_TABOO);
+
+        $this->assertCount(4, $practice->cards(AiPractice::STAGE_GAME));
+    }
+
+    public function test_taboo_tara_guesses_my_word_with_no_clock_and_a_right_guess_scores(): void
+    {
+        $practice = $this->gamePractice(PairGame::GAME_TABOO, $this->tabooCards());
+        $this->heard('You eat it in the morning.');
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn('Breakfast.'));
+
+        $this->say($practice)->assertSee('Tara got it!')->assertSee('Next');
+
+        $practice->refresh();
+        $this->assertSame(1, $practice->score);
+        $this->assertSame(1, $practice->answered);
+    }
+
+    public function test_taboo_saying_the_word_asks_for_another_way_with_no_ai_call(): void
+    {
+        $practice = $this->gamePractice(PairGame::GAME_TABOO, $this->tabooCards());
+        $this->heard('It is my breakfast.');
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldNotReceive('chat'));
+
+        $this->say($practice)->assertSee('You said the word!')->assertDontSee('Tara got it!');
+
+        $this->assertNull($practice->refresh()->current);
+    }
+
+    public function test_taboo_after_three_wrong_guesses_my_turn_ends_with_no_point(): void
+    {
+        $practice = $this->gamePractice(PairGame::GAME_TABOO, $this->tabooCards());
+        $practice->update(['current' => ['tries' => [['said' => 'a', 'guess' => 'lunch'], ['said' => 'b', 'guess' => 'dinner']]]]);
+        $this->heard('The first food of the day.');
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()
+            ->withArgs(fn (array $messages) => str_contains($messages[0]['text'], 'lunch'))
+            ->andReturn('snack'));
+
+        $this->say($practice->refresh())->assertSee('Tara couldn’t guess it');
+
+        $practice->refresh();
+        $this->assertSame(0, $practice->score);
+        $this->assertFalse($practice->current['won']);
+    }
+
+    public function test_taboo_a_failed_guess_keeps_my_tries(): void
+    {
+        $practice = $this->gamePractice(PairGame::GAME_TABOO, $this->tabooCards());
+        $this->heard('You eat it in the morning.');
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->andThrow(new RuntimeException('down')));
+
+        $this->say($practice)->assertSee('Skip');
+
+        $this->assertNull($practice->refresh()->current);
+    }
+
+    public function test_taboo_clues_come_in_one_call_and_a_wrong_guess_shows_the_next_with_no_ai(): void
+    {
+        $practice = $this->gamePractice(PairGame::GAME_TABOO, $this->tabooCards(), position: 1);
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn('{"clues":["It is a room.","Your kitchen has a fridge.","You cook there."]}'));
+
+        Livewire::test('ai-practice.session', ['practice' => $practice])->call('aiGivesClues')->assertSee('It is a room.')->assertDontSee('fridge')->assertDontSee('You cook there.');
+
+        $this->assertSame(['It is a room.', 'You cook there.'], $practice->refresh()->current['clues']);
+
+        $this->heard('Is it a bedroom?');
+        $this->say($practice->refresh())->assertSee('You cook there.');
+        $this->assertArrayNotHasKey('won', $practice->refresh()->current);
+
+        $this->heard('The kitchens!');
+        $this->say($practice->refresh())->assertSee('You got it!')->assertSee('kitchen');
+
+        $practice->refresh();
+        $this->assertSame(1, $practice->score);
+        $this->assertSame(2, $practice->answered);
+    }
+
+    public function test_taboo_her_word_stays_hidden_and_shows_when_my_tries_run_out(): void
+    {
+        $practice = $this->gamePractice(PairGame::GAME_TABOO, $this->tabooCards(), position: 1);
+        $practice->update(['current' => ['clues' => ['A room.'], 'guesses' => []]]);
+        $this->heard('A bedroom?');
+
+        Livewire::test('ai-practice.session', ['practice' => $practice->refresh()])->assertDontSee('kitchen');
+
+        $this->say($practice->refresh())->assertSee('Not this time')->assertSee('kitchen');
+
+        $this->assertSame(0, $practice->refresh()->score);
+    }
+
+    public function test_taboo_clues_with_only_the_word_in_them_offer_try_again(): void
+    {
+        $practice = $this->gamePractice(PairGame::GAME_TABOO, $this->tabooCards(), position: 1);
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn('{"clues":["It is a kitchen."]}'));
+
+        Livewire::test('ai-practice.session', ['practice' => $practice])->call('aiGivesClues')->assertSee('Try again');
+
+        $this->assertNull($practice->refresh()->current);
+    }
+
     public function test_a_finished_practice_counts_for_my_day_and_never_as_a_game_with_a_friend(): void
     {
         $practice = AiPractice::factory()->create(['answered' => AiPractice::MIN_COUNTED_ANSWERS]);
@@ -699,7 +816,10 @@ class AiPracticeTest extends TestCase
         Livewire::test('games.setup', ['game' => PairGame::GAME_WHO])->assertSee('Tara')->call('playWithAi');
         $this->assertSame(PairGame::GAME_WHO, AiPractice::latest('id')->first()->kind);
 
-        Livewire::test('games.setup', ['game' => PairGame::GAME_RATHER])->assertSee('With Tara your voice is recorded');
+        foreach (AiPractice::GAMES as $game) {
+            Livewire::test('games.setup', ['game' => $game])->assertSee('With Tara your voice is recorded');
+        }
+
         Livewire::test('games.setup', ['game' => PairGame::GAME_ROLE])->assertDontSee('With Tara');
     }
 }
