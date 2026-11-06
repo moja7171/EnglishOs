@@ -683,7 +683,6 @@ class NotebookTest extends TestCase
 
         Livewire::test('notebook.index')
             ->assertSee('Words')
-            ->assertSee('Added by you')
             ->assertSee('commute')
             ->assertSee('رفت‌وآمد')
             ->call('removeWord', $word->id);
@@ -760,7 +759,6 @@ class NotebookTest extends TestCase
             ->assertSee('Other mistakes')
             ->assertSee('Buy time')
             ->assertSee('Say it like this')
-            ->assertSee('Added by you')
             ->assertSee('Repeating')
             ->assertSee('Not practised')
             ->assertSee('In Review')

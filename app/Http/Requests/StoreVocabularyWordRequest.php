@@ -30,6 +30,8 @@ class StoreVocabularyWordRequest extends FormRequest
             'meaning' => ['nullable', 'string', 'max:255'],
             'pos' => ['nullable', 'string', 'max:50'],
             'example' => ['nullable', 'string', 'max:500'],
+            // The mission page the word was tapped on, e.g. "M03"; else the learner's current mission.
+            'mission' => ['nullable', 'string', 'regex:/^M\d{2}$/i'],
         ];
     }
 }

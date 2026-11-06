@@ -6,6 +6,7 @@ use App\Http\Requests\StoreVocabularyWordRequest;
 use App\Models\DictionaryEntry;
 use App\Models\VocabularyWord;
 use App\Services\WordLookup;
+use App\Services\WordMissions;
 use App\Services\WordSentences;
 use Illuminate\Http\JsonResponse;
 
@@ -31,6 +32,7 @@ class VocabularyWordController extends Controller
                 'meaning' => $validated['meaning'] ?? null,
                 'meaning_fa' => $translation,
                 'pos' => $validated['pos'] ?? null,
+                'added_in_mission_id' => app(WordMissions::class)->forNewWord($request->user(), $validated['mission'] ?? null),
                 'example' => $validated['example'] ?? null,
                 'next_review_at' => now()->addDay(),
             ],

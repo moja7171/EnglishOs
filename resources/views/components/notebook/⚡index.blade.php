@@ -7,6 +7,7 @@ use App\Models\VocabularyWord;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Database\UniqueConstraintViolationException;
+use App\Services\MissionGrid;
 use App\Services\WordSentences;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
@@ -90,7 +91,7 @@ new class extends Component
     public function words(): Collection
     {
         return auth()->user()->vocabularyWords()
-            ->with(['sourceMissionRun:id,mission_id', 'sourceMissionRun.mission:id,code,title', 'sentences'])
+            ->with(['sourceMissionRun:id,mission_id', 'sourceMissionRun.mission:id,code,title', 'addedInMission:id,code,title', 'sentences'])
             ->orderByDesc('created_at')
             ->orderBy('word')
             ->get();
@@ -134,21 +135,37 @@ new class extends Component
     }
 
     /**
-     * Words grouped for the Words tab: the learner's own first, then one
-     * group per mission, newest first.
+     * Words grouped for the Words tab: one card per mission, the latest
+     * mission first. A word the lesson gave goes in its mission, and a word
+     * the learner added themselves in the mission they added it in; the few
+     * with no mission known are last in "More words". Due words come first
+     * in a card.
      *
-     * @return Collection<int, array{title: string, words: Collection<int, VocabularyWord>}>
+     * @return Collection<int, array{code: string, title: string, cover: ?string, words: Collection<int, VocabularyWord>, due: int, mine: int}>
      */
     #[Computed]
     public function wordGroups(): Collection
     {
+        $grid = app(MissionGrid::class);
+
         return $this->words
-            ->groupBy(fn (VocabularyWord $word) => $word->sourceMissionRun?->mission?->code ?? '')
-            ->map(fn (Collection $words, string $code) => [
-                'title' => $code === '' ? 'Added by you' : $code.' · '.$words->first()->sourceMissionRun->mission->title,
-                'words' => $words,
+            ->groupBy(fn (VocabularyWord $word) => $word->mission()?->code ?? '')
+            ->map(function (Collection $words, string $code) use ($grid) {
+                $words = $words->sortBy(fn (VocabularyWord $word) => $word->isDue() ? 0 : 1)->values();
+
+                return [
+                    'code' => $code,
+                    'title' => $code === '' ? 'More words' : $words->first()->mission()->title,
+                    'cover' => $code === '' ? null : $grid->coverUrl($code),
+                    'words' => $words,
+                    'due' => $words->filter(fn (VocabularyWord $word) => $word->isDue())->count(),
+                    'mine' => $words->whereNull('source_mission_run_id')->count(),
+                ];
+            })
+            ->sortBy([
+                fn (array $a, array $b) => ($a['code'] === '') <=> ($b['code'] === ''),
+                fn (array $a, array $b) => (int) preg_replace('/\D/', '', $b['code']) <=> (int) preg_replace('/\D/', '', $a['code']),
             ])
-            ->sortBy(fn (array $group) => $group['title'] === 'Added by you' ? 0 : 1)
             ->values();
     }
 
@@ -178,25 +195,6 @@ new class extends Component
             ->values();
     }
 
-    /** How many due words the Words tab puts under "Today". */
-    public const TODAY_WORDS = 6;
-
-    /**
-     * The words to look at today: the ones due for review, the weakest
-     * first, so the tab opens on a short list and not on every word.
-     *
-     * @return Collection<int, VocabularyWord>
-     */
-    #[Computed]
-    public function todayWords(): Collection
-    {
-        return $this->words
-            ->filter(fn (VocabularyWord $word) => $word->isDue())
-            ->sortBy([fn (VocabularyWord $a, VocabularyWord $b) => $a->strengthLevel() <=> $b->strengthLevel(), fn (VocabularyWord $a, VocabularyWord $b) => $a->next_review_at <=> $b->next_review_at])
-            ->take(self::TODAY_WORDS)
-            ->values();
-    }
-
     /**
      * Another simple sentence for the word. Null when the AI can't make
      * one, and the sheet says so.
@@ -206,7 +204,7 @@ new class extends Component
         $word = auth()->user()->vocabularyWords()->with('sentences')->findOrFail($wordId);
         $sentence = app(WordSentences::class)->makeOne($word, auth()->user());
 
-        unset($this->words, $this->wordGroups, $this->todayWords);
+        unset($this->words, $this->wordGroups, $this->wordSheets, $this->wordCommonness);
 
         return $sentence?->sentence;
     }
@@ -221,7 +219,7 @@ new class extends Component
         $word = auth()->user()->vocabularyWords()->with('sentences')->findOrFail($wordId);
         $result = app(WordSentences::class)->check($word, $sentence, auth()->user());
 
-        unset($this->words, $this->wordGroups, $this->todayWords);
+        unset($this->words, $this->wordGroups, $this->wordSheets, $this->wordCommonness);
 
         return $result ?? ['ok' => false, 'used' => true, 'better' => null, 'note' => 'I couldn’t check that just now. Try again in a moment.'];
     }
@@ -459,6 +457,16 @@ new class extends Component
                 && (this.search === '' || meta.t.includes(this.search.toLowerCase()));
         },
         isOpen(tab, key, first) { return this.filtering(tab) || (key in this.open ? this.open[key] : first); },
+        setTab(tab) {
+            this.notebookTab = tab;
+            this.learned = false;
+            this.search = '';
+            this.edit = false;
+            // Kept in the address, so a redraw of the page (back from the background, Back) opens on the same tab.
+            const url = new URL(window.location.href);
+            url.searchParams.set('tab', tab);
+            history.replaceState(history.state, '', url);
+        },
         gone: {},
         undo: null,
         undoTimer: null,
@@ -528,7 +536,7 @@ new class extends Component
             <button
                 type="button"
                 role="tab"
-                x-on:click="notebookTab = '{{ $tab }}'; learned = false; search = ''; edit = false"
+                x-on:click="setTab('{{ $tab }}')"
                 x-bind:aria-selected="notebookTab === '{{ $tab }}'"
                 class="{{ $pill }}"
                 x-bind:class="notebookTab === '{{ $tab }}' ? 'bg-surface text-ink shadow-sm dark:bg-surface-dark dark:text-ink-dark' : 'text-ink-soft dark:text-ink-soft-dark'"
@@ -705,40 +713,45 @@ new class extends Component
                     </x-slot:lead>
                 </x-notebook-filter-bar>
 
-                @if ($this->todayWords->isNotEmpty())
-                    <div x-show="! filtering('words')" class="space-y-1.5">
-                        <p class="px-2 text-xs font-extrabold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Today · {{ $this->todayWords->count() }}</p>
-                        <div class="divide-y divide-line rounded-3xl bg-surface px-4 dark:divide-line-dark dark:bg-surface-dark">
-                            @foreach ($this->todayWords as $word)
-                                @include('components.notebook.partials.word-row', ['word' => $word, 'courseFa' => $this->courseMeaningsFa, 'statusDot' => $statusDot, 'commonness' => $this->wordCommonness, 'removeButton' => $removeButton, 'show' => 'true', 'keyPrefix' => 'today'])
-                            @endforeach
-                        </div>
-                    </div>
-                @endif
-
                 <p x-show="! all.some(meta => shows('words', meta))" x-cloak class="py-6 text-center text-sm font-bold text-ink-faint dark:text-ink-faint-dark">Nothing here.</p>
 
                 @foreach ($this->wordGroups as $group)
                     @php
                         $key = 'words-'.$loop->index;
-                        $first = $loop->first && $this->todayWords->isEmpty() ? 'true' : 'false';
+                        $first = $loop->first ? 'true' : 'false';
                         $metas = $group['words']->map($wordMeta)->values();
                         $groupCounts = $group['words']->countBy(fn (VocabularyWord $word) => $word->studyStatus());
+                        $groupTotal = $group['words']->count();
+                        $countText = $groupTotal.' '.Str::plural('word', $groupTotal).($group['mine'] > 0 ? ' · '.$group['mine'].' yours' : '');
                     @endphp
-                    <div class="space-y-1.5" x-data="{ metas: {{ \Illuminate\Support\Js::from($metas) }} }" x-show="metas.some(meta => shows('words', meta))">
-                        <button type="button" x-on:click="open['{{ $key }}'] = ! isOpen('words', '{{ $key }}', {{ $first }})" x-bind:aria-expanded="isOpen('words', '{{ $key }}', {{ $first }})" class="flex w-full cursor-pointer items-center gap-2 px-2 text-left text-xs font-extrabold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">
-                            <span class="transition-transform" x-bind:class="isOpen('words', '{{ $key }}', {{ $first }}) ? 'rotate-90' : ''">@svg('heroicon-m-chevron-right', 'h-3.5 w-3.5')</span>
-                            <span class="min-w-0 truncate">{{ $group['title'] }}</span>
-                            <span class="flex gap-0.5" aria-hidden="true">
-                                @foreach (['new', 'learning', 'known'] as $status)
-                                    @if ($groupCounts->get($status, 0) > 0)
-                                        <span class="{{ $statusDot($status) }} h-1.5 w-1.5 rounded-full"></span>
-                                    @endif
-                                @endforeach
+                    <section aria-label="{{ $group['title'] }}" class="overflow-hidden rounded-3xl bg-surface dark:bg-surface-dark" x-data="{ metas: {{ \Illuminate\Support\Js::from($metas) }} }" x-show="metas.some(meta => shows('words', meta))">
+                        <button type="button" x-on:click="open['{{ $key }}'] = ! isOpen('words', '{{ $key }}', {{ $first }})" x-bind:aria-expanded="isOpen('words', '{{ $key }}', {{ $first }})" class="flex w-full cursor-pointer items-center gap-3 p-3 text-left">
+                            <span class="relative flex h-14 w-14 shrink-0 items-end overflow-hidden rounded-2xl bg-linear-to-br from-hero to-dusk p-1.5 text-[13px] font-extrabold text-white">
+                                @if ($group['cover'])
+                                    <img src="{{ $group['cover'] }}" alt="" class="absolute inset-0 h-full w-full object-cover">
+                                    <span class="absolute inset-0 bg-black/30"></span>
+                                @endif
+                                <span class="relative drop-shadow">{{ $group['code'] ?: '+' }}</span>
                             </span>
-                            <span class="ml-auto font-bold tracking-normal">{{ $group['words']->count() }}</span>
+                            <span class="flex min-w-0 flex-1 flex-col gap-1.5">
+                                <span class="flex items-center gap-2">
+                                    <span class="min-w-0 truncate text-base font-extrabold text-ink dark:text-ink-dark">{{ $group['title'] }}</span>
+                                    @if ($group['due'] > 0)
+                                        <span class="shrink-0 rounded-full bg-accent-soft px-2 py-0.5 text-xs font-extrabold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">{{ $group['due'] }} due</span>
+                                    @endif
+                                </span>
+                                <span class="text-[13px] font-semibold text-ink-soft dark:text-ink-soft-dark" x-text="filtering('words') ? metas.filter(meta => shows('words', meta)).length + ' found' : @js($countText)">{{ $countText }}</span>
+                                <span class="flex h-1.5 gap-0.5 overflow-hidden rounded-full bg-surface-sunken dark:bg-surface-sunken-dark" role="img" aria-label="{{ $groupCounts->get('known', 0) }} known, {{ $groupCounts->get('learning', 0) }} learning, {{ $groupCounts->get('new', 0) }} new">
+                                    @foreach (['known' => 'bg-success dark:bg-success-dark', 'learning' => 'bg-warning', 'new' => 'bg-ink-faint dark:bg-ink-faint-dark'] as $status => $color)
+                                        @if ($groupCounts->get($status, 0) > 0)
+                                            <span class="{{ $color }} block h-full" style="width: {{ $groupCounts->get($status) / $groupTotal * 100 }}%"></span>
+                                        @endif
+                                    @endforeach
+                                </span>
+                            </span>
+                            <span class="shrink-0 text-ink-faint transition-transform dark:text-ink-faint-dark" x-bind:class="isOpen('words', '{{ $key }}', {{ $first }}) ? 'rotate-180' : ''">@svg('heroicon-m-chevron-down', 'h-5 w-5')</span>
                         </button>
-                        <div x-show="isOpen('words', '{{ $key }}', {{ $first }})" @unless ($first === 'true') x-cloak @endunless class="divide-y divide-line rounded-3xl bg-surface px-4 dark:divide-line-dark dark:bg-surface-dark">
+                        <div x-show="isOpen('words', '{{ $key }}', {{ $first }})" @unless ($loop->first) x-cloak @endunless class="divide-y divide-line border-t border-line px-4 dark:divide-line-dark dark:border-line-dark">
                             @foreach ($group['words'] as $word)
                                 @if ($loop->index < 4)
                                     @include('components.notebook.partials.word-row', ['word' => $word, 'courseFa' => $this->courseMeaningsFa, 'statusDot' => $statusDot, 'commonness' => $this->wordCommonness, 'removeButton' => $removeButton, 'show' => "shows('words', metas[".$loop->index."])", 'keyPrefix' => 'word'])
@@ -749,11 +762,11 @@ new class extends Component
                                     </template>
                                 @endif
                             @endforeach
-                            @if ($group['words']->count() > 4)
-                                <button type="button" x-show="! filtering('words')" x-on:click="expanded['{{ $key }}'] = ! expanded['{{ $key }}']" x-text="expanded['{{ $key }}'] ? 'Show less' : 'Show all {{ $group['words']->count() }} ›'" class="w-full cursor-pointer py-3 text-center text-sm font-extrabold text-accent-ink dark:text-accent-ink-dark">Show all {{ $group['words']->count() }} ›</button>
+                            @if ($groupTotal > 4)
+                                <button type="button" x-show="! filtering('words')" x-on:click="expanded['{{ $key }}'] = ! expanded['{{ $key }}']" x-text="expanded['{{ $key }}'] ? 'Show less' : 'Show all {{ $groupTotal }} ›'" class="w-full cursor-pointer py-3 text-center text-sm font-extrabold text-accent-ink dark:text-accent-ink-dark">Show all {{ $groupTotal }} ›</button>
                             @endif
                         </div>
-                    </div>
+                    </section>
                 @endforeach
             </div>
         @endif

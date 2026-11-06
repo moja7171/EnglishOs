@@ -2180,6 +2180,7 @@ Alpine.data('dictionarySheet', (urls) => ({
                         meaning: sense?.definition ?? null,
                         pos: sense?.pos ?? null,
                         example: this.sentence || sense?.example || null,
+                        mission: window.location.pathname.match(/\/missions\/(M\d{2})/i)?.[1] ?? null,
                     }),
                 });
 
