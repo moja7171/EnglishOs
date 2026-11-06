@@ -182,6 +182,7 @@ return array(
     'App\\Services\\WiktionaryClient' => $baseDir . '/app/Services/WiktionaryClient.php',
     'App\\Services\\WordFrequency' => $baseDir . '/app/Services/WordFrequency.php',
     'App\\Services\\WordLookup' => $baseDir . '/app/Services/WordLookup.php',
+    'App\\Services\\WordMissions' => $baseDir . '/app/Services/WordMissions.php',
     'App\\Services\\WordSentences' => $baseDir . '/app/Services/WordSentences.php',
     'App\\Services\\WouldYouRatherDeck' => $baseDir . '/app/Services/WouldYouRatherDeck.php',
     'Attribute' => $vendorDir . '/symfony/polyfill-php80/Resources/stubs/Attribute.php',

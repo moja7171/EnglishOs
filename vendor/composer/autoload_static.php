@@ -724,6 +724,7 @@ class ComposerStaticInitdd10e30ec7065eb577b19a4c3968c74e
         'App\\Services\\WiktionaryClient' => __DIR__ . '/../..' . '/app/Services/WiktionaryClient.php',
         'App\\Services\\WordFrequency' => __DIR__ . '/../..' . '/app/Services/WordFrequency.php',
         'App\\Services\\WordLookup' => __DIR__ . '/../..' . '/app/Services/WordLookup.php',
+        'App\\Services\\WordMissions' => __DIR__ . '/../..' . '/app/Services/WordMissions.php',
         'App\\Services\\WordSentences' => __DIR__ . '/../..' . '/app/Services/WordSentences.php',
         'App\\Services\\WouldYouRatherDeck' => __DIR__ . '/../..' . '/app/Services/WouldYouRatherDeck.php',
         'Attribute' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/Attribute.php',
