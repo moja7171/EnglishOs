@@ -35,6 +35,7 @@
             <x-teddy-says wire:key="ai-reason-{{ $practice->position }}" :say="$current['reason']" :label="'Teddy: '.$card[$current['ai']]">
                 <p class="text-base font-semibold text-ink dark:text-ink-dark">{{ $current['reason'] }}</p>
             </x-teddy-says>
+            <x-feedback-cue wire:key="rather-cue-{{ $practice->position }}" :kind="$current['guess'] === $current['ai'] ? 'right' : 'wrong'" />
             <p @class(['text-sm font-bold', 'text-success dark:text-success-dark' => $current['guess'] === $current['ai'], 'text-ink-soft dark:text-ink-soft-dark' => $current['guess'] !== $current['ai']])>{{ $current['guess'] === $current['ai'] ? '✓ You guessed right' : 'Not this time' }}</p>
 
             @if (! isset($current['heard']))

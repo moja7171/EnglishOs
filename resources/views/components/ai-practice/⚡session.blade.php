@@ -95,6 +95,22 @@ new class extends Component
     }
 
     /**
+     * Teddy's turn on a card: the learner's verdict on what he said.
+     */
+    public function judgeTeddy(string $verdict): void
+    {
+        if ($this->practice->isFinished() || $this->practice->isGameStage() || $this->practice->currentCard() === null) {
+            return;
+        }
+
+        if ($this->practice->learnerAnswers() || isset($this->practice->current['judged']) || ! in_array($verdict, ['right', 'mistake'], true)) {
+            return;
+        }
+
+        $this->practice->recordJudgement($verdict);
+    }
+
+    /**
      * Never in the way: with no line the practice just goes on.
      */
     private function oneLineOn(string $prompt, string $heard): ?string
@@ -107,6 +123,14 @@ new class extends Component
     }
 
     /**
+     * Teddy, playing at the level this practice was set to.
+     */
+    private function teddy(): AiPartner
+    {
+        return app(AiPartner::class)->atLevel($this->practice->level());
+    }
+
+    /**
      * What Teddy says, or a plain line when the AI can't answer: her
      * words are never what holds the learner up.
      *
@@ -115,7 +139,7 @@ new class extends Component
     private function teddySays(\Closure $saying, string $plainLine): string
     {
         try {
-            return $saying(app(AiPartner::class)) ?: $plainLine;
+            return $saying($this->teddy()) ?: $plainLine;
         } catch (Throwable) {
             return $plainLine;
         }
@@ -166,7 +190,7 @@ new class extends Component
         $card = $this->practice->currentCard();
 
         try {
-            $talk = app(AiPartner::class)->talkAbout($card['word'], $card['words'], auth()->user()->levelDescription());
+            $talk = $this->teddy()->talkAbout($card['word'], $card['words'], auth()->user()->levelDescription());
         } catch (Throwable $e) {
             $this->error = AiFailure::checkMessage($e);
 
@@ -283,7 +307,7 @@ new class extends Component
         }
 
         try {
-            $guess = app(AiPartner::class)->findTheLie($card['word'], $heard, $level);
+            $guess = $this->teddy()->findTheLie($card['word'], $heard, $level);
         } catch (Throwable) {
             $pick = random_int(1, PairGame::STATEMENTS);
             $guess = ['pick' => $pick, 'line' => "Hmm, I think number {$pick} is the lie."];
@@ -305,7 +329,7 @@ new class extends Component
         $card = $this->practice->currentCard();
 
         try {
-            $three = app(AiPartner::class)->threeThings($card['word'], $card['hint'] ?? null, auth()->user()->levelDescription());
+            $three = $this->teddy()->threeThings($card['word'], $card['hint'] ?? null, auth()->user()->levelDescription());
         } catch (Throwable $e) {
             $this->error = AiFailure::checkMessage($e);
 
@@ -361,7 +385,7 @@ new class extends Component
 
         if ($mine) {
             try {
-                $guess = app(AiPartner::class)->guessTheWord($heard, $current['tries'] ?? [], auth()->user()->levelDescription());
+                $guess = $this->teddy()->guessTheWord($heard, $current['tries'] ?? [], auth()->user()->levelDescription());
             } catch (Throwable $e) {
                 $this->practice->save();
                 $this->error = AiFailure::checkMessage($e);
@@ -401,7 +425,7 @@ new class extends Component
         $this->error = null;
 
         try {
-            $clues = app(AiPartner::class)->cluesFor($this->practice->currentCard()['word'], auth()->user()->levelDescription());
+            $clues = $this->teddy()->cluesFor($this->practice->currentCard()['word'], auth()->user()->levelDescription());
         } catch (Throwable $e) {
             $this->error = AiFailure::checkMessage($e);
 
@@ -423,8 +447,16 @@ new class extends Component
             return;
         }
 
+        $before = collect($current['qa'])->first(fn (array $row) => AiPractice::sameQuestion($row['q'], $heard));
+
+        if ($before !== null) {
+            $this->error = "You already asked that: {$before['a']}. Ask something new.";
+
+            return;
+        }
+
         try {
-            $reply = app(AiPartner::class)->answerAboutSecret($this->practice->currentCard()['word'], $heard, $current['qa'], auth()->user()->levelDescription());
+            $reply = $this->teddy()->answerAboutSecret($this->practice->currentCard()['word'], $heard, $current['qa'], auth()->user()->levelDescription());
         } catch (Throwable $e) {
             $this->error = AiFailure::checkMessage($e);
 
@@ -452,14 +484,31 @@ new class extends Component
     {
         $this->error = null;
         $current = $this->practice->current ?? ['qa' => []];
+        $category = $this->practice->currentCard()['category'] ?? 'something';
+        $left = AiPractice::MAX_QUESTIONS - count($current['qa']);
+        $question = null;
+        $repeats = [];
 
         try {
-            $question = app(AiPartner::class)->nextQuestion($this->practice->currentCard()['category'] ?? 'something', $current['qa'], auth()->user()->levelDescription());
+            for ($try = 0; $try < 2 && $question === null; $try++) {
+                $asked = $this->teddy()->nextQuestion($category, $current['qa'], auth()->user()->levelDescription(), $left, $repeats);
+
+                if (collect($current['qa'])->contains(fn (array $row) => AiPractice::sameQuestion($row['q'], $asked))) {
+                    $repeats[] = $asked;
+
+                    continue;
+                }
+
+                $question = $asked;
+            }
         } catch (Throwable $e) {
             $this->error = AiFailure::checkMessage($e);
 
             return;
         }
+
+        $question ??= collect(AiPractice::FALLBACK_QUESTIONS)->first(fn (string $fallback) => ! collect($current['qa'])->contains(fn (array $row) => AiPractice::sameQuestion($row['q'], $fallback)))
+            ?? 'Are you something special?';
 
         $current['qa'][] = ['q' => $question, 'a' => null];
         $this->practice->update(['current' => $current]);
@@ -516,7 +565,7 @@ new class extends Component
         $ai = PairGame::SIDES[random_int(0, 1)];
 
         try {
-            $reason = app(AiPartner::class)->reasonFor($card['word'], $card[$ai], auth()->user()->levelDescription());
+            $reason = $this->teddy()->reasonFor($card['word'], $card[$ai], auth()->user()->levelDescription());
         } catch (Throwable) {
             $reason = 'I’d rather pick this one. It sounds better to me.';
         }
@@ -597,6 +646,7 @@ new class extends Component
 <div class="mx-auto flex min-h-dvh max-w-xl flex-col gap-4 p-4">
     @if ($practice->isFinished())
         <div class="card space-y-4 p-6 text-center">
+            <x-feedback-cue kind="done" />
             <p class="animate-trophy-pop text-4xl" aria-hidden="true">🎉</p>
             <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Well done!</h1>
             <div>

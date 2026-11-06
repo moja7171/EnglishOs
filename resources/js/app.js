@@ -614,6 +614,83 @@ window.eosSound = {
             setTimeout(() => ctx.close(), 500);
         } catch (e) {}
     },
+    /**
+     * A short run of soft notes: [[frequency, startsAfterSeconds, lastsSeconds], ...].
+     * Quiet and rounded, never harsh: a wrong answer is not a punishment.
+     */
+    play(notes, wave = 'sine', volume = 0.13) {
+        try {
+            if (!this.enabled()) return;
+            const Ctx = window.AudioContext || window.webkitAudioContext;
+            if (!Ctx) return;
+            const ctx = new Ctx();
+            const now = ctx.currentTime;
+            let end = 0;
+
+            notes.forEach(([frequency, after, lasts]) => {
+                const oscillator = ctx.createOscillator();
+                const gain = ctx.createGain();
+                oscillator.type = wave;
+                oscillator.frequency.value = frequency;
+                const start = now + after;
+                gain.gain.setValueAtTime(0, start);
+                gain.gain.linearRampToValueAtTime(volume, start + 0.02);
+                gain.gain.exponentialRampToValueAtTime(0.001, start + lasts);
+                oscillator.connect(gain).connect(ctx.destination);
+                oscillator.start(start);
+                oscillator.stop(start + lasts);
+                end = Math.max(end, after + lasts);
+            });
+
+            setTimeout(() => ctx.close(), end * 1000 + 200);
+        } catch (e) {}
+    },
+    playWrong() {
+        this.play([[330, 0, 0.18], [247, 0.12, 0.28]], 'triangle');
+    },
+    playPoint() {
+        this.play([[659.25, 0, 0.14]]);
+    },
+    playWin() {
+        this.play([[523.25, 0, 0.18], [659.25, 0.12, 0.18], [783.99, 0.24, 0.18], [1046.5, 0.36, 0.4]]);
+    },
+    playLose() {
+        this.play([[392, 0, 0.22], [349.23, 0.2, 0.22], [293.66, 0.4, 0.4]], 'triangle');
+    },
+    playDone() {
+        this.play([[523.25, 0, 0.16], [783.99, 0.14, 0.4]]);
+    },
+};
+
+/**
+ * One call per moment of a game: its sound and its buzz together. Used by
+ * <x-feedback-cue>, which fires it when a result shows on screen.
+ */
+window.eosFeedback = {
+    right() {
+        window.eosSound?.playSuccess();
+        window.eosHaptic?.correct();
+    },
+    wrong() {
+        window.eosSound?.playWrong();
+        window.eosHaptic?.wrong();
+    },
+    point() {
+        window.eosSound?.playPoint();
+        window.eosHaptic?.correct();
+    },
+    win() {
+        window.eosSound?.playWin();
+        window.eosHaptic?.win();
+    },
+    lose() {
+        window.eosSound?.playLose();
+        window.eosHaptic?.lose();
+    },
+    done() {
+        window.eosSound?.playDone();
+        window.eosHaptic?.done();
+    },
 };
 
 /**
@@ -1462,15 +1539,19 @@ window.eosResume = function (media, key, { snapTo = (time) => time, onRestored =
     const buzz = (pattern) => {
         try {
             if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+            if (localStorage.getItem('eosVibrationEnabled') === 'false') return;
 
             navigator.vibrate?.(pattern);
         } catch (e) {}
     };
 
     window.eosHaptic = {
+        buzz,
         correct: () => buzz(12),
         wrong: () => buzz([10, 40, 10]),
         done: () => buzz([18, 50, 28]),
+        win: () => buzz([20, 40, 20, 40, 60]),
+        lose: () => buzz([60, 80, 60]),
     };
 
     new MutationObserver((mutations) => {

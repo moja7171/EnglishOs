@@ -480,7 +480,7 @@ new class extends Component
                         },
                         tick() {
                             this.left = Math.min({{ PairPracticeSession::STAGE_SECONDS[$stage] ?? 0 }}, Math.max(0, Math.round((this.endsAt - Date.now()) / 1000)));
-                            if (this.left > 0 && this.left <= 15 && ! this.warned) { this.warned = true; navigator.vibrate?.(200); }
+                            if (this.left > 0 && this.left <= 15 && ! this.warned) { this.warned = true; window.eosHaptic?.buzz(200); }
                             if (this.left === 0 && ! this.fired) { this.fired = true; this.$wire.timeUp(@js($stage)); }
                         },
                     }"

@@ -28,6 +28,7 @@ class AiPractices
         private readonly StoryChainDeck $storyChain,
         private readonly TwoTruthsDeck $twoTruths,
         private readonly TabooDeck $taboo,
+        private readonly TeddyLevel $teddyLevel,
     ) {}
 
     /**
@@ -65,6 +66,9 @@ class AiPractices
      */
     private function create(User $learner, string $kind, ?array $days, array $deck, string $stage): AiPractice
     {
+        $level = $this->teddyLevel->levelFor($learner, $kind);
+        $deck = [...$deck, 'teddy_level' => $level, 'slips' => $this->teddyLevel->planSlips($deck, $level)];
+
         return AiPractice::create(['learner_id' => $learner->id, 'kind' => $kind, 'days' => $days, 'deck' => $deck, 'stage' => $stage]);
     }
 

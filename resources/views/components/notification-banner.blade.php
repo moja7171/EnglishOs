@@ -61,7 +61,7 @@
             this.current = item;
             this.dragY = 0;
             this.duration = item.urgent ? Math.max(15000, item.staysMs ?? 0) : 6000;
-            navigator.vibrate?.(item.urgent ? [80, 60, 80] : 40);
+            window.eosHaptic?.buzz(item.urgent ? [80, 60, 80] : 40);
             this.run(this.duration);
         },
         run(ms) {

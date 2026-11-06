@@ -53,6 +53,9 @@
 
         @if ($mine && isset($current['heard']))
             <div class="rounded-xl bg-success-soft p-3 text-start dark:bg-success-soft-dark">
+                @if (($current['used'] ?? []) !== [])
+                    <x-feedback-cue wire:key="minute-cue-{{ $practice->position }}" kind="point" />
+                @endif
                 <p class="text-xs font-semibold text-ink-soft dark:text-ink-soft-dark">I heard</p>
                 <p class="text-sm font-semibold text-ink dark:text-ink-dark">{{ $current['heard'] }}</p>
             </div>

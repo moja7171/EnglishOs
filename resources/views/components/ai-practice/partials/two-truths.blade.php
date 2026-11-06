@@ -61,6 +61,7 @@
             <x-teddy-says wire:key="teddy-guess-{{ $practice->position }}" :say="$current['line']">
                 <p class="text-base font-bold text-ink dark:text-ink-dark">{{ $current['line'] }}</p>
             </x-teddy-says>
+            <x-feedback-cue wire:key="truths-cue-{{ $practice->position }}" :kind="$current['pick'] === $lie ? 'lose' : 'win'" />
             <p class="font-display text-xl font-extrabold text-ink dark:text-ink-dark">{{ $current['pick'] === $lie ? 'Teddy found it!' : 'You tricked Teddy!' }}</p>
             <p class="text-sm font-semibold text-ink-soft dark:text-ink-soft-dark">Your lie: number {{ $lie }}</p>
         @elseif ($statements !== null)
@@ -86,6 +87,7 @@
             @if ($picked === null)
                 <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">Tap the lie</p>
             @else
+                <x-feedback-cue wire:key="truths-pick-cue-{{ $practice->position }}" :kind="$picked === $lie ? 'win' : 'lose'" />
                 <p class="font-display text-xl font-extrabold text-ink dark:text-ink-dark">{{ $picked === $lie ? 'You found it!' : 'Teddy tricked you!' }}</p>
             @endif
 

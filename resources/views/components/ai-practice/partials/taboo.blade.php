@@ -66,6 +66,7 @@
         @endif
 
         @if ($over)
+            <x-feedback-cue wire:key="taboo-cue-{{ $practice->position }}" :kind="$mine ? ($current['won'] ? 'point' : 'win') : ($current['won'] ? 'win' : 'lose')" />
             <p class="font-display text-xl font-extrabold text-ink dark:text-ink-dark">{{ match (true) {
                 $mine && $current['won'] => 'Teddy got it!',
                 $mine => 'Teddy couldn’t guess it',

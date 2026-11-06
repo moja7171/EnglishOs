@@ -3,6 +3,7 @@
 use App\Models\AiPractice;
 use App\Models\PairGame;
 use App\Services\AiPractices;
+use App\Services\PairPractice;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 
@@ -28,13 +29,28 @@ new class extends Component
     }
 
     /**
-     * A round from the latest days, or one game; the open one is picked up.
+     * Every day the learner finished, to pick from.
+     *
+     * @return list<array{code: string, days: list<array{key: string, day: int, shared: bool}>}>
      */
-    public function start(string $kind): void
+    #[Computed]
+    public function myDays(): array
+    {
+        return app(PairPractice::class)->dayChoices(auth()->user(), auth()->user());
+    }
+
+    /**
+     * A round or one game, from the latest days or the days picked; the
+     * open one is picked up.
+     *
+     * @param  list<string>|null  $days
+     */
+    public function start(string $kind, ?array $days = null): void
     {
         abort_unless($kind === AiPractice::KIND_PRACTICE || in_array($kind, AiPractice::GAMES, true), 404);
 
-        $practice = app(AiPractices::class)->start(auth()->user(), $kind);
+        $days = $days === null ? null : array_values(array_filter($days, 'is_string'));
+        $practice = app(AiPractices::class)->start(auth()->user(), $kind, $days ?: null);
 
         if ($practice) {
             $this->redirectRoute('ai-practice.show', $practice, navigate: true);
@@ -49,7 +65,17 @@ new class extends Component
 
 @php $openKinds = $this->openKinds; @endphp
 
-<div class="mx-auto max-w-2xl space-y-4 px-4 pt-3 pb-6 sm:px-6">
+<div
+    x-data="{
+        sheet: false,
+        mode: 'auto',
+        days: [],
+        toggle(key) { this.days = this.days.includes(key) ? this.days.filter((day) => day !== key) : [...this.days, key]; },
+        toggleAll(keys) { this.days = keys.every((key) => this.days.includes(key)) ? this.days.filter((day) => ! keys.includes(day)) : [...new Set([...this.days, ...keys])]; },
+        chosen() { return this.mode === 'auto' || this.days.length === 0 ? null : this.days; },
+    }"
+    class="mx-auto max-w-2xl space-y-4 px-4 pt-3 pb-6 sm:px-6"
+>
     <header class="flex items-center gap-1">
         <a href="{{ route('friends.index') }}" wire:navigate aria-label="Back to Friends" class="-ms-2 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-surface-sunken dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">@svg('heroicon-o-chevron-left', 'h-6 w-6')</a>
         <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Teddy</h1>
@@ -68,12 +94,25 @@ new class extends Component
         <p class="rounded-xl bg-warning-soft px-3 py-2 text-sm font-semibold text-warning-ink">{{ $notice }}</p>
     @endif
 
-    <button type="button" wire:click="start('{{ AiPractice::KIND_PRACTICE }}')" wire:loading.attr="disabled" wire:target="start" class="block w-full cursor-pointer rounded-2xl bg-accent px-4 py-3 text-base font-extrabold text-white shadow-[0_4px_0_color-mix(in_srgb,var(--color-accent)_60%,black)] transition-opacity hover:opacity-90 disabled:opacity-50 dark:bg-accent-dark">{{ in_array(AiPractice::KIND_PRACTICE, $openKinds, true) ? 'Continue practice' : 'Practice together' }}</button>
+    @if ($this->myDays !== [])
+        <button type="button" x-on:click="sheet = true" class="flex w-full cursor-pointer items-center justify-between gap-2 rounded-2xl border border-line bg-surface px-4 py-2.5 text-start text-sm font-semibold text-ink dark:border-line-dark dark:bg-surface-dark dark:text-ink-dark">
+            <span class="flex items-center gap-2">@svg('heroicon-o-calendar-days', 'h-5 w-5 text-ink-faint dark:text-ink-faint-dark') <span x-text="chosen() === null ? 'Your latest days' : days.length + (days.length === 1 ? ' day chosen' : ' days chosen')"></span></span>
+            <span class="text-ink-faint dark:text-ink-faint-dark" aria-hidden="true">›</span>
+        </button>
+
+        <x-bottom-sheet show="sheet" label="Choose days">
+            <x-slot:title>Which days?</x-slot:title>
+            @include('components.pair-practice.partials.day-picker', ['autoLine' => 'Your latest days', 'missions' => $this->myDays, 'keyPrefix' => 'teddy'])
+            <button type="button" x-bind:disabled="mode === 'choose' && days.length === 0" x-on:click="sheet = false" class="block w-full cursor-pointer rounded-full bg-accent px-4 py-3 text-sm font-semibold text-white disabled:opacity-40 dark:bg-accent-dark">Done</button>
+        </x-bottom-sheet>
+    @endif
+
+    <button type="button" x-on:click="$wire.start('{{ AiPractice::KIND_PRACTICE }}', chosen())" wire:loading.attr="disabled" wire:target="start" class="block w-full cursor-pointer rounded-2xl bg-accent px-4 py-3 text-base font-extrabold text-white shadow-[0_4px_0_color-mix(in_srgb,var(--color-accent)_60%,black)] transition-opacity hover:opacity-90 disabled:opacity-50 dark:bg-accent-dark">{{ in_array(AiPractice::KIND_PRACTICE, $openKinds, true) ? 'Continue practice' : 'Practice together' }}</button>
 
     <div class="grid grid-cols-2 gap-2.5">
         @foreach (AiPractice::GAMES as $game)
             @php $info = PairGame::info($game); @endphp
-            <button type="button" wire:key="teddy-game-{{ $game }}" wire:click="start('{{ $game }}')" wire:loading.attr="disabled" wire:target="start" class="cursor-pointer overflow-hidden rounded-2xl bg-surface text-start shadow-sm disabled:opacity-50 dark:bg-surface-dark">
+            <button type="button" wire:key="teddy-game-{{ $game }}" x-on:click="$wire.start('{{ $game }}', chosen())" wire:loading.attr="disabled" wire:target="start" class="cursor-pointer overflow-hidden rounded-2xl bg-surface text-start shadow-sm disabled:opacity-50 dark:bg-surface-dark">
                 <img src="{{ $info['image'] }}" alt="" loading="lazy" class="h-20 w-full object-cover">
                 <span class="block px-3 pt-2 text-sm font-extrabold text-ink dark:text-ink-dark">{{ $info['name'] }}</span>
                 <span class="block truncate px-3 pb-2.5 text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">{{ in_array($game, $openKinds, true) ? 'Continue' : $info['line'] }}</span>

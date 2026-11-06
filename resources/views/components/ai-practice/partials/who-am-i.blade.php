@@ -45,6 +45,7 @@
         @endif
 
         @if ($finished)
+            <x-feedback-cue wire:key="who-cue-{{ $practice->position }}" :kind="$aiHolds ? ($current['won'] ? 'win' : 'lose') : ($current['won'] ? 'point' : 'win')" />
             <p class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">
                 {{ match (true) {
                     $aiHolds && $current['won'] => 'You got it!',
