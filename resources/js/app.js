@@ -507,6 +507,13 @@ window.eosVoice = {
                 const utterance = new SpeechSynthesisUtterance(piece.trim());
                 utterance.lang = 'en-US';
                 utterance.rate = options.rate ?? 0.95;
+                if (options.voice) {
+                    utterance.voice = options.voice;
+                    utterance.lang = options.voice.lang;
+                }
+                if (options.pitch) {
+                    utterance.pitch = options.pitch;
+                }
                 if (i === pieces.length - 1 && options.onEnd) {
                     utterance.onend = () => options.onEnd();
                     utterance.onerror = () => options.onEnd();
@@ -521,6 +528,46 @@ window.eosVoice = {
         try {
             window.speechSynthesis?.cancel();
         } catch (e) {}
+    },
+    /**
+     * The most natural-sounding English voice this phone has, a male one
+     * when there is one: "natural"/"neural"/"online" voices first, then a
+     * known male name, then US English. Null when the browser lists none
+     * (the default voice is then used, with a lower pitch).
+     */
+    teddyVoice() {
+        try {
+            const voices = (window.speechSynthesis?.getVoices() ?? []).filter((voice) => /^en[-_]/i.test(voice.lang));
+            if (voices.length === 0) {
+                return null;
+            }
+            const score = (voice) => {
+                const label = `${voice.name} ${voice.voiceURI}`;
+                return (/natural|neural|online|enhanced|premium/i.test(label) ? 4 : 0)
+                    + (/(?<!fe)male|daniel|alex\b|aaron|fred|guy|david|mark|james|arthur|oliver|thomas|evan|nathan|tom\b|rishi|gordon|iom|iol|tpd/i.test(label) ? 3 : 0)
+                    + (/en[-_]US/i.test(voice.lang) ? 1 : 0);
+            };
+            return voices.reduce((best, voice) => (score(voice) > score(best) ? voice : best), voices[0]);
+        } catch (e) {
+            return null;
+        }
+    },
+    /**
+     * Teddy's own voice for Practice with AI: the voice above, a little
+     * slower and lower, after a short pause like a person who has just
+     * thought of the answer. options.delay: the pause in ms (default 0);
+     * options.onEnd: once he has finished.
+     */
+    teddy(text, options = {}) {
+        const say = () => {
+            const voice = this.teddyVoice();
+            this.speak(text, { rate: 0.92, pitch: voice ? 0.95 : 0.85, voice, onEnd: options.onEnd });
+        };
+        if (options.delay) {
+            setTimeout(say, options.delay);
+        } else {
+            say();
+        }
     },
 };
 

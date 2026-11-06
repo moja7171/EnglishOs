@@ -58,14 +58,13 @@
                 <p class="text-xs font-semibold text-ink-soft dark:text-ink-soft-dark">I heard</p>
                 <p class="text-sm font-semibold text-ink dark:text-ink-dark">{{ $heard }}</p>
             </div>
-            <div wire:key="teddy-guess-{{ $practice->position }}" x-data x-init="window.eosVoice?.speak(@js($current['line']))" class="rounded-xl bg-surface-sunken p-3 dark:bg-surface-sunken-dark">
+            <x-teddy-says wire:key="teddy-guess-{{ $practice->position }}" :say="$current['line']">
                 <p class="text-base font-bold text-ink dark:text-ink-dark">{{ $current['line'] }}</p>
-                <div class="mt-2"><x-speak-button :text="$current['line']" /></div>
-            </div>
+            </x-teddy-says>
             <p class="font-display text-xl font-extrabold text-ink dark:text-ink-dark">{{ $current['pick'] === $lie ? 'Teddy found it!' : 'You tricked Teddy!' }}</p>
             <p class="text-sm font-semibold text-ink-soft dark:text-ink-soft-dark">Your lie: number {{ $lie }}</p>
         @elseif ($statements !== null)
-            <div wire:key="teddy-three-{{ $practice->position }}" x-data x-init="window.eosVoice?.speak(@js(implode(' ', $statements)))" class="space-y-2">
+            <div wire:key="teddy-three-{{ $practice->position }}" x-data x-init="window.eosVoice?.teddy(@js(implode(' ', $statements)), { delay: 900 })" class="space-y-2">
                 @foreach ($statements as $index => $statement)
                     @php $number = $index + 1; @endphp
                     <button type="button" wire:key="statement-{{ $number }}" wire:click="pickLie({{ $number }})" wire:loading.attr="disabled" wire:target="pickLie" @disabled($picked !== null) @class([
@@ -81,7 +80,7 @@
                         @endif
                     </button>
                 @endforeach
-                <x-speak-button :text="implode(' ', $statements)" />
+                <x-speak-button :text="implode(' ', $statements)" voice="teddy" />
             </div>
 
             @if ($picked === null)
@@ -97,7 +96,7 @@
                 </div>
             @endforeach
             @if (filled($asked))
-                <div wire:key="teddy-answers-{{ count($asked) }}" x-data x-init="window.eosVoice?.speak(@js(collect($asked)->last()['a']))"></div>
+                <div wire:key="teddy-answers-{{ count($asked) }}" x-data x-init="window.eosVoice?.teddy(@js(collect($asked)->last()['a']), { delay: 900 })"></div>
             @endif
 
             @if ($picked === null && count($asked) < App\Models\AiPractice::TRUTHS_QUESTIONS)

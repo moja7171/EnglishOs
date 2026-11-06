@@ -34,7 +34,7 @@
         @endforeach
 
         @if ($lastLine)
-            <div wire:key="teddy-tells-{{ count($lines) }}" x-data x-init="window.eosVoice?.speak(@js($lastLine['text']))" class="text-center"><x-speak-button :text="$lastLine['text']" /></div>
+            <div wire:key="teddy-tells-{{ count($lines) }}" x-data x-init="window.eosVoice?.teddy(@js($lastLine['text']), { delay: 900 })" class="text-center"><x-speak-button :text="$lastLine['text']" voice="teddy" /></div>
         @endif
 
         @unless ($ended)
