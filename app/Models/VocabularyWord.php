@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\HasSpacedRepetition;
+use App\Services\WordFrequency;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -250,6 +251,23 @@ class VocabularyWord extends Model
         $byLength = $sentences->sortBy(fn (array $sentence) => str_word_count($sentence['text']));
 
         return ($byLength->first(fn (array $sentence) => static::isSimple($sentence['text'])) ?? $byLength->first())['text'];
+    }
+
+    /**
+     * How common the word is (WordFrequency::RARE to VERY_COMMON): a single
+     * word from the frequency list, a phrase from the dictionary entry once
+     * a lookup has rated it. null when there is no rating (a hyphenated
+     * word, a phrase never looked up).
+     */
+    public function commonness(): ?int
+    {
+        $key = mb_strtolower(trim($this->word));
+
+        if (str_contains($key, ' ')) {
+            return DictionaryEntry::where('word', PhraseForm::baseOf($key) ?? $key)->value('commonness');
+        }
+
+        return preg_match("/^[a-z']+$/", $key) === 1 ? app(WordFrequency::class)->levelOf($key) : null;
     }
 
     /**

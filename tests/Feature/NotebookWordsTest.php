@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\DictionaryEntry;
 use App\Models\User;
 use App\Models\VocabularyWord;
 use App\Models\WordSentence;
@@ -229,6 +230,25 @@ class NotebookWordsTest extends TestCase
             ->assertDontSee('We walked for hours')
             ->call('openWord', $word->id)
             ->assertSee('We walked for hours until we finally sat down on the bank of the quiet river near the old mill.');
+    }
+
+    public function test_the_sheet_says_how_common_the_word_is(): void
+    {
+        $learner = User::factory()->create();
+        $this->actingAs($learner);
+        $run = $this->word($learner, 'run', ['example' => 'I run every day.']);
+        $rare = $this->word($learner, 'perspicacious', ['example' => 'A perspicacious reader.']);
+        $phrase = $this->word($learner, 'give up', ['example' => 'Never give up.']);
+        DictionaryEntry::factory()->create(['word' => 'give up', 'commonness' => 3]);
+
+        $this->assertSame(3, $run->commonness());
+        $this->assertSame(1, $rare->commonness());
+        $this->assertSame(3, $phrase->commonness());
+        $this->assertNull($this->word($learner, 'well-known')->commonness());
+        $this->assertNull($this->word($learner, 'look forward to')->commonness());
+
+        Livewire::test('notebook.index')->call('openWord', $run->id)->assertSee('Very common');
+        Livewire::test('notebook.index')->call('openWord', $rare->id)->assertSee('Less common');
     }
 
     public function test_only_the_opened_word_has_a_sheet(): void
