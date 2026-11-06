@@ -206,7 +206,7 @@ new class extends Component
         <div
             wire:key="ring-celebration"
             x-data="{ show: true }"
-            x-init="window.eosConfetti?.burst(); navigator.vibrate?.([80, 60, 120]); setTimeout(() => show = false, 2200)"
+            x-init="window.eosConfetti?.burst(); window.eosHaptic?.buzz([80, 60, 120]); setTimeout(() => show = false, 2200)"
             x-show="show"
             x-transition.opacity.duration.300ms
             x-on:click="show = false"

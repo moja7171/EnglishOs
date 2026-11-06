@@ -7,9 +7,10 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\HtmlString;
 
-#[Fillable(['learner_id', 'source_mission_run_id', 'word', 'meaning', 'meaning_fa', 'pos', 'example', 'user_sentence', 'ease_factor', 'interval_days', 'repetitions', 'next_review_at', 'last_reviewed_at'])]
+#[Fillable(['learner_id', 'source_mission_run_id', 'word', 'meaning', 'meaning_fa', 'meaning_fa_previous', 'meaning_fa_checked_at', 'pos', 'example', 'user_sentence', 'ease_factor', 'interval_days', 'repetitions', 'next_review_at', 'last_reviewed_at'])]
 class VocabularyWord extends Model
 {
     use HasFactory;
@@ -34,6 +35,7 @@ class VocabularyWord extends Model
     {
         return [
             'ease_factor' => 'float',
+            'meaning_fa_checked_at' => 'datetime',
             'next_review_at' => 'datetime',
             'last_reviewed_at' => 'datetime',
         ];
@@ -148,10 +150,31 @@ class VocabularyWord extends Model
      */
     public function highlightIn(string $sentence): HtmlString
     {
+        $parts = $this->splitAround($sentence);
+
+        if ($parts === null) {
+            return new HtmlString(e($sentence));
+        }
+
+        return new HtmlString(
+            e($parts['before'])
+            .'<strong class="font-bold text-accent-ink dark:text-accent-ink-dark">'.e($parts['hit']).'</strong>'
+            .e($parts['after'])
+        );
+    }
+
+    /**
+     * The sentence cut around this word as it appears in it (see
+     * highlightIn() for what counts as found), or null when it isn't there.
+     *
+     * @return array{before: string, hit: string, after: string}|null
+     */
+    public function splitAround(string $sentence): ?array
+    {
         $words = preg_split('/\s+/u', trim($this->word), -1, PREG_SPLIT_NO_EMPTY) ?: [];
 
         if ($words === []) {
-            return new HtmlString(e($sentence));
+            return null;
         }
 
         $quoted = array_map(fn (string $part) => preg_quote($part, '/'), $words);
@@ -169,15 +192,89 @@ class VocabularyWord extends Model
             if (preg_match('/(?<![\w])'.$pattern.'(?![\w])/iu', $sentence, $match, PREG_OFFSET_CAPTURE)) {
                 [$found, $offset] = $match[0];
 
-                return new HtmlString(
-                    e(substr($sentence, 0, $offset))
-                    .'<strong class="font-bold text-accent-ink dark:text-accent-ink-dark">'.e($found).'</strong>'
-                    .e(substr($sentence, $offset + strlen($found)))
-                );
+                return [
+                    'before' => substr($sentence, 0, $offset),
+                    'hit' => $found,
+                    'after' => substr($sentence, $offset + strlen($found)),
+                ];
             }
         }
 
-        return new HtmlString(e($sentence));
+        return null;
+    }
+
+    /**
+     * @return HasMany<WordSentence, $this>
+     */
+    public function sentences(): HasMany
+    {
+        return $this->hasMany(WordSentence::class);
+    }
+
+    /**
+     * Every sentence worth learning this word from, simplest first: the
+     * ones the learner wrote (corrected), the AI's, then the lesson's
+     * example. Each is [text, source] with source "own", "ai" or "lesson".
+     *
+     * @return list<array{text: string, source: string}>
+     */
+    public function learningSentences(): array
+    {
+        $stored = $this->sentences->sortByDesc('id');
+        $own = $stored->filter->isOwn()->map(fn (WordSentence $sentence) => ['text' => $sentence->shown(), 'source' => 'own']);
+        $ai = $stored->reject->isOwn()->map(fn (WordSentence $sentence) => ['text' => $sentence->sentence, 'source' => 'ai']);
+        $lesson = collect([$this->user_sentence ? ['text' => $this->user_sentence, 'source' => 'own'] : null, $this->example ? ['text' => $this->example, 'source' => 'lesson'] : null])->filter();
+
+        return $own->concat($lesson->where('source', 'own'))->concat($ai)->concat($lesson->where('source', 'lesson'))->unique('text')->values()->all();
+    }
+
+    /**
+     * The one sentence shown under the word: one the learner wrote if
+     * there is one, else the shortest simple one (at most
+     * SIMPLE_SENTENCE_WORDS words) so it can be learned, else the shortest.
+     */
+    public function displaySentence(): ?string
+    {
+        $sentences = collect($this->learningSentences());
+
+        if ($sentences->isEmpty()) {
+            return null;
+        }
+
+        $own = $sentences->firstWhere('source', 'own');
+
+        if ($own !== null && static::isSimple($own['text'])) {
+            return $own['text'];
+        }
+
+        $byLength = $sentences->sortBy(fn (array $sentence) => str_word_count($sentence['text']));
+
+        return ($byLength->first(fn (array $sentence) => static::isSimple($sentence['text'])) ?? $byLength->first())['text'];
+    }
+
+    /** A sentence short enough to learn by heart. */
+    public const SIMPLE_SENTENCE_WORDS = 8;
+
+    public static function isSimple(string $sentence): bool
+    {
+        return str_word_count($sentence) <= self::SIMPLE_SENTENCE_WORDS;
+    }
+
+    /**
+     * The four steps of knowing a word and which the learner has done: it
+     * was seen, it was reviewed, it is strong (a gap of a week or more) and
+     * it was used in a sentence of their own.
+     *
+     * @return array<string, bool>
+     */
+    public function ladder(): array
+    {
+        return [
+            'Seen' => true,
+            'Reviewed' => $this->last_reviewed_at !== null,
+            'Strong' => $this->strengthLevel() >= 3,
+            'Used' => $this->sentences->contains->isOwn() || filled($this->user_sentence),
+        ];
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Services\StreakRing;
+use App\Services\TeddyLevel;
 use Database\Factories\AiPracticeFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
@@ -51,6 +52,12 @@ class AiPractice extends Model
 
     /** Taboo: tries at one word, for whichever of the two is guessing. */
     public const TABOO_TRIES = 3;
+
+    /** Yes/no questions Teddy can fall back on in Who am I when the AI keeps repeating itself. */
+    public const FALLBACK_QUESTIONS = [
+        'Are you alive?', 'Are you big?', 'Can people touch you?', 'Can you find me at home?', 'Do people use you every day?',
+        'Do people eat you?', 'Are you expensive?', 'Are you made by people?', 'Can you move?', 'Are you red?',
+    ];
 
     /** A practice ended with fewer answers than this doesn't count for the day. */
     public const MIN_COUNTED_ANSWERS = 3;
@@ -219,11 +226,160 @@ class AiPractice extends Model
         return $percent >= self::CLOSE_ENOUGH_PERCENT;
     }
 
+    /**
+     * A word card's hints, one more on each tap: its English meaning, then
+     * its first letter and an example with the word blanked out.
+     *
+     * @param  array<string, mixed>  $card
+     * @return list<string>
+     */
+    public static function wordHints(array $card): array
+    {
+        $word = (string) ($card['answer'] ?? '');
+        $hints = [];
+
+        if (filled($card['meaning'] ?? null)) {
+            $hints[] = self::blankedOut($card['meaning'], $word);
+        }
+
+        $starts = 'Starts with “'.mb_substr($word, 0, 1).'” · '.mb_strlen(str_replace(' ', '', $word)).' letters';
+        $hints[] = filled($card['example'] ?? null) ? $starts.' · '.self::blankedOut($card['example'], $word) : $starts;
+
+        return $word === '' ? [] : $hints;
+    }
+
+    /**
+     * The text with the word, and the same word with an ending, replaced
+     * by a blank.
+     */
+    public static function blankedOut(string $text, string $word): string
+    {
+        return (string) preg_replace('/\b'.preg_quote($word, '/').'(s|es|d|ed|ing)?\b/iu', '_____', $text);
+    }
+
+    /**
+     * The text cut into its sentences.
+     *
+     * @return list<string>
+     */
+    public static function sentencesOf(string $text): array
+    {
+        return array_values(array_filter(array_map('trim', preg_split('/(?<=[.!?])\s+/u', trim($text)) ?: [])));
+    }
+
+    /**
+     * Whether two yes/no questions ask the same thing: the same words once
+     * capitals and punctuation are gone, in any order, or nearly the same
+     * text.
+     */
+    public static function sameQuestion(string $first, string $second): bool
+    {
+        [$first, $second] = [self::plain($first), self::plain($second)];
+
+        if ($first === '' || $second === '') {
+            return false;
+        }
+
+        $words = fn (string $text) => collect(explode(' ', $text))->sort()->values()->all();
+
+        if ($first === $second || $words($first) === $words($second)) {
+            return true;
+        }
+
+        similar_text($first, $second, $percent);
+
+        return $percent >= 88;
+    }
+
     private static function plain(string $text): string
     {
         $text = preg_replace('/[^\p{L}\p{N}\s]/u', '', mb_strtolower($text));
 
         return trim(preg_replace('/\s+/', ' ', (string) $text));
+    }
+
+    /**
+     * All the cards of the practice, in every part.
+     */
+    public function totalCards(): int
+    {
+        return collect([...self::CARD_STAGES, self::STAGE_GAME])->sum(fn (string $stage) => count($this->cards($stage)));
+    }
+
+    /**
+     * How well Teddy plays in this practice (see App\Services\TeddyLevel).
+     */
+    public function level(): string
+    {
+        return $this->deck['teddy_level'] ?? TeddyLevel::NORMAL;
+    }
+
+    /**
+     * Whether Teddy slips on this turn: planned once when the practice
+     * began, so it stays the same when the page is shown again.
+     */
+    public function teddySlips(): bool
+    {
+        return in_array($this->position, $this->deck['slips'][$this->stage] ?? [], true);
+    }
+
+    /**
+     * What Teddy says on a card of his own: the deck's answer, or a
+     * believable wrong one on a turn he slips on. A word card gets another
+     * card's word, a grammar card the wrong sentence as it stands, and a
+     * speaking card the slip the AI wrote for it (kept in `current`).
+     */
+    public function teddyCardLine(): string
+    {
+        $card = $this->currentCard() ?? [];
+        $answer = (string) ($card['answer'] ?? '');
+
+        if (! $this->teddySlips()) {
+            return $answer;
+        }
+
+        $wrong = match ($this->stage) {
+            self::STAGE_VOCABULARY => $this->otherCardsAnswer($answer),
+            self::STAGE_GRAMMAR => (string) ($card['prompt'] ?? ''),
+            default => (string) ($this->current['says'] ?? ''),
+        };
+
+        return filled($wrong) && $wrong !== $answer ? $wrong : $answer;
+    }
+
+    /**
+     * Whether what Teddy says on this card is wrong.
+     */
+    public function teddyIsWrong(): bool
+    {
+        return $this->teddyCardLine() !== (string) ($this->currentCard()['answer'] ?? '');
+    }
+
+    /**
+     * Another word card's word, the same one every time for this card.
+     */
+    private function otherCardsAnswer(string $answer): string
+    {
+        $others = collect($this->cards())->pluck('answer')->filter(fn ($other) => filled($other) && $other !== $answer)->values();
+
+        return (string) ($others->isEmpty() ? '' : $others[$this->position % $others->count()]);
+    }
+
+    /**
+     * The learner's verdict on Teddy's turn, once: a point for judging him
+     * right, whether he was right or slipped.
+     *
+     * @param  'right'|'mistake'  $verdict
+     */
+    public function recordJudgement(string $verdict): void
+    {
+        $wrong = $this->teddyIsWrong();
+        $caught = ($verdict === 'mistake') === $wrong;
+
+        $this->current = [...($this->current ?? []), 'judged' => $verdict, 'teddy_wrong' => $wrong, 'says' => $this->teddyCardLine(), 'right_call' => $caught];
+        $this->answered++;
+        $this->score += $caught ? 1 : 0;
+        $this->save();
     }
 
     /**
@@ -291,7 +447,7 @@ class AiPractice extends Model
         foreach ($this->deck['missed_words'] ?? [] as $card) {
             $this->learner->vocabularyWords()->firstOrCreate(
                 ['word' => $card['answer']],
-                ['meaning' => $card['meaning'] ?? null, 'meaning_fa' => $card['prompt'], 'pos' => $card['pos'] ?? null, 'example' => $card['example'] ?? null, 'next_review_at' => now()->addDay()],
+                ['meaning' => $card['meaning'] ?? null, 'meaning_fa' => ($card['prompt_lang'] ?? 'fa') === 'fa' ? $card['prompt'] : null, 'pos' => $card['pos'] ?? null, 'example' => $card['example'] ?? null, 'next_review_at' => now()->addDay()],
             );
         }
     }

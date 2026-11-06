@@ -48,7 +48,7 @@
 
     <div class="flex h-44 flex-col items-center justify-center gap-2 rounded-b-2xl border-2 border-t-0 border-dashed border-line dark:border-line-dark text-center">
         @if ($asked > 0)
-            <p wire:key="last-answer-{{ $asked }}" x-data x-init="navigator.vibrate?.(40)" class="animate-badge-pop font-display text-5xl font-extrabold uppercase {{ $answers[$asked - 1] === 'yes' ? 'text-success dark:text-success-dark' : 'text-ink dark:text-ink-dark' }}">{{ $answers[$asked - 1] }}</p>
+            <p wire:key="last-answer-{{ $asked }}" x-data x-init="window.eosHaptic?.buzz(40)" class="animate-badge-pop font-display text-5xl font-extrabold uppercase {{ $answers[$asked - 1] === 'yes' ? 'text-success dark:text-success-dark' : 'text-ink dark:text-ink-dark' }}">{{ $answers[$asked - 1] }}</p>
         @else
             <span class="font-display text-6xl font-extrabold text-ink-soft dark:text-ink-soft-dark">?</span>
         @endif

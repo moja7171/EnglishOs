@@ -20,11 +20,31 @@ class AiPartner
     private const PERSONA = 'You are Teddy, a cheerful, talkative young man who loves travel and food. You live in Shiraz with your parents '
         .'and your little brother, you work part-time at a small travel agency, and you are learning English too.';
 
+    /** How he plays today, see TeddyLevel. */
+    private string $level = TeddyLevel::NORMAL;
+
     public function __construct(private readonly GeminiClient $gemini) {}
+
+    /**
+     * He plays gently after the learner has been losing and sharper after a
+     * run of wins.
+     */
+    public function atLevel(string $level): static
+    {
+        $this->level = $level;
+
+        return $this;
+    }
 
     private function classmate(string $learnerDescription): string
     {
-        return self::PERSONA." You are a classmate of {$learnerDescription}, at the same level. Use short, simple, correct English and sound warm. Never teach or correct.";
+        $play = match ($this->level) {
+            TeddyLevel::EASY => ' Play gently: you are not very good at games yet, so make clear, obvious moves.',
+            TeddyLevel::HARD => ' Play well: make smart, subtle moves, but keep your English simple.',
+            default => '',
+        };
+
+        return self::PERSONA." You are a classmate of {$learnerDescription}, at the same level. Use short, simple, correct English and sound warm. Never teach or correct.".$play;
     }
 
     /**
@@ -57,18 +77,25 @@ class AiPartner
 
     /**
      * Who am I, with the learner holding the secret: the AI's next yes/no
-     * question, a real guess once it has a good idea.
+     * question, a real guess once it has a good idea or when only a couple
+     * of questions are left. $left counts this one.
      *
-     * @param  list<array{q: string, a: string}>  $asked
+     * @param  list<array{q: string, a: ?string}>  $asked
+     * @param  list<string>  $mustNotAsk  extra questions to avoid, after a repeat
      *
      * @throws RuntimeException when the reply isn't the expected JSON.
      */
-    public function nextQuestion(string $category, array $asked, string $learnerDescription): string
+    public function nextQuestion(string $category, array $asked, string $learnerDescription, int $left = AiPractice::MAX_QUESTIONS, array $mustNotAsk = []): string
     {
+        $already = collect($asked)->pluck('q')->merge($mustNotAsk)->unique()->values()->all();
+        $style = $left <= 2
+            ? 'You are nearly out of questions, so now GUESS what you are talking to: ask "Are you a…?" with your best guess.'
+            : 'Start with broad questions (is it alive, big, found at home) and get more exact each time. Ask ONE new yes/no question starting with Are you, Do you or Can you, or guess it (Are you a…?) when you have a good idea.';
+
         $raw = $this->gemini->chat(
-            [['role' => 'user', 'text' => 'Questions so far: '.json_encode($asked, JSON_UNESCAPED_UNICODE)]],
-            systemPrompt: $this->classmate($learnerDescription)." In a guessing game the classmate secretly is {$category}. Ask ONE new yes/no question starting "
-                .'with Are you, Do you or Can you, or guess it (Are you a…?) when you have a good idea. Never repeat a question. Reply with ONLY valid JSON, no markdown fences: {"question": "..."}.',
+            [['role' => 'user', 'text' => 'Questions so far: '.json_encode($asked, JSON_UNESCAPED_UNICODE)."\nNever ask any of these again, or the same thing in other words: ".json_encode($already, JSON_UNESCAPED_UNICODE)]],
+            systemPrompt: $this->classmate($learnerDescription)." In a guessing game the classmate secretly is {$category}. {$style} "
+                .'Reply with ONLY valid JSON, no markdown fences: {"question": "..."}.',
             profile: GeminiClient::PROFILE_CHAT,
         );
 
@@ -270,5 +297,78 @@ class AiPartner
             systemPrompt: $this->classmate($learnerDescription).' Say why in ONE short sentence, starting with "I\'d rather". Plain text only.',
             profile: GeminiClient::PROFILE_CHAT,
         ));
+    }
+
+    /**
+     * A speaking card with Teddy's turn gone wrong: the card's answer with
+     * ONE small grammar slip the learner can catch. Null when nothing
+     * different came back.
+     */
+    public function answerWithSlip(string $question, string $answer, string $learnerDescription): ?string
+    {
+        $slip = trim($this->gemini->chat(
+            [['role' => 'user', 'text' => "Question: {$question}\nCorrect answer: {$answer}"]],
+            systemPrompt: $this->classmate($learnerDescription).' Rewrite the correct answer with exactly ONE small grammar mistake, the kind a learner makes (a wrong verb form, a missing -s, a wrong small word). '
+                .'Keep everything else the same. Reply with ONLY the sentence.',
+            profile: GeminiClient::PROFILE_CHAT,
+        ), " \t\n\r\0\x0B\"");
+
+        return $slip !== '' && $slip !== $answer ? $slip : null;
+    }
+
+    /**
+     * Story Chain: Teddy's next line with one small grammar slip in it, and
+     * the same line put right.
+     *
+     * @return array{line: string, fix: string}
+     *
+     * @throws RuntimeException when the reply isn't the expected JSON.
+     */
+    public function continueStoryWithSlip(string $story, string $word, string $learnerDescription): array
+    {
+        $raw = $this->gemini->chat(
+            [['role' => 'user', 'text' => "The story so far:\n{$story}\n\nYour word: {$word}"]],
+            systemPrompt: $this->classmate($learnerDescription).' You and your classmate are telling a made-up story, taking turns. Their lines are automatic transcripts of speech, so be kind to small mishearings. '
+                .'Write the next ONE short sentence of the story, using your word, with exactly ONE small grammar mistake in it (a wrong verb form, a missing -s). Leave the story open. '
+                .'Reply with ONLY valid JSON, no markdown fences: {"line": "the sentence with the mistake", "fix": "the same sentence put right"}.',
+            profile: GeminiClient::PROFILE_CHAT,
+        );
+
+        $data = AiJson::decode($raw);
+
+        if (! is_array($data) || blank($data['line'] ?? null) || blank($data['fix'] ?? null) || trim($data['line']) === trim($data['fix'])) {
+            throw new RuntimeException('Unexpected AI response format.');
+        }
+
+        return ['line' => trim($data['line']), 'fix' => trim($data['fix'])];
+    }
+
+    /**
+     * Just a Minute, Teddy's turn: his talk as short sentences, ONE with a
+     * small grammar slip, and that sentence put right.
+     *
+     * @param  list<string>  $words
+     * @return array{sentences: list<string>, slip: int, fix: string}
+     *
+     * @throws RuntimeException when the reply isn't the expected JSON.
+     */
+    public function talkWithSlip(string $topic, array $words, string $learnerDescription): array
+    {
+        $raw = $this->gemini->chat(
+            [['role' => 'user', 'text' => "Topic: {$topic}\nWords to use: ".implode(', ', $words)]],
+            systemPrompt: $this->classmate($learnerDescription).' Talk about the topic in about 5 short sentences, from your own life, using every word in the list. '
+                .'Exactly ONE sentence has a small grammar mistake (a wrong verb form, a missing -s). Reply with ONLY valid JSON, no markdown fences: '
+                .'{"sentences": ["..."], "slip": the 0-based number of the sentence with the mistake, "fix": "that sentence put right"}.',
+            profile: GeminiClient::PROFILE_CHAT,
+        );
+
+        $data = AiJson::decode($raw);
+        $sentences = is_array($data) ? array_values(array_filter($data['sentences'] ?? [], fn ($line) => is_string($line) && filled($line))) : [];
+
+        if (count($sentences) < 3 || ! is_int($data['slip'] ?? null) || ! isset($sentences[$data['slip']]) || blank($data['fix'] ?? null)) {
+            throw new RuntimeException('Unexpected AI response format.');
+        }
+
+        return ['sentences' => array_map('trim', $sentences), 'slip' => $data['slip'], 'fix' => trim($data['fix'])];
     }
 }

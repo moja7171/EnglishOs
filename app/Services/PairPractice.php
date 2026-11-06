@@ -2,11 +2,13 @@
 
 namespace App\Services;
 
+use App\Models\AiPractice;
 use App\Models\ErrorLogItem;
 use App\Models\Mission;
 use App\Models\MissionRun;
 use App\Models\PairPracticeSession;
 use App\Models\User;
+use App\Models\VocabularyWord;
 use App\Notifications\PairPracticeNudge;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -40,6 +42,9 @@ class PairPractice
      * always answered by that player.
      */
     public const OWN_ERROR_CARDS = 1;
+
+    /** With Teddy, this many of the word cards are the learner's own words from My Words. */
+    public const OWN_WORD_CARDS = 6;
 
     /**
      * A card either of the two answered or judged this recently goes to
@@ -302,7 +307,7 @@ class PairPractice
             return null;
         }
 
-        ['deck' => $deck, 'chosen' => $chosen] = $this->drawCards($learner, $learner, $learned, $days);
+        ['deck' => $deck, 'chosen' => $chosen] = $this->drawCards($learner, $learner, $learned, $days, withOwnWords: true);
 
         return ['cards' => $deck, 'days' => $chosen->isNotEmpty() ? $chosen->keys()->values()->all() : null];
     }
@@ -314,7 +319,7 @@ class PairPractice
      * @param  list<string>|null  $days
      * @return array{deck: array<string, list<array<string, mixed>>>, latest: array{mission: Mission, day: int}, chosen: Collection<string, array{mission: Mission, day: int, completedAt: ?Carbon}>}
      */
-    private function drawCards(User $starter, User $friend, Collection $shared, ?array $days): array
+    private function drawCards(User $starter, User $friend, Collection $shared, ?array $days, bool $withOwnWords = false): array
     {
         $chosen = $days === null ? collect() : $shared->only($days);
         $history = $this->recentHistory($starter, $friend);
@@ -342,6 +347,10 @@ class PairPractice
                 PairPracticeSession::STAGE_GRAMMAR => $this->draw($this->prioritize($this->newestDayFirst($recentDays, $latestKey, 'grammar'), $history), $this->prioritize($this->contentOf($olderDays, 'grammar')->shuffle(), $history), self::GRAMMAR_CARDS, $history),
                 PairPracticeSession::STAGE_SPEAKING => $this->draw($this->prioritize($this->newestDayFirst($recentDays, $latestKey, 'speaking'), $history), $this->prioritize($this->contentOf($olderDays, 'speaking')->shuffle(), $history), $authoredSpeaking, $history, shuffle: false),
             ];
+        }
+
+        if ($withOwnWords) {
+            $deck[PairPracticeSession::STAGE_VOCABULARY] = $this->withOwnWords($deck[PairPracticeSession::STAGE_VOCABULARY], $starter, $chosen->isNotEmpty() ? $chosen : $shared);
         }
 
         $deck[PairPracticeSession::STAGE_GRAMMAR] = $this->withOwnErrors($deck[PairPracticeSession::STAGE_GRAMMAR], collect([$starter, $friend])->unique('id')->all(), $chosen->isNotEmpty() ? $chosen : $shared, $history);
@@ -655,6 +664,103 @@ class PairPractice
             ->shuffle()
             ->values()
             ->all();
+    }
+
+    /**
+     * With Teddy the word cards are mostly the learner's own words from My
+     * Words (OWN_WORD_CARDS of VOCABULARY_CARDS), newest and least reviewed
+     * first. The rest come from the lessons, the words due for review
+     * first. The learner answers the even cards, so their own words take
+     * those places first.
+     *
+     * @param  list<array<string, mixed>>  $vocabulary
+     * @param  Collection<string, array{mission: Mission, day: int, completedAt: ?Carbon}>  $days
+     * @return list<array<string, mixed>>
+     */
+    private function withOwnWords(array $vocabulary, User $learner, Collection $days): array
+    {
+        $own = $learner->vocabularyWords()
+            ->whereNull('source_mission_run_id')
+            ->orderByRaw('last_reviewed_at is null desc')
+            ->orderBy('next_review_at')
+            ->orderByDesc('id')
+            ->limit(self::OWN_WORD_CARDS * 2)
+            ->get()
+            ->map(fn (VocabularyWord $word) => $this->ownWordCard($word))
+            ->filter()
+            ->take(self::OWN_WORD_CARDS)
+            ->values();
+
+        $dueWords = $learner->vocabularyWords()
+            ->whereNotNull('source_mission_run_id')
+            ->where('next_review_at', '<=', now())
+            ->pluck('word')
+            ->map(fn (string $word) => mb_strtolower($word))
+            ->all();
+
+        $lesson = $this->contentOf($days, 'vocabulary')
+            ->filter(fn (array $card) => in_array(mb_strtolower($card['answer']), $dueWords, true))
+            ->concat($vocabulary)
+            ->unique('answer')
+            ->values();
+
+        $ownAnswers = $own->map(fn (array $card) => mb_strtolower($card['answer']))->all();
+        $lesson = $lesson
+            ->reject(fn (array $card) => in_array(mb_strtolower($card['answer']), $ownAnswers, true))
+            ->take(max(0, self::VOCABULARY_CARDS - $own->count()))
+            ->values();
+
+        if ($own->isEmpty()) {
+            return $lesson->all();
+        }
+
+        $learnersTurns = $own->take(intdiv(self::VOCABULARY_CARDS, 2));
+        $teddysTurns = $lesson->concat($own->slice($learnersTurns->count()))->values();
+        $cards = [];
+
+        for ($place = 0; $place < self::VOCABULARY_CARDS; $place++) {
+            $pool = $place % 2 === 0 ? $learnersTurns : $teddysTurns;
+            $card = $pool->shift() ?? $teddysTurns->shift() ?? $learnersTurns->shift();
+
+            if ($card !== null) {
+                $cards[] = $card;
+            }
+        }
+
+        return $cards;
+    }
+
+    /**
+     * A word card from one of the learner's own words: its Persian meaning
+     * when it has one, otherwise its English meaning or an example with the
+     * word blanked out. Null when there is nothing to ask with.
+     *
+     * @return array<string, mixed>|null
+     */
+    private function ownWordCard(VocabularyWord $word): ?array
+    {
+        [$prompt, $language] = match (true) {
+            filled($word->meaning_fa) => [$word->meaning_fa, 'fa'],
+            filled($word->meaning) => [AiPractice::blankedOut($word->meaning, $word->word), 'en'],
+            filled($word->example) && AiPractice::wordsIn($word->example, [$word->word]) !== [] => [AiPractice::blankedOut($word->example, $word->word), 'en'],
+            default => [null, null],
+        };
+
+        if ($prompt === null) {
+            return null;
+        }
+
+        return [
+            'prompt' => $prompt,
+            'prompt_lang' => $language,
+            'answer' => $word->word,
+            'meaning' => $word->meaning,
+            'pos' => $word->pos,
+            'example' => $word->example,
+            'source' => 'My Words',
+            'mission' => null,
+            'key' => 'w:'.$word->id,
+        ];
     }
 
     /**

@@ -35,7 +35,7 @@ class PersianGlossary
      * dictionary has nothing for the word or any form of it.
      *
      * @param  list<array{pos: string, definitions: list<array{definition: string, example: ?string}>}>  $meanings
-     * @return list<array{pos: string, words: string}>
+     * @return list<array{pos: string, words: string, source?: string}>
      */
     public function senses(string $word, array $meanings = []): array
     {
@@ -99,7 +99,7 @@ class PersianGlossary
     /**
      * @param  Collection<int, PersianGloss>  $rows
      * @param  list<array{pos: string, definitions: list<array{definition: string, example: ?string}>}>  $meanings
-     * @return list<array{pos: string, words: string}>
+     * @return list<array{pos: string, words: string, source?: string}>
      */
     private function present($rows, array $meanings): array
     {
@@ -111,7 +111,7 @@ class PersianGlossary
             ->map(fn (PersianGloss $gloss) => [
                 'pos' => $gloss->pos,
                 'words' => implode('، ', array_slice($gloss->words, 0, self::MAX_WORDS)),
-            ])
+            ] + ($gloss->source === 'wiktionary' ? [] : ['source' => $gloss->source]))
             ->values()
             ->all();
     }

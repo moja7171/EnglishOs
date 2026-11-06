@@ -3,6 +3,7 @@
 use App\Http\Controllers\AiDiagnosticController;
 use App\Http\Controllers\AiRelayUseController;
 use App\Http\Controllers\DictionaryLookupController;
+use App\Http\Controllers\DictionaryMeaningPersianController;
 use App\Http\Controllers\DictionaryPersianController;
 use App\Http\Controllers\ListeningAudioController;
 use App\Http\Controllers\ServiceHealthController;
@@ -153,6 +154,10 @@ Route::middleware(['auth', 'session.absolute_timeout', 'ai_keys.saved'])->group(
     Route::get('/dictionary/persian', DictionaryPersianController::class)
         ->middleware('throttle:30,1')
         ->name('dictionary.persian');
+
+    Route::get('/dictionary/meaning', DictionaryMeaningPersianController::class)
+        ->middleware('throttle:30,1')
+        ->name('dictionary.meaning');
 
     Route::post('/vocabulary', [VocabularyWordController::class, 'store'])
         ->middleware('throttle:30,1')

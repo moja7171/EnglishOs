@@ -22,16 +22,43 @@
     <div class="space-y-3 p-5">
         <p class="text-sm font-semibold text-ink-soft italic dark:text-ink-soft-dark">{{ $card['line'] }}</p>
 
+        @php
+            $hadSlip = collect($lines)->contains(fn ($line) => isset($line['fix']));
+            $spotted = $current['slip_pick'] ?? null;
+            $asking = $ended && $spotted === null;
+        @endphp
+        @if ($asking)
+            <p class="text-sm font-bold text-ink dark:text-ink-dark">Did Teddy make a mistake? Tap his line, or say there wasn’t one.</p>
+        @endif
+
         @foreach ($lines as $line)
-            <div wire:key="line-{{ $loop->index }}" @class([
+            <div wire:key="line-{{ $loop->index }}" @if ($asking && $line['who'] !== 'you') role="button" tabindex="0" wire:click="pickStorySlip({{ $loop->index }})" @endif @class([
+                'cursor-pointer' => $asking && $line['who'] !== 'you',
+                'ring-2 ring-success dark:ring-success-dark' => $spotted !== null && isset($line['fix']),
                 'rounded-xl p-3 text-sm font-semibold text-ink dark:text-ink-dark',
                 'ms-6 bg-success-soft dark:bg-success-soft-dark' => $line['who'] === 'you',
                 'me-6 bg-surface-sunken dark:bg-surface-sunken-dark' => $line['who'] !== 'you',
             ])>
                 <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">{{ $line['who'] === 'you' ? 'You' : 'Teddy' }}</p>
                 {{ $line['text'] }}
+                @if ($spotted !== null && isset($line['fix']))
+                    <span class="mt-1 block text-xs font-extrabold text-success dark:text-success-dark">Better: {{ $line['fix'] }}</span>
+                @endif
             </div>
         @endforeach
+        @if ($asking)
+            <button type="button" wire:click="pickStorySlip(-1)" class="block w-full cursor-pointer rounded-xl border border-dashed border-line px-3 py-2 text-center text-sm font-extrabold text-ink-soft dark:border-line-dark dark:text-ink-soft-dark">No mistake</button>
+        @elseif ($spotted !== null)
+            @php $right = $spotted === -1 ? ! $hadSlip : isset($lines[$spotted]['fix']); @endphp
+            <x-feedback-cue wire:key="story-slip-cue" :kind="$right ? 'right' : 'wrong'" />
+            <p class="text-center text-sm font-extrabold {{ $right ? 'text-success dark:text-success-dark' : 'text-warning-ink' }}">
+                @if ($spotted === -1)
+                    {{ $hadSlip ? 'There was a slip. It is marked in green.' : '✓ Right, no mistake.' }}
+                @else
+                    {{ $right ? '✓ You found Teddy’s slip!' : ($hadSlip ? 'Not that one. The slip is marked in green.' : 'There was no mistake this time.') }}
+                @endif
+            </p>
+        @endif
 
         @if ($lastLine)
             <div wire:key="teddy-tells-{{ count($lines) }}" x-data x-init="window.eosVoice?.teddy(@js($lastLine['text']), { delay: 900 })" class="text-center"><x-speak-button :text="$lastLine['text']" voice="teddy" /></div>

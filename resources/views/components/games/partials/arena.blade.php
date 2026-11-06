@@ -52,8 +52,8 @@
                 destroy() { clearInterval(this.timer); },
                 tick() {
                     this.left = Math.max(0, Math.ceil((this.endsAt - Date.now()) / 1000));
-                    if (this.left > 0 && this.left <= 10 && ! this.warned) { this.warned = true; navigator.vibrate?.(150); }
-                    if (this.left === 0 && ! this.fired) { this.fired = true; navigator.vibrate?.([120, 80, 120]); this.$wire.timeUp({{ $turnIndex }}); }
+                    if (this.left > 0 && this.left <= 10 && ! this.warned) { this.warned = true; window.eosHaptic?.buzz(150); window.eosSound?.play([[880, 0, 0.09], [880, 0.14, 0.09]], 'triangle'); }
+                    if (this.left === 0 && ! this.fired) { this.fired = true; window.eosHaptic?.buzz([120, 80, 120]); window.eosSound?.playLose(); this.$wire.timeUp({{ $turnIndex }}); }
                 },
             }"
             class="space-y-3"
@@ -319,7 +319,7 @@
             <div
                 wire:key="got-{{ $turnIndex }}-{{ $seen }}"
                 x-data="{ show: true }"
-                x-init="window.eosSound?.playSuccess(); navigator.vibrate?.(40); setTimeout(() => show = false, 2000)"
+                x-init="window.eosSound?.playSuccess(); window.eosHaptic?.buzz(40); setTimeout(() => show = false, 2000)"
                 x-show="show"
                 x-transition.opacity.duration.300ms
                 @class([

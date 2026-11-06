@@ -38,6 +38,9 @@ class DictionaryEntryResource extends JsonResource
             'translation_fa' => $this->translation_fa,
             'persian_senses' => $this->persian_senses,
             'persian_source' => $this->persian_source,
+            // 1 = less common, 2 = common, 3 = very common; null while a phrase
+            // is not rated yet (the sheet asks for it) or is not an entry.
+            'commonness' => $this->isTranslationOnly() ? null : $this->knownCommonness(),
         ];
     }
 }

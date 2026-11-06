@@ -410,8 +410,8 @@ new class extends Component
         <p class="{{ $groupTitle }}">App</p>
         <div
             class="{{ $group }}"
-            x-data="{ dark: window.eosTheme.dark, soundEnabled: true }"
-            x-init="soundEnabled = (() => { try { return localStorage.getItem('eosSoundEnabled') !== 'false' } catch (e) { return true } })()"
+            x-data="{ dark: window.eosTheme.dark, soundEnabled: true, vibrationEnabled: true }"
+            x-init="soundEnabled = (() => { try { return localStorage.getItem('eosSoundEnabled') !== 'false' } catch (e) { return true } })(); vibrationEnabled = (() => { try { return localStorage.getItem('eosVibrationEnabled') !== 'false' } catch (e) { return true } })()"
         >
             <button type="button" x-on:click="screen = 'reminders'" class="{{ $row }}"><span class="{{ $rowIcon }}">@svg('heroicon-o-bell', 'h-4 w-4')</span><span class="flex-1">Reminders</span>@if ($studyTime)<span class="{{ $hint }}">{{ $studyTime }}</span>@endif @svg($chevron, 'h-4 w-4 text-ink-faint dark:text-ink-faint-dark')</button>
             <div class="{{ $row }} cursor-default">
@@ -439,6 +439,19 @@ new class extends Component
                     class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full transition-colors"
                     x-bind:class="soundEnabled ? 'bg-accent dark:bg-accent-dark' : 'bg-line dark:bg-line-dark'"
                 ><span class="inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform" x-bind:class="soundEnabled ? 'translate-x-6' : 'translate-x-1'"></span></button>
+            </div>
+            <div class="{{ $row }} cursor-default">
+                <span class="{{ $rowIcon }}">@svg('heroicon-o-device-phone-mobile', 'h-4 w-4')</span>
+                <span class="flex-1">Vibration</span>
+                <button
+                    type="button"
+                    role="switch"
+                    aria-label="Vibration"
+                    x-bind:aria-checked="vibrationEnabled ? 'true' : 'false'"
+                    x-on:click="vibrationEnabled = ! vibrationEnabled; try { localStorage.setItem('eosVibrationEnabled', vibrationEnabled) } catch (e) {}"
+                    class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full transition-colors"
+                    x-bind:class="vibrationEnabled ? 'bg-accent dark:bg-accent-dark' : 'bg-line dark:bg-line-dark'"
+                ><span class="inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform" x-bind:class="vibrationEnabled ? 'translate-x-6' : 'translate-x-1'"></span></button>
             </div>
         </div>
 

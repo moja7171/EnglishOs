@@ -45,6 +45,7 @@
         @endif
 
         @if ($finished)
+            <x-feedback-cue wire:key="who-cue-{{ $practice->position }}" :kind="$aiHolds ? ($current['won'] ? 'win' : 'lose') : ($current['won'] ? 'point' : 'win')" />
             <p class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">
                 {{ match (true) {
                     $aiHolds && $current['won'] => 'You got it!',
@@ -54,15 +55,34 @@
                 } }}
             </p>
             <p class="text-base font-semibold text-ink-soft dark:text-ink-soft-dark">The secret: {{ $card['word'] }}</p>
+            @foreach (collect($asked)->filter(fn ($row) => ! empty($row['flip'])) as $row)
+                <p wire:key="slip-{{ $loop->index }}" class="rounded-xl bg-warning-soft p-3 text-start text-sm font-semibold text-warning-ink">
+                    Teddy slipped on “{{ $row['q'] }}”: he said {{ $row['a'] }}, it’s really {{ $row['real'] }}.
+                    {{ ! empty($row['challenged']) ? '✓ You caught it.' : 'You didn’t spot it.' }}
+                </p>
+            @endforeach
         @endif
 
         @if ($asked !== [])
             <ol class="space-y-1.5 text-start">
-                @foreach (array_reverse($asked) as $row)
+                @foreach (array_reverse($asked, true) as $index => $row)
                     @if ($row['a'] !== null)
-                        <li wire:key="asked-{{ $loop->index }}" class="flex items-center justify-between gap-3 rounded-lg bg-surface-sunken px-3 py-2 text-sm text-ink dark:bg-surface-sunken-dark dark:text-ink-dark">
+                        <li wire:key="asked-{{ $index }}" class="flex items-center justify-between gap-3 rounded-lg bg-surface-sunken px-3 py-2 text-sm text-ink dark:bg-surface-sunken-dark dark:text-ink-dark">
                             <span class="min-w-0">{{ $row['q'] }}</span>
-                            <span class="shrink-0 font-extrabold capitalize">{{ $row['a'] }}</span>
+                            <span class="flex shrink-0 items-center gap-2">
+                                <span class="font-extrabold capitalize">{{ $row['a'] }}</span>
+                                @if ($aiHolds && ! $finished)
+                                    @if (! isset($row['challenged']))
+                                        <button type="button" wire:click="challengeAnswer({{ $index }})" wire:loading.attr="disabled" wire:target="challengeAnswer" aria-label="That answer is wrong" title="That answer is wrong" class="cursor-pointer rounded-full bg-warning-soft px-2 py-0.5 text-xs font-extrabold text-warning-ink">Wrong?</button>
+                                    @elseif (! empty($row['flip']))
+                                        <x-feedback-cue wire:key="catch-cue-{{ $index }}" kind="right" />
+                                        <span class="text-xs font-extrabold text-success dark:text-success-dark">✓ Caught</span>
+                                    @else
+                                        <x-feedback-cue wire:key="nocatch-cue-{{ $index }}" kind="wrong" />
+                                        <span class="text-xs font-bold text-ink-faint dark:text-ink-faint-dark">He was right</span>
+                                    @endif
+                                @endif
+                            </span>
                         </li>
                     @endif
                 @endforeach
