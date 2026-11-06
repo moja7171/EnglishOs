@@ -28,7 +28,7 @@ class NotebookWordsTest extends TestCase
         return VocabularyWord::factory()->create(['learner_id' => $learner->id, 'word' => $word, ...$attributes]);
     }
 
-    public function test_words_is_the_first_tab_and_opens_by_default_with_the_progress_card(): void
+    public function test_words_is_the_first_tab_and_opens_by_default_without_a_practice_board(): void
     {
         $learner = User::factory()->create();
         $this->actingAs($learner);
@@ -39,8 +39,7 @@ class NotebookWordsTest extends TestCase
             ->assertDontSee('Cover the words')
             ->assertSeeInOrder(['Words', 'Mistakes'])
             ->assertDontSee('Tips')
-            ->assertSee('1 word ready to review')
-            ->assertSeeHtml(route('review.track', 'words'));
+            ->assertDontSee('ready to review');
     }
 
     public function test_a_word_shows_one_simple_sentence_with_the_word_picked_out(): void
