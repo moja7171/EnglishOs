@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\AiPractice;
+use App\Models\NotebookEntry;
 use App\Models\PairGame;
 use App\Models\User;
 
@@ -19,6 +20,13 @@ class AiPractices
 
     /** Cards of a game that carry one of the learner's own words from My Words. */
     private const OWN_WORD_GAME_CARDS = 2;
+
+    /** Grammar cards of Teddy's turns made from the learner's notebook mistakes, and how long such a sentence may be. */
+    private const NOTEBOOK_GRAMMAR_CARDS = 2;
+
+    private const NOTEBOOK_MIN_WORDS = 3;
+
+    private const NOTEBOOK_MAX_WORDS = 14;
 
     /** Story Chain counts both tellers' turns: inside a round, a shorter story. */
     private const STORY_TURNS_IN_ROUND = 4;
@@ -42,9 +50,11 @@ class AiPractices
     {
         $open = AiPractice::where('learner_id', $learner->id)->where('kind', $kind)->open()->latest('id')->first();
 
-        if ($open) {
+        if ($open && ($days === null || $this->sameDays($open->days, $days))) {
             return $open;
         }
+
+        $open?->finish();
 
         if ($kind !== AiPractice::KIND_PRACTICE) {
             $game = in_array($kind, AiPractice::GAMES, true) ? $this->gameDeck($learner, $kind, $days, inRound: false) : null;
@@ -64,11 +74,67 @@ class AiPractices
     }
 
     /**
+     * Whether the days picked are the days an open practice was made from.
+     *
+     * @param  list<string>|null  $openDays
+     * @param  list<string>  $days
+     */
+    private function sameDays(?array $openDays, array $days): bool
+    {
+        $sorted = fn (array $list) => collect($list)->sort()->values()->all();
+
+        return $sorted($openDays ?? []) === $sorted($days);
+    }
+
+    /**
+     * Some of Teddy's own grammar turns are the learner's own notebook
+     * mistakes: the line they get wrong is the one he may slip on, and the
+     * learner is the one to put it right.
+     *
+     * @param  array<string, mixed>  $deck
+     * @return array<string, mixed>
+     */
+    private function withNotebookMistakes(User $learner, array $deck): array
+    {
+        $grammar = $deck[AiPractice::STAGE_GRAMMAR] ?? [];
+        $slots = collect($grammar)->keys()->filter(fn (int $position) => $position % 2 === 1 && ! isset($grammar[$position]['owner_id']) && filled($grammar[$position]['answer'] ?? null))->shuffle();
+
+        if ($slots->isEmpty()) {
+            return $deck;
+        }
+
+        $taken = collect($grammar)->pluck('prompt')->map(fn ($prompt) => FeedbackNotebook::sentenceKey($prompt))->all();
+        $entries = NotebookEntry::query()
+            ->where('learner_id', $learner->id)
+            ->where('kind', NotebookEntry::KIND_MISTAKE)
+            ->whereNull('learned_at')
+            ->whereNotNull('original')
+            ->whereNotNull('better')
+            ->orderByDesc('times_seen')
+            ->orderByDesc('last_seen_at')
+            ->limit(12)
+            ->get()
+            ->filter(fn (NotebookEntry $entry) => str_word_count($entry->original) >= self::NOTEBOOK_MIN_WORDS
+                && str_word_count($entry->original) <= self::NOTEBOOK_MAX_WORDS
+                && FeedbackNotebook::sentenceKey($entry->original) !== FeedbackNotebook::sentenceKey($entry->better)
+                && ! in_array(FeedbackNotebook::sentenceKey($entry->original), $taken, true))
+            ->take(min(self::NOTEBOOK_GRAMMAR_CARDS, $slots->count()))
+            ->values();
+
+        foreach ($entries as $index => $entry) {
+            $grammar[$slots[$index]] = ['prompt' => $entry->original, 'answer' => $entry->better, 'source' => 'Your notebook', 'key' => 'n:'.$entry->id, 'notebook_id' => $entry->id];
+        }
+
+        return [...$deck, AiPractice::STAGE_GRAMMAR => $grammar];
+    }
+
+    /**
      * @param  array<string, mixed>  $deck
      * @param  list<string>|null  $days
      */
     private function create(User $learner, string $kind, ?array $days, array $deck, string $stage): AiPractice
     {
+        $deck = $this->withNotebookMistakes($learner, $deck);
         $level = $this->teddyLevel->levelFor($learner, $kind);
         $deck = [...$deck, 'teddy_level' => $level, 'slips' => $this->teddyLevel->planSlips($deck, $level)];
 

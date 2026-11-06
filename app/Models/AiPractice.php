@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\FeedbackNotebook;
 use App\Services\StreakRing;
 use App\Services\TeddyLevel;
 use Database\Factories\AiPracticeFactory;
@@ -66,6 +67,12 @@ class AiPractice extends Model
 
     /** How close a spoken sentence must be to the right one, in percent. */
     private const CLOSE_ENOUGH_PERCENT = 80;
+
+    /** A single word is only taken for another when it is this close: house is not horse. */
+    private const CLOSE_ENOUGH_FOR_A_WORD = 90;
+
+    /** The longest sentence of Teddy's that goes into the learner's notebook when they miss its slip. */
+    private const NOTEBOOK_LINE_LIMIT = 160;
 
     /** @var array<string, mixed> */
     protected $attributes = ['position' => 0, 'answered' => 0, 'score' => 0];
@@ -191,17 +198,45 @@ class AiPractice extends Model
         return array_values(array_filter($words, function (string $word) use ($plainText) {
             $plainWord = self::plain($word);
 
-            return $plainWord !== '' && preg_match('/ '.preg_quote($plainWord, '/').'(s|es|d|ed|ing)? /u', $plainText) === 1;
+            return $plainWord !== '' && preg_match('/ '.self::formsPattern($plainWord).' /u', $plainText) === 1;
         }));
     }
 
     /**
-     * Whether the text names the word, with no AI call: said exactly, with
-     * a common ending, or close enough for speech-to-text.
+     * The word and its other forms as a regex: a common ending (cooks,
+     * cooked, cooking), the dropped e (making), the changed y (studied)
+     * and the doubled last letter (running). A phrase only takes the
+     * common endings.
      */
-    public static function namesWord(string $text, string $word): bool
+    private static function formsPattern(string $plainWord): string
     {
-        return self::wordsIn($text, [$word]) !== [] || self::saidCorrectly($text, $word);
+        $base = preg_quote($plainWord, '/');
+        $forms = [$base.'(?:s|es|d|ed|ing)?'];
+
+        if (! str_contains($plainWord, ' ') && mb_strlen($plainWord) >= 3) {
+            $stem = preg_quote(mb_substr($plainWord, 0, -1), '/');
+            $last = mb_substr($plainWord, -1);
+
+            if ($last === 'e') {
+                $forms[] = $stem.'ing';
+            } elseif ($last === 'y' && ! str_contains('aeiou', mb_substr($plainWord, -2, 1))) {
+                $forms[] = $stem.'(?:ies|ied)';
+            } elseif (! str_contains('aeiouwxy', $last)) {
+                $forms[] = $base.preg_quote($last, '/').'(?:ed|ing)';
+            }
+        }
+
+        return '(?:'.implode('|', $forms).')';
+    }
+
+    /**
+     * Whether the text names the word, with no AI call: said exactly or
+     * in another form, or, for what was spoken aloud, close enough for
+     * speech-to-text. What Teddy typed is never "close enough".
+     */
+    public static function namesWord(string $text, string $word, bool $heardAloud = true): bool
+    {
+        return self::wordsIn($text, [$word]) !== [] || ($heardAloud && self::saidCorrectly($text, $word, self::CLOSE_ENOUGH_FOR_A_WORD));
     }
 
     /**
@@ -209,7 +244,7 @@ class AiPractice extends Model
      * is not exact, so a sentence only has to be close, and a word or
      * phrase only has to be in what they said.
      */
-    public static function saidCorrectly(string $heard, string $answer): bool
+    public static function saidCorrectly(string $heard, string $answer, int $closeEnough = self::CLOSE_ENOUGH_PERCENT): bool
     {
         [$heard, $answer] = [self::plain($heard), self::plain($answer)];
 
@@ -223,7 +258,7 @@ class AiPractice extends Model
 
         similar_text($heard, $answer, $percent);
 
-        return $percent >= self::CLOSE_ENOUGH_PERCENT;
+        return $percent >= $closeEnough;
     }
 
     /**
@@ -254,7 +289,7 @@ class AiPractice extends Model
      */
     public static function blankedOut(string $text, string $word): string
     {
-        return (string) preg_replace('/\b'.preg_quote($word, '/').'(s|es|d|ed|ing)?\b/iu', '_____', $text);
+        return (string) preg_replace('/\b'.self::formsPattern(mb_strtolower($word)).'\b/iu', '_____', $text);
     }
 
     /**
@@ -304,6 +339,59 @@ class AiPractice extends Model
     public function totalCards(): int
     {
         return collect([...self::CARD_STAGES, self::STAGE_GAME])->sum(fn (string $stage) => count($this->cards($stage)));
+    }
+
+    /**
+     * How many cards the learner got to: all of them for a practice played
+     * to its end, the ones up to where they left for one ended early (kept
+     * when it ended).
+     */
+    public function cardsReached(): int
+    {
+        if ($this->finished_at !== null) {
+            return (int) ($this->deck['cards_reached'] ?? $this->totalCards());
+        }
+
+        $before = 0;
+
+        foreach ($this->stages() as $stage) {
+            if ($stage === $this->stage) {
+                break;
+            }
+
+            $before += count($this->cards($stage));
+        }
+
+        return $before + min(count($this->cards()), $this->position + ($this->current === null ? 0 : 1));
+    }
+
+    /**
+     * The most points the first $reached cards could give. A card is
+     * worth a point, except in Just a Minute, where the target words and
+     * the questions count too.
+     */
+    public function pointsPossible(int $reached): int
+    {
+        $worths = [];
+
+        foreach ($this->stages() as $stage) {
+            foreach ($this->cards($stage) as $position => $card) {
+                $worths[] = $stage === self::STAGE_GAME && $this->game() === PairGame::GAME_MINUTE
+                    ? count($card['words'] ?? []) + ($position % 2 === 1 ? 2 : 0)
+                    : 1;
+            }
+        }
+
+        return max(1, array_sum(array_slice($worths, 0, $reached)));
+    }
+
+    /**
+     * The share of the possible points the learner won on the cards they
+     * got to, 0 to 1 (see App\Services\TeddyLevel).
+     */
+    public function scoreShare(): float
+    {
+        return min(1, $this->score / $this->pointsPossible($this->cardsReached()));
     }
 
     /**
@@ -376,6 +464,10 @@ class AiPractice extends Model
         $wrong = $this->teddyIsWrong();
         $caught = ($verdict === 'mistake') === $wrong;
 
+        if ($wrong) {
+            $this->logSlip($this->teddyCardLine(), (string) ($this->currentCard()['answer'] ?? ''), $verdict === 'mistake', $this->stage === self::STAGE_VOCABULARY ? 'answer' : 'sentence');
+        }
+
         $this->current = [...($this->current ?? []), 'judged' => $verdict, 'teddy_wrong' => $wrong, 'says' => $this->teddyCardLine(), 'right_call' => $caught];
         $this->answered++;
         $this->score += $caught ? 1 : 0;
@@ -393,10 +485,74 @@ class AiPractice extends Model
         $this->answered++;
         $this->score += $correct === false ? 0 : 1;
 
-        if ($correct === false && $this->stage === self::STAGE_VOCABULARY) {
-            $this->deck = [...$this->deck, 'missed_words' => [...($this->deck['missed_words'] ?? []), $this->currentCard()]];
+        if ($correct !== null) {
+            $tally = $this->deck['tally'][$this->stage] ?? ['right' => 0, 'total' => 0];
+            $this->deck = [...$this->deck, 'tally' => [...($this->deck['tally'] ?? []), $this->stage => ['right' => $tally['right'] + ($correct ? 1 : 0), 'total' => $tally['total'] + 1]]];
         }
 
+        if ($correct === false && $this->stage === self::STAGE_VOCABULARY) {
+            $this->deck = [...$this->deck, 'missed_words' => [...($this->deck['missed_words'] ?? []), $this->currentCard()]];
+            $this->keepMissedWord($this->currentCard());
+        }
+
+        $this->save();
+    }
+
+    /**
+     * A slip of Teddy's the learner had the chance to catch, kept for the
+     * end of the practice and the week's count. One they missed that is a
+     * whole sentence goes into the notebook at once, to be spotted again
+     * in Review. Saved with the model, not here.
+     *
+     * @param  'sentence'|'answer'  $kind
+     */
+    public function logSlip(string $said, string $fix, bool $caught, string $kind = 'sentence'): void
+    {
+        $this->deck = [...$this->deck, 'slip_log' => [...($this->deck['slip_log'] ?? []), ['said' => $said, 'fix' => $fix, 'caught' => $caught, 'kind' => $kind]]];
+
+        if (! $caught && $kind === 'sentence' && $said !== '' && mb_strlen($said) <= self::NOTEBOOK_LINE_LIMIT) {
+            app(FeedbackNotebook::class)->recordCheck($this->learner, $said, $fix, null, 'games');
+        }
+    }
+
+    /**
+     * The slips of Teddy's in this practice, and how many the learner caught.
+     *
+     * @return array{total: int, caught: int}
+     */
+    public function slipCount(): array
+    {
+        $log = collect($this->deck['slip_log'] ?? []);
+
+        return ['total' => $log->count(), 'caught' => $log->where('caught', true)->count()];
+    }
+
+    /**
+     * A word the learner could not say waits for them in My Words, at once:
+     * leaving the practice early loses nothing.
+     *
+     * @param  array<string, mixed>  $card
+     */
+    private function keepMissedWord(array $card): void
+    {
+        $this->learner->vocabularyWords()->firstOrCreate(
+            ['word' => $card['answer']],
+            ['meaning' => $card['meaning'] ?? null, 'meaning_fa' => ($card['prompt_lang'] ?? 'fa') === 'fa' ? $card['prompt'] : null, 'pos' => $card['pos'] ?? null, 'example' => $card['example'] ?? null, 'next_review_at' => now()->addDay()],
+        );
+    }
+
+    /**
+     * Once the learner has answered enough, the practice is a slice of
+     * their day, even if they never reach the end.
+     */
+    public function creditTheDay(): void
+    {
+        if ($this->isFinished() || $this->answered < self::MIN_COUNTED_ANSWERS || ($this->deck['credited'] ?? false)) {
+            return;
+        }
+
+        app(StreakRing::class)->record($this->learner, 'ai-practice');
+        $this->deck = [...$this->deck, 'credited' => true];
         $this->save();
     }
 
@@ -426,8 +582,9 @@ class AiPractice extends Model
     }
 
     /**
-     * Ends the practice: a slice of the learner's own day, and the words
-     * they could not say wait for them in My Words.
+     * Ends the practice: a slice of the learner's own day (if not already
+     * counted on the way), and where they got to is kept, so leaving early
+     * does not look like a bad game (see App\Services\TeddyLevel).
      */
     public function finish(): void
     {
@@ -435,20 +592,11 @@ class AiPractice extends Model
             return;
         }
 
+        $this->creditTheDay();
+        $this->deck = [...$this->deck, 'cards_reached' => $this->cardsReached()];
         $this->stage = self::STAGE_DONE;
         $this->current = null;
         $this->finished_at = now();
         $this->save();
-
-        if ($this->answered >= self::MIN_COUNTED_ANSWERS) {
-            app(StreakRing::class)->record($this->learner, 'ai-practice');
-        }
-
-        foreach ($this->deck['missed_words'] ?? [] as $card) {
-            $this->learner->vocabularyWords()->firstOrCreate(
-                ['word' => $card['answer']],
-                ['meaning' => $card['meaning'] ?? null, 'meaning_fa' => ($card['prompt_lang'] ?? 'fa') === 'fa' ? $card['prompt'] : null, 'pos' => $card['pos'] ?? null, 'example' => $card['example'] ?? null, 'next_review_at' => now()->addDay()],
-            );
-        }
     }
 }
