@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Mission;
+use App\Models\MissionRun;
 use App\Models\NotebookEntry;
 use App\Models\User;
 use App\Models\VocabularyWord;
@@ -359,49 +360,6 @@ class NotebookTest extends TestCase
             ->assertSet('drillCorrect', null);
     }
 
-    public function test_a_due_technique_is_practised_by_choosing_the_sentence_that_uses_it(): void
-    {
-        $learner = User::factory()->create();
-        $entry = NotebookEntry::factory()->tip()->for($learner, 'learner')->create([
-            'label' => 'ask_back',
-            'dedupe_key' => 't:ask_back',
-            'original' => null,
-            'better' => 'What about you?',
-            'next_review_at' => now()->subMinute(),
-        ]);
-        $options = NotebookDrill::card($entry)['options'];
-        $this->actingAs($learner);
-
-        $this->assertEqualsCanonicalizing(['It was great! What about you?', 'It was great.'], $options);
-
-        Livewire::test('review.index')
-            ->assertSee('Ask back')
-            ->assertSee('Which answer is better?')
-            ->assertSee('How was your weekend?')
-            ->assertSee('Someone says')
-            ->call('drillTap', $this->optionIndex($options, 'It was great! What about you?'))
-            ->assertSee('hands the conversation back')
-            ->assertSee('Spot on!')
-            ->assertSee('Listen, then say it out loud.');
-    }
-
-    public function test_a_starred_phrase_swap_asks_which_sounds_more_natural(): void
-    {
-        $learner = User::factory()->create();
-        NotebookEntry::factory()->tip()->for($learner, 'learner')->create([
-            'original' => 'My job is very hard.',
-            'better' => 'My job is really tough.',
-            'starred_at' => now(),
-            'next_review_at' => now()->subMinute(),
-        ]);
-        $this->actingAs($learner);
-
-        Livewire::test('review.index')
-            ->assertSee('Which sounds more natural?')
-            ->assertSee('My job is very hard.')
-            ->assertSee('My job is really tough.');
-    }
-
     public function test_a_mistake_without_a_known_category_is_kept_by_its_fixed_sentence(): void
     {
         $learner = User::factory()->create();
@@ -441,32 +399,6 @@ class NotebookTest extends TestCase
 
         $this->assertSame(1, $learner->dailyReviewItems()->where('type', 'note')->count());
         $this->assertSame(1, $learner->dailyReviewCount());
-    }
-
-    public function test_a_phrase_swap_goes_to_daily_review_only_once_starred(): void
-    {
-        $learner = User::factory()->create();
-        $swap = NotebookEntry::factory()->tip()->for($learner, 'learner')->create(['next_review_at' => now()->subDay()]);
-        $technique = NotebookEntry::factory()->tip()->for($learner, 'learner')->create(['label' => 'linking', 'dedupe_key' => 't:linking', 'next_review_at' => now()->subDay()]);
-        $this->actingAs($learner);
-
-        $this->assertSame([$technique->id], $learner->dailyReviewItems()->pluck('id')->all());
-
-        Livewire::test('notebook.index')->call('toggleStar', $swap->id);
-
-        $this->assertNotNull($swap->fresh()->starred_at);
-        $this->assertEqualsCanonicalizing([$swap->id, $technique->id], $learner->dailyReviewItems()->pluck('id')->all());
-    }
-
-    public function test_only_a_phrase_swap_can_be_starred(): void
-    {
-        $learner = User::factory()->create();
-        $mistake = NotebookEntry::factory()->for($learner, 'learner')->create();
-        $this->actingAs($learner);
-
-        Livewire::test('notebook.index')->call('toggleStar', $mistake->id);
-
-        $this->assertNull($mistake->fresh()->starred_at);
     }
 
     public function test_a_line_remembered_three_times_in_a_row_becomes_learned(): void
@@ -625,27 +557,6 @@ class NotebookTest extends TestCase
             ->assertSee('✓ Practice again');
     }
 
-    public function test_tips_are_practised_from_their_own_tab_and_five_more_brings_new_ones(): void
-    {
-        $learner = User::factory()->create();
-        $tips = NotebookEntry::factory()->tip()->count(6)->for($learner, 'learner')->sequence(fn ($sequence) => ['times_seen' => 10 - $sequence->index])->create();
-        NotebookEntry::factory()->for($learner, 'learner')->create(['times_seen' => 20]);
-        $this->actingAs($learner);
-
-        $page = Livewire::test('notebook.index')
-            ->call('startPractice', NotebookEntry::KIND_TIP)
-            ->assertSet('practiceIds', $tips->take(5)->pluck('id')->all())
-            ->assertSee('Which sounds more natural?');
-
-        foreach (range(1, 10) as $card) {
-            $page->call('drillShowFix')->call('drillNext');
-        }
-
-        $page->assertSee('1 more')
-            ->call('startPractice', NotebookEntry::KIND_TIP)
-            ->assertSet('practiceIds', [$tips->last()->id]);
-    }
-
     public function test_a_different_right_fix_counts_when_the_ai_accepts_it(): void
     {
         $learner = User::factory()->create();
@@ -683,7 +594,6 @@ class NotebookTest extends TestCase
 
         Livewire::test('notebook.index')
             ->assertSee('Words')
-            ->assertSee('Added by you')
             ->assertSee('commute')
             ->assertSee('رفت‌وآمد')
             ->call('removeWord', $word->id);
@@ -743,43 +653,126 @@ class NotebookTest extends TestCase
         Livewire::test('notebook.index')->call('removeEntry', $stranger->id);
     }
 
-    public function test_each_tab_folds_its_lines_into_groups_with_filters(): void
+    public function test_only_mistakes_go_to_daily_review_not_a_better_way_or_a_technique(): void
+    {
+        $learner = User::factory()->create();
+        $mistake = NotebookEntry::factory()->for($learner, 'learner')->create(['next_review_at' => now()->subDay()]);
+        NotebookEntry::factory()->tip()->for($learner, 'learner')->create(['next_review_at' => now()->subDay(), 'starred_at' => now()]);
+        NotebookEntry::factory()->tip()->for($learner, 'learner')->create(['label' => 'linking', 'dedupe_key' => 't:linking', 'next_review_at' => now()->subDay()]);
+
+        $this->assertSame([$mistake->id], $learner->dailyReviewItems()->pluck('id')->all());
+    }
+
+    public function test_a_better_way_is_practised_one_at_a_time_by_choosing_the_more_natural_sentence(): void
+    {
+        $learner = User::factory()->create();
+        $swap = NotebookEntry::factory()->tip()->for($learner, 'learner')->create(['original' => 'My job is very hard.', 'better' => 'My job is really tough.']);
+        $this->actingAs($learner);
+
+        Livewire::test('notebook.index')
+            ->call('practiceOne', $swap->id)
+            ->assertSee('Which sounds more natural?')
+            ->assertSee('My job is very hard.');
+    }
+
+    public function test_the_tip_card_shows_the_newest_technique_until_got_it_and_techniques_are_not_lines(): void
+    {
+        $learner = User::factory()->create();
+        NotebookEntry::factory()->tip()->for($learner, 'learner')->create(['label' => 'extend', 'dedupe_key' => 't:extend', 'original' => null, 'better' => 'Yes, I do. Actually, I…', 'last_seen_at' => now()->subDays(3)]);
+        $newest = NotebookEntry::factory()->tip()->for($learner, 'learner')->create(['label' => 'buying_time', 'dedupe_key' => 't:buying_time', 'original' => null, 'better' => 'Well, let me think…', 'last_seen_at' => now()]);
+        $this->actingAs($learner);
+
+        $page = Livewire::test('notebook.index')
+            ->assertSee('Tip · Buy time')
+            ->assertSee('gives you time without going silent')
+            ->assertDontSee('Tip · Say a bit more');
+
+        $this->assertCount(0, $page->instance()->visibleEntries);
+        $this->assertSame(0, $page->instance()->entryGroups()->count());
+
+        $page->call('gotTip', $newest->id)->assertSee('Tip · Say a bit more');
+        $this->assertNotNull($newest->fresh()->learned_at);
+    }
+
+    public function test_someone_elses_tip_cannot_be_dismissed(): void
+    {
+        $learner = User::factory()->create();
+        $stranger = NotebookEntry::factory()->tip()->for(User::factory()->create(), 'learner')->create(['label' => 'extend', 'dedupe_key' => 't:extend']);
+        $this->actingAs($learner);
+
+        $this->expectException(ModelNotFoundException::class);
+
+        Livewire::test('notebook.index')->call('gotTip', $stranger->id);
+    }
+
+    public function test_a_technique_suggested_again_after_a_week_comes_back_as_the_tip(): void
+    {
+        $this->freezeSecond();
+        $learner = User::factory()->create();
+        $technique = ['key' => 'buying_time', 'tip' => 'وقت بخر.', 'example' => 'Well, let me think…'];
+        $this->record($learner, [], [$technique]);
+        $line = $learner->notebookEntries()->sole();
+        $line->update(['learned_at' => now()->subDays(2)]);
+
+        $this->record($learner, [], [$technique]);
+        $this->assertNotNull($line->fresh()->learned_at, 'dismissed two days ago: it stays away');
+
+        $line->update(['learned_at' => now()->subDays(9)]);
+        $this->record($learner, [], [$technique]);
+
+        $this->assertNull($line->fresh()->learned_at);
+    }
+
+    public function test_lines_keep_the_mission_they_were_made_in_and_show_it(): void
+    {
+        $learner = User::factory()->create();
+        $mission = Mission::create(['code' => 'M03', 'title' => 'Work & Study', 'module' => 'Me', 'outcome' => 'x', 'phases' => []]);
+        $other = Mission::create(['code' => 'M01', 'title' => 'My Daily Life', 'module' => 'Me', 'outcome' => 'x', 'phases' => []]);
+        MissionRun::findOrStart($learner, $other);
+
+        app(FeedbackNotebook::class)->record($learner, ['sentences' => [$this->fix('She go home.', 'She goes home.')], 'techniques' => []], 'pi', $mission->id);
+        app(FeedbackNotebook::class)->record($learner, ['sentences' => [$this->fix('He have a car.', 'He has a car.', 'subject_verb')], 'techniques' => []], 'games');
+
+        $lines = $learner->notebookEntries()->orderBy('id')->get();
+        $this->assertSame($mission->id, $lines[0]->mission_id);
+        $this->assertSame($other->id, $lines[1]->mission_id, 'with no mission given it is the one the learner is on');
+
+        $this->actingAs($learner);
+        $page = Livewire::test('notebook.index')->assertSee('M03 · Pi');
+
+        $this->assertSame(['M03', 'M01'], $page->instance()->entryMissionGroups()->pluck('code')->all());
+    }
+
+    public function test_the_mistakes_tab_groups_by_kind_with_better_ways_last_and_can_group_by_mission(): void
     {
         $learner = User::factory()->create();
         NotebookEntry::factory()->for($learner, 'learner')->create(['label' => 'past_simple', 'original' => 'I am agree.', 'better' => 'I agree.', 'times_seen' => 3]);
         NotebookEntry::factory()->for($learner, 'learner')->create(['label' => 'articles', 'original' => 'He go.', 'better' => 'He goes.', 'times_seen' => 1]);
         NotebookEntry::factory()->for($learner, 'learner')->create(['label' => null, 'original' => 'We was.', 'better' => 'We were.', 'times_seen' => 1]);
-        NotebookEntry::factory()->for($learner, 'learner')->create(['kind' => NotebookEntry::KIND_TIP, 'label' => null, 'original' => null, 'better' => 'Say well, first.', 'source' => 'pi']);
-        NotebookEntry::factory()->for($learner, 'learner')->create(['kind' => NotebookEntry::KIND_TIP, 'label' => 'buying_time', 'dedupe_key' => 't:buying_time', 'original' => null, 'better' => 'Well, let me think…']);
-        $learner->vocabularyWords()->create(['word' => 'commute', 'next_review_at' => now()]);
+        NotebookEntry::factory()->tip()->for($learner, 'learner')->create(['label' => null, 'original' => 'My job is very hard.', 'better' => 'My job is really tough.', 'source' => 'pi']);
         $this->actingAs($learner);
 
         $page = Livewire::test('notebook.index')
             ->assertSee('Past simple')
-            ->assertSee('a / an / the')
+            ->assertSee('Sounds more natural')
             ->assertSee('Other mistakes')
-            ->assertSee('Buy time')
-            ->assertSee('Say it like this')
-            ->assertSee('Added by you')
+            ->assertSee('Group by')
             ->assertSee('Repeating')
             ->assertSee('Not practised')
-            ->assertSee('In Review')
-            ->assertSee('Mine')
+            ->assertDontSee('In Review')
+            ->assertDontSee('Tips')
             ->assertSeeHtml('aria-label="Search your mistakes"')
-            ->assertSeeHtml('aria-label="Search your tips"')
             ->assertDontSee('wire:confirm', false);
 
-        // The kind made most often comes first, the unsorted ones last.
-        $this->assertSame(['Past simple', 'a / an / the', 'Other mistakes'], $page->instance()->entryGroups(NotebookEntry::KIND_MISTAKE)->pluck('title')->all());
+        $this->assertSame(['Past simple', 'a / an / the', 'Other mistakes', 'Sounds more natural'], $page->instance()->entryGroups()->pluck('title')->all());
+        $this->assertSame(4, $page->instance()->entryMissionGroups()->sum(fn (array $group) => $group['entries']->count()));
     }
 
-    public function test_the_learned_list_shows_the_old_mistake_with_its_fix(): void
+    public function test_the_old_tips_address_opens_the_mistakes_tab(): void
     {
-        $learner = User::factory()->create();
-        NotebookEntry::factory()->for($learner, 'learner')->create(['original' => 'She go home.', 'better' => 'She goes home.', 'learned_at' => now()]);
-        $this->actingAs($learner);
+        $this->actingAs(User::factory()->create());
 
-        Livewire::test('notebook.index')->assertSee('Learned and older (1)')->assertSee('She go home.')->assertSee('She goes home.');
+        $this->get(route('notebook.index', ['tab' => 'tips']))->assertOk()->assertSee("notebookTab: 'mistakes'", false);
     }
 
     public function test_a_word_is_new_until_reviewed_and_known_once_its_gap_is_long(): void

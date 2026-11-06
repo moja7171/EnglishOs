@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
 use Illuminate\Support\HtmlString;
 
-#[Fillable(['learner_id', 'source_mission_run_id', 'word', 'meaning', 'meaning_fa', 'meaning_fa_previous', 'meaning_fa_checked_at', 'pos', 'example', 'user_sentence', 'ease_factor', 'interval_days', 'repetitions', 'next_review_at', 'last_reviewed_at'])]
+#[Fillable(['learner_id', 'source_mission_run_id', 'added_in_mission_id', 'word', 'meaning', 'meaning_fa', 'meaning_fa_previous', 'meaning_fa_checked_at', 'pos', 'example', 'user_sentence', 'ease_factor', 'interval_days', 'repetitions', 'next_review_at', 'last_reviewed_at'])]
 class VocabularyWord extends Model
 {
     use HasFactory;
@@ -74,6 +74,27 @@ class VocabularyWord extends Model
     public function learner(): BelongsTo
     {
         return $this->belongsTo(User::class, 'learner_id');
+    }
+
+    /**
+     * The mission the learner was on when they added this word themselves.
+     *
+     * @return BelongsTo<Mission, $this>
+     */
+    public function addedInMission(): BelongsTo
+    {
+        return $this->belongsTo(Mission::class, 'added_in_mission_id');
+    }
+
+    /**
+     * The mission this word is kept under in the Words tab: the one its
+     * lesson gave it, else the one it was added in. null when neither is
+     * known (needs sourceMissionRun.mission and addedInMission loaded to
+     * avoid queries).
+     */
+    public function mission(): ?Mission
+    {
+        return $this->sourceMissionRun?->mission ?? $this->addedInMission;
     }
 
     /**

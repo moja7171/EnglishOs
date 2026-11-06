@@ -18,6 +18,9 @@
             @if (filled($word->pos))
                 <span class="text-[11px] font-extrabold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">{{ $word->pos }}</span>
             @endif
+            @if ($word->source_mission_run_id === null)
+                <span class="inline-flex items-center gap-1 self-center rounded-full bg-accent-soft px-2 py-0.5 text-[11px] font-extrabold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">@svg('heroicon-m-pencil', 'h-3 w-3')yours</span>
+            @endif
             @if ($level = $commonness[$word->id] ?? null)
                 <span class="inline-flex gap-0.5 self-center" title="{{ ['Less common', 'Common', 'Very common'][$level - 1] }}" role="img" aria-label="{{ ['Less common', 'Common', 'Very common'][$level - 1] }}">@foreach ([1, 2, 3] as $dot)<span @class(['h-1.5 w-1.5 rounded-full', 'bg-accent dark:bg-accent-dark' => $dot <= $level, 'bg-line dark:bg-line-dark' => $dot > $level])></span>@endforeach</span>
             @endif

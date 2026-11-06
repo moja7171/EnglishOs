@@ -41,10 +41,12 @@ class FeedbackNotebook
 
     /**
      * @param  array{sentences: list<array{original: string, status: string, corrected: ?string, why: ?string, pattern: ?string}>, techniques: list<array{key: string, tip: string, example: string}>}  $feedback  A LearnerFeedback::normalize() result.
+     * @param  int|null  $missionId  The mission the lines were made in; the one the learner is on when not given.
      * @return array{mistakes: int, tips: int} How many lines were added or seen again.
      */
-    public function record(User $learner, array $feedback, string $source): array
+    public function record(User $learner, array $feedback, string $source, ?int $missionId = null): array
     {
+        $missionId ??= app(WordMissions::class)->forNewWord($learner, null);
         $mistakes = 0;
         $tips = 0;
 
@@ -59,7 +61,7 @@ class FeedbackNotebook
                     'original' => $sentence['original'],
                     'better' => $sentence['corrected'],
                     'note' => $sentence['why'],
-                ], $source);
+                ], $source, $missionId);
                 $mistakes++;
             } elseif ($sentence['status'] === 'better' && ! $this->sameSentence($learner, NotebookEntry::KIND_MISTAKE, $sentence['original'])) {
                 $this->keep($learner, NotebookEntry::KIND_TIP, 'p:'.self::key($sentence['corrected']), [
@@ -67,7 +69,7 @@ class FeedbackNotebook
                     'original' => $sentence['original'],
                     'better' => $sentence['corrected'],
                     'note' => $sentence['why'],
-                ], $source);
+                ], $source, $missionId);
                 $tips++;
             }
         }
@@ -79,7 +81,7 @@ class FeedbackNotebook
                 // The short, general example (not the learner's own long sentence) is what is worth learning by heart.
                 'better' => LearnerFeedback::TECHNIQUES[$technique['key']]['example'] ?? $technique['example'],
                 'note' => $technique['tip'] ?: null,
-            ], $source);
+            ], $source, $missionId);
             $tips++;
         }
 
@@ -92,7 +94,7 @@ class FeedbackNotebook
      * learner's words above the fixed ones, so it comes back in Review and
      * in the day's My Fixes even after the box was put right.
      */
-    public function recordCheck(User $learner, string $original, string $corrected, ?string $why, string $source): void
+    public function recordCheck(User $learner, string $original, string $corrected, ?string $why, string $source, ?int $missionId = null): void
     {
         if (self::isNoise($original, $corrected)) {
             return;
@@ -103,7 +105,7 @@ class FeedbackNotebook
             'original' => $original,
             'better' => $corrected,
             'note' => $why,
-        ], $source);
+        ], $source, $missionId ?? app(WordMissions::class)->forNewWord($learner, null));
     }
 
     /**
@@ -114,7 +116,7 @@ class FeedbackNotebook
      *
      * @param  array{label: ?string, original: ?string, better: string, note: ?string}  $content
      */
-    private function keep(User $learner, string $kind, string $dedupeKey, array $content, string $source): void
+    private function keep(User $learner, string $kind, string $dedupeKey, array $content, string $source, ?int $missionId = null): void
     {
         $entry = NotebookEntry::query()
             ->where('learner_id', $learner->id)
@@ -127,6 +129,7 @@ class FeedbackNotebook
                 'kind' => $kind,
                 'dedupe_key' => $dedupeKey,
                 'source' => $source,
+                'mission_id' => $missionId,
                 'last_seen_at' => now(),
                 'next_review_at' => now()->addDay(),
             ]);
@@ -144,12 +147,16 @@ class FeedbackNotebook
             $entry->times_seen++;
         }
 
-        if ($isNewExample && $entry->learned_at !== null && $kind === NotebookEntry::KIND_MISTAKE) {
+        // A mistake made again in a new sentence is back at once; a speaking technique
+        // suggested again comes back as the Tip card once it was put away over a week ago.
+        $isTechnique = str_starts_with($dedupeKey, 't:');
+
+        if ($entry->learned_at !== null && (($isNewExample && $kind === NotebookEntry::KIND_MISTAKE) || ($isTechnique && $entry->learned_at->lessThan(now()->subWeek())))) {
             $entry->learned_at = null;
             $entry->next_review_at = now();
         }
 
-        $entry->fill($content + ['source' => $source, 'last_seen_at' => now()])->save();
+        $entry->fill($content + ['source' => $source, 'last_seen_at' => now()] + ($missionId !== null ? ['mission_id' => $missionId] : []))->save();
     }
 
     /**

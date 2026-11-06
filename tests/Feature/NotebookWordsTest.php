@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\DictionaryEntry;
+use App\Models\Mission;
+use App\Models\MissionRun;
 use App\Models\User;
 use App\Models\VocabularyWord;
 use App\Models\WordSentence;
@@ -35,7 +37,8 @@ class NotebookWordsTest extends TestCase
 
         Livewire::test('notebook.index')
             ->assertDontSee('Cover the words')
-            ->assertSeeInOrder(['Words', 'Mistakes', 'Tips'])
+            ->assertSeeInOrder(['Words', 'Mistakes'])
+            ->assertDontSee('Tips')
             ->assertSee('1 word ready to review')
             ->assertSeeHtml(route('review.track', 'words'));
     }
@@ -82,20 +85,60 @@ class NotebookWordsTest extends TestCase
         $this->assertNull($word->splitAround('Nothing to see.'));
     }
 
-    public function test_today_shows_at_most_six_due_words_the_weakest_first(): void
+    private function mission(string $code, string $title): Mission
+    {
+        return Mission::create(['code' => $code, 'title' => $title, 'module' => 'Me', 'outcome' => 'x', 'phases' => []]);
+    }
+
+    public function test_words_sit_in_one_card_per_mission_the_latest_first_with_the_learners_own_inside_their_mission(): void
+    {
+        $learner = User::factory()->create();
+        $this->actingAs($learner);
+        $first = $this->mission('M01', 'My Daily Life');
+        $second = $this->mission('M02', 'People I Know');
+        $run = MissionRun::findOrStart($learner, $first);
+        $this->word($learner, 'cereal', ['source_mission_run_id' => $run->id, 'next_review_at' => now()->addWeek()]);
+        $this->word($learner, 'oversleep', ['source_mission_run_id' => $run->id, 'next_review_at' => now()->subDay()]);
+        $this->word($learner, 'neighbour', ['added_in_mission_id' => $second->id]);
+        $this->word($learner, 'relative', ['added_in_mission_id' => $first->id]);
+
+        $component = Livewire::test('notebook.index')
+            ->assertDontSee('Today ·')
+            ->assertSee('People I Know')
+            ->assertSee('My Daily Life');
+
+        $groups = $component->instance()->wordGroups;
+        $this->assertSame(['M02', 'M01'], $groups->pluck('code')->all());
+        $this->assertSame(['neighbour'], $groups[0]['words']->pluck('word')->all());
+        $this->assertEqualsCanonicalizing(['cereal', 'oversleep', 'relative'], $groups[1]['words']->pluck('word')->all());
+        $this->assertSame('oversleep', $groups[1]['words']->first()->word, 'a due word comes first in its card');
+        $this->assertSame(1, $groups[1]['mine']);
+        $this->assertSame(1, $groups[1]['due']);
+        $component->assertSee('1 due')->assertSee('yours');
+    }
+
+    public function test_a_word_with_no_mission_known_goes_last_in_more_words(): void
+    {
+        $learner = User::factory()->create();
+        $this->actingAs($learner);
+        $mission = $this->mission('M01', 'My Daily Life');
+        $this->word($learner, 'lonely');
+        $this->word($learner, 'relative', ['added_in_mission_id' => $mission->id]);
+
+        $groups = Livewire::test('notebook.index')->assertSee('More words')->instance()->wordGroups;
+
+        $this->assertSame(['M01', ''], $groups->pluck('code')->all());
+    }
+
+    public function test_the_open_tab_is_kept_in_the_address_so_a_redraw_opens_on_it(): void
     {
         $learner = User::factory()->create();
         $this->actingAs($learner);
 
-        foreach (range(1, 8) as $number) {
-            $this->word($learner, 'word'.$number, ['next_review_at' => now()->subDays($number), 'repetitions' => 0]);
-        }
-        $this->word($learner, 'later', ['next_review_at' => now()->addWeek()]);
-
-        $component = Livewire::test('notebook.index')->assertSee('Today · 6');
-
-        $this->assertCount(6, $component->instance()->todayWords);
-        $this->assertFalse($component->instance()->todayWords->contains('word', 'later'));
+        $this->get(route('notebook.index', ['tab' => 'mistakes']))
+            ->assertOk()
+            ->assertSee("notebookTab: 'mistakes'", false)
+            ->assertSee("setTab('words')", false);
     }
 
     public function test_another_sentence_is_saved_only_when_simple_and_has_the_word_in_it(): void

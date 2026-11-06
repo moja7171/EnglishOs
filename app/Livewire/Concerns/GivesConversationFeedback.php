@@ -3,6 +3,7 @@
 namespace App\Livewire\Concerns;
 
 use App\Models\AiUsageLog;
+use App\Models\MissionRun;
 use App\Services\AiLimitReached;
 use App\Services\AiUsage;
 use App\Services\GeminiClient;
@@ -86,6 +87,7 @@ trait GivesConversationFeedback
             extraGuidance: $extraGuidance,
             onCallSucceeded: $onCallSucceeded,
             answers: $answers,
+            missionId: property_exists($this, 'run') && $this->run instanceof MissionRun ? $this->run->mission_id : null,
         );
 
         try {
