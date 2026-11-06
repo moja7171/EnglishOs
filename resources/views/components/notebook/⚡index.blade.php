@@ -11,6 +11,7 @@ use Illuminate\Database\UniqueConstraintViolationException;
 use App\Services\WordSentences;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
+use Livewire\Attributes\Renderless;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -241,6 +242,12 @@ new class extends Component
         return $result ?? ['ok' => false, 'used' => true, 'better' => null, 'note' => 'I couldn’t check that just now. Try again in a moment.'];
     }
 
+    /**
+     * Takes a word off the list. Renderless: the page has already hidden the
+     * row and shown its Undo bar (see removeWordNow() below), so the answer
+     * is tiny and the page is refreshed in the background later.
+     */
+    #[Renderless]
     public function removeWord(int $wordId): void
     {
         $word = auth()->user()->vocabularyWords()->findOrFail($wordId);
@@ -468,6 +475,24 @@ new class extends Component
                 && (this.search === '' || meta.t.includes(this.search.toLowerCase()));
         },
         isOpen(tab, key, first) { return this.filtering(tab) || (key in this.open ? this.open[key] : first); },
+        gone: {},
+        undo: null,
+        undoTimer: null,
+        removeWordNow(id, label) {
+            this.gone['w' + id] = true;
+            this.undo = { id, label };
+            this.sheet = false;
+            clearTimeout(this.undoTimer);
+            this.$wire.removeWord(id).catch(() => { delete this.gone['w' + id]; this.undo = null; });
+            this.undoTimer = setTimeout(() => { this.undo = null; this.$wire.$refresh(); }, 5000);
+        },
+        undoWord() {
+            if (! this.undo) { return; }
+            clearTimeout(this.undoTimer);
+            delete this.gone['w' + this.undo.id];
+            this.undo = null;
+            this.$wire.undoRemove();
+        },
     }"
 >
     <div class="flex items-center justify-between">
@@ -776,7 +801,15 @@ new class extends Component
         @include('components.notebook.partials.word-sheet', ['sheets' => $this->wordSheets, 'removeSheetButton' => $removeSheetButton])
     </x-bottom-sheet>
 
-    @if ($removed)
+    {{-- A removed word's bar is shown by the page at once (removeWordNow); a removed line's comes from the server. --}}
+    <template x-if="undo">
+        <div x-transition.opacity role="status" class="fixed inset-x-4 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-[60] mx-auto flex max-w-md items-center gap-3 rounded-2xl bg-hero px-4 py-3 text-sm font-bold text-white shadow-lg">
+            <span class="min-w-0 flex-1 truncate">“<span x-text="undo.label"></span>” removed</span>
+            <button type="button" x-on:click="undoWord()" class="shrink-0 cursor-pointer px-1 font-extrabold text-accent-ink-dark">Undo</button>
+        </div>
+    </template>
+
+    @if ($removed && $removed['type'] !== 'word')
         <div
             wire:key="removed-{{ $removed['type'] }}-{{ $removed['attributes']['id'] }}"
             x-data="{ show: true }"

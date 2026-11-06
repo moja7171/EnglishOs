@@ -95,7 +95,7 @@
             </div>
             <p class="text-sm font-semibold text-ink-soft dark:text-ink-soft-dark">Next review: <span x-text="word.next"></span></p>
 
-            <button type="button" x-on:click="$wire.removeWord(word.id); sheet = false" class="{{ $removeSheetButton }}">@svg('heroicon-o-trash', 'h-4 w-4') Remove from my words</button>
+            <button type="button" x-on:click="removeWordNow(word.id, word.word)" class="{{ $removeSheetButton }}">@svg('heroicon-o-trash', 'h-4 w-4') Remove from my words</button>
         </div>
     </template>
 </div>
