@@ -648,6 +648,19 @@ class NotebookTest extends TestCase
         $this->assertModelMissing($word);
     }
 
+    public function test_a_word_is_hidden_and_its_undo_bar_shown_by_the_page_before_the_server_answers(): void
+    {
+        $learner = User::factory()->create();
+        $learner->vocabularyWords()->create(['word' => 'commute', 'meaning_fa' => 'رفت‌وآمد', 'next_review_at' => now()->addDay()]);
+        $this->actingAs($learner);
+
+        $html = Livewire::test('notebook.index')->html();
+
+        $this->assertStringContainsString('removeWordNow(', $html);
+        $this->assertStringContainsString('! gone.w', $html);
+        $this->assertStringContainsString('undoWord()', $html);
+    }
+
     public function test_removing_a_word_can_be_undone_and_comes_back_as_it_was(): void
     {
         $learner = User::factory()->create();
@@ -656,7 +669,7 @@ class NotebookTest extends TestCase
 
         $page = Livewire::test('notebook.index')
             ->call('removeWord', $word->id)
-            ->assertSee('“commute” removed', false);
+            ->assertSet('removed.label', 'commute');
 
         $this->assertModelMissing($word);
 

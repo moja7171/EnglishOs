@@ -13,7 +13,7 @@
     $parts = $sentence ? $word->splitAround($sentence) : null;
     $blank = $parts ? mb_substr($parts['hit'], 0, 1).'…' : null;
 @endphp
-<div wire:key="{{ $keyPrefix }}-{{ $word->id }}" role="button" tabindex="0" x-show="{{ $show }}" x-on:click="if (! edit) { sheet = 'w{{ $word->id }}' }" x-on:keydown.enter="if (! edit) { sheet = 'w{{ $word->id }}' }" class="flex w-full cursor-pointer items-start gap-3 py-3 text-left">
+<div wire:key="{{ $keyPrefix }}-{{ $word->id }}" role="button" tabindex="0" x-show="({{ $show }}) && ! gone.w{{ $word->id }}" x-on:click="if (! edit) { sheet = 'w{{ $word->id }}' }" x-on:keydown.enter="if (! edit) { sheet = 'w{{ $word->id }}' }" class="flex w-full cursor-pointer items-start gap-3 py-3 text-left">
     <span class="{{ $statusDot($word->studyStatus()) }} mt-2 h-2 w-2 shrink-0 rounded-full" title="{{ $word->strengthLabel() }}"></span>
     <span class="min-w-0 flex-1">
         <span class="flex flex-wrap items-baseline gap-x-2">
@@ -46,5 +46,5 @@
         @endif
     </span>
     <button type="button" x-show="! edit" data-text="{{ $word->word }}" x-on:click.stop="window.eosVoice?.teddy($el.dataset.text)" aria-label="Read aloud" class="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full bg-surface-sunken text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark">@svg('heroicon-o-speaker-wave', 'h-4 w-4')</button>
-    <button type="button" x-show="edit" x-cloak wire:click="removeWord({{ $word->id }})" x-on:click.stop aria-label="Remove {{ $word->word }}" class="{{ $removeButton }}">@svg('heroicon-m-x-mark', 'h-4 w-4')</button>
+    <button type="button" x-show="edit" x-cloak x-on:click.stop="removeWordNow({{ $word->id }}, @js($word->word))" aria-label="Remove {{ $word->word }}" class="{{ $removeButton }}">@svg('heroicon-m-x-mark', 'h-4 w-4')</button>
 </div>
