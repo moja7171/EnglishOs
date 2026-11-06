@@ -99,7 +99,7 @@ trait TracksCheckAttempts
         }
 
         try {
-            app(FeedbackNotebook::class)->recordCheck($this->run->learner, $text, $verdict['corrected'], $verdict['why_fa'] ?? null, $source);
+            app(FeedbackNotebook::class)->recordCheck($this->run->learner, $text, $verdict['corrected'], $verdict['why_fa'] ?? null, $source, $this->run->mission_id);
         } catch (\Throwable) {
             // The notebook line is a bonus; the verdict already reached the learner.
         }

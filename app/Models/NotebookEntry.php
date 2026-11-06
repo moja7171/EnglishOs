@@ -19,7 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * away to keep the list short, once a notebook has MAX_ACTIVE lines (see
  * FeedbackNotebook).
  */
-#[Fillable(['learner_id', 'kind', 'dedupe_key', 'label', 'original', 'better', 'note', 'source', 'times_seen', 'last_seen_at', 'learned_at', 'starred_at', 'practice_level', 'last_practised_at', 'ease_factor', 'interval_days', 'repetitions', 'next_review_at', 'last_reviewed_at'])]
+#[Fillable(['learner_id', 'mission_id', 'kind', 'dedupe_key', 'label', 'original', 'better', 'note', 'source', 'times_seen', 'last_seen_at', 'learned_at', 'starred_at', 'practice_level', 'last_practised_at', 'ease_factor', 'interval_days', 'repetitions', 'next_review_at', 'last_reviewed_at'])]
 class NotebookEntry extends Model
 {
     /** @use HasFactory<NotebookEntryFactory> */
@@ -95,6 +95,16 @@ class NotebookEntry extends Model
         return $this->belongsTo(User::class, 'learner_id');
     }
 
+    /**
+     * The mission the line was last made in.
+     *
+     * @return BelongsTo<Mission, $this>
+     */
+    public function mission(): BelongsTo
+    {
+        return $this->belongsTo(Mission::class);
+    }
+
     public function isMistake(): bool
     {
         return $this->kind === self::KIND_MISTAKE;
@@ -112,7 +122,17 @@ class NotebookEntry extends Model
     }
 
     /**
-     * A plain "say it like this" swap — a tip that isn't a technique.
+     * A speaking technique: never a line in the notebook, only the Tip card
+     * on top of the Mistakes tab.
+     */
+    public function isTechnique(): bool
+    {
+        return $this->kind === self::KIND_TIP && $this->label !== null;
+    }
+
+    /**
+     * A plain "say it like this" swap — a tip that isn't a technique. It
+     * sits in the Mistakes tab as a "better way".
      */
     public function isPhraseSwap(): bool
     {
@@ -127,7 +147,7 @@ class NotebookEntry extends Model
     {
         return $this->techniqueName()
             ?? ($this->label !== null ? (LearnerFeedback::MISTAKE_CATEGORIES[$this->label] ?? $this->label) : null)
-            ?? ($this->isMistake() ? 'Mistake' : 'Say it like this');
+            ?? ($this->isMistake() ? 'Mistake' : 'Better way');
     }
 
     /**
@@ -187,31 +207,39 @@ class NotebookEntry extends Model
     }
 
     /**
+     * The lines the Mistakes tab lists: mistakes and "better ways" (not the
+     * speaking techniques, which only feed the Tip card).
+     *
+     * @param  Builder<NotebookEntry>  $query
+     */
+    public function scopeVisible(Builder $query): void
+    {
+        $query->where(fn (Builder $query) => $query
+            ->where('kind', self::KIND_MISTAKE)
+            ->orWhereNull('label'));
+    }
+
+    /**
      * The lines isUnpractised() is true for — the dot on the Notebook tab.
      *
      * @param  Builder<NotebookEntry>  $query
      */
     public function scopeUnpractised(Builder $query): void
     {
-        $query->whereNull('learned_at')
+        $query->visible()->whereNull('learned_at')
             ->where(fn (Builder $query) => $query
                 ->whereNull('last_practised_at')
                 ->orWhereColumn('last_seen_at', '>', 'last_practised_at'));
     }
 
     /**
-     * What Daily Review may show: active mistakes and techniques, and the
-     * phrase swaps the learner starred — the rest are hard to self-test
-     * and rarely come back.
+     * What Daily Review may show: the active mistakes. A "better way" is
+     * not a mistake, so it is only practised in the notebook.
      *
      * @param  Builder<NotebookEntry>  $query
      */
     public function scopeInReview(Builder $query): void
     {
-        $query->whereNull('learned_at')
-            ->where(fn (Builder $query) => $query
-                ->where('kind', self::KIND_MISTAKE)
-                ->orWhereNotNull('label')
-                ->orWhereNotNull('starred_at'));
+        $query->whereNull('learned_at')->where('kind', self::KIND_MISTAKE);
     }
 }

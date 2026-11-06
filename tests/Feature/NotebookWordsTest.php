@@ -37,7 +37,8 @@ class NotebookWordsTest extends TestCase
 
         Livewire::test('notebook.index')
             ->assertDontSee('Cover the words')
-            ->assertSeeInOrder(['Words', 'Mistakes', 'Tips'])
+            ->assertSeeInOrder(['Words', 'Mistakes'])
+            ->assertDontSee('Tips')
             ->assertSee('1 word ready to review')
             ->assertSeeHtml(route('review.track', 'words'));
     }
@@ -137,7 +138,7 @@ class NotebookWordsTest extends TestCase
         $this->get(route('notebook.index', ['tab' => 'mistakes']))
             ->assertOk()
             ->assertSee("notebookTab: 'mistakes'", false)
-            ->assertSee("setTab('tips')", false);
+            ->assertSee("setTab('words')", false);
     }
 
     public function test_another_sentence_is_saved_only_when_simple_and_has_the_word_in_it(): void

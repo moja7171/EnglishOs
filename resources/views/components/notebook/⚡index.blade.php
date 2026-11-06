@@ -76,6 +76,7 @@ new class extends Component
     public function entries(): Collection
     {
         return auth()->user()->notebookEntries()
+            ->with('mission:id,code,title')
             ->orderByDesc('times_seen')
             ->orderByDesc('last_seen_at')
             ->get();
@@ -170,27 +171,92 @@ new class extends Component
     }
 
     /**
-     * The active lines of one notebook in the groups its tab folds by: a
-     * mistake by what kind of mistake it is (past simple, a / an / the, …),
-     * the kind made most often first; a tip by its speaking technique, else
-     * "Say it like this" for a plain phrase swap.
+     * The lines the Mistakes tab lists: mistakes and "better ways" — the
+     * speaking techniques only feed the Tip card.
+     *
+     * @return Collection<int, NotebookEntry>
+     */
+    #[Computed]
+    public function visibleEntries(): Collection
+    {
+        return $this->entries->reject(fn (NotebookEntry $entry) => $entry->isTechnique())->values();
+    }
+
+    /**
+     * The Tip card on top of Mistakes: the speaking technique suggested
+     * last, until the learner says "Got it".
+     */
+    #[Computed]
+    public function tipCard(): ?NotebookEntry
+    {
+        return $this->entries
+            ->filter(fn (NotebookEntry $entry) => $entry->isTechnique() && $entry->learned_at === null)
+            ->sortByDesc('last_seen_at')
+            ->first();
+    }
+
+    public function gotTip(int $entryId): void
+    {
+        $entry = auth()->user()->notebookEntries()->findOrFail($entryId);
+
+        if ($entry->isTechnique()) {
+            $entry->update(['learned_at' => now()]);
+        }
+
+        unset($this->entries, $this->visibleEntries, $this->tipCard);
+    }
+
+    /**
+     * The active lines grouped by what kind of mistake they are (past
+     * simple, a / an / the, …), the kind made most often first; the ones
+     * with no kind, then the "better ways", last.
      *
      * @return Collection<int, array{title: string, entries: Collection<int, NotebookEntry>}>
      */
-    public function entryGroups(string $kind): Collection
+    public function entryGroups(): Collection
     {
-        $active = $this->entries->where('kind', $kind)->whereNull('learned_at');
+        $rank = fn (string $title): int => match ($title) {
+            'Sounds more natural' => 2,
+            'Other mistakes' => 1,
+            default => 0,
+        };
 
-        $titleOf = fn (NotebookEntry $entry): string => $kind === NotebookEntry::KIND_TIP
-            ? ($entry->techniqueName() ?? 'Say it like this')
-            : ($entry->label !== null ? $entry->heading() : 'Other mistakes');
-
-        return $active
-            ->groupBy($titleOf)
-            ->map(fn (Collection $entries, string $title) => ['title' => $title, 'entries' => $entries])
+        return $this->visibleEntries->whereNull('learned_at')
+            ->groupBy(fn (NotebookEntry $entry): string => match (true) {
+                $entry->isPhraseSwap() => 'Sounds more natural',
+                $entry->label !== null => $entry->heading(),
+                default => 'Other mistakes',
+            })
+            ->map(fn (Collection $entries, string $title) => ['title' => $title, 'entries' => $entries->values()])
             ->sortBy([
-                fn (array $a, array $b) => ($a['title'] === 'Other mistakes') <=> ($b['title'] === 'Other mistakes'),
+                fn (array $a, array $b) => $rank($a['title']) <=> $rank($b['title']),
                 fn (array $a, array $b) => $b['entries']->sum('times_seen') <=> $a['entries']->sum('times_seen'),
+            ])
+            ->values();
+    }
+
+    /**
+     * The same lines, one card per mission they were made in, the latest
+     * mission first — the way the Words tab is laid out.
+     *
+     * @return Collection<int, array{code: string, title: string, cover: ?string, entries: Collection<int, NotebookEntry>, due: int}>
+     */
+    public function entryMissionGroups(): Collection
+    {
+        $grid = app(MissionGrid::class);
+
+        return $this->visibleEntries->whereNull('learned_at')
+            ->groupBy(fn (NotebookEntry $entry): string => $entry->mission?->code ?? '')
+            ->map(fn (Collection $entries, string $code) => [
+                'code' => $code,
+                'title' => $code === '' ? 'More lines' : $entries->first()->mission->title,
+                'cover' => $code === '' ? null : $grid->coverUrl($code),
+                'entries' => $entries->values(),
+                'due' => $entries->filter(fn (NotebookEntry $entry) => $entry->isMistake() && $entry->isDue())->count(),
+            ])
+            ->sortBy([
+                fn (array $a, array $b) => ($a['code'] === '') <=> ($b['code'] === ''),
+                fn (array $a, array $b) => (int) preg_replace('/\D/', '', $b['code']) <=> (int) preg_replace('/\D/', '', $a['code']),
             ])
             ->values();
     }
@@ -247,7 +313,7 @@ new class extends Component
         $this->removed = ['type' => 'entry', 'label' => $entry->better, 'attributes' => $entry->getAttributes()];
         $entry->delete();
 
-        unset($this->entries);
+        unset($this->entries, $this->visibleEntries, $this->tipCard);
     }
 
     /**
@@ -269,7 +335,7 @@ new class extends Component
 
         $this->removed = null;
 
-        unset($this->words, $this->wordGroups, $this->entries);
+        unset($this->words, $this->wordGroups, $this->entries, $this->visibleEntries, $this->tipCard);
     }
 
     /** "Practice this one", from a line's sheet. */
@@ -303,31 +369,14 @@ new class extends Component
     {
         auth()->user()->notebookEntries()->findOrFail($entryId)->update(['learned_at' => now()]);
 
-        unset($this->entries);
+        unset($this->entries, $this->visibleEntries, $this->tipCard);
     }
 
     public function bringBack(int $entryId): void
     {
         auth()->user()->notebookEntries()->findOrFail($entryId)->update(['learned_at' => null, 'next_review_at' => now()]);
 
-        unset($this->entries);
-    }
-
-    /**
-     * A phrase swap goes to Daily Review only while starred — see
-     * NotebookEntry::scopeInReview().
-     */
-    public function toggleStar(int $entryId): void
-    {
-        $entry = auth()->user()->notebookEntries()->findOrFail($entryId);
-
-        if (! $entry->isPhraseSwap()) {
-            return;
-        }
-
-        $entry->update(['starred_at' => $entry->starred_at ? null : now()]);
-
-        unset($this->entries);
+        unset($this->entries, $this->visibleEntries, $this->tipCard);
     }
 
     /**
@@ -335,7 +384,7 @@ new class extends Component
      */
     public function startPractice(string $kind = NotebookEntry::KIND_MISTAKE): void
     {
-        if (! in_array($kind, [NotebookEntry::KIND_MISTAKE, NotebookEntry::KIND_TIP], true)) {
+        if ($kind !== NotebookEntry::KIND_MISTAKE) {
             return;
         }
 
@@ -422,8 +471,7 @@ new class extends Component
     $byKind = $this->entries->groupBy('kind');
     $practiceEntry = $practiceIds !== [] ? $this->practiceEntry : null;
     $roundDone = $practiceIds !== [] && ! $practiceEntry;
-    $tabs = ['mistakes' => NotebookEntry::KIND_MISTAKE, 'tips' => NotebookEntry::KIND_TIP];
-    $activeCount = fn (string $kind) => ($byKind->get($kind) ?? collect())->whereNull('learned_at')->count();
+    $tabs = ['mistakes' => NotebookEntry::KIND_MISTAKE];
     $pill = 'flex-1 cursor-pointer rounded-full py-2 text-center text-sm font-extrabold transition-colors';
 @endphp
 
@@ -442,12 +490,12 @@ new class extends Component
     class="mx-auto max-w-2xl space-y-4 p-4 sm:p-6"
     x-on:eos-word-saved.window="$wire.$refresh()"
     x-data="{
-        notebookTab: @js($roundDone ? ($practiceKind === NotebookEntry::KIND_TIP ? 'tips' : 'mistakes') : (in_array(request()->query('tab'), ['mistakes', 'tips', 'words'], true) ? request()->query('tab') : 'words')),
+        notebookTab: @js($roundDone ? 'mistakes' : (in_array(request()->query('tab'), ['mistakes', 'tips', 'words'], true) ? (request()->query('tab') === 'tips' ? 'mistakes' : request()->query('tab')) : 'words')),
         sheet: false,
         learned: false,
         search: '',
         edit: false,
-        filter: { words: 'all', mistakes: 'all', tips: 'all' },
+        filter: { words: 'all', mistakes: 'all' },
         open: {},
         expanded: {},
         filtering(tab) { return this.filter[tab] !== 'all' || this.search !== ''; },
@@ -528,10 +576,10 @@ new class extends Component
     @endforeach
 
     <div class="flex gap-1 rounded-full bg-surface-sunken p-1 dark:bg-surface-sunken-dark" role="tablist">
-        @foreach (['words' => 'Words', 'mistakes' => 'Mistakes', 'tips' => 'Tips'] as $tab => $label)
+        @foreach (['words' => 'Words', 'mistakes' => 'Mistakes'] as $tab => $label)
             @php
-                $count = $tab === 'words' ? $this->words->count() : $activeCount($tabs[$tab]);
-                $newCount = $tab === 'words' ? 0 : ($byKind->get($tabs[$tab]) ?? collect())->filter(fn (NotebookEntry $entry) => $entry->isUnpractised())->count();
+                $count = $tab === 'words' ? $this->words->count() : $this->visibleEntries->whereNull('learned_at')->count();
+                $newCount = $tab === 'words' ? 0 : $this->visibleEntries->filter(fn (NotebookEntry $entry) => $entry->isUnpractised())->count();
             @endphp
             <button
                 type="button"
@@ -554,109 +602,123 @@ new class extends Component
         $removeButton = 'inline-flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-full bg-danger-soft text-danger-ink';
     @endphp
 
-    @foreach ($tabs as $tab => $kind)
-        @php
-            [$active, $learnedEntries] = ($byKind->get($kind) ?? collect())->partition(fn (NotebookEntry $entry) => $entry->learned_at === null);
-            $groups = $this->entryGroups($kind);
-            $metaOf = fn (NotebookEntry $entry) => [
-                's' => $entry->studyStatus(),
-                'f' => array_values(array_filter([$entry->times_seen > 1 ? 'repeat' : null, $entry->starred_at ? 'star' : null])),
-                't' => mb_strtolower($entry->original.' '.$entry->better.' '.$entry->note),
-            ];
-            $allMetas = $active->map($metaOf)->values();
-            $statusCounts = $active->countBy(fn (NotebookEntry $entry) => $entry->studyStatus());
-            $segments = [
-                ['status' => 'new', 'label' => 'Not practised', 'count' => $statusCounts->get('new', 0)],
-                ['status' => 'learning', 'label' => 'Practising', 'count' => $statusCounts->get('learning', 0)],
-                ['status' => 'known', 'label' => 'Learned', 'count' => $learnedEntries->count(), 'learned' => true],
-            ];
-            $chips = $tab === 'mistakes'
-                ? [['all', 'All', $active->count()], ['repeat', 'Repeating', $active->where('times_seen', '>', 1)->count()], ['new', 'Not practised', $statusCounts->get('new', 0)]]
-                : [['all', 'All', $active->count()], ['new', 'Not practised', $statusCounts->get('new', 0)], ['learning', 'Practising', $statusCounts->get('learning', 0)], ['star', 'In Review', $active->whereNotNull('starred_at')->count()]];
-        @endphp
-        <div x-show="notebookTab === '{{ $tab }}'" x-cloak class="space-y-3" x-data="{ all: {{ \Illuminate\Support\Js::from($allMetas) }}, searching: false, learnedAll: false }">
-            @if ($active->isEmpty() && $learnedEntries->isEmpty())
-                <p class="py-6 text-center text-sm text-ink-faint dark:text-ink-faint-dark">{{ $tab === 'mistakes' ? 'No mistakes saved yet.' : 'No tips saved yet.' }}</p>
-            @else
-                <div x-show="searching || search !== ''" x-cloak>
-                    <input type="search" x-model="search" x-ref="entrySearch" placeholder="Search your {{ $tab }}" aria-label="Search your {{ $tab }}" class="w-full rounded-2xl border-0 bg-surface px-4 py-2.5 text-sm text-ink placeholder:text-ink-faint focus:ring-2 focus:ring-accent dark:bg-surface-dark dark:text-ink-dark">
+    {{-- Mistakes: the lines the learner got wrong (and a few "better ways"), grouped by kind of mistake or by mission, with one Tip card on top. --}}
+    @php
+        [$active, $learnedEntries] = $this->visibleEntries->partition(fn (NotebookEntry $entry) => $entry->learned_at === null);
+        $learnedEntries = $learnedEntries->values();
+        $tip = $this->tipCard;
+        $sources = \App\Services\FeedbackNotebook::SOURCES;
+        $sourceOf = fn (NotebookEntry $entry) => $sources[$entry->source] ?? $entry->source;
+        $metaOf = fn (NotebookEntry $entry) => [
+            's' => $entry->studyStatus(),
+            'f' => array_values(array_filter([$entry->times_seen > 1 ? 'repeat' : null])),
+            't' => mb_strtolower($entry->original.' '.$entry->better.' '.$entry->note),
+        ];
+        $allMetas = $active->map($metaOf)->values();
+        $statusCounts = $active->countBy(fn (NotebookEntry $entry) => $entry->studyStatus());
+        $segments = [
+            ['status' => 'new', 'label' => 'Not practised', 'count' => $statusCounts->get('new', 0)],
+            ['status' => 'learning', 'label' => 'Practising', 'count' => $statusCounts->get('learning', 0)],
+            ['status' => 'known', 'label' => 'Learned', 'count' => $learnedEntries->count(), 'learned' => true],
+        ];
+        $chips = [['all', 'All', $active->count()], ['repeat', 'Repeating', $active->where('times_seen', '>', 1)->count()], ['new', 'Not practised', $statusCounts->get('new', 0)]];
+    @endphp
+    <div x-show="notebookTab === 'mistakes'" x-cloak class="space-y-3" x-data="{ all: {{ \Illuminate\Support\Js::from($allMetas) }}, searching: false, learnedAll: false, tipGone: false, groupBy: (() => { try { return localStorage.getItem('eos-mistakes-group') === 'type' ? 'type' : 'mission'; } catch (e) { return 'mission'; } })(), setGroupBy(by) { this.groupBy = by; try { localStorage.setItem('eos-mistakes-group', by); } catch (e) {} } }">
+        @if ($tip)
+            <div x-show="! tipGone" class="flex items-start gap-3 rounded-3xl bg-surface p-4 dark:bg-surface-dark">
+                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300">@svg('heroicon-o-sparkles', 'h-5 w-5')</span>
+                <div class="min-w-0 flex-1">
+                    <p class="text-xs font-extrabold tracking-wide text-sky-800 uppercase dark:text-sky-300">Tip · {{ $tip->techniqueName() }}</p>
+                    <p class="mt-0.5 text-[15px] leading-snug text-ink dark:text-ink-dark">{{ \App\Services\LearnerFeedback::TECHNIQUES[$tip->label]['why'] ?? $tip->better }}</p>
+                    <button type="button" wire:click="gotTip({{ $tip->id }})" x-on:click="tipGone = true" class="mt-2 cursor-pointer text-sm font-extrabold text-accent-ink dark:text-accent-ink-dark">Got it</button>
                 </div>
-                <x-notebook-filter-bar :tab="$tab" :segments="$segments" :chips="$chips">
-                    <x-slot:lead>
-                        <button type="button" x-on:click="searching = ! searching; if (searching) { setTimeout(() => $refs.entrySearch.focus(), 60) } else { search = '' }" x-bind:aria-pressed="searching || search !== ''" aria-label="Search your {{ $tab }}" class="inline-flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full bg-surface text-ink-soft dark:bg-surface-dark dark:text-ink-soft-dark">@svg('heroicon-o-magnifying-glass', 'h-4 w-4')</button>
-                    </x-slot:lead>
-                </x-notebook-filter-bar>
+            </div>
+        @endif
 
-                <p x-show="! all.some(meta => shows('{{ $tab }}', meta))" x-cloak class="py-6 text-center text-sm font-bold text-ink-faint dark:text-ink-faint-dark">Nothing here.</p>
+        @if ($active->isEmpty() && $learnedEntries->isEmpty())
+            <p class="py-6 text-center text-sm text-ink-faint dark:text-ink-faint-dark">No mistakes saved yet.</p>
+        @else
+            <div x-show="searching || search !== ''" x-cloak>
+                <input type="search" x-model="search" x-ref="entrySearch" placeholder="Search your mistakes" aria-label="Search your mistakes" class="w-full rounded-2xl border-0 bg-surface px-4 py-2.5 text-sm text-ink placeholder:text-ink-faint focus:ring-2 focus:ring-accent dark:bg-surface-dark dark:text-ink-dark">
+            </div>
+            <x-notebook-filter-bar tab="mistakes" :segments="$segments" :chips="$chips">
+                <x-slot:lead>
+                    <button type="button" x-on:click="searching = ! searching; if (searching) { setTimeout(() => $refs.entrySearch.focus(), 60) } else { search = '' }" x-bind:aria-pressed="searching || search !== ''" aria-label="Search your mistakes" class="inline-flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full bg-surface text-ink-soft dark:bg-surface-dark dark:text-ink-soft-dark">@svg('heroicon-o-magnifying-glass', 'h-4 w-4')</button>
+                </x-slot:lead>
+            </x-notebook-filter-bar>
 
-                @foreach ($groups as $group)
+            <div class="flex items-center justify-between gap-3">
+                <span class="text-xs font-extrabold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Group by</span>
+                <span class="inline-flex gap-0.5 rounded-full bg-surface-sunken p-0.5 dark:bg-surface-sunken-dark" role="group" aria-label="Group by">
+                    <button type="button" x-on:click="setGroupBy('mission')" x-bind:aria-pressed="groupBy === 'mission'" x-bind:class="groupBy === 'mission' ? 'bg-ink text-surface dark:bg-ink-dark dark:text-surface-dark' : 'text-ink-soft dark:text-ink-soft-dark'" class="cursor-pointer rounded-full px-3.5 py-1.5 text-sm font-extrabold">Mission</button>
+                    <button type="button" x-on:click="setGroupBy('type')" x-bind:aria-pressed="groupBy === 'type'" x-bind:class="groupBy === 'type' ? 'bg-ink text-surface dark:bg-ink-dark dark:text-surface-dark' : 'text-ink-soft dark:text-ink-soft-dark'" class="cursor-pointer rounded-full px-3.5 py-1.5 text-sm font-extrabold">Type</button>
+                </span>
+            </div>
+
+            <p x-show="! all.some(meta => shows('mistakes', meta))" x-cloak class="py-6 text-center text-sm font-bold text-ink-faint dark:text-ink-faint-dark">Nothing here.</p>
+
+            <div x-show="groupBy === 'type'" x-cloak class="space-y-3">
+                @foreach ($this->entryGroups() as $group)
                     @php
-                        $key = $tab.'-'.$loop->index;
+                        $key = 'mt-'.$loop->index;
                         $first = $loop->first ? 'true' : 'false';
                         $metas = $group['entries']->map($metaOf)->values();
-                        $groupCounts = $group['entries']->countBy(fn (NotebookEntry $entry) => $entry->studyStatus());
                     @endphp
-                    <div class="space-y-1.5" x-data="{ metas: {{ \Illuminate\Support\Js::from($metas) }} }" x-show="metas.some(meta => shows('{{ $tab }}', meta))">
-                        <button type="button" x-on:click="open['{{ $key }}'] = ! isOpen('{{ $tab }}', '{{ $key }}', {{ $first }})" x-bind:aria-expanded="isOpen('{{ $tab }}', '{{ $key }}', {{ $first }})" class="flex w-full cursor-pointer items-center gap-2 px-2 text-left text-xs font-extrabold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">
-                            <span class="transition-transform" x-bind:class="isOpen('{{ $tab }}', '{{ $key }}', {{ $first }}) ? 'rotate-90' : ''">@svg('heroicon-m-chevron-right', 'h-3.5 w-3.5')</span>
-                            <span>{{ $group['title'] }}</span>
-                            <span class="flex gap-0.5" aria-hidden="true">
-                                @foreach (['new', 'learning', 'known'] as $status)
-                                    @if ($groupCounts->get($status, 0) > 0)
-                                        <span class="{{ $statusDot($status) }} h-1.5 w-1.5 rounded-full"></span>
-                                    @endif
-                                @endforeach
-                            </span>
-                            <span class="ml-auto font-bold tracking-normal">{{ $group['entries']->count() }}</span>
-                        </button>
-                        <div x-show="isOpen('{{ $tab }}', '{{ $key }}', {{ $first }})" @unless ($loop->first) x-cloak @endunless class="divide-y divide-line rounded-3xl bg-surface px-4 dark:divide-line-dark dark:bg-surface-dark">
-                            @foreach ($group['entries'] as $entry)
-                                <div wire:key="notebook-row-{{ $entry->id }}" role="button" tabindex="0" x-show="shows('{{ $tab }}', metas[{{ $loop->index }}]) && ({{ $loop->index }} < 4 || expanded['{{ $key }}'] || filtering('{{ $tab }}'))" x-on:click="if (! edit) { sheet = 'n{{ $entry->id }}' }" x-on:keydown.enter="if (! edit) { sheet = 'n{{ $entry->id }}' }" class="flex w-full cursor-pointer items-center gap-2.5 py-3 text-left">
-                                    <span @class(['h-2 w-2 shrink-0 rounded-full', 'bg-accent dark:bg-accent-dark' => $entry->isUnpractised(), 'bg-transparent' => ! $entry->isUnpractised()])></span>
-                                    <span class="min-w-0 flex-1">
-                                        @if ($entry->original)
-                                            <span class="line-clamp-2 block text-xs text-ink-faint line-through dark:text-ink-faint-dark">{{ $entry->original }}</span>
-                                        @endif
-                                        <span class="line-clamp-2 block text-sm font-bold text-ink dark:text-ink-dark">{{ $entry->better }}</span>
-                                    </span>
-                                    @if ($entry->starred_at)
-                                        @svg('heroicon-s-star', 'h-3.5 w-3.5 shrink-0 text-warning')
-                                    @endif
-                                    @if ($entry->isMistake() && $entry->times_seen > 1)
-                                        <span class="shrink-0 rounded-full bg-warning-soft px-2 py-0.5 text-xs font-extrabold text-warning-ink">{{ $entry->times_seen }}×</span>
-                                    @endif
-                                    <button type="button" x-show="edit" x-cloak wire:click="removeEntry({{ $entry->id }})" x-on:click.stop aria-label="Remove" class="{{ $removeButton }}">@svg('heroicon-m-x-mark', 'h-4 w-4')</button>
-                                </div>
-                            @endforeach
-                            @if ($group['entries']->count() > 4)
-                                <button type="button" x-show="! filtering('{{ $tab }}')" x-on:click="expanded['{{ $key }}'] = ! expanded['{{ $key }}']" x-text="expanded['{{ $key }}'] ? 'Show less' : 'Show all {{ $group['entries']->count() }} ›'" class="w-full cursor-pointer py-3 text-center text-sm font-extrabold text-accent-ink dark:text-accent-ink-dark">Show all {{ $group['entries']->count() }} ›</button>
+                    <section aria-label="{{ $group['title'] }}" class="overflow-hidden rounded-3xl bg-surface dark:bg-surface-dark" x-data="{ metas: {{ \Illuminate\Support\Js::from($metas) }} }" x-show="metas.some(meta => shows('mistakes', meta))">
+                        <button type="button" x-on:click="open['{{ $key }}'] = ! isOpen('mistakes', '{{ $key }}', {{ $first }})" x-bind:aria-expanded="isOpen('mistakes', '{{ $key }}', {{ $first }})" class="flex w-full cursor-pointer items-center gap-2.5 p-4 text-left">
+                            @if ($group['title'] === 'Sounds more natural')
+                                <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300">@svg('heroicon-o-sparkles', 'h-[18px] w-[18px]')</span>
                             @endif
+                            <span class="min-w-0 flex-1 truncate text-base font-extrabold text-ink dark:text-ink-dark">{{ $group['title'] }}</span>
+                            <span class="text-sm font-bold text-ink-soft dark:text-ink-soft-dark" x-text="filtering('mistakes') ? metas.filter(meta => shows('mistakes', meta)).length + ' found' : '{{ $group['entries']->count() }}'">{{ $group['entries']->count() }}</span>
+                            <span class="shrink-0 text-ink-faint transition-transform dark:text-ink-faint-dark" x-bind:class="isOpen('mistakes', '{{ $key }}', {{ $first }}) ? 'rotate-180' : ''">@svg('heroicon-m-chevron-down', 'h-5 w-5')</span>
+                        </button>
+                        <div x-show="isOpen('mistakes', '{{ $key }}', {{ $first }})" @unless ($loop->first) x-cloak @endunless class="divide-y divide-line border-t border-line px-4 dark:divide-line-dark dark:border-line-dark">
+                            @foreach ($group['entries'] as $entry)
+                                @include('components.notebook.partials.entry-row', ['entry' => $entry, 'show' => "shows('mistakes', metas[".$loop->index."])", 'keyPrefix' => 'notebook-row-type', 'tag' => trim(($entry->mission?->code ?? '').($entry->mission ? ' · ' : '').$sourceOf($entry)), 'removeButton' => $removeButton])
+                            @endforeach
                         </div>
+                    </section>
+                @endforeach
+            </div>
+
+            <div x-show="groupBy === 'mission'" class="space-y-3">
+                @foreach ($this->entryMissionGroups() as $group)
+                    @php
+                        $key = 'mm-'.$loop->index;
+                        $metas = $group['entries']->map($metaOf)->values();
+                        $groupCounts = $group['entries']->countBy(fn (NotebookEntry $entry) => $entry->studyStatus());
+                        $groupTotal = $group['entries']->count();
+                    @endphp
+                    <x-notebook.mission-card tab="mistakes" :group-key="$key" :first="$loop->first" :code="$group['code']" :title="$group['title']" :cover="$group['cover']" :count-text="$groupTotal.' '.Str::plural('line', $groupTotal)" :due="$group['due']" :counts="['known' => $groupCounts->get('known', 0), 'learning' => $groupCounts->get('learning', 0), 'new' => $groupCounts->get('new', 0)]" :metas="$metas">
+                        @foreach ($group['entries'] as $entry)
+                            @include('components.notebook.partials.entry-row', ['entry' => $entry, 'show' => "shows('mistakes', metas[".$loop->index."])", 'keyPrefix' => 'notebook-row-mission', 'tag' => $entry->isPhraseSwap() ? 'Sounds more natural' : $entry->heading(), 'removeButton' => $removeButton])
+                        @endforeach
+                    </x-notebook.mission-card>
+                @endforeach
+            </div>
+        @endif
+
+        @if ($learnedEntries->isNotEmpty())
+            <button type="button" x-on:click="learned = ! learned" class="w-full cursor-pointer py-2 text-center text-sm font-extrabold text-ink-faint dark:text-ink-faint-dark">Learned and older ({{ $learnedEntries->count() }}) ›</button>
+            <div x-show="learned" x-cloak class="space-y-3 rounded-3xl bg-surface p-4 dark:bg-surface-dark">
+                @foreach ($learnedEntries as $entry)
+                    <div wire:key="notebook-learned-{{ $entry->id }}" x-show="learnedAll || {{ $loop->index }} < 10" @if ($loop->index >= 10) x-cloak @endif class="flex items-center justify-between gap-2">
+                        <p class="min-w-0 text-sm text-ink-faint dark:text-ink-faint-dark">
+                            @if ($entry->original)
+                                <span @class(['block text-xs', 'line-through' => $entry->isMistake()])>{{ $entry->original }}</span>
+                            @endif
+                            {{ $entry->better }}
+                        </p>
+                        <button type="button" wire:click="bringBack({{ $entry->id }})" class="shrink-0 cursor-pointer text-xs font-bold text-accent-ink dark:text-accent-ink-dark">Bring back</button>
                     </div>
                 @endforeach
-            @endif
-
-            @if ($learnedEntries->isNotEmpty())
-                <button type="button" x-on:click="learned = ! learned" class="w-full cursor-pointer py-2 text-center text-sm font-extrabold text-ink-faint dark:text-ink-faint-dark">Learned and older ({{ $learnedEntries->count() }}) ›</button>
-                <div x-show="learned" x-cloak class="space-y-3 rounded-3xl bg-surface p-4 dark:bg-surface-dark">
-                    @foreach ($learnedEntries as $entry)
-                        <div wire:key="notebook-learned-{{ $entry->id }}" x-show="learnedAll || {{ $loop->index }} < 10" @if ($loop->index >= 10) x-cloak @endif class="flex items-center justify-between gap-2">
-                            <p class="min-w-0 text-sm text-ink-faint dark:text-ink-faint-dark">
-                                @if ($entry->original)
-                                    <span class="block text-xs line-through">{{ $entry->original }}</span>
-                                @endif
-                                {{ $entry->better }}
-                            </p>
-                            <button type="button" wire:click="bringBack({{ $entry->id }})" class="shrink-0 cursor-pointer text-xs font-bold text-accent-ink dark:text-accent-ink-dark">Bring back</button>
-                        </div>
-                    @endforeach
-                    @if ($learnedEntries->count() > 10)
-                        <button type="button" x-show="! learnedAll" x-on:click="learnedAll = true" class="w-full cursor-pointer py-1 text-center text-sm font-extrabold text-accent-ink dark:text-accent-ink-dark">Show all {{ $learnedEntries->count() }} ›</button>
-                    @endif
-                </div>
-            @endif
-        </div>
-    @endforeach
+                @if ($learnedEntries->count() > 10)
+                    <button type="button" x-show="! learnedAll" x-on:click="learnedAll = true" class="w-full cursor-pointer py-1 text-center text-sm font-extrabold text-accent-ink dark:text-accent-ink-dark">Show all {{ $learnedEntries->count() }} ›</button>
+                @endif
+            </div>
+        @endif
+    </div>
 
     {{-- Words: where the learner learns them. How many are ready, today's few, one simple sentence under each word, then every word by mission. --}}
     <div x-show="notebookTab === 'words'" x-cloak class="space-y-3">
@@ -718,55 +780,25 @@ new class extends Component
                 @foreach ($this->wordGroups as $group)
                     @php
                         $key = 'words-'.$loop->index;
-                        $first = $loop->first ? 'true' : 'false';
                         $metas = $group['words']->map($wordMeta)->values();
                         $groupCounts = $group['words']->countBy(fn (VocabularyWord $word) => $word->studyStatus());
                         $groupTotal = $group['words']->count();
-                        $countText = $groupTotal.' '.Str::plural('word', $groupTotal).($group['mine'] > 0 ? ' · '.$group['mine'].' yours' : '');
                     @endphp
-                    <section aria-label="{{ $group['title'] }}" class="overflow-hidden rounded-3xl bg-surface dark:bg-surface-dark" x-data="{ metas: {{ \Illuminate\Support\Js::from($metas) }} }" x-show="metas.some(meta => shows('words', meta))">
-                        <button type="button" x-on:click="open['{{ $key }}'] = ! isOpen('words', '{{ $key }}', {{ $first }})" x-bind:aria-expanded="isOpen('words', '{{ $key }}', {{ $first }})" class="flex w-full cursor-pointer items-center gap-3 p-3 text-left">
-                            <span class="relative flex h-14 w-14 shrink-0 items-end overflow-hidden rounded-2xl bg-linear-to-br from-hero to-dusk p-1.5 text-[13px] font-extrabold text-white">
-                                @if ($group['cover'])
-                                    <img src="{{ $group['cover'] }}" alt="" class="absolute inset-0 h-full w-full object-cover">
-                                    <span class="absolute inset-0 bg-black/30"></span>
-                                @endif
-                                <span class="relative drop-shadow">{{ $group['code'] ?: '+' }}</span>
-                            </span>
-                            <span class="flex min-w-0 flex-1 flex-col gap-1.5">
-                                <span class="flex items-center gap-2">
-                                    <span class="min-w-0 truncate text-base font-extrabold text-ink dark:text-ink-dark">{{ $group['title'] }}</span>
-                                    @if ($group['due'] > 0)
-                                        <span class="shrink-0 rounded-full bg-accent-soft px-2 py-0.5 text-xs font-extrabold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">{{ $group['due'] }} due</span>
-                                    @endif
-                                </span>
-                                <span class="text-[13px] font-semibold text-ink-soft dark:text-ink-soft-dark" x-text="filtering('words') ? metas.filter(meta => shows('words', meta)).length + ' found' : @js($countText)">{{ $countText }}</span>
-                                <span class="flex h-1.5 gap-0.5 overflow-hidden rounded-full bg-surface-sunken dark:bg-surface-sunken-dark" role="img" aria-label="{{ $groupCounts->get('known', 0) }} known, {{ $groupCounts->get('learning', 0) }} learning, {{ $groupCounts->get('new', 0) }} new">
-                                    @foreach (['known' => 'bg-success dark:bg-success-dark', 'learning' => 'bg-warning', 'new' => 'bg-ink-faint dark:bg-ink-faint-dark'] as $status => $color)
-                                        @if ($groupCounts->get($status, 0) > 0)
-                                            <span class="{{ $color }} block h-full" style="width: {{ $groupCounts->get($status) / $groupTotal * 100 }}%"></span>
-                                        @endif
-                                    @endforeach
-                                </span>
-                            </span>
-                            <span class="shrink-0 text-ink-faint transition-transform dark:text-ink-faint-dark" x-bind:class="isOpen('words', '{{ $key }}', {{ $first }}) ? 'rotate-180' : ''">@svg('heroicon-m-chevron-down', 'h-5 w-5')</span>
-                        </button>
-                        <div x-show="isOpen('words', '{{ $key }}', {{ $first }})" @unless ($loop->first) x-cloak @endunless class="divide-y divide-line border-t border-line px-4 dark:divide-line-dark dark:border-line-dark">
-                            @foreach ($group['words'] as $word)
-                                @if ($loop->index < 4)
+                    <x-notebook.mission-card tab="words" :group-key="$key" :first="$loop->first" :code="$group['code']" :title="$group['title']" :cover="$group['cover']" :count-text="$groupTotal.' '.Str::plural('word', $groupTotal).($group['mine'] > 0 ? ' · '.$group['mine'].' yours' : '')" :due="$group['due']" :counts="['known' => $groupCounts->get('known', 0), 'learning' => $groupCounts->get('learning', 0), 'new' => $groupCounts->get('new', 0)]" :metas="$metas">
+                        @foreach ($group['words'] as $word)
+                            @if ($loop->index < 4)
+                                @include('components.notebook.partials.word-row', ['word' => $word, 'courseFa' => $this->courseMeaningsFa, 'statusDot' => $statusDot, 'commonness' => $this->wordCommonness, 'removeButton' => $removeButton, 'show' => "shows('words', metas[".$loop->index."])", 'keyPrefix' => 'word'])
+                            @else
+                                {{-- Past the first four a row is only built when "Show all" or a search/filter needs it, so a long list is not thousands of live elements. --}}
+                                <template x-if="expanded['{{ $key }}'] || filtering('words')">
                                     @include('components.notebook.partials.word-row', ['word' => $word, 'courseFa' => $this->courseMeaningsFa, 'statusDot' => $statusDot, 'commonness' => $this->wordCommonness, 'removeButton' => $removeButton, 'show' => "shows('words', metas[".$loop->index."])", 'keyPrefix' => 'word'])
-                                @else
-                                    {{-- Past the first four a row is only built when "Show all" or a search/filter needs it, so a long list is not thousands of live elements. --}}
-                                    <template x-if="expanded['{{ $key }}'] || filtering('words')">
-                                        @include('components.notebook.partials.word-row', ['word' => $word, 'courseFa' => $this->courseMeaningsFa, 'statusDot' => $statusDot, 'commonness' => $this->wordCommonness, 'removeButton' => $removeButton, 'show' => "shows('words', metas[".$loop->index."])", 'keyPrefix' => 'word'])
-                                    </template>
-                                @endif
-                            @endforeach
-                            @if ($groupTotal > 4)
-                                <button type="button" x-show="! filtering('words')" x-on:click="expanded['{{ $key }}'] = ! expanded['{{ $key }}']" x-text="expanded['{{ $key }}'] ? 'Show less' : 'Show all {{ $groupTotal }} ›'" class="w-full cursor-pointer py-3 text-center text-sm font-extrabold text-accent-ink dark:text-accent-ink-dark">Show all {{ $groupTotal }} ›</button>
+                                </template>
                             @endif
-                        </div>
-                    </section>
+                        @endforeach
+                        @if ($groupTotal > 4)
+                            <button type="button" x-show="! filtering('words')" x-on:click="expanded['{{ $key }}'] = ! expanded['{{ $key }}']" x-text="expanded['{{ $key }}'] ? 'Show less' : 'Show all {{ $groupTotal }} ›'" class="w-full cursor-pointer py-3 text-center text-sm font-extrabold text-accent-ink dark:text-accent-ink-dark">Show all {{ $groupTotal }} ›</button>
+                        @endif
+                    </x-notebook.mission-card>
                 @endforeach
             </div>
         @endif
@@ -774,10 +806,13 @@ new class extends Component
 
     {{-- One sheet; what it shows follows the tapped row. --}}
     <x-bottom-sheet show="sheet" label="Details">
-        @foreach ($this->entries->whereNull('learned_at') as $entry)
+        @foreach ($this->visibleEntries->whereNull('learned_at') as $entry)
             <div x-show="sheet === 'n{{ $entry->id }}'" wire:key="notebook-sheet-{{ $entry->id }}" class="flex flex-col gap-2">
-                <p class="text-xs font-extrabold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">
-                    {{ $entry->heading() }} · {{ \App\Services\FeedbackNotebook::SOURCES[$entry->source] ?? $entry->source }}@if ($entry->times_seen > 1) · {{ $entry->times_seen }}×@endif
+                <p class="flex items-center gap-1.5 text-xs font-extrabold tracking-wide uppercase {{ $entry->isPhraseSwap() ? 'text-sky-800 dark:text-sky-300' : 'text-ink-faint dark:text-ink-faint-dark' }}">
+                    @if ($entry->isPhraseSwap())
+                        @svg('heroicon-o-sparkles', 'h-3.5 w-3.5')
+                    @endif
+                    <span>{{ $entry->heading() }}@if ($entry->mission) · {{ $entry->mission->code }}@endif · {{ \App\Services\FeedbackNotebook::SOURCES[$entry->source] ?? $entry->source }}@if ($entry->isMistake() && $entry->times_seen > 1) · {{ $entry->times_seen }}×@endif</span>
                 </p>
                 @if ($entry->original)
                     <p class="text-sm {{ $entry->isMistake() ? 'text-danger-ink line-through decoration-danger' : 'text-ink-soft dark:text-ink-soft-dark' }}">{{ $entry->original }}</p>
@@ -786,20 +821,14 @@ new class extends Component
                 @if ($entry->note)
                     <p class="font-fa text-sm leading-relaxed text-ink-soft dark:text-ink-soft-dark" dir="rtl">{{ $entry->note }}</p>
                 @endif
-                @if ($entry->isMistake() || $entry->label !== null)
-                    <p class="text-xs font-bold text-ink-faint dark:text-ink-faint-dark">✓ In Daily Review until you know it</p>
-                @endif
+                <p class="text-xs font-bold text-ink-faint dark:text-ink-faint-dark">{{ $entry->isMistake() ? '✓ In Daily Review until you know it' : 'Nothing wrong here — just a more natural way to say it.' }}</p>
                 <div class="mt-2 grid grid-cols-2 gap-2">
-                    @if ($entry->learned_at === null)
-                        <button type="button" wire:click="markLearned({{ $entry->id }})" x-on:click="sheet = false" class="cursor-pointer rounded-2xl bg-surface-sunken py-3 text-sm font-extrabold text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark">✓ Learned</button>
-                    @endif
-                    @if ($entry->isPhraseSwap())
-                        <button type="button" wire:click="toggleStar({{ $entry->id }})" aria-pressed="{{ $entry->starred_at ? 'true' : 'false' }}" class="cursor-pointer rounded-2xl py-3 text-sm font-extrabold {{ $entry->starred_at ? 'bg-warning-soft text-warning-ink' : 'bg-surface-sunken text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark' }}">{{ $entry->starred_at ? '★ In Review' : '☆ Add to Review' }}</button>
-                    @elseif ($entry->learned_at === null && (! $entry->isMistake() || $entry->original))
+                    <button type="button" wire:click="markLearned({{ $entry->id }})" x-on:click="sheet = false" class="cursor-pointer rounded-2xl bg-surface-sunken py-3 text-sm font-extrabold text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark">{{ $entry->isMistake() ? '✓ Learned' : '✓ Got it' }}</button>
+                    @if ($entry->original)
                         <button type="button" wire:click="practiceOne({{ $entry->id }})" class="cursor-pointer rounded-2xl bg-success py-3 text-sm font-extrabold text-white dark:bg-success-dark">✎ Practice</button>
                     @endif
                 </div>
-                <button type="button" wire:click="removeEntry({{ $entry->id }})" x-on:click="sheet = false" class="{{ $removeSheetButton }}">@svg('heroicon-o-trash', 'h-4 w-4') Remove from my {{ $entry->isMistake() ? 'mistakes' : 'tips' }}</button>
+                <button type="button" wire:click="removeEntry({{ $entry->id }})" x-on:click="sheet = false" class="{{ $removeSheetButton }}">@svg('heroicon-o-trash', 'h-4 w-4') Remove from my mistakes</button>
             </div>
         @endforeach
         @include('components.notebook.partials.word-sheet', ['sheets' => $this->wordSheets, 'removeSheetButton' => $removeSheetButton])

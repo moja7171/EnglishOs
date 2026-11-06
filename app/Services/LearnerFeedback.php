@@ -188,7 +188,7 @@ class LearnerFeedback
      *                                                                 so <x-learner-feedback> can show it under it.
      * @return array{summary: string, severity: string, sentences: list<array{original: string, status: string, corrected: ?string, why: ?string, pattern: ?string, answer: ?int}>, positives: list<string>, negatives: list<string>, techniques: list<array{key: string, tip: string, example: string}>, better_version: ?string, saved?: array{mistakes: int, tips: int}}
      */
-    public function review(User $learner, string $text, string $situation, string $source, bool $spoken = false, string $extraGuidance = '', ?Closure $onCallSucceeded = null, array $answers = []): array
+    public function review(User $learner, string $text, string $situation, string $source, bool $spoken = false, string $extraGuidance = '', ?Closure $onCallSucceeded = null, array $answers = [], ?int $missionId = null): array
     {
         if ($answers !== []) {
             $text = collect($answers)
@@ -206,7 +206,7 @@ class LearnerFeedback
         );
 
         $feedback = self::normalize($data);
-        $feedback['saved'] = app(FeedbackNotebook::class)->record($learner, $feedback, $source);
+        $feedback['saved'] = app(FeedbackNotebook::class)->record($learner, $feedback, $source, $missionId);
 
         return $feedback;
     }
