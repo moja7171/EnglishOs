@@ -36,10 +36,9 @@
             <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">Your secret</p>
             <p class="font-display text-3xl font-extrabold text-ink dark:text-ink-dark">{{ $card['word'] }}</p>
             @if ($question)
-                <div wire:key="ai-question-{{ $turnKey }}" x-data x-init="window.eosVoice?.speak(@js($question))" class="rounded-xl bg-surface-sunken p-3 dark:bg-surface-sunken-dark">
+                <x-teddy-says wire:key="ai-question-{{ $turnKey }}" :say="$question">
                     <p class="text-lg font-bold text-ink dark:text-ink-dark">{{ $question }}</p>
-                    <div class="mt-2"><x-speak-button :text="$question" /></div>
-                </div>
+                </x-teddy-says>
             @elseif (! $finished)
                 <button type="button" wire:click="aiAsks" class="cursor-pointer text-sm font-bold text-accent-ink dark:text-accent-ink-dark">Try again</button>
             @endif

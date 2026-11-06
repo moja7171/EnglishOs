@@ -38,22 +38,22 @@
                 <p class="text-sm font-semibold text-ink-faint dark:text-ink-faint-dark">{{ implode(' ', App\Services\TabooDeck::STARTERS) }}</p>
             @endif
             @if ($lastTry)
-                <div wire:key="teddy-guess-{{ count($tries) }}" x-data x-init="window.eosVoice?.speak(@js('Is it '.$lastTry['guess'].'?'))" class="rounded-xl bg-surface-sunken p-3 dark:bg-surface-sunken-dark">
-                    <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">Teddy’s guess {{ count($tries) }} of {{ App\Models\AiPractice::TABOO_TRIES }}</p>
-                    <p class="mt-1 text-lg font-bold text-ink dark:text-ink-dark">Is it “{{ $lastTry['guess'] }}”?</p>
-                </div>
+                <x-teddy-says wire:key="teddy-guess-{{ count($tries) }}" :say="'Is it '.$lastTry['guess'].'?'" :label="'Teddy’s guess '.count($tries).' of '.App\Models\AiPractice::TABOO_TRIES">
+                    <p class="text-lg font-bold text-ink dark:text-ink-dark">Is it “{{ $lastTry['guess'] }}”?</p>
+                </x-teddy-says>
                 <div class="rounded-xl bg-success-soft p-3 text-start dark:bg-success-soft-dark">
                     <p class="text-xs font-semibold text-ink-soft dark:text-ink-soft-dark">I heard</p>
                     <p class="text-sm font-semibold text-ink dark:text-ink-dark">{{ $lastTry['said'] }}</p>
                 </div>
             @endif
         @elseif ($clues !== null)
-            <div wire:key="teddy-clue-{{ count($cluesShown) }}" x-data x-init="window.eosVoice?.speak(@js($newestClue))" class="space-y-2">
-                @foreach ($cluesShown as $clue)
-                    <p wire:key="clue-{{ $loop->index }}" class="rounded-xl bg-surface-sunken p-3 text-base font-semibold text-ink dark:bg-surface-sunken-dark dark:text-ink-dark">{{ $clue }}</p>
-                @endforeach
-                <x-speak-button :text="$newestClue" />
-            </div>
+            <x-teddy-says wire:key="teddy-clue-{{ count($cluesShown) }}" :say="$newestClue" label="Teddy’s clues">
+                <div class="space-y-1.5">
+                    @foreach ($cluesShown as $clue)
+                        <p wire:key="clue-{{ $loop->index }}" class="text-base font-semibold text-ink dark:text-ink-dark">{{ $clue }}</p>
+                    @endforeach
+                </div>
+            </x-teddy-says>
             @if ($guesses !== [])
                 <div class="flex flex-wrap justify-center gap-2">
                     @foreach ($guesses as $guess)

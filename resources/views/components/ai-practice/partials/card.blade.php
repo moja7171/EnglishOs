@@ -46,10 +46,9 @@
         @endif
 
         @if (! $mine)
-            <div wire:key="ai-says-{{ $stage }}-{{ $practice->position }}" x-data x-init="window.eosVoice?.speak(@js($card['answer']))" class="rounded-xl bg-success-soft p-3 dark:bg-success-soft-dark">
+            <x-teddy-says wire:key="ai-says-{{ $stage }}-{{ $practice->position }}" :say="$card['answer']">
                 <p class="text-base font-semibold text-ink dark:text-ink-dark">{{ $card['answer'] }}</p>
-                <div class="mt-2"><x-speak-button :text="$card['answer']" /></div>
-            </div>
+            </x-teddy-says>
         @elseif ($current === null)
             <div wire:key="recorder-{{ $stage }}-{{ $practice->position }}" class="flex flex-col items-center gap-2">
                 <x-voice-recorder big field="audioFile" :file="$audioFile" on-recorded="submitAnswer" file-name="answer.webm" />

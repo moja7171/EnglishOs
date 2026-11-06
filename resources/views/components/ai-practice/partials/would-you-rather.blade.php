@@ -32,11 +32,9 @@
             </div>
         @else
             <p class="text-sm font-bold text-ink-soft dark:text-ink-soft-dark">You: {{ $card[$current['mine']] }}</p>
-            <div wire:key="ai-reason-{{ $practice->position }}" x-data x-init="window.eosVoice?.speak(@js($current['reason']))" class="rounded-xl bg-surface-sunken p-3 dark:bg-surface-sunken-dark">
-                <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">Teddy: {{ $card[$current['ai']] }}</p>
-                <p class="mt-1 text-base font-semibold text-ink dark:text-ink-dark">{{ $current['reason'] }}</p>
-                <div class="mt-2"><x-speak-button :text="$current['reason']" /></div>
-            </div>
+            <x-teddy-says wire:key="ai-reason-{{ $practice->position }}" :say="$current['reason']" :label="'Teddy: '.$card[$current['ai']]">
+                <p class="text-base font-semibold text-ink dark:text-ink-dark">{{ $current['reason'] }}</p>
+            </x-teddy-says>
             <p @class(['text-sm font-bold', 'text-success dark:text-success-dark' => $current['guess'] === $current['ai'], 'text-ink-soft dark:text-ink-soft-dark' => $current['guess'] !== $current['ai']])>{{ $current['guess'] === $current['ai'] ? '✓ You guessed right' : 'Not this time' }}</p>
 
             @if (! isset($current['heard']))

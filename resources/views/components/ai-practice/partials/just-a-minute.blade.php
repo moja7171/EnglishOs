@@ -56,17 +56,16 @@
                 <p class="text-xs font-semibold text-ink-soft dark:text-ink-soft-dark">I heard</p>
                 <p class="text-sm font-semibold text-ink dark:text-ink-dark">{{ $current['heard'] }}</p>
             </div>
-            <div wire:key="teddy-asks-{{ $practice->position }}" x-data x-init="window.eosVoice?.speak(@js($question))" class="rounded-xl bg-surface-sunken p-3 dark:bg-surface-sunken-dark">
-                <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">Teddy asks</p>
-                <p class="mt-1 text-base font-bold text-ink dark:text-ink-dark">{{ $question }}</p>
-                <div class="mt-2"><x-speak-button :text="$question" /></div>
-            </div>
+            <x-teddy-says wire:key="teddy-asks-{{ $practice->position }}" :say="$question" label="Teddy asks">
+                <p class="text-base font-bold text-ink dark:text-ink-dark">{{ $question }}</p>
+            </x-teddy-says>
         @elseif (! $mine && $talk !== null)
-            <div wire:key="teddy-talks-{{ $practice->position }}" x-data="{ showText: false }" x-init="window.eosVoice?.speak(@js($talk))" class="rounded-xl bg-surface-sunken p-3 dark:bg-surface-sunken-dark">
-                <x-speak-button :text="$talk" />
-                <button type="button" x-show="! showText" x-on:click="showText = true" class="mt-2 block w-full cursor-pointer text-xs font-bold text-accent-ink dark:text-accent-ink-dark">Show text</button>
-                <p x-show="showText" x-cloak class="mt-2 text-start text-sm font-semibold text-ink dark:text-ink-dark">{{ $talk }}</p>
-            </div>
+            <x-teddy-says wire:key="teddy-talks-{{ $practice->position }}" :say="$talk">
+                <div x-data="{ showText: false }">
+                    <button type="button" x-show="! showText" x-on:click="showText = true" class="block w-full cursor-pointer text-xs font-bold text-accent-ink dark:text-accent-ink-dark">Show text</button>
+                    <p x-show="showText" x-cloak class="text-start text-sm font-semibold text-ink dark:text-ink-dark">{{ $talk }}</p>
+                </div>
+            </x-teddy-says>
         @elseif (! $mine)
             <button type="button" wire:click="aiTalks" wire:loading.attr="disabled" wire:target="aiTalks" class="cursor-pointer text-sm font-bold text-accent-ink dark:text-accent-ink-dark">Try again</button>
         @endif
@@ -82,10 +81,9 @@
                     <p class="text-xs font-semibold text-ink-soft dark:text-ink-soft-dark">You asked</p>
                     <p class="text-sm font-semibold text-ink dark:text-ink-dark">{{ $question }}</p>
                 </div>
-                <div wire:key="teddy-replies-{{ $practice->position }}" x-data x-init="window.eosVoice?.speak(@js($reply))" class="rounded-xl bg-surface-sunken p-3 dark:bg-surface-sunken-dark">
+                <x-teddy-says wire:key="teddy-replies-{{ $practice->position }}" :say="$reply">
                     <p class="text-base font-bold text-ink dark:text-ink-dark">{{ $reply }}</p>
-                    <div class="mt-2"><x-speak-button :text="$reply" /></div>
-                </div>
+                </x-teddy-says>
             @endif
         @elseif ($mine || $talk !== null)
             @if (! $mine)
