@@ -251,18 +251,25 @@ new class extends Component
 
     /**
      * Just a Minute, Teddy's turn: the learner taps the sentence they think
-     * has the mistake, once. A point when it is the one.
+     * has the mistake, or -1 for "no mistake", once. They are always asked,
+     * so being asked gives nothing away. A point for the right call.
      */
     public function pickTalkSlip(int $sentence): void
     {
         $current = $this->practice->current;
 
-        if ($this->practice->game() !== PairGame::GAME_MINUTE || $this->practice->isLearnersGameTurn() || ! isset($current['slip']) || isset($current['slip_pick'])
-            || ! isset($current['slip']['sentences'][$sentence])) {
+        if ($this->practice->game() !== PairGame::GAME_MINUTE || $this->practice->isLearnersGameTurn() || blank($current['talk'] ?? null) || isset($current['slip_pick'])) {
             return;
         }
 
-        $this->practice->update(['current' => [...$current, 'slip_pick' => $sentence], 'score' => $this->practice->score + ($sentence === $current['slip']['slip'] ? 1 : 0)]);
+        $sentences = $current['slip']['sentences'] ?? AiPractice::sentencesOf($current['talk']);
+        $slip = $current['slip']['slip'] ?? -1;
+
+        if ($sentence !== -1 && ! isset($sentences[$sentence])) {
+            return;
+        }
+
+        $this->practice->update(['current' => [...$current, 'slip_pick' => $sentence], 'score' => $this->practice->score + ($sentence === $slip ? 1 : 0)]);
     }
 
     /**
@@ -342,19 +349,27 @@ new class extends Component
 
     /**
      * Story Chain, once the story is told: the learner taps the line of
-     * Teddy's they think had a slip. A point when it is the one.
+     * Teddy's they think had a slip, or -1 for "no mistake". They are always
+     * asked, so being asked gives nothing away. A point for the right call.
      */
     public function pickStorySlip(int $lineIndex): void
     {
         $current = $this->practice->current;
-        $line = $current['lines'][$lineIndex] ?? null;
 
-        if ($this->practice->game() !== PairGame::GAME_STORY || ! isset($current['ended']) || isset($current['slip_pick']) || $line === null || $line['who'] === 'you'
-            || ! collect($current['lines'])->contains(fn (array $other) => isset($other['fix']))) {
+        if ($this->practice->game() !== PairGame::GAME_STORY || ! isset($current['ended']) || isset($current['slip_pick'])) {
             return;
         }
 
-        $this->practice->update(['current' => [...$current, 'slip_pick' => $lineIndex], 'score' => $this->practice->score + (isset($line['fix']) ? 1 : 0)]);
+        $line = $current['lines'][$lineIndex] ?? null;
+
+        if ($lineIndex !== -1 && ($line === null || $line['who'] === 'you')) {
+            return;
+        }
+
+        $had = collect($current['lines'])->contains(fn (array $other) => isset($other['fix']));
+        $right = $lineIndex === -1 ? ! $had : isset($line['fix']);
+
+        $this->practice->update(['current' => [...$current, 'slip_pick' => $lineIndex], 'score' => $this->practice->score + ($right ? 1 : 0)]);
     }
 
     /**

@@ -258,6 +258,16 @@ class AiPractice extends Model
     }
 
     /**
+     * The text cut into its sentences.
+     *
+     * @return list<string>
+     */
+    public static function sentencesOf(string $text): array
+    {
+        return array_values(array_filter(array_map('trim', preg_split('/(?<=[.!?])\s+/u', trim($text)) ?: [])));
+    }
+
+    /**
      * Whether two yes/no questions ask the same thing: the same words once
      * capitals and punctuation are gone, in any order, or nearly the same
      * text.

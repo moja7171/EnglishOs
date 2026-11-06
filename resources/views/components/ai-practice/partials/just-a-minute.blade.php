@@ -66,25 +66,35 @@
             <x-teddy-says wire:key="teddy-talks-{{ $practice->position }}" :say="$talk">
                 <div x-data="{ showText: false }">
                     <button type="button" x-show="! showText" x-on:click="showText = true" class="block w-full cursor-pointer text-xs font-bold text-accent-ink dark:text-accent-ink-dark">Show text</button>
-                    @if (isset($current['slip']))
-                        @php $picked = $current['slip_pick'] ?? null; @endphp
-                        <div x-show="showText" x-cloak class="space-y-1.5 text-start">
-                            <p class="text-xs font-extrabold text-warning-ink">{{ $picked === null ? 'One sentence has a mistake. Tap it.' : ($picked === $current['slip']['slip'] ? '✓ You found it!' : 'Not that one.') }}</p>
-                            @foreach ($current['slip']['sentences'] as $index => $sentence)
-                                <button type="button" wire:key="talk-sentence-{{ $index }}" @disabled($picked !== null) wire:click="pickTalkSlip({{ $index }})" @class([
-                                    'block w-full rounded-lg px-2 py-1.5 text-start text-sm font-semibold text-ink disabled:cursor-default dark:text-ink-dark',
-                                    'cursor-pointer bg-surface dark:bg-surface-dark' => $picked === null,
-                                    'bg-success-soft dark:bg-success-soft-dark' => $picked !== null && $index === $current['slip']['slip'],
-                                    'bg-warning-soft' => $picked === $index && $index !== $current['slip']['slip'],
-                                ])>{{ $sentence }}@if ($picked !== null && $index === $current['slip']['slip'])<span class="mt-0.5 block text-xs font-extrabold text-success dark:text-success-dark">Better: {{ $current['slip']['fix'] }}</span>@endif</button>
-                            @endforeach
-                            @if ($picked !== null)
-                                <x-feedback-cue wire:key="talk-slip-cue" :kind="$picked === $current['slip']['slip'] ? 'right' : 'wrong'" />
+                    @php
+                        $sentences = $current['slip']['sentences'] ?? App\Models\AiPractice::sentencesOf($talk);
+                        $slipAt = $current['slip']['slip'] ?? -1;
+                        $picked = $current['slip_pick'] ?? null;
+                    @endphp
+                    <div x-show="showText" x-cloak class="space-y-1.5 text-start">
+                        <p class="text-xs font-extrabold text-warning-ink">
+                            @if ($picked === null)
+                                Is there a mistake? Tap the sentence, or say there isn’t one.
+                            @elseif ($picked === $slipAt)
+                                {{ $slipAt === -1 ? '✓ Right, no mistake.' : '✓ You found it!' }}
+                            @else
+                                {{ $slipAt === -1 ? 'There was no mistake this time.' : 'Not that one.' }}
                             @endif
-                        </div>
-                    @else
-                        <p x-show="showText" x-cloak class="text-start text-sm font-semibold text-ink dark:text-ink-dark">{{ $talk }}</p>
-                    @endif
+                        </p>
+                        @foreach ($sentences as $index => $sentence)
+                            <button type="button" wire:key="talk-sentence-{{ $index }}" @disabled($picked !== null) wire:click="pickTalkSlip({{ $index }})" @class([
+                                'block w-full rounded-lg px-2 py-1.5 text-start text-sm font-semibold text-ink disabled:cursor-default dark:text-ink-dark',
+                                'cursor-pointer bg-surface dark:bg-surface-dark' => $picked === null,
+                                'bg-success-soft dark:bg-success-soft-dark' => $picked !== null && $index === $slipAt,
+                                'bg-warning-soft' => $picked === $index && $index !== $slipAt,
+                            ])>{{ $sentence }}@if ($picked !== null && $index === $slipAt)<span class="mt-0.5 block text-xs font-extrabold text-success dark:text-success-dark">Better: {{ $current['slip']['fix'] }}</span>@endif</button>
+                        @endforeach
+                        @if ($picked === null)
+                            <button type="button" wire:click="pickTalkSlip(-1)" class="block w-full cursor-pointer rounded-lg border border-dashed border-line px-2 py-1.5 text-center text-sm font-extrabold text-ink-soft dark:border-line-dark dark:text-ink-soft-dark">No mistake</button>
+                        @else
+                            <x-feedback-cue wire:key="talk-slip-cue" :kind="$picked === $slipAt ? 'right' : 'wrong'" />
+                        @endif
+                    </div>
                 </div>
             </x-teddy-says>
         @elseif (! $mine)

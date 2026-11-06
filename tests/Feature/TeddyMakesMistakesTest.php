@@ -138,6 +138,53 @@ class TeddyMakesMistakesTest extends TestCase
         $this->assertSame(1, $other->refresh()->score);
     }
 
+    public function test_just_a_minute_the_learner_is_always_asked_so_a_talk_with_no_mistake_is_not_given_away(): void
+    {
+        $current = ['talk' => 'I drink coffee. I take the bus. I like my town.', 'used' => ['coffee', 'bus'], 'ticked' => []];
+        $right = $this->gameWithSlips(PairGame::GAME_MINUTE, [['word' => 'x', 'words' => ['a', 'b']], ['word' => 'y', 'words' => ['coffee', 'bus']]], [], 1, $current);
+
+        Livewire::test('ai-practice.session', ['practice' => $right])
+            ->assertSee('Is there a mistake? Tap the sentence, or say there isn’t one.')
+            ->assertSee('No mistake')
+            ->assertSee('I take the bus.')
+            ->call('pickTalkSlip', -1)
+            ->assertSee('✓ Right, no mistake.')
+            ->call('pickTalkSlip', 0);
+
+        $this->assertSame(1, $right->refresh()->score, 'one call, scored once');
+
+        $wrong = $this->gameWithSlips(PairGame::GAME_MINUTE, [['word' => 'x', 'words' => ['a', 'b']], ['word' => 'y', 'words' => ['coffee', 'bus']]], [], 1, $current);
+        Livewire::test('ai-practice.session', ['practice' => $wrong])->call('pickTalkSlip', 1)->assertSee('There was no mistake this time.');
+        $this->assertSame(0, $wrong->refresh()->score);
+
+        $missed = $this->gameWithSlips(PairGame::GAME_MINUTE, [['word' => 'x', 'words' => ['a', 'b']], ['word' => 'y', 'words' => ['coffee', 'bus']]], [1], 1, [
+            ...$current, 'slip' => ['sentences' => ['I drink coffee.', 'She go by bus.', 'I like my town.'], 'slip' => 1, 'fix' => 'She goes by bus.'],
+        ]);
+        Livewire::test('ai-practice.session', ['practice' => $missed])->call('pickTalkSlip', -1)->assertSee('Not that one.');
+        $this->assertSame(0, $missed->refresh()->score);
+    }
+
+    public function test_story_chain_the_learner_is_always_asked_and_no_mistake_is_right_when_there_was_none(): void
+    {
+        $lines = [['who' => 'you', 'text' => 'He walked home.'], ['who' => 'teddy', 'text' => 'Then he saw a dog.']];
+        $card = ['word' => 'dog', 'story' => 0, 'line' => 'One day, a boy found a map.', 'source' => 'M01', 'bonus' => [], 'key' => 'story:1'];
+
+        $clean = $this->gameWithSlips(PairGame::GAME_STORY, [$card, $card], [], 1, ['lines' => $lines, 'ended' => true]);
+        Livewire::test('ai-practice.session', ['practice' => $clean])
+            ->assertSee('Did Teddy make a mistake? Tap his line, or say there wasn’t one.')
+            ->call('pickStorySlip', 1)
+            ->assertSee('There was no mistake this time.');
+        $this->assertSame(0, $clean->refresh()->score);
+
+        $clean2 = $this->gameWithSlips(PairGame::GAME_STORY, [$card, $card], [], 1, ['lines' => $lines, 'ended' => true]);
+        Livewire::test('ai-practice.session', ['practice' => $clean2])->call('pickStorySlip', -1)->assertSee('✓ Right, no mistake.');
+        $this->assertSame(1, $clean2->refresh()->score);
+
+        $slipped = $this->gameWithSlips(PairGame::GAME_STORY, [$card, $card], [], 1, ['lines' => [$lines[0], [...$lines[1], 'fix' => 'Then he saw a dog.']], 'ended' => true]);
+        Livewire::test('ai-practice.session', ['practice' => $slipped])->call('pickStorySlip', -1)->assertSee('There was a slip. It is marked in green.');
+        $this->assertSame(0, $slipped->refresh()->score);
+    }
+
     public function test_just_a_minute_a_slip_the_ai_cannot_write_falls_back_to_a_plain_talk(): void
     {
         $practice = $this->gameWithSlips(PairGame::GAME_MINUTE, [['word' => 'x', 'words' => ['a', 'b']], ['word' => 'My day', 'words' => ['coffee', 'bus']]], [1], 1);
@@ -163,7 +210,7 @@ class TeddyMakesMistakesTest extends TestCase
         $this->assertSame('Then he saw a dog.', $lines[1]['fix']);
 
         $practice->update(['current' => [...$practice->current, 'ended' => true]]);
-        $component = Livewire::test('ai-practice.session', ['practice' => $practice->refresh()])->assertSee('One of Teddy’s lines has a mistake. Tap it.');
+        $component = Livewire::test('ai-practice.session', ['practice' => $practice->refresh()])->assertSee('Did Teddy make a mistake? Tap his line, or say there wasn’t one.');
 
         $component->call('pickStorySlip', 0)->assertSet('practice.current.slip_pick', null);
         $component->call('pickStorySlip', 1)->assertSee('You found Teddy’s slip!')->assertSee('Better: Then he saw a dog.');
