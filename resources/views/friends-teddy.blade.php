@@ -1,3 +1,3 @@
 <x-layouts.app>
-    <livewire:friends.tara />
+    <livewire:friends.teddy />
 </x-layouts.app>

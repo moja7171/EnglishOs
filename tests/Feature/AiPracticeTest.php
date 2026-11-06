@@ -90,7 +90,7 @@ class AiPracticeTest extends TestCase
         $this->assertNull(app(AiPractices::class)->start($learner, AiPractice::KIND_PRACTICE));
 
         $this->actingAs($learner);
-        Livewire::test('pair-practice.index')->assertSee('Tara')->assertSee('Your voice is recorded')->assertSee('Finish a day first');
+        Livewire::test('pair-practice.index')->assertSee('Teddy')->assertSee('Your voice is recorded')->assertSee('Finish a day first');
     }
 
     public function test_the_open_practice_is_picked_up_and_a_new_round_ends_with_the_other_game(): void
@@ -119,7 +119,7 @@ class AiPracticeTest extends TestCase
         Livewire::test('ai-practice.session', ['practice' => $practice])
             ->assertSee('YOUR TURN')
             ->call('next')
-            ->assertSee('TARA’S TURN')
+            ->assertSee('TEDDY’S TURN')
             ->assertSee('lunch');
 
         $this->assertFalse($practice->refresh()->learnerAnswers());
@@ -249,7 +249,7 @@ class AiPracticeTest extends TestCase
             ->call('answerAi', 'yes')
             ->assertSee('Are you a cat?')
             ->call('aiGotIt')
-            ->assertSee('Tara got it!');
+            ->assertSee('Teddy got it!');
 
         $this->assertSame(1, $practice->refresh()->score);
         $component->call('next')->assertSee('Well done!');
@@ -307,7 +307,7 @@ class AiPracticeTest extends TestCase
         $this->assertContains($practice->currentCard()['word'], config('just_a_minute.M01'));
     }
 
-    public function test_just_a_minute_my_talk_scores_the_words_i_used_and_tara_asks_about_it(): void
+    public function test_just_a_minute_my_talk_scores_the_words_i_used_and_teddy_asks_about_it(): void
     {
         $practice = $this->gamePractice(PairGame::GAME_MINUTE, $this->minuteCards());
         $this->heard('I get up early, and I am cooking eggs with COFFEE.');
@@ -320,14 +320,14 @@ class AiPracticeTest extends TestCase
         $this->assertSame(3, $practice->score);
     }
 
-    public function test_just_a_minute_my_answer_to_tara_ends_my_turn_and_she_talks_next(): void
+    public function test_just_a_minute_my_answer_to_teddy_ends_my_turn_and_she_talks_next(): void
     {
         $practice = $this->gamePractice(PairGame::GAME_MINUTE, $this->minuteCards());
         $practice->update(['current' => ['heard' => 'My talk.', 'used' => [], 'question' => 'Why?']]);
         $this->heard('Because I like it.');
         $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn('I went to the park with friends.'));
 
-        $this->say($practice)->assertSee('Because I like it.')->assertSee('Next')->call('next')->assertSee('TARA’S TURN');
+        $this->say($practice)->assertSee('Because I like it.')->assertSee('Next')->call('next')->assertSee('TEDDY’S TURN');
 
         $practice->refresh();
         $this->assertSame(1, $practice->answered);
@@ -355,7 +355,7 @@ class AiPracticeTest extends TestCase
         $this->assertNull($practice->refresh()->current);
     }
 
-    public function test_just_a_minute_a_tapped_word_scores_only_if_tara_said_it_and_a_second_tap_takes_it_back(): void
+    public function test_just_a_minute_a_tapped_word_scores_only_if_teddy_said_it_and_a_second_tap_takes_it_back(): void
     {
         $practice = $this->gamePractice(PairGame::GAME_MINUTE, $this->minuteCards(), position: 1);
         $practice->update(['current' => ['talk' => 'I went to the park.', 'used' => ['park'], 'ticked' => []]]);
@@ -372,7 +372,7 @@ class AiPracticeTest extends TestCase
         $this->assertSame(['movie'], $practice->current['ticked']);
     }
 
-    public function test_just_a_minute_tara_answers_my_question_about_her_talk(): void
+    public function test_just_a_minute_teddy_answers_my_question_about_her_talk(): void
     {
         $practice = $this->gamePractice(PairGame::GAME_MINUTE, $this->minuteCards(), position: 1);
         $practice->update(['current' => ['talk' => 'I went to the park.', 'used' => ['park'], 'ticked' => []]]);
@@ -386,7 +386,7 @@ class AiPracticeTest extends TestCase
         $this->assertSame(1, $practice->answered);
     }
 
-    public function test_just_a_minute_tara_s_failed_talk_can_be_tried_again(): void
+    public function test_just_a_minute_teddy_s_failed_talk_can_be_tried_again(): void
     {
         $practice = $this->gamePractice(PairGame::GAME_MINUTE, $this->minuteCards(), position: 1);
         $failures = 1;
@@ -425,7 +425,7 @@ class AiPracticeTest extends TestCase
         $this->assertCount(4, $round->cards(AiPractice::STAGE_GAME));
     }
 
-    public function test_story_chain_my_line_scores_my_word_and_tara_goes_on_with_hers(): void
+    public function test_story_chain_my_line_scores_my_word_and_teddy_goes_on_with_hers(): void
     {
         $practice = $this->gamePractice(PairGame::GAME_STORY, $this->storyCards());
         $this->heard('She walked to the river.');
@@ -454,10 +454,10 @@ class AiPracticeTest extends TestCase
         $this->assertSame(1, $practice->answered);
     }
 
-    public function test_story_chain_tara_ends_the_story_on_the_last_turn_and_next_finishes(): void
+    public function test_story_chain_teddy_ends_the_story_on_the_last_turn_and_next_finishes(): void
     {
         $practice = $this->gamePractice(PairGame::GAME_STORY, $this->storyCards(), position: 2);
-        $practice->update(['current' => ['lines' => [['who' => 'you', 'text' => 'A.'], ['who' => 'tara', 'text' => 'B.']]]]);
+        $practice->update(['current' => ['lines' => [['who' => 'you', 'text' => 'A.'], ['who' => 'teddy', 'text' => 'B.']]]]);
         $this->heard('It began to rain.');
         $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()
             ->withArgs(fn (array $messages, ?string $systemPrompt) => str_contains((string) $systemPrompt, 'ending'))
@@ -470,7 +470,7 @@ class AiPracticeTest extends TestCase
         $component->call('next')->assertSee('Well done!');
     }
 
-    public function test_story_chain_skip_lets_tara_go_on_alone(): void
+    public function test_story_chain_skip_lets_teddy_go_on_alone(): void
     {
         $practice = $this->gamePractice(PairGame::GAME_STORY, $this->storyCards());
         $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn('She took a boat.'));
@@ -526,22 +526,22 @@ class AiPracticeTest extends TestCase
         $this->assertSame(2, $practice->refresh()->current['lie']);
     }
 
-    public function test_two_truths_tara_finds_my_lie_for_a_point_and_missing_it_scores_nothing(): void
+    public function test_two_truths_teddy_finds_my_lie_for_a_point_and_missing_it_scores_nothing(): void
     {
         $practice = $this->gamePractice(PairGame::GAME_TRUTHS, $this->truthsCards());
         $practice->update(['current' => ['lie' => 2]]);
         $this->heard('One, I have a brother. Two, I have a horse. Three, I live in Tehran.');
         $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->andReturn('{"pick":2,"line":"Number two, a horse in the city?"}', '{"pick":1,"line":"Number one!"}'));
 
-        $this->say($practice->refresh())->assertSee('Tara found it!')->assertSee('a horse in the city?')->assertSee('Next');
+        $this->say($practice->refresh())->assertSee('Teddy found it!')->assertSee('a horse in the city?')->assertSee('Next');
         $this->assertSame(1, $practice->refresh()->score);
 
         $practice->update(['current' => ['lie' => 2]]);
-        $this->say($practice->refresh())->assertSee('You tricked Tara!');
+        $this->say($practice->refresh())->assertSee('You tricked Teddy!');
         $this->assertSame(1, $practice->refresh()->score);
     }
 
-    public function test_two_truths_tara_still_guesses_when_the_ai_is_down(): void
+    public function test_two_truths_teddy_still_guesses_when_the_ai_is_down(): void
     {
         $practice = $this->gamePractice(PairGame::GAME_TRUTHS, $this->truthsCards());
         $practice->update(['current' => ['lie' => 1]]);
@@ -553,7 +553,7 @@ class AiPracticeTest extends TestCase
         $this->assertSame(1, $practice->refresh()->answered);
     }
 
-    public function test_two_truths_tara_says_three_things_i_ask_and_pick_her_lie(): void
+    public function test_two_truths_teddy_says_three_things_i_ask_and_pick_her_lie(): void
     {
         $practice = $this->gamePractice(PairGame::GAME_TRUTHS, $this->truthsCards());
         $practice->update(['current' => ['heard' => 'x', 'lie' => 1, 'pick' => 1, 'line' => 'y']]);
@@ -562,7 +562,7 @@ class AiPracticeTest extends TestCase
 
         $component = Livewire::test('ai-practice.session', ['practice' => $practice->refresh()])
             ->call('next')
-            ->assertSee('TARA’S TURN')
+            ->assertSee('TEDDY’S TURN')
             ->assertSee('I have a dog.')
             ->assertDontSee('The lie')
             ->set('audioFile', UploadedFile::fake()->create('answer.webm', 40, 'audio/webm'))
@@ -588,7 +588,7 @@ class AiPracticeTest extends TestCase
         $practice->update(['current' => ['statements' => ['a', 'b', 'c'], 'lie' => 2, 'asked' => [['q' => '1', 'a' => '1'], ['q' => '2', 'a' => '2']]]]);
         $this->mock(GroqClient::class, fn ($mock) => $mock->shouldNotReceive('transcribe'));
 
-        $this->say($practice->refresh())->call('pickLie', 3)->assertSee('Tara tricked you!');
+        $this->say($practice->refresh())->call('pickLie', 3)->assertSee('Teddy tricked you!');
 
         $practice->refresh();
         $this->assertSame(0, $practice->score);
@@ -633,13 +633,13 @@ class AiPracticeTest extends TestCase
         $this->assertCount(4, $practice->cards(AiPractice::STAGE_GAME));
     }
 
-    public function test_taboo_tara_guesses_my_word_with_no_clock_and_a_right_guess_scores(): void
+    public function test_taboo_teddy_guesses_my_word_with_no_clock_and_a_right_guess_scores(): void
     {
         $practice = $this->gamePractice(PairGame::GAME_TABOO, $this->tabooCards());
         $this->heard('You eat it in the morning.');
         $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn('Breakfast.'));
 
-        $this->say($practice)->assertSee('Tara got it!')->assertSee('Next');
+        $this->say($practice)->assertSee('Teddy got it!')->assertSee('Next');
 
         $practice->refresh();
         $this->assertSame(1, $practice->score);
@@ -652,7 +652,7 @@ class AiPracticeTest extends TestCase
         $this->heard('It is my breakfast.');
         $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldNotReceive('chat'));
 
-        $this->say($practice)->assertSee('You said the word!')->assertDontSee('Tara got it!');
+        $this->say($practice)->assertSee('You said the word!')->assertDontSee('Teddy got it!');
 
         $this->assertNull($practice->refresh()->current);
     }
@@ -666,7 +666,7 @@ class AiPracticeTest extends TestCase
             ->withArgs(fn (array $messages) => str_contains($messages[0]['text'], 'lunch'))
             ->andReturn('snack'));
 
-        $this->say($practice->refresh())->assertSee('Tara couldn’t guess it');
+        $this->say($practice->refresh())->assertSee('Teddy couldn’t guess it');
 
         $practice->refresh();
         $this->assertSame(0, $practice->score);
@@ -749,37 +749,37 @@ class AiPracticeTest extends TestCase
         $this->assertSame(0, DayActivity::count());
     }
 
-    public function test_tara_is_at_the_top_of_friends_even_with_no_friends_and_is_not_a_friend(): void
+    public function test_teddy_is_at_the_top_of_friends_even_with_no_friends_and_is_not_a_friend(): void
     {
         $learner = $this->learnerWithAFinishedDay();
         $this->actingAs($learner);
 
-        Livewire::test('friends.index')->assertSee('Tara')->assertSeeHtml(route('friends.tara'));
+        Livewire::test('friends.index')->assertSee('Teddy')->assertSeeHtml(route('friends.teddy'));
 
         $this->assertSame(0, $learner->following()->count());
     }
 
-    public function test_tara_s_page_starts_a_round_and_a_game_and_says_so_when_nothing_is_finished(): void
+    public function test_teddy_s_page_starts_a_round_and_a_game_and_says_so_when_nothing_is_finished(): void
     {
         $learner = $this->learnerWithAFinishedDay();
         $this->actingAs($learner);
-        $this->get(route('friends.tara'))->assertOk()->assertSee('Your AI classmate')->assertSee('Who am I?');
+        $this->get(route('friends.teddy'))->assertOk()->assertSee('Your AI classmate')->assertSee('Who am I?');
 
-        Livewire::test('friends.tara')->call('start', PairGame::GAME_WHO)->assertRedirect();
+        Livewire::test('friends.teddy')->call('start', PairGame::GAME_WHO)->assertRedirect();
         $this->assertSame(PairGame::GAME_WHO, AiPractice::latest('id')->first()->kind);
 
-        Livewire::test('friends.tara')->call('start', AiPractice::KIND_PRACTICE)->assertRedirect();
+        Livewire::test('friends.teddy')->call('start', AiPractice::KIND_PRACTICE)->assertRedirect();
         $this->assertSame(AiPractice::KIND_PRACTICE, AiPractice::latest('id')->first()->kind);
 
         $this->actingAs(User::factory()->create());
-        Livewire::test('friends.tara')->call('start', AiPractice::KIND_PRACTICE)->assertSee('Finish a day first.');
+        Livewire::test('friends.teddy')->call('start', AiPractice::KIND_PRACTICE)->assertSee('Finish a day first.');
     }
 
-    public function test_tara_s_page_refuses_a_game_she_cannot_play(): void
+    public function test_teddy_s_page_refuses_a_game_she_cannot_play(): void
     {
         $this->actingAs($this->learnerWithAFinishedDay());
 
-        Livewire::test('friends.tara')->call('start', PairGame::GAME_ROLE)->assertNotFound();
+        Livewire::test('friends.teddy')->call('start', PairGame::GAME_ROLE)->assertNotFound();
 
         $this->assertSame(0, AiPractice::count());
     }
@@ -808,18 +808,18 @@ class AiPracticeTest extends TestCase
         $this->actingAs($practice->learner)->get(route('ai-practice.show', $practice))->assertOk();
     }
 
-    public function test_tara_is_offered_only_on_the_games_she_can_play(): void
+    public function test_teddy_is_offered_only_on_the_games_she_can_play(): void
     {
         $learner = $this->learnerWithAFinishedDay();
         $this->actingAs($learner);
 
-        Livewire::test('games.setup', ['game' => PairGame::GAME_WHO])->assertSee('Tara')->call('playWithAi');
+        Livewire::test('games.setup', ['game' => PairGame::GAME_WHO])->assertSee('Teddy')->call('playWithAi');
         $this->assertSame(PairGame::GAME_WHO, AiPractice::latest('id')->first()->kind);
 
         foreach (AiPractice::GAMES as $game) {
-            Livewire::test('games.setup', ['game' => $game])->assertSee('With Tara your voice is recorded');
+            Livewire::test('games.setup', ['game' => $game])->assertSee('With Teddy your voice is recorded');
         }
 
-        Livewire::test('games.setup', ['game' => PairGame::GAME_ROLE])->assertDontSee('With Tara');
+        Livewire::test('games.setup', ['game' => PairGame::GAME_ROLE])->assertDontSee('With Teddy');
     }
 }

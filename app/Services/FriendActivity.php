@@ -147,7 +147,7 @@ class FriendActivity
             'pi' => ['Daily talk', 'A talk with Pi'],
             'review' => ['Review', 'Words and sentences'],
             'pair' => ['Pair practice', '12 minutes with a friend'],
-            'ai-practice' => ['Practice with Tara', 'Your AI classmate'],
+            'ai-practice' => ['Practice with Teddy', 'Your AI classmate'],
         ];
 
         foreach ($labels as $activity => [$title, $line]) {

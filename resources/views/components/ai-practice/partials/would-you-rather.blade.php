@@ -1,6 +1,6 @@
 {{--
-    Would You Rather with Tara: the learner picks a side and guesses hers,
-    she says why, then the learner says why aloud. Needs $practice,
+    Would You Rather with Teddy: the learner picks a side and guesses his,
+    he says why, then the learner says why aloud. Needs $practice,
     $card, $current.
 --}}
 <div wire:key="rather-{{ $practice->position }}" class="animate-review-card-in overflow-hidden rounded-2xl border border-line bg-surface dark:border-line-dark dark:bg-surface-dark">
@@ -21,7 +21,7 @@
                     @endforeach
                 </div>
                 <div class="space-y-2">
-                    <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">What will Tara pick?</p>
+                    <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">What will Teddy pick?</p>
                     <div class="grid grid-cols-2 gap-2">
                         @foreach (App\Models\PairGame::SIDES as $side)
                             <button type="button" wire:key="guess-{{ $side }}" x-on:click="guess = @js($side)" x-bind:class="guess === @js($side) && 'border-accent bg-accent-soft dark:border-accent-dark dark:bg-accent-soft-dark'" class="min-h-12 cursor-pointer rounded-2xl border-2 border-line px-3 py-2 text-sm font-bold text-ink dark:border-line-dark dark:text-ink-dark">{{ $card[$side] }}</button>
@@ -33,7 +33,7 @@
         @else
             <p class="text-sm font-bold text-ink-soft dark:text-ink-soft-dark">You: {{ $card[$current['mine']] }}</p>
             <div wire:key="ai-reason-{{ $practice->position }}" x-data x-init="window.eosVoice?.speak(@js($current['reason']))" class="rounded-xl bg-surface-sunken p-3 dark:bg-surface-sunken-dark">
-                <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">Tara: {{ $card[$current['ai']] }}</p>
+                <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">Teddy: {{ $card[$current['ai']] }}</p>
                 <p class="mt-1 text-base font-semibold text-ink dark:text-ink-dark">{{ $current['reason'] }}</p>
                 <div class="mt-2"><x-speak-button :text="$current['reason']" /></div>
             </div>

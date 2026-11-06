@@ -145,7 +145,7 @@ new class extends Component
     }
 
     /**
-     * The same game with Tara, no friend needed.
+     * The same game with Teddy, no friend needed.
      */
     public function playWithAi(): void
     {
@@ -201,13 +201,13 @@ new class extends Component
     </header>
 
     <div class="space-y-4">
-        @php $taraPlays = in_array($game, AiPractice::GAMES, true); @endphp
+        @php $teddyPlays = in_array($game, AiPractice::GAMES, true); @endphp
         @if ($this->friends === [])
-            @if ($taraPlays)
+            @if ($teddyPlays)
                 <div class="card space-y-2 p-4">
                     <p class="text-xs font-extrabold tracking-wider text-ink-faint uppercase dark:text-ink-faint-dark">Play with</p>
-                    @include('components.games.partials.tara-tile')
-                    <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">With Tara your voice is recorded.</p>
+                    @include('components.games.partials.teddy-tile')
+                    <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">With Teddy your voice is recorded.</p>
                 </div>
             @endif
             <div class="rounded-2xl border border-dashed border-line p-5 text-center dark:border-line-dark">
@@ -218,8 +218,8 @@ new class extends Component
             <div class="card space-y-2 p-4" x-data="{ allFriends: false }">
                 <p class="text-xs font-extrabold tracking-wider text-ink-faint uppercase dark:text-ink-faint-dark">Play with</p>
                 <div class="-mx-4 flex gap-2.5 overflow-x-auto px-4 pb-1">
-                    @if ($taraPlays)
-                        @include('components.games.partials.tara-tile')
+                    @if ($teddyPlays)
+                        @include('components.games.partials.teddy-tile')
                     @endif
                     @foreach ($this->friends as $row)
                         @php $isPicked = $row['user']->id === $friend; @endphp
@@ -250,8 +250,8 @@ new class extends Component
                     @endif
                 </div>
                 <x-friend-sheet show="allFriends" label="All friends" :friends="$this->allFriends" :action-for="fn ($friend) => '$set(\'friend\', '.$friend->id.')'" />
-                @if ($taraPlays)
-                    <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">With Tara your voice is recorded.</p>
+                @if ($teddyPlays)
+                    <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">With Teddy your voice is recorded.</p>
                 @endif
             </div>
 

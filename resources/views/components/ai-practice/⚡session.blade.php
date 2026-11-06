@@ -107,12 +107,12 @@ new class extends Component
     }
 
     /**
-     * What Tara says, or a plain line when the AI can't answer: her
+     * What Teddy says, or a plain line when the AI can't answer: her
      * words are never what holds the learner up.
      *
      * @param  \Closure(AiPartner): string  $saying
      */
-    private function taraSays(\Closure $saying, string $plainLine): string
+    private function teddySays(\Closure $saying, string $plainLine): string
     {
         try {
             return $saying(app(AiPartner::class)) ?: $plainLine;
@@ -123,8 +123,8 @@ new class extends Component
 
     /**
      * Just a Minute. On the learner's turn: their talk (the target words
-     * are found with no AI call, one point each, and Tara asks about it),
-     * then their answer. On Tara's turn: their question about her talk.
+     * are found with no AI call, one point each, and Teddy asks about it),
+     * then their answer. On Teddy's turn: their question about her talk.
      */
     private function speakInMinute(): void
     {
@@ -140,7 +140,7 @@ new class extends Component
 
         if ($mine && $current === null) {
             $used = AiPractice::wordsIn($heard, $card['words']);
-            $question = $this->taraSays(fn (AiPartner $tara) => $tara->questionAbout($card['word'], $heard, $level), 'That sounds nice! Can you tell me more?');
+            $question = $this->teddySays(fn (AiPartner $teddy) => $teddy->questionAbout($card['word'], $heard, $level), 'That sounds nice! Can you tell me more?');
             $this->practice->update(['current' => ['heard' => $heard, 'used' => $used, 'question' => $question], 'score' => $this->practice->score + count($used), 'answered' => $this->practice->answered + 1]);
 
             return;
@@ -152,12 +152,12 @@ new class extends Component
             return;
         }
 
-        $reply = $this->taraSays(fn (AiPartner $tara) => $tara->replyToQuestion($current['talk'], $heard, $level), 'Good question! I need to think about that one.');
+        $reply = $this->teddySays(fn (AiPartner $teddy) => $teddy->replyToQuestion($current['talk'], $heard, $level), 'Good question! I need to think about that one.');
         $this->practice->update(['current' => [...$current, 'question' => $heard, 'reply' => $reply], 'score' => $this->practice->score + 1, 'answered' => $this->practice->answered + 1]);
     }
 
     /**
-     * Just a Minute, Tara's turn: her talk. The word chips count only the
+     * Just a Minute, Teddy's turn: her talk. The word chips count only the
      * words she really said.
      */
     public function aiTalks(): void
@@ -177,7 +177,7 @@ new class extends Component
     }
 
     /**
-     * Just a Minute, Tara's turn: a word the learner heard, a point when
+     * Just a Minute, Teddy's turn: a word the learner heard, a point when
      * she really said it. A second tap takes it back.
      */
     public function tickWord(string $word): void
@@ -200,7 +200,7 @@ new class extends Component
 
     /**
      * Story Chain, the learner's turn: their line, a point when their word
-     * is in it (no AI call), and Tara goes on straight away.
+     * is in it (no AI call), and Teddy goes on straight away.
      */
     private function tellStory(): void
     {
@@ -213,27 +213,27 @@ new class extends Component
         $card = $this->practice->currentCard();
         $this->practice->answered++;
         $this->practice->score += AiPractice::wordsIn($heard, [$card['word']]) === [] ? 0 : 1;
-        $this->taraGoesOn([...$current['lines'], ['who' => 'you', 'text' => $heard]]);
+        $this->teddyGoesOn([...$current['lines'], ['who' => 'you', 'text' => $heard]]);
     }
 
     /**
-     * Story Chain, Tara's turn: her line with the next card's word, on the
+     * Story Chain, Teddy's turn: her line with the next card's word, on the
      * last turn the ending. A plain line stands in when the AI can't answer.
      *
      * @param  list<array{who: string, text: string}>  $lines
      */
-    private function taraGoesOn(array $lines): void
+    private function teddyGoesOn(array $lines): void
     {
         $card = $this->practice->cards()[$this->practice->position + 1];
         $endsTheStory = $this->practice->position + 2 >= count($this->practice->cards());
         $story = collect([$card['line'], ...array_column($lines, 'text')])->join("\n");
-        $line = $this->taraSays(
-            fn (AiPartner $tara) => $tara->continueStory($story, $card['word'], $endsTheStory, auth()->user()->levelDescription()),
+        $line = $this->teddySays(
+            fn (AiPartner $teddy) => $teddy->continueStory($story, $card['word'], $endsTheStory, auth()->user()->levelDescription()),
             $endsTheStory ? 'And in the end, everybody was happy.' : 'Then something surprising happened.',
         );
 
         $this->practice->current = [
-            'lines' => [...$lines, ['who' => 'tara', 'text' => $line]],
+            'lines' => [...$lines, ['who' => 'teddy', 'text' => $line]],
             ...($endsTheStory ? ['ended' => true] : []),
         ];
         $this->practice->position += $endsTheStory ? 1 : 2;
@@ -255,7 +255,7 @@ new class extends Component
     }
 
     /**
-     * Two Truths. On the learner's turn: their three things, and Tara's
+     * Two Truths. On the learner's turn: their three things, and Teddy's
      * guess of the lie, a point for the two of you when she finds it. On
      * her turn: a question about her three things.
      */
@@ -276,7 +276,7 @@ new class extends Component
         $level = auth()->user()->levelDescription();
 
         if (! $mine) {
-            $answer = $this->taraSays(fn (AiPartner $tara) => $tara->keepTheLieSafe($current['statements'], $current['lie'], $heard, $level), 'Ha! I can’t tell you that.');
+            $answer = $this->teddySays(fn (AiPartner $teddy) => $teddy->keepTheLieSafe($current['statements'], $current['lie'], $heard, $level), 'Ha! I can’t tell you that.');
             $this->practice->update(['current' => [...$current, 'asked' => [...$current['asked'], ['q' => $heard, 'a' => $answer]]], 'answered' => $this->practice->answered + 1]);
 
             return;
@@ -297,7 +297,7 @@ new class extends Component
     }
 
     /**
-     * Two Truths, Tara's turn: her three things.
+     * Two Truths, Teddy's turn: her three things.
      */
     public function aiTellsThree(): void
     {
@@ -316,7 +316,7 @@ new class extends Component
     }
 
     /**
-     * Two Truths, Tara's turn: the learner's pick, a point when it's her lie.
+     * Two Truths, Teddy's turn: the learner's pick, a point when it's her lie.
      */
     public function pickLie(int $statement): void
     {
@@ -336,7 +336,7 @@ new class extends Component
 
     /**
      * Taboo. On the learner's turn: their explanation (saying the word
-     * only asks for another try) and Tara's guess. On her turn: their
+     * only asks for another try) and Teddy's guess. On her turn: their
      * guess, and a wrong one brings the next clue. Right or not is decided
      * here, with no AI call; a right guess is a point for the two of you.
      */
@@ -394,7 +394,7 @@ new class extends Component
     }
 
     /**
-     * Taboo, Tara's turn: her clues for the card's word.
+     * Taboo, Teddy's turn: her clues for the card's word.
      */
     public function aiGivesClues(): void
     {
@@ -547,7 +547,7 @@ new class extends Component
         $this->audioFile = null;
 
         if ($this->practice->isGameStage() && $this->practice->game() === PairGame::GAME_STORY && ! isset($this->practice->current['ended'])) {
-            $this->taraGoesOn($this->practice->current['lines'] ?? []);
+            $this->teddyGoesOn($this->practice->current['lines'] ?? []);
 
             return;
         }
@@ -591,7 +591,7 @@ new class extends Component
     $current = $practice->current;
     $game = $practice->game();
     $partLabels = [AiPractice::STAGE_VOCABULARY => 'Words', AiPractice::STAGE_GRAMMAR => 'Grammar', AiPractice::STAGE_SPEAKING => 'Speaking', AiPractice::STAGE_GAME => $game ? PairGame::info($game)['name'] : 'Game'];
-    $backHref = route('friends.tara');
+    $backHref = route('friends.teddy');
 @endphp
 
 <div class="mx-auto flex min-h-dvh max-w-xl flex-col gap-4 p-4">
@@ -612,7 +612,7 @@ new class extends Component
             <a href="{{ $backHref }}" wire:navigate class="block text-sm font-semibold text-ink-soft dark:text-ink-soft-dark">Done</a>
         </div>
     @else
-        {{-- The same top bar as a round with a friend, with no clock: Tara is never in a hurry. --}}
+        {{-- The same top bar as a round with a friend, with no clock: Teddy is never in a hurry. --}}
         <header class="space-y-3">
             <div class="flex items-center gap-1">
                 <button type="button" wire:click="end" wire:confirm="End this practice?" aria-label="End practice" class="-ms-2 inline-flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-soft hover:bg-surface-sunken dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">@svg('heroicon-o-x-mark', 'h-6 w-6')</button>
@@ -630,7 +630,7 @@ new class extends Component
             </div>
             <div class="flex items-center justify-between gap-2 text-[13px] font-extrabold text-ink-soft dark:text-ink-soft-dark">
                 <span>{{ $partLabels[$stage] }}</span>
-                <span class="flex items-center gap-1.5"><x-tara-avatar class="h-5 w-5" /> With Tara · {{ $practice->score }}</span>
+                <span class="flex items-center gap-1.5"><x-teddy-avatar class="h-5 w-5" /> With Teddy · {{ $practice->score }}</span>
             </div>
         </header>
 
