@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreVocabularyWordRequest;
 use App\Models\DictionaryEntry;
+use App\Services\WordSentences;
 use Illuminate\Http\JsonResponse;
 
 class VocabularyWordController extends Controller
@@ -32,6 +33,12 @@ class VocabularyWordController extends Controller
 
         if (! $word->wasRecentlyCreated && blank($word->meaning_fa) && filled($translation)) {
             $word->update(['meaning_fa' => $translation]);
+        }
+
+        if ($word->wasRecentlyCreated && blank($word->example)) {
+            $learner = $request->user();
+
+            dispatch(fn () => app(WordSentences::class)->makeOne($word, $learner))->afterResponse();
         }
 
         return response()->json(['saved' => true, 'already_had' => ! $word->wasRecentlyCreated], $word->wasRecentlyCreated ? 201 : 200);
