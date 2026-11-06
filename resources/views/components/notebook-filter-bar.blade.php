@@ -7,6 +7,7 @@
     @param string $tab words, mistakes or tips.
     @param list<array{status: string, label: string, count: int, learned?: bool}> $segments The status parts, in bar order.
     @param list<array{0: string, 1: string, 2: int}> $chips Filter key, label and count; the first is "all".
+    @slot lead Optional: something at the start of the chips row (the Words tab's search button).
 --}}
 @props(['tab', 'segments', 'chips'])
 
@@ -41,7 +42,8 @@
         </div>
     @endif
 
-    <div class="-mx-0.5 flex gap-1.5 overflow-x-auto px-0.5 py-0.5 [scrollbar-width:none]">
+    <div class="-mx-0.5 flex items-center gap-1.5 overflow-x-auto px-0.5 py-0.5 [scrollbar-width:none]">
+        {{ $lead ?? '' }}
         @foreach ($chips as [$key, $label, $count])
             <button
                 type="button"

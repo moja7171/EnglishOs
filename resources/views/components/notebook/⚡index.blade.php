@@ -652,32 +652,28 @@ new class extends Component
                 $dueCount = $this->words->filter(fn (VocabularyWord $word) => $word->isDue())->count();
             @endphp
 
-            <div class="space-y-3 rounded-3xl bg-hero p-4 text-white">
-                <p class="text-xs font-extrabold tracking-wide text-white/70 uppercase">Your words</p>
-                <div class="flex h-2.5 gap-0.5 overflow-hidden rounded-full bg-white/10" role="img" aria-label="{{ $wordCounts->get('known', 0) }} known, {{ $wordCounts->get('learning', 0) }} learning, {{ $wordCounts->get('new', 0) }} new">
+            <div class="space-y-2.5 rounded-3xl bg-hero px-4 py-3 text-white">
+                <div class="flex items-center justify-between gap-3">
+                    @if ($dueCount > 0)
+                        <p class="text-sm font-bold">{{ $dueCount }} {{ Str::plural('word', $dueCount) }} ready to review</p>
+                        <a href="{{ route('review.track', 'words') }}" wire:navigate class="shrink-0 rounded-full bg-accent px-4 py-1.5 text-sm font-extrabold text-white">Practice</a>
+                    @else
+                        <p class="text-sm font-bold">✓ Nothing to review today</p>
+                    @endif
+                </div>
+                <div class="flex h-1.5 gap-0.5 overflow-hidden rounded-full bg-white/10" role="img" aria-label="{{ $totalWords }} words: {{ $wordCounts->get('known', 0) }} known, {{ $wordCounts->get('learning', 0) }} learning, {{ $wordCounts->get('new', 0) }} new">
                     @foreach (['known' => 'bg-success-dark', 'learning' => 'bg-warning', 'new' => 'bg-white/40'] as $status => $color)
                         @if ($wordCounts->get($status, 0) > 0)
                             <span class="{{ $color }} block h-full" style="width: {{ $wordCounts->get($status) / $totalWords * 100 }}%"></span>
                         @endif
                     @endforeach
                 </div>
-                <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs font-semibold text-white/80">
-                    @foreach (['known' => ['Known', 'bg-success-dark'], 'learning' => ['Learning', 'bg-warning'], 'new' => ['New', 'bg-white/40']] as $status => [$label, $color])
-                        <span class="inline-flex items-center gap-1.5"><span class="{{ $color }} h-2 w-2 rounded-full"></span><b class="tabular-nums text-white">{{ $wordCounts->get($status, 0) }}</b> {{ $label }}</span>
-                    @endforeach
-                </div>
-                <div class="flex items-center justify-between gap-3">
-                    @if ($dueCount > 0)
-                        <p class="text-sm font-bold">{{ $dueCount }} {{ Str::plural('word', $dueCount) }} ready to review</p>
-                        <a href="{{ route('review.track', 'words') }}" wire:navigate class="shrink-0 rounded-full bg-accent px-4 py-2 text-sm font-extrabold text-white">Practice</a>
-                    @else
-                        <p class="text-sm font-bold">✓ Nothing to review today</p>
-                    @endif
-                </div>
             </div>
 
-            <div x-data="{ all: {{ \Illuminate\Support\Js::from($allWordMetas) }} }" class="space-y-3">
-                <input type="search" x-model="search" placeholder="Search your words" aria-label="Search your words" class="w-full rounded-2xl border-0 bg-surface px-4 py-2.5 text-sm text-ink placeholder:text-ink-faint focus:ring-2 focus:ring-accent dark:bg-surface-dark dark:text-ink-dark dark:placeholder:text-ink-faint-dark">
+            <div x-data="{ all: {{ \Illuminate\Support\Js::from($allWordMetas) }}, searching: false }" class="space-y-3">
+                <div x-show="searching || search !== ''" x-cloak class="relative">
+                    <input type="search" x-model="search" x-ref="wordSearch" placeholder="Search your words" aria-label="Search your words" class="w-full rounded-2xl border-0 bg-surface px-4 py-2.5 text-sm text-ink placeholder:text-ink-faint focus:ring-2 focus:ring-accent dark:bg-surface-dark dark:text-ink-dark dark:placeholder:text-ink-faint-dark">
+                </div>
                 <x-notebook-filter-bar
                     tab="words"
                     :segments="[]"
@@ -688,7 +684,11 @@ new class extends Component
                         ['learning', 'Learning', $wordCounts->get('learning', 0)],
                         ['known', 'Known', $wordCounts->get('known', 0)],
                     ]))"
-                />
+                >
+                    <x-slot:lead>
+                        <button type="button" x-on:click="searching = ! searching; if (searching) { setTimeout(() => $refs.wordSearch.focus(), 60) } else { search = '' }" x-bind:aria-pressed="searching || search !== ''" aria-label="Search your words" class="inline-flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full bg-surface text-ink-soft dark:bg-surface-dark dark:text-ink-soft-dark">@svg('heroicon-o-magnifying-glass', 'h-4 w-4')</button>
+                    </x-slot:lead>
+                </x-notebook-filter-bar>
 
                 @if ($this->todayWords->isNotEmpty())
                     <div x-show="! filtering('words')" class="space-y-1.5">
