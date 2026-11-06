@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\AiPractice;
+use App\Models\PairGame;
 use App\Models\User;
 
 /**
@@ -84,6 +85,33 @@ class TeddyLevel
             }
         }
 
+        foreach ($this->gameTurnsWithSlips($deck) as $position) {
+            if (random_int(1, 100) <= $chance) {
+                $slips[AiPractice::STAGE_GAME][] = $position;
+            }
+        }
+
         return $slips;
+    }
+
+    /**
+     * The game cards where Teddy may slip: the cards he holds the secret in
+     * Who am I (answering yes or no wrongly), his turns in Just a Minute (a
+     * mistake in his talk) and the start of a Story Chain (one of his
+     * lines).
+     *
+     * @param  array<string, mixed>  $deck
+     * @return list<int>
+     */
+    private function gameTurnsWithSlips(array $deck): array
+    {
+        $cards = $deck['game']['cards'] ?? [];
+
+        return match ($deck['game']['game'] ?? null) {
+            PairGame::GAME_WHO => array_keys(array_filter($cards, fn ($card, int $position) => $position % 2 === 0, ARRAY_FILTER_USE_BOTH)),
+            PairGame::GAME_MINUTE => array_keys(array_filter($cards, fn ($card, int $position) => $position % 2 === 1, ARRAY_FILTER_USE_BOTH)),
+            PairGame::GAME_STORY => $cards === [] ? [] : [0],
+            default => [],
+        };
     }
 }

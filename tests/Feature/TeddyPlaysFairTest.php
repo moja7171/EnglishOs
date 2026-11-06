@@ -134,7 +134,7 @@ class TeddyPlaysFairTest extends TestCase
         for ($round = 0; $round < 10; $round++) {
             $practice = app(AiPractices::class)->start($learner, AiPractice::KIND_PRACTICE);
 
-            foreach ($practice->deck['slips'] ?? [] as $stage => $positions) {
+            foreach (collect($practice->deck['slips'] ?? [])->only(AiPractice::CARD_STAGES) as $stage => $positions) {
                 collect($positions)->each(fn (int $position) => $this->assertSame(1, $position % 2, "slip on the learner's own turn in {$stage}"));
             }
 

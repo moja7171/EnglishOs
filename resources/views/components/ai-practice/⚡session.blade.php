@@ -26,6 +26,39 @@ new class extends Component
         abort_unless($practice->learner_id === auth()->id(), 403);
 
         $this->practice = $practice;
+        $this->prepareSpeakingSlip();
+    }
+
+    /**
+     * A speaking card Teddy slips on: the AI writes his answer with one
+     * small mistake, once. With no slip to show, he just says the card's
+     * answer.
+     */
+    private function prepareSpeakingSlip(): void
+    {
+        $practice = $this->practice;
+
+        if ($practice->isFinished() || $practice->stage !== AiPractice::STAGE_SPEAKING || $practice->learnerAnswers() || ! $practice->teddySlips() || isset($practice->current['says'])) {
+            return;
+        }
+
+        $card = $practice->currentCard();
+
+        try {
+            $slip = $this->teddy()->answerWithSlip($card['question'] ?? '', $card['answer'], auth()->user()->levelDescription());
+        } catch (Throwable) {
+            $slip = null;
+        }
+
+        if (blank($slip)) {
+            $slips = $practice->deck['slips'] ?? [];
+            $slips[AiPractice::STAGE_SPEAKING] = array_values(array_diff($slips[AiPractice::STAGE_SPEAKING] ?? [], [$practice->position]));
+            $practice->update(['deck' => [...$practice->deck, 'slips' => $slips]]);
+
+            return;
+        }
+
+        $practice->update(['current' => ['says' => $slip]]);
     }
 
     /**
@@ -189,15 +222,47 @@ new class extends Component
         $this->error = null;
         $card = $this->practice->currentCard();
 
+        $level = auth()->user()->levelDescription();
+        $slip = null;
+
         try {
-            $talk = $this->teddy()->talkAbout($card['word'], $card['words'], auth()->user()->levelDescription());
+            if ($this->practice->teddySlips()) {
+                try {
+                    $slip = $this->teddy()->talkWithSlip($card['word'], $card['words'], $level);
+                } catch (Throwable) {
+                    $slip = null;
+                }
+            }
+
+            $talk = $slip === null ? $this->teddy()->talkAbout($card['word'], $card['words'], $level) : implode(' ', $slip['sentences']);
         } catch (Throwable $e) {
             $this->error = AiFailure::checkMessage($e);
 
             return;
         }
 
-        $this->practice->update(['current' => ['talk' => $talk, 'used' => AiPractice::wordsIn($talk, $card['words']), 'ticked' => []]]);
+        $this->practice->update(['current' => [
+            'talk' => $talk,
+            'used' => AiPractice::wordsIn($talk, $card['words']),
+            'ticked' => [],
+            ...($slip === null ? [] : ['slip' => $slip]),
+        ]]);
+    }
+
+    /**
+     * Just a Minute, Teddy's turn: the learner taps the sentence they think
+     * has the mistake, once. A point when it is the one.
+     */
+    public function pickTalkSlip(int $sentence): void
+    {
+        $current = $this->practice->current;
+
+        if ($this->practice->game() !== PairGame::GAME_MINUTE || $this->practice->isLearnersGameTurn() || ! isset($current['slip']) || isset($current['slip_pick'])
+            || ! isset($current['slip']['sentences'][$sentence])) {
+            return;
+        }
+
+        $this->practice->update(['current' => [...$current, 'slip_pick' => $sentence], 'score' => $this->practice->score + ($sentence === $current['slip']['slip'] ? 1 : 0)]);
     }
 
     /**
@@ -251,17 +316,45 @@ new class extends Component
         $card = $this->practice->cards()[$this->practice->position + 1];
         $endsTheStory = $this->practice->position + 2 >= count($this->practice->cards());
         $story = collect([$card['line'], ...array_column($lines, 'text')])->join("\n");
-        $line = $this->teddySays(
-            fn (AiPartner $teddy) => $teddy->continueStory($story, $card['word'], $endsTheStory, auth()->user()->levelDescription()),
+        $level = auth()->user()->levelDescription();
+        $slip = null;
+
+        if ($this->practice->teddySlips() && ! $endsTheStory) {
+            try {
+                $slip = $this->teddy()->continueStoryWithSlip($story, $card['word'], $level);
+            } catch (Throwable) {
+                $slip = null;
+            }
+        }
+
+        $line = $slip['line'] ?? $this->teddySays(
+            fn (AiPartner $teddy) => $teddy->continueStory($story, $card['word'], $endsTheStory, $level),
             $endsTheStory ? 'And in the end, everybody was happy.' : 'Then something surprising happened.',
         );
 
         $this->practice->current = [
-            'lines' => [...$lines, ['who' => 'teddy', 'text' => $line]],
+            'lines' => [...$lines, ['who' => 'teddy', 'text' => $line, ...($slip === null ? [] : ['fix' => $slip['fix']])]],
             ...($endsTheStory ? ['ended' => true] : []),
         ];
         $this->practice->position += $endsTheStory ? 1 : 2;
         $this->practice->save();
+    }
+
+    /**
+     * Story Chain, once the story is told: the learner taps the line of
+     * Teddy's they think had a slip. A point when it is the one.
+     */
+    public function pickStorySlip(int $lineIndex): void
+    {
+        $current = $this->practice->current;
+        $line = $current['lines'][$lineIndex] ?? null;
+
+        if ($this->practice->game() !== PairGame::GAME_STORY || ! isset($current['ended']) || isset($current['slip_pick']) || $line === null || $line['who'] === 'you'
+            || ! collect($current['lines'])->contains(fn (array $other) => isset($other['fix']))) {
+            return;
+        }
+
+        $this->practice->update(['current' => [...$current, 'slip_pick' => $lineIndex], 'score' => $this->practice->score + (isset($line['fix']) ? 1 : 0)]);
     }
 
     /**
@@ -463,7 +556,13 @@ new class extends Component
             return;
         }
 
-        $current['qa'][] = ['q' => $heard, 'a' => $reply['answer']];
+        $row = ['q' => $heard, 'a' => $reply['answer']];
+
+        if ($this->shouldFlip($current['qa'], $reply)) {
+            $row = ['q' => $heard, 'a' => $reply['answer'] === 'yes' ? 'no' : 'yes', 'flip' => true, 'real' => $reply['answer']];
+        }
+
+        $current['qa'][] = $row;
 
         if ($reply['guessed']) {
             $current['won'] = true;
@@ -475,6 +574,40 @@ new class extends Component
         $this->practice->current = $current;
         $this->practice->answered++;
         $this->practice->save();
+    }
+
+    /**
+     * Teddy slips on this secret: he gives one clear yes or no the wrong
+     * way round, once, and never on the first question or the winning one.
+     *
+     * @param  list<array<string, mixed>>  $asked
+     * @param  array{answer: string, guessed: bool}  $reply
+     */
+    private function shouldFlip(array $asked, array $reply): bool
+    {
+        return $this->practice->teddySlips()
+            && $asked !== []
+            && ! $reply['guessed']
+            && in_array($reply['answer'], ['yes', 'no'], true)
+            && ! collect($asked)->contains(fn (array $row) => ! empty($row['flip']))
+            && count($asked) + 1 < AiPractice::MAX_QUESTIONS;
+    }
+
+    /**
+     * Who am I, the learner holding Teddy's secret: "that answer is wrong".
+     * A point when he really slipped there.
+     */
+    public function challengeAnswer(int $index): void
+    {
+        $current = $this->practice->current;
+        $row = $current['qa'][$index] ?? null;
+
+        if ($this->practice->game() !== PairGame::GAME_WHO || ! $this->practice->aiHoldsSecret() || $row === null || isset($row['challenged']) || isset($current['won'])) {
+            return;
+        }
+
+        $current['qa'][$index] = [...$row, 'challenged' => true];
+        $this->practice->update(['current' => $current, 'score' => $this->practice->score + (empty($row['flip']) ? 0 : 1)]);
     }
 
     /**
@@ -603,7 +736,13 @@ new class extends Component
 
         $this->practice->next();
 
-        if ($this->practice->isFinished() || ! $this->practice->isGameStage()) {
+        if ($this->practice->isFinished()) {
+            return;
+        }
+
+        if (! $this->practice->isGameStage()) {
+            $this->prepareSpeakingSlip();
+
             return;
         }
 

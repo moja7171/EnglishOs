@@ -298,4 +298,77 @@ class AiPartner
             profile: GeminiClient::PROFILE_CHAT,
         ));
     }
+
+    /**
+     * A speaking card with Teddy's turn gone wrong: the card's answer with
+     * ONE small grammar slip the learner can catch. Null when nothing
+     * different came back.
+     */
+    public function answerWithSlip(string $question, string $answer, string $learnerDescription): ?string
+    {
+        $slip = trim($this->gemini->chat(
+            [['role' => 'user', 'text' => "Question: {$question}\nCorrect answer: {$answer}"]],
+            systemPrompt: $this->classmate($learnerDescription).' Rewrite the correct answer with exactly ONE small grammar mistake, the kind a learner makes (a wrong verb form, a missing -s, a wrong small word). '
+                .'Keep everything else the same. Reply with ONLY the sentence.',
+            profile: GeminiClient::PROFILE_CHAT,
+        ), " \t\n\r\0\x0B\"");
+
+        return $slip !== '' && $slip !== $answer ? $slip : null;
+    }
+
+    /**
+     * Story Chain: Teddy's next line with one small grammar slip in it, and
+     * the same line put right.
+     *
+     * @return array{line: string, fix: string}
+     *
+     * @throws RuntimeException when the reply isn't the expected JSON.
+     */
+    public function continueStoryWithSlip(string $story, string $word, string $learnerDescription): array
+    {
+        $raw = $this->gemini->chat(
+            [['role' => 'user', 'text' => "The story so far:\n{$story}\n\nYour word: {$word}"]],
+            systemPrompt: $this->classmate($learnerDescription).' You and your classmate are telling a made-up story, taking turns. Their lines are automatic transcripts of speech, so be kind to small mishearings. '
+                .'Write the next ONE short sentence of the story, using your word, with exactly ONE small grammar mistake in it (a wrong verb form, a missing -s). Leave the story open. '
+                .'Reply with ONLY valid JSON, no markdown fences: {"line": "the sentence with the mistake", "fix": "the same sentence put right"}.',
+            profile: GeminiClient::PROFILE_CHAT,
+        );
+
+        $data = AiJson::decode($raw);
+
+        if (! is_array($data) || blank($data['line'] ?? null) || blank($data['fix'] ?? null) || trim($data['line']) === trim($data['fix'])) {
+            throw new RuntimeException('Unexpected AI response format.');
+        }
+
+        return ['line' => trim($data['line']), 'fix' => trim($data['fix'])];
+    }
+
+    /**
+     * Just a Minute, Teddy's turn: his talk as short sentences, ONE with a
+     * small grammar slip, and that sentence put right.
+     *
+     * @param  list<string>  $words
+     * @return array{sentences: list<string>, slip: int, fix: string}
+     *
+     * @throws RuntimeException when the reply isn't the expected JSON.
+     */
+    public function talkWithSlip(string $topic, array $words, string $learnerDescription): array
+    {
+        $raw = $this->gemini->chat(
+            [['role' => 'user', 'text' => "Topic: {$topic}\nWords to use: ".implode(', ', $words)]],
+            systemPrompt: $this->classmate($learnerDescription).' Talk about the topic in about 5 short sentences, from your own life, using every word in the list. '
+                .'Exactly ONE sentence has a small grammar mistake (a wrong verb form, a missing -s). Reply with ONLY valid JSON, no markdown fences: '
+                .'{"sentences": ["..."], "slip": the 0-based number of the sentence with the mistake, "fix": "that sentence put right"}.',
+            profile: GeminiClient::PROFILE_CHAT,
+        );
+
+        $data = AiJson::decode($raw);
+        $sentences = is_array($data) ? array_values(array_filter($data['sentences'] ?? [], fn ($line) => is_string($line) && filled($line))) : [];
+
+        if (count($sentences) < 3 || ! is_int($data['slip'] ?? null) || ! isset($sentences[$data['slip']]) || blank($data['fix'] ?? null)) {
+            throw new RuntimeException('Unexpected AI response format.');
+        }
+
+        return ['sentences' => array_map('trim', $sentences), 'slip' => $data['slip'], 'fix' => trim($data['fix'])];
+    }
 }

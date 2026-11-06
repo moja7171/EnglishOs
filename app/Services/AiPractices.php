@@ -17,6 +17,9 @@ class AiPractices
 
     private const TURNS_ALONE = 4;
 
+    /** Cards of a game that carry one of the learner's own words from My Words. */
+    private const OWN_WORD_GAME_CARDS = 2;
+
     /** Story Chain counts both tellers' turns: inside a round, a shorter story. */
     private const STORY_TURNS_IN_ROUND = 4;
 
@@ -118,12 +121,55 @@ class AiPractices
         }
 
         if ($game === PairGame::GAME_STORY) {
-            return ['game' => $game, 'cards' => array_slice($deckMaker->cardsFor($learner, $learner, $rules), 0, $inRound ? self::STORY_TURNS_IN_ROUND : StoryChainDeck::STORY_TURNS)];
+            return ['game' => $game, 'cards' => $this->withOwnWordsInGame($learner, $game, array_slice($deckMaker->cardsFor($learner, $learner, $rules), 0, $inRound ? self::STORY_TURNS_IN_ROUND : StoryChainDeck::STORY_TURNS))];
         }
 
         $rules['turns'] = $inRound ? self::TURNS_IN_ROUND : self::TURNS_ALONE;
         $rules['bonus'] = false;
 
-        return ['game' => $game, 'cards' => array_slice($deckMaker->cardsFor($learner, $learner, $rules), 0, $rules['turns'])];
+        return ['game' => $game, 'cards' => $this->withOwnWordsInGame($learner, $game, array_slice($deckMaker->cardsFor($learner, $learner, $rules), 0, $rules['turns']))];
+    }
+
+    /**
+     * The learner's own words from My Words in the games where a word is
+     * said or used, on the cards that are theirs (the even ones): the word
+     * to explain in Taboo, the word to use in Story Chain, and one of the
+     * words to work into the talk in Just a Minute.
+     *
+     * @param  list<array<string, mixed>>  $cards
+     * @return list<array<string, mixed>>
+     */
+    public function withOwnWordsInGame(User $learner, string $game, array $cards): array
+    {
+        if (! in_array($game, [PairGame::GAME_STORY, PairGame::GAME_TABOO, PairGame::GAME_MINUTE], true) || $cards === []) {
+            return $cards;
+        }
+
+        $used = collect($cards)->flatMap(fn (array $card) => $game === PairGame::GAME_MINUTE ? $card['words'] : [$card['word']])->map(fn (string $word) => mb_strtolower($word))->all();
+        $own = $learner->vocabularyWords()
+            ->whereNull('source_mission_run_id')
+            ->orderByRaw('last_reviewed_at is null desc')
+            ->orderBy('next_review_at')
+            ->orderByDesc('id')
+            ->limit(12)
+            ->pluck('word')
+            ->map(fn ($word) => trim((string) $word))
+            ->filter(fn (string $word) => $word !== '' && str_word_count($word) <= 2 && ! in_array(mb_strtolower($word), $used, true))
+            ->values();
+        $given = 0;
+
+        foreach ($cards as $position => $card) {
+            if ($position % 2 !== 0 || $given >= self::OWN_WORD_GAME_CARDS || ! $own->has($given)) {
+                continue;
+            }
+
+            $word = $own[$given++];
+
+            $cards[$position] = $game === PairGame::GAME_MINUTE
+                ? [...$card, 'words' => [...array_slice($card['words'], 0, -1), $word]]
+                : [...$card, 'word' => $word, 'source' => 'My Words', 'bonus' => [], 'key' => 'w:'.mb_strtolower($word)];
+        }
+
+        return $cards;
     }
 }
