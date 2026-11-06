@@ -7,6 +7,7 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'AllowDynamicProperties' => $vendorDir . '/symfony/polyfill-php82/Resources/stubs/AllowDynamicProperties.php',
+    'App\\Console\\Commands\\AddSimpleWordSentences' => $baseDir . '/app/Console/Commands/AddSimpleWordSentences.php',
     'App\\Console\\Commands\\AiCheck' => $baseDir . '/app/Console/Commands/AiCheck.php',
     'App\\Console\\Commands\\AiRelayFailover' => $baseDir . '/app/Console/Commands/AiRelayFailover.php',
     'App\\Console\\Commands\\AiRelaySyncLocalUrl' => $baseDir . '/app/Console/Commands/AiRelaySyncLocalUrl.php',

@@ -549,6 +549,7 @@ class ComposerStaticInitdd10e30ec7065eb577b19a4c3968c74e
 
     public static $classMap = array (
         'AllowDynamicProperties' => __DIR__ . '/..' . '/symfony/polyfill-php82/Resources/stubs/AllowDynamicProperties.php',
+        'App\\Console\\Commands\\AddSimpleWordSentences' => __DIR__ . '/../..' . '/app/Console/Commands/AddSimpleWordSentences.php',
         'App\\Console\\Commands\\AiCheck' => __DIR__ . '/../..' . '/app/Console/Commands/AiCheck.php',
         'App\\Console\\Commands\\AiRelayFailover' => __DIR__ . '/../..' . '/app/Console/Commands/AiRelayFailover.php',
         'App\\Console\\Commands\\AiRelaySyncLocalUrl' => __DIR__ . '/../..' . '/app/Console/Commands/AiRelaySyncLocalUrl.php',
