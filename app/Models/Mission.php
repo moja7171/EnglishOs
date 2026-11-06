@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Cache;
 
 #[Fillable(['code', 'title', 'module', 'outcome', 'phases'])]
 class Mission extends Model
@@ -464,11 +465,15 @@ class Mission extends Model
      */
     public static function persianMeanings(): array
     {
-        return static::all()
+        // Reading every mission's steps is slow, so it is kept until a
+        // mission is added or changed.
+        $version = static::count().':'.static::max('updated_at');
+
+        return Cache::remember('mission-persian-meanings:'.$version, now()->addDay(), fn () => static::all()
             ->flatMap(fn (self $mission) => $mission->vocabularyEntries())
             ->filter(fn (array $word) => filled($word['meaning_fa'] ?? null))
             ->mapWithKeys(fn (array $word) => [mb_strtolower($word['phrase']) => $word['meaning_fa']])
-            ->all();
+            ->all());
     }
 
     /**

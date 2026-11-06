@@ -192,12 +192,83 @@ class NotebookWordsTest extends TestCase
         $this->assertSame(['I felt overwhelmed by my homework.'], $learner->vocabularyWords()->sole()->sentences()->pluck('sentence')->all());
     }
 
+    public function test_a_word_added_from_a_long_line_of_text_still_gets_a_simple_sentence(): void
+    {
+        $learner = User::factory()->create();
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->andReturn('I sat on the bank.'));
+
+        $this->actingAs($learner)->postJson(route('vocabulary.store'), [
+            'word' => 'bank',
+            'example' => 'We walked for hours until we finally sat down on the bank of the quiet river.',
+        ])->assertCreated();
+
+        $this->assertSame(['I sat on the bank.'], $learner->vocabularyWords()->sole()->sentences()->pluck('sentence')->all());
+    }
+
     public function test_a_word_added_with_its_own_example_needs_no_ai_sentence(): void
     {
         $learner = User::factory()->create();
-        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldNotReceive('chat'));
+        // Gemini is asked for the Persian of the word in its sentence, but not for a sentence.
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode(['items' => [['id' => '1', 'persian' => 'خوابیدن']]])));
 
         $this->actingAs($learner)->postJson(route('vocabulary.store'), ['word' => 'sleep', 'example' => 'I sleep eight hours.'])->assertCreated();
+
+        $this->assertSame(0, $learner->vocabularyWords()->sole()->sentences()->count());
+    }
+
+    public function test_a_long_line_is_cut_to_the_few_words_around_the_word_in_the_list_but_whole_in_the_sheet(): void
+    {
+        $learner = User::factory()->create();
+        $this->actingAs($learner);
+        $word = $this->word($learner, 'bank', ['example' => 'We walked for hours until we finally sat down on the bank of the quiet river near the old mill.']);
+
+        $this->assertSame('… down on the bank of the quiet river …', $word->rowSentence());
+
+        Livewire::test('notebook.index')
+            ->assertSeeHtml('>bank</mark>')
+            ->assertDontSee('We walked for hours')
+            ->call('openWord', $word->id)
+            ->assertSee('We walked for hours until we finally sat down on the bank of the quiet river near the old mill.');
+    }
+
+    public function test_only_the_opened_word_has_a_sheet(): void
+    {
+        $learner = User::factory()->create();
+        $this->actingAs($learner);
+        $first = $this->word($learner, 'recipe', ['example' => 'I love this recipe.']);
+        $second = $this->word($learner, 'grab', ['example' => 'Grab your coat.']);
+
+        Livewire::test('notebook.index')
+            ->assertDontSeeHtml('word-sheet-'.$first->id)
+            ->call('openWord', $first->id)
+            ->assertSeeHtml('word-sheet-'.$first->id)
+            ->assertDontSeeHtml('word-sheet-'.$second->id)
+            ->call('openWord', $second->id)
+            ->assertSeeHtml('word-sheet-'.$second->id)
+            ->assertDontSeeHtml('word-sheet-'.$first->id);
+    }
+
+    public function test_another_learners_word_cannot_be_opened(): void
+    {
+        $learner = User::factory()->create();
+        $this->actingAs($learner);
+        $stranger = $this->word(User::factory()->create(), 'secret', ['example' => 'It is a secret.']);
+
+        Livewire::test('notebook.index')->call('openWord', $stranger->id)->assertDontSeeHtml('word-sheet-'.$stranger->id);
+    }
+
+    public function test_rows_past_the_fourth_of_a_group_are_only_built_on_demand(): void
+    {
+        $learner = User::factory()->create();
+        $this->actingAs($learner);
+
+        foreach (range(1, 6) as $number) {
+            $this->word($learner, 'word'.$number, ['example' => 'I know word'.$number.'.']);
+        }
+
+        $html = Livewire::test('notebook.index')->html();
+
+        $this->assertSame(2, substr_count($html, '<template x-if="expanded['));
     }
 
     public function test_the_ladder_shows_which_steps_the_word_has_reached(): void

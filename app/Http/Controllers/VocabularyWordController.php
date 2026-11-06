@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreVocabularyWordRequest;
 use App\Models\DictionaryEntry;
+use App\Models\VocabularyWord;
 use App\Services\WordLookup;
 use App\Services\WordSentences;
 use Illuminate\Http\JsonResponse;
@@ -19,7 +20,7 @@ class VocabularyWordController extends Controller
      * have keeps its review progress — it only gains a Persian meaning it was
      * missing.
      */
-    public function store(StoreVocabularyWordRequest $request, WordLookup $lookup): JsonResponse
+    public function store(StoreVocabularyWordRequest $request): JsonResponse
     {
         $validated = $request->validated();
         $translation = DictionaryEntry::where('word', $validated['word'])->value('translation_fa');
@@ -40,8 +41,8 @@ class VocabularyWordController extends Controller
         }
 
         if ($word->wasRecentlyCreated) {
-            dispatch(function () use ($word, $lookup) {
-                $inContext = $lookup->persianInContext($word->word, $word->meaning, $word->pos, $word->example);
+            dispatch(function () use ($word) {
+                $inContext = app(WordLookup::class)->persianInContext($word->word, $word->meaning, $word->pos, $word->example);
 
                 if ($inContext !== null) {
                     $word->update(['meaning_fa' => $inContext, 'meaning_fa_checked_at' => now()]);
@@ -49,7 +50,7 @@ class VocabularyWordController extends Controller
             })->afterResponse();
         }
 
-        if ($word->wasRecentlyCreated && blank($word->example)) {
+        if ($word->wasRecentlyCreated && (blank($word->example) || ! VocabularyWord::isSimple($word->example))) {
             $learner = $request->user();
 
             dispatch(fn () => app(WordSentences::class)->makeOne($word, $learner))->afterResponse();
