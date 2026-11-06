@@ -197,23 +197,6 @@ new class extends Component
     }
 
     /**
-     * "Cover the words": the learner said the missing word and says if
-     * they knew it. Counts as a review, so the word comes back sooner or
-     * later.
-     */
-    public function rateWord(int $wordId, string $verdict): void
-    {
-        if (! in_array($verdict, ['got', 'not'], true)) {
-            return;
-        }
-
-        $word = auth()->user()->vocabularyWords()->findOrFail($wordId);
-        $word->review($verdict === 'got' ? 4 : 1);
-
-        unset($this->words, $this->wordGroups, $this->todayWords);
-    }
-
-    /**
      * Another simple sentence for the word. Null when the AI can't make
      * one, and the sheet says so.
      */
@@ -652,8 +635,8 @@ new class extends Component
         </div>
     @endforeach
 
-    {{-- Words: where the learner learns them. How many are ready, today's few, one simple sentence under each word, "Cover the words" to test themselves, then every word by mission. --}}
-    <div x-show="notebookTab === 'words'" x-cloak class="space-y-3" x-data="{ cover: false, revealed: {}, rated: {} }">
+    {{-- Words: where the learner learns them. How many are ready, today's few, one simple sentence under each word, then every word by mission. --}}
+    <div x-show="notebookTab === 'words'" x-cloak class="space-y-3">
         @if ($this->words->isEmpty())
             <p class="py-6 text-center text-sm text-ink-faint dark:text-ink-faint-dark">Words from your lessons and the ones you tap in a text show up here.</p>
         @else
@@ -706,16 +689,6 @@ new class extends Component
                         ['known', 'Known', $wordCounts->get('known', 0)],
                     ]))"
                 />
-
-                <div class="flex items-center justify-between gap-3 rounded-2xl bg-surface px-4 py-2.5 dark:bg-surface-dark">
-                    <span class="min-w-0">
-                        <span class="block text-sm font-extrabold text-ink dark:text-ink-dark">Cover the words</span>
-                        <span class="block text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">See the sentence, say the missing word</span>
-                    </span>
-                    <button type="button" role="switch" aria-label="Cover the words" x-bind:aria-checked="cover ? 'true' : 'false'" x-on:click="cover = ! cover; revealed = {}; rated = {}" class="relative inline-flex h-7 w-12 shrink-0 cursor-pointer items-center rounded-full transition-colors" x-bind:class="cover ? 'bg-success dark:bg-success-dark' : 'bg-line dark:bg-line-dark'">
-                        <span class="inline-block h-5 w-5 transform rounded-full bg-white shadow-sm transition-transform" x-bind:class="cover ? 'translate-x-6' : 'translate-x-1'"></span>
-                    </button>
-                </div>
 
                 @if ($this->todayWords->isNotEmpty())
                     <div x-show="! filtering('words')" class="space-y-1.5">

@@ -7,7 +7,6 @@ use App\Models\User;
 use App\Models\VocabularyWord;
 use App\Models\WordSentence;
 use App\Services\GeminiClient;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use RuntimeException;
@@ -15,7 +14,7 @@ use Tests\TestCase;
 
 /**
  * The Notebook's Words tab: first tab, one simple sentence under each word
- * with the word picked out, today's few words, "Cover the words" reviews,
+ * with the word picked out, today's few words,
  * and the sentences made for or written by the learner.
  */
 class NotebookWordsTest extends TestCase
@@ -35,6 +34,7 @@ class NotebookWordsTest extends TestCase
         $this->word($learner, 'recipe');
 
         Livewire::test('notebook.index')
+            ->assertDontSee('Cover the words')
             ->assertSeeInOrder(['Words', 'Mistakes', 'Tips'])
             ->assertSee('Your words')
             ->assertSee('1 word ready to review')
@@ -97,27 +97,6 @@ class NotebookWordsTest extends TestCase
 
         $this->assertCount(6, $component->instance()->todayWords);
         $this->assertFalse($component->instance()->todayWords->contains('word', 'later'));
-    }
-
-    public function test_got_it_and_not_yet_move_the_review_and_nobody_elses_word_can_be_rated(): void
-    {
-        $learner = User::factory()->create();
-        $this->actingAs($learner);
-        $knew = $this->word($learner, 'knew', ['next_review_at' => now()->subDay()]);
-        $missed = $this->word($learner, 'missed', ['next_review_at' => now()->subDay(), 'repetitions' => 3, 'interval_days' => 10]);
-        $stranger = $this->word(User::factory()->create(), 'secret');
-
-        $component = Livewire::test('notebook.index');
-        $component->call('rateWord', $knew->id, 'got')->call('rateWord', $missed->id, 'not')->call('rateWord', $knew->id, 'bogus');
-
-        $this->assertSame(1, $knew->refresh()->repetitions);
-        $this->assertTrue($knew->next_review_at->isFuture());
-        $this->assertSame(0, $missed->refresh()->repetitions);
-        $this->assertSame(1, $missed->interval_days);
-
-        $this->expectException(ModelNotFoundException::class);
-
-        $component->call('rateWord', $stranger->id, 'got');
     }
 
     public function test_another_sentence_is_saved_only_when_simple_and_has_the_word_in_it(): void
