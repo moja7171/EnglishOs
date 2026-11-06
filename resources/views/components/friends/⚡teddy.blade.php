@@ -4,6 +4,7 @@ use App\Models\AiPractice;
 use App\Models\PairGame;
 use App\Services\AiPractices;
 use App\Services\PairPractice;
+use App\Services\TeddyLevel;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 
@@ -26,6 +27,34 @@ new class extends Component
     public function timesTogether(): int
     {
         return AiPractice::where('learner_id', auth()->id())->whereNotNull('finished_at')->where('answered', '>=', AiPractice::MIN_COUNTED_ANSWERS)->count();
+    }
+
+    /**
+     * How many of Teddy's slips the learner caught in the last week, if he
+     * slipped at all.
+     *
+     * @return array{caught: int, total: int}|null
+     */
+    #[Computed]
+    public function weekSlips(): ?array
+    {
+        $counts = AiPractice::where('learner_id', auth()->id())
+            ->where('created_at', '>=', now()->subWeek())
+            ->get()
+            ->map(fn (AiPractice $practice) => $practice->slipCount());
+
+        $total = $counts->sum('total');
+
+        return $total === 0 ? null : ['caught' => $counts->sum('caught'), 'total' => $total];
+    }
+
+    /**
+     * How Teddy plays the next round, if not the usual way.
+     */
+    #[Computed]
+    public function levelToday(): string
+    {
+        return app(TeddyLevel::class)->levelFor(auth()->user(), AiPractice::KIND_PRACTICE);
     }
 
     /**
@@ -88,6 +117,17 @@ new class extends Component
         @if ($this->timesTogether > 0)
             <p class="mt-1 rounded-full bg-success-soft px-2.5 py-0.5 text-xs font-bold text-success dark:bg-success-soft-dark dark:text-success-dark">{{ $this->timesTogether }}× together</p>
         @endif
+        @php
+            $weekSlips = $this->weekSlips;
+            $levelLine = match ($this->levelToday) {
+                TeddyLevel::EASY => 'Teddy plays gently today',
+                TeddyLevel::HARD => 'Teddy plays sharp today',
+                default => null,
+            };
+        @endphp
+        @if ($weekSlips || $levelLine)
+            <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">{{ collect([$weekSlips ? "This week you caught {$weekSlips['caught']} of {$weekSlips['total']} slips" : null, $levelLine])->filter()->join(' · ') }}</p>
+        @endif
     </div>
 
     @if ($notice)
@@ -107,7 +147,7 @@ new class extends Component
         </x-bottom-sheet>
     @endif
 
-    <button type="button" x-on:click="$wire.start('{{ AiPractice::KIND_PRACTICE }}', chosen())" wire:loading.attr="disabled" wire:target="start" class="block w-full cursor-pointer rounded-2xl bg-accent px-4 py-3 text-base font-extrabold text-white shadow-[0_4px_0_color-mix(in_srgb,var(--color-accent)_60%,black)] transition-opacity hover:opacity-90 disabled:opacity-50 dark:bg-accent-dark">{{ in_array(AiPractice::KIND_PRACTICE, $openKinds, true) ? 'Continue practice' : 'Practice together' }}</button>
+    <button type="button" x-on:click="$wire.start('{{ AiPractice::KIND_PRACTICE }}', chosen())" wire:loading.attr="disabled" wire:target="start" class="block w-full cursor-pointer rounded-2xl bg-accent px-4 py-3 text-base font-extrabold text-white shadow-[0_4px_0_color-mix(in_srgb,var(--color-accent)_60%,black)] transition-opacity hover:opacity-90 disabled:opacity-50 dark:bg-accent-dark">@if (in_array(AiPractice::KIND_PRACTICE, $openKinds, true))<span x-text="chosen() === null ? 'Continue practice' : 'Practice together'">Continue practice</span>@else Practice together @endif</button>
 
     <div class="grid grid-cols-2 gap-2.5">
         @foreach (AiPractice::GAMES as $game)

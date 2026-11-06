@@ -17,6 +17,9 @@ class AiPartner
 {
     public const NAME = 'Teddy';
 
+    /** How much of the right sentence a sentence with a slip must still be, in percent. */
+    private const SMALL_SLIP_PERCENT = 70;
+
     private const PERSONA = 'You are Teddy, a cheerful, talkative young man who loves travel and food. You live in Shiraz with your parents '
         .'and your little brother, you work part-time at a small travel agency, and you are learning English too.';
 
@@ -313,7 +316,22 @@ class AiPartner
             profile: GeminiClient::PROFILE_CHAT,
         ), " \t\n\r\0\x0B\"");
 
-        return $slip !== '' && $slip !== $answer ? $slip : null;
+        return self::isSmallSlip($slip, $answer) ? $slip : null;
+    }
+
+    /**
+     * Whether a sentence with a mistake in it really is the right sentence
+     * with one small mistake: different, but still nearly the same.
+     */
+    public static function isSmallSlip(string $slip, string $right): bool
+    {
+        if (trim($slip) === '' || trim($slip) === trim($right)) {
+            return false;
+        }
+
+        similar_text(mb_strtolower(trim($slip)), mb_strtolower(trim($right)), $percent);
+
+        return $percent >= self::SMALL_SLIP_PERCENT;
     }
 
     /**
@@ -336,7 +354,7 @@ class AiPartner
 
         $data = AiJson::decode($raw);
 
-        if (! is_array($data) || blank($data['line'] ?? null) || blank($data['fix'] ?? null) || trim($data['line']) === trim($data['fix'])) {
+        if (! is_array($data) || blank($data['line'] ?? null) || blank($data['fix'] ?? null) || ! self::isSmallSlip($data['line'], $data['fix'])) {
             throw new RuntimeException('Unexpected AI response format.');
         }
 
@@ -365,7 +383,7 @@ class AiPartner
         $data = AiJson::decode($raw);
         $sentences = is_array($data) ? array_values(array_filter($data['sentences'] ?? [], fn ($line) => is_string($line) && filled($line))) : [];
 
-        if (count($sentences) < 3 || ! is_int($data['slip'] ?? null) || ! isset($sentences[$data['slip']]) || blank($data['fix'] ?? null)) {
+        if (count($sentences) < 3 || ! is_int($data['slip'] ?? null) || ! isset($sentences[$data['slip']]) || blank($data['fix'] ?? null) || ! self::isSmallSlip($sentences[$data['slip']], $data['fix'])) {
             throw new RuntimeException('Unexpected AI response format.');
         }
 

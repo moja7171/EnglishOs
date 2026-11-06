@@ -40,6 +40,9 @@ class TeddyLevel
      */
     private const SLIP_PERCENT = [self::EASY => 25, self::NORMAL => 34, self::HARD => 45];
 
+    /** A grammar card made from the learner's own notebook mistake: he slips on it at least this often. */
+    private const NOTEBOOK_SLIP_PERCENT = 60;
+
     public function levelFor(User $learner, string $kind): string
     {
         $shares = AiPractice::where('learner_id', $learner->id)
@@ -49,7 +52,7 @@ class TeddyLevel
             ->latest('finished_at')
             ->take(self::LOOKBACK)
             ->get()
-            ->map(fn (AiPractice $practice) => min(1, $practice->score / max(1, $practice->totalCards())));
+            ->map(fn (AiPractice $practice) => $practice->scoreShare());
 
         if ($shares->count() < self::MIN_PRACTICES) {
             return self::NORMAL;
@@ -63,9 +66,8 @@ class TeddyLevel
     }
 
     /**
-     * Which of Teddy's own turns he slips on, by part of the practice. A
-     * part with turns of his own gets at least none and at most half of
-     * them, drawn at random once and then kept.
+     * Which of Teddy's own turns he slips on, by part of the practice:
+     * each turn by chance, drawn once and then kept.
      *
      * @param  array<string, mixed>  $deck
      * @return array<string, list<int>>
@@ -79,7 +81,9 @@ class TeddyLevel
             foreach ($deck[$stage] ?? [] as $position => $card) {
                 $isTeddysTurn = $position % 2 === 1 && ! isset($card['owner_id']) && filled($card['answer'] ?? null);
 
-                if ($isTeddysTurn && random_int(1, 100) <= $chance) {
+                $cardChance = isset($card['notebook_id']) ? max($chance, self::NOTEBOOK_SLIP_PERCENT) : $chance;
+
+                if ($isTeddysTurn && random_int(1, 100) <= $cardChance) {
                     $slips[$stage][] = $position;
                 }
             }

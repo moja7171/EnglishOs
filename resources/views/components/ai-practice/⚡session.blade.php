@@ -269,6 +269,10 @@ new class extends Component
             return;
         }
 
+        if ($slip !== -1) {
+            $this->practice->logSlip($sentences[$slip], $current['slip']['fix'], $sentence === $slip);
+        }
+
         $this->practice->update(['current' => [...$current, 'slip_pick' => $sentence], 'score' => $this->practice->score + ($sentence === $slip ? 1 : 0)]);
     }
 
@@ -366,8 +370,12 @@ new class extends Component
             return;
         }
 
-        $had = collect($current['lines'])->contains(fn (array $other) => isset($other['fix']));
-        $right = $lineIndex === -1 ? ! $had : isset($line['fix']);
+        $slipIndex = collect($current['lines'])->search(fn (array $other) => isset($other['fix']));
+        $right = $lineIndex === -1 ? $slipIndex === false : isset($line['fix']);
+
+        if ($slipIndex !== false) {
+            $this->practice->logSlip($current['lines'][$slipIndex]['text'], $current['lines'][$slipIndex]['fix'], $lineIndex === $slipIndex);
+        }
 
         $this->practice->update(['current' => [...$current, 'slip_pick' => $lineIndex], 'score' => $this->practice->score + ($right ? 1 : 0)]);
     }
@@ -502,7 +510,7 @@ new class extends Component
             }
 
             $tries = [...$current['tries'] ?? [], ['said' => $heard, 'guess' => $guess]];
-            $this->endTabooTry(['tries' => $tries], AiPractice::namesWord($guess, $word), count($tries), AiPractice::TABOO_TRIES);
+            $this->endTabooTry(['tries' => $tries], AiPractice::namesWord($guess, $word, heardAloud: false), count($tries), AiPractice::TABOO_TRIES);
 
             return;
         }
@@ -622,6 +630,11 @@ new class extends Component
         }
 
         $current['qa'][$index] = [...$row, 'challenged' => true];
+
+        if (! empty($row['flip'])) {
+            $this->practice->logSlip("“{$row['q']}” → {$row['a']}", $row['real'], true, 'answer');
+        }
+
         $this->practice->update(['current' => $current, 'score' => $this->practice->score + (empty($row['flip']) ? 0 : 1)]);
     }
 
@@ -742,6 +755,8 @@ new class extends Component
     {
         $this->error = null;
         $this->audioFile = null;
+        $this->logMissedFlips();
+        $this->practice->creditTheDay();
 
         if ($this->practice->isGameStage() && $this->practice->game() === PairGame::GAME_STORY && ! isset($this->practice->current['ended'])) {
             $this->teddyGoesOn($this->practice->current['lines'] ?? []);
@@ -768,6 +783,25 @@ new class extends Component
             $this->practice->game() === PairGame::GAME_TABOO && ! $this->practice->isLearnersGameTurn() => $this->aiGivesClues(),
             default => null,
         };
+    }
+
+    /**
+     * Who am I, leaving a secret of Teddy's: a yes or no he gave the wrong
+     * way round and the learner did not challenge was a slip they missed.
+     */
+    private function logMissedFlips(): void
+    {
+        if (! $this->practice->isGameStage() || $this->practice->game() !== PairGame::GAME_WHO || ! $this->practice->aiHoldsSecret()) {
+            return;
+        }
+
+        foreach ($this->practice->current['qa'] ?? [] as $row) {
+            if (! empty($row['flip']) && empty($row['challenged'])) {
+                $this->practice->logSlip("“{$row['q']}” → {$row['a']}", $row['real'], false, 'answer');
+            }
+        }
+
+        $this->practice->save();
     }
 
     public function end(): void
@@ -807,6 +841,29 @@ new class extends Component
                 <p class="font-display text-5xl font-extrabold text-accent-ink tabular-nums dark:text-accent-ink-dark">{{ $practice->score }}</p>
                 <p class="text-sm font-semibold text-ink-soft dark:text-ink-soft-dark">points</p>
             </div>
+            @php
+                $slips = $practice->slipCount();
+                $missedSlips = collect($practice->deck['slip_log'] ?? [])->where('caught', false)->take(3);
+                $tally = collect($practice->deck['tally'] ?? [])->map(fn (array $row, string $part) => ($partLabels[$part] ?? $part).' '.$row['right'].'/'.$row['total'])->values();
+            @endphp
+            @if ($tally->isNotEmpty() || $slips['total'] > 0)
+                <div class="flex flex-wrap justify-center gap-2 text-sm font-bold">
+                    @foreach ($tally as $line)
+                        <span wire:key="tally-{{ $loop->index }}" class="rounded-full bg-surface-sunken px-3 py-1 text-ink dark:bg-surface-sunken-dark dark:text-ink-dark">{{ $line }}</span>
+                    @endforeach
+                    @if ($slips['total'] > 0)
+                        <span class="rounded-full bg-accent-soft px-3 py-1 text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">Teddy’s slips you caught {{ $slips['caught'] }}/{{ $slips['total'] }}</span>
+                    @endif
+                </div>
+            @endif
+            @if ($missedSlips->isNotEmpty())
+                <div class="space-y-2 rounded-xl bg-warning-soft p-3 text-start">
+                    <p class="text-xs font-bold text-warning-ink">Teddy’s slips you missed</p>
+                    @foreach ($missedSlips as $slip)
+                        <p wire:key="missed-{{ $loop->index }}" class="text-sm font-semibold text-ink dark:text-ink-dark"><span class="text-warning-ink line-through">{{ $slip['said'] }}</span> → {{ $slip['fix'] }}</p>
+                    @endforeach
+                </div>
+            @endif
             @if (($practice->deck['missed_words'] ?? []) !== [])
                 <p class="rounded-xl bg-surface-sunken p-3 text-sm text-ink dark:bg-surface-sunken-dark dark:text-ink-dark">
                     <span class="text-ink-faint dark:text-ink-faint-dark">Saved for review ·</span> {{ collect($practice->deck['missed_words'])->pluck('answer')->join(', ') }}
