@@ -17,7 +17,9 @@ use Illuminate\Support\Str;
  * category, and that refreshes the line instead of adding a twin — and a
  * sentence already in the mistakes is not a tip as well.
  * A new line is first due in Daily Review tomorrow, not right away — the
- * learner has just read it.
+ * learner has just read it. A notebook keeps at most NotebookEntry::MAX_ACTIVE
+ * lines: past that the least important ones are put away, and a "correction"
+ * that rewrites the whole sentence (not a fix of it) is not kept at all.
  */
 class FeedbackNotebook
 {
@@ -47,6 +49,10 @@ class FeedbackNotebook
         $tips = 0;
 
         foreach ($feedback['sentences'] as $sentence) {
+            if (in_array($sentence['status'], ['fix', 'better'], true) && self::isNoise($sentence['original'], (string) $sentence['corrected'])) {
+                continue;
+            }
+
             if ($sentence['status'] === 'fix') {
                 $this->keep($learner, NotebookEntry::KIND_MISTAKE, 'm:'.self::key($sentence['pattern'] ?? $sentence['corrected']), [
                     'label' => $sentence['pattern'],
@@ -70,7 +76,8 @@ class FeedbackNotebook
             $this->keep($learner, NotebookEntry::KIND_TIP, 't:'.$technique['key'], [
                 'label' => $technique['key'],
                 'original' => null,
-                'better' => $technique['example'],
+                // The short, general example (not the learner's own long sentence) is what is worth learning by heart.
+                'better' => LearnerFeedback::TECHNIQUES[$technique['key']]['example'] ?? $technique['example'],
                 'note' => $technique['tip'] ?: null,
             ], $source);
             $tips++;
@@ -87,7 +94,7 @@ class FeedbackNotebook
      */
     public function recordCheck(User $learner, string $original, string $corrected, ?string $why, string $source): void
     {
-        if (self::sentenceKey($original) === self::sentenceKey($corrected)) {
+        if (self::isNoise($original, $corrected)) {
             return;
         }
 
@@ -115,7 +122,7 @@ class FeedbackNotebook
             ->first() ?? $this->sameSentence($learner, $kind, $content['original']);
 
         if (! $entry) {
-            NotebookEntry::create($content + [
+            $created = NotebookEntry::create($content + [
                 'learner_id' => $learner->id,
                 'kind' => $kind,
                 'dedupe_key' => $dedupeKey,
@@ -123,6 +130,8 @@ class FeedbackNotebook
                 'last_seen_at' => now(),
                 'next_review_at' => now()->addDay(),
             ]);
+
+            $this->trim($learner, $kind, $created->id);
 
             return;
         }
@@ -141,6 +150,44 @@ class FeedbackNotebook
         }
 
         $entry->fill($content + ['source' => $source, 'last_seen_at' => now()])->save();
+    }
+
+    /**
+     * Keeps a notebook to NotebookEntry::MAX_ACTIVE active lines: past it, the
+     * least important ones are put away as learned — the ones seen least
+     * often and longest ago, never a starred line and never the one just
+     * added. They stay in the notebook's "Learned and older" list, and a
+     * mistake made again brings its line back.
+     */
+    private function trim(User $learner, string $kind, int $keepId): void
+    {
+        $active = NotebookEntry::query()->where('learner_id', $learner->id)->where('kind', $kind)->whereNull('learned_at');
+        $over = (clone $active)->count() - NotebookEntry::MAX_ACTIVE;
+
+        if ($over > 0) {
+            $active->whereNull('starred_at')->where('id', '!=', $keepId)->orderBy('times_seen')->orderBy('last_seen_at')->limit($over)->update(['learned_at' => now()]);
+        }
+    }
+
+    /**
+     * A "correction" not worth a line: the learner's sentence written back
+     * the same (only punctuation changed), or rewritten into something much
+     * longer — an AI's new sentence, not a fix of theirs.
+     */
+    public static function isNoise(?string $original, string $corrected): bool
+    {
+        if ($original === null) {
+            return false;
+        }
+
+        if (self::sentenceKey($original) === self::sentenceKey($corrected)) {
+            return true;
+        }
+
+        $before = str_word_count(self::sentenceKey($original));
+        $after = str_word_count(self::sentenceKey($corrected));
+
+        return $after > $before * 2 && $after - $before >= 5;
     }
 
     /**

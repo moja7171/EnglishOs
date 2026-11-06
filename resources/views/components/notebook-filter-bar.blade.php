@@ -1,6 +1,6 @@
 {{--
-    The Notebook tabs' summary and filter: a bar split by status (tap a
-    part to filter by it) and a row of filter chips. Reads and sets
+    The Notebook tabs' summary and filter: a thin bar split by status (tap a
+    part to filter by it; each part's label is its aria-label) and a row of filter chips. Reads and sets
     filter.<tab> (and, for a "learned" part, learned) in the Notebook's
     Alpine state.
 
@@ -23,7 +23,7 @@
 <div class="space-y-3">
     @if ($shown->isNotEmpty())
         <div>
-            <div class="flex h-2 gap-0.5 overflow-hidden rounded-full">
+            <div class="flex h-1.5 gap-0.5 overflow-hidden rounded-full">
                 @foreach ($shown as $segment)
                     <button
                         type="button"
@@ -32,11 +32,6 @@
                         aria-label="{{ $segment['label'] }} {{ $segment['count'] }}"
                         class="{{ $dotClass($segment['status']) }} h-full min-w-1 cursor-pointer"
                     ></button>
-                @endforeach
-            </div>
-            <div class="mt-1.5 flex flex-wrap gap-x-4 gap-y-0.5 text-xs font-bold text-ink-soft dark:text-ink-soft-dark">
-                @foreach ($shown as $segment)
-                    <span class="inline-flex items-center gap-1.5"><span class="{{ $dotClass($segment['status']) }} h-2 w-2 rounded-full"></span>{{ $segment['count'] }} {{ $segment['label'] }}</span>
                 @endforeach
             </div>
         </div>
