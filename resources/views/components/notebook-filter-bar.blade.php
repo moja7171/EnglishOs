@@ -1,12 +1,13 @@
 {{--
-    The Notebook tabs' summary and filter: a bar split by status (tap a
-    part to filter by it) and a row of filter chips. Reads and sets
+    The Notebook tabs' summary and filter: a thin bar split by status (tap a
+    part to filter by it; each part's label is its aria-label) and a row of filter chips. Reads and sets
     filter.<tab> (and, for a "learned" part, learned) in the Notebook's
     Alpine state.
 
     @param string $tab words, mistakes or tips.
     @param list<array{status: string, label: string, count: int, learned?: bool}> $segments The status parts, in bar order.
     @param list<array{0: string, 1: string, 2: int}> $chips Filter key, label and count; the first is "all".
+    @slot lead Optional: something at the start of the chips row (the Words tab's search button).
 --}}
 @props(['tab', 'segments', 'chips'])
 
@@ -22,7 +23,7 @@
 <div class="space-y-3">
     @if ($shown->isNotEmpty())
         <div>
-            <div class="flex h-2 gap-0.5 overflow-hidden rounded-full">
+            <div class="flex h-1.5 gap-0.5 overflow-hidden rounded-full">
                 @foreach ($shown as $segment)
                     <button
                         type="button"
@@ -33,15 +34,11 @@
                     ></button>
                 @endforeach
             </div>
-            <div class="mt-1.5 flex flex-wrap gap-x-4 gap-y-0.5 text-xs font-bold text-ink-soft dark:text-ink-soft-dark">
-                @foreach ($shown as $segment)
-                    <span class="inline-flex items-center gap-1.5"><span class="{{ $dotClass($segment['status']) }} h-2 w-2 rounded-full"></span>{{ $segment['count'] }} {{ $segment['label'] }}</span>
-                @endforeach
-            </div>
         </div>
     @endif
 
-    <div class="-mx-0.5 flex gap-1.5 overflow-x-auto px-0.5 py-0.5 [scrollbar-width:none]">
+    <div class="-mx-0.5 flex items-center gap-1.5 overflow-x-auto px-0.5 py-0.5 [scrollbar-width:none]">
+        {{ $lead ?? '' }}
         @foreach ($chips as [$key, $label, $count])
             <button
                 type="button"

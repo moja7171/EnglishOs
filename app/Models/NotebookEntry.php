@@ -15,7 +15,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * One line in a learner's notebook — a mistake or a tip — written by
  * FeedbackNotebook from AI feedback, reviewed in Daily Review like any
  * other spaced-repetition item until it is learned: marked by the learner,
- * or by itself after LEARNED_AFTER_STREAK good reviews in a row.
+ * or by itself after LEARNED_AFTER_STREAK good reviews in a row — or put
+ * away to keep the list short, once a notebook has MAX_ACTIVE lines (see
+ * FeedbackNotebook).
  */
 #[Fillable(['learner_id', 'kind', 'dedupe_key', 'label', 'original', 'better', 'note', 'source', 'times_seen', 'last_seen_at', 'learned_at', 'starred_at', 'practice_level', 'last_practised_at', 'ease_factor', 'interval_days', 'repetitions', 'next_review_at', 'last_reviewed_at'])]
 class NotebookEntry extends Model
@@ -38,13 +40,17 @@ class NotebookEntry extends Model
     public const DAILY_REVIEW_SLOTS = 3;
 
     /**
-     * Good reviews in a row, and the gap they must have reached, before a
-     * line counts as learned by itself — a repeat mistake brings it back
-     * anyway (see FeedbackNotebook).
+     * Good reviews in a row before a line counts as learned by itself — a
+     * repeat mistake brings it back anyway (see FeedbackNotebook).
      */
     public const LEARNED_AFTER_STREAK = 3;
 
-    public const LEARNED_AFTER_DAYS = 21;
+    /**
+     * The most lines one notebook (mistakes, tips) keeps active per learner.
+     * A new line past it puts the least important one away (see
+     * FeedbackNotebook::trim()); it stays under "Learned and older".
+     */
+    public const MAX_ACTIVE = 40;
 
     /**
      * The practice ladder's rungs (see NotebookDrill): tap the wrong word,
@@ -132,7 +138,7 @@ class NotebookEntry extends Model
     {
         $this->reviewOnSchedule($quality);
 
-        if ($this->repetitions >= self::LEARNED_AFTER_STREAK && $this->interval_days >= self::LEARNED_AFTER_DAYS) {
+        if ($this->repetitions >= self::LEARNED_AFTER_STREAK) {
             $this->update(['learned_at' => now()]);
         }
     }

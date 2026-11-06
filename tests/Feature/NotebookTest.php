@@ -96,7 +96,50 @@ class NotebookTest extends TestCase
 
         $this->assertSame(['mistakes' => 0, 'tips' => 2], $saved);
         $this->assertSame(2, $learner->notebookEntries()->where('kind', NotebookEntry::KIND_TIP)->count());
-        $this->assertSame('I was tired, so I slept.', $learner->notebookEntries()->where('label', 'linking')->value('better'));
+        $line = $learner->notebookEntries()->where('label', 'linking')->sole();
+        $this->assertSame(LearnerFeedback::TECHNIQUES['linking']['example'], $line->better);
+        $this->assertSame(1, $line->times_seen);
+    }
+
+    public function test_a_tip_keeps_the_techniques_short_example_not_the_learners_long_sentence(): void
+    {
+        $learner = User::factory()->create();
+
+        $this->record($learner, [], [['key' => 'buying_time', 'tip' => 'وقت بخر.', 'example' => 'Well, let me think… today we are talking about the workplace, where I met my friend.']]);
+
+        $this->assertSame('Well, let me think…', $learner->notebookEntries()->sole()->better);
+    }
+
+    public function test_a_correction_that_only_changes_punctuation_or_rewrites_everything_is_not_kept(): void
+    {
+        $learner = User::factory()->create();
+        $punctuation = $this->fix('What are we talking about today? Today we are talking about', 'What are we talking about today? Today we are talking about..');
+        $rewrite = $this->fix('What are we talking about?', 'What are we talking about? Are we talking about looking after someone?');
+        $real = $this->fix('She go home.', 'She goes home.');
+
+        $saved = $this->record($learner, [$punctuation, $rewrite, $real]);
+
+        $this->assertSame(['mistakes' => 1, 'tips' => 0], $saved);
+        $this->assertSame(['She goes home.'], $learner->notebookEntries()->pluck('better')->all());
+    }
+
+    public function test_a_notebook_keeps_at_most_forty_active_lines_and_puts_the_least_important_away(): void
+    {
+        $learner = User::factory()->create();
+        $starred = NotebookEntry::factory()->tip()->for($learner, 'learner')->create(['times_seen' => 1, 'last_seen_at' => now()->subYear(), 'starred_at' => now()]);
+        $oldest = NotebookEntry::factory()->tip()->for($learner, 'learner')->create(['times_seen' => 1, 'last_seen_at' => now()->subDays(100)]);
+        $often = NotebookEntry::factory()->tip()->for($learner, 'learner')->create(['times_seen' => 5, 'last_seen_at' => now()->subDays(200)]);
+        NotebookEntry::factory()->tip()->count(NotebookEntry::MAX_ACTIVE - 3)->for($learner, 'learner')->create(['times_seen' => 2, 'last_seen_at' => now()->subDays(5)]);
+        $mistake = NotebookEntry::factory()->for($learner, 'learner')->create(['times_seen' => 1, 'last_seen_at' => now()->subYear()]);
+
+        $this->record($learner, [['original' => 'My job is very hard.', 'status' => 'better', 'corrected' => 'My job is really tough.', 'why' => null, 'pattern' => null]]);
+
+        $this->assertSame(NotebookEntry::MAX_ACTIVE, $learner->notebookEntries()->where('kind', NotebookEntry::KIND_TIP)->whereNull('learned_at')->count());
+        $this->assertNotNull($oldest->fresh()->learned_at);
+        $this->assertNull($starred->fresh()->learned_at);
+        $this->assertNull($often->fresh()->learned_at);
+        $this->assertNull($mistake->fresh()->learned_at);
+        $this->assertNull($learner->notebookEntries()->where('better', 'My job is really tough.')->sole()->learned_at);
     }
 
     public function test_the_notebook_page_lists_mistakes_with_their_counter_and_tips_with_the_technique_name(): void
@@ -426,18 +469,18 @@ class NotebookTest extends TestCase
         $this->assertNull($mistake->fresh()->starred_at);
     }
 
-    public function test_a_line_remembered_three_times_in_a_row_with_a_long_gap_becomes_learned(): void
+    public function test_a_line_remembered_three_times_in_a_row_becomes_learned(): void
     {
         $this->freezeSecond();
         $learner = User::factory()->create();
         $almost = NotebookEntry::factory()->for($learner, 'learner')->create(['repetitions' => 3, 'interval_days' => 15, 'ease_factor' => 2.5]);
-        $young = NotebookEntry::factory()->for($learner, 'learner')->create(['repetitions' => 2, 'interval_days' => 6, 'ease_factor' => 2.5]);
+        $young = NotebookEntry::factory()->for($learner, 'learner')->create(['repetitions' => 1, 'interval_days' => 1, 'ease_factor' => 2.5]);
 
         $almost->review(4);
         $young->review(4);
 
         $this->assertTrue($almost->fresh()->learned_at->equalTo(now()));
-        $this->assertSame(15, $young->fresh()->interval_days);
+        $this->assertSame(6, $young->fresh()->interval_days);
         $this->assertNull($young->fresh()->learned_at);
     }
 
@@ -703,22 +746,40 @@ class NotebookTest extends TestCase
     public function test_each_tab_folds_its_lines_into_groups_with_filters(): void
     {
         $learner = User::factory()->create();
-        NotebookEntry::factory()->for($learner, 'learner')->create(['original' => 'I am agree.', 'better' => 'I agree.', 'times_seen' => 3]);
-        NotebookEntry::factory()->for($learner, 'learner')->create(['original' => 'He go.', 'better' => 'He goes.', 'times_seen' => 1, 'last_seen_at' => now()->subDays(30)]);
-        NotebookEntry::factory()->for($learner, 'learner')->create(['kind' => NotebookEntry::KIND_TIP, 'original' => null, 'better' => 'Say well, first.', 'source' => 'pi']);
+        NotebookEntry::factory()->for($learner, 'learner')->create(['label' => 'past_simple', 'original' => 'I am agree.', 'better' => 'I agree.', 'times_seen' => 3]);
+        NotebookEntry::factory()->for($learner, 'learner')->create(['label' => 'articles', 'original' => 'He go.', 'better' => 'He goes.', 'times_seen' => 1]);
+        NotebookEntry::factory()->for($learner, 'learner')->create(['label' => null, 'original' => 'We was.', 'better' => 'We were.', 'times_seen' => 1]);
+        NotebookEntry::factory()->for($learner, 'learner')->create(['kind' => NotebookEntry::KIND_TIP, 'label' => null, 'original' => null, 'better' => 'Say well, first.', 'source' => 'pi']);
+        NotebookEntry::factory()->for($learner, 'learner')->create(['kind' => NotebookEntry::KIND_TIP, 'label' => 'buying_time', 'dedupe_key' => 't:buying_time', 'original' => null, 'better' => 'Well, let me think…']);
         $learner->vocabularyWords()->create(['word' => 'commute', 'next_review_at' => now()]);
         $this->actingAs($learner);
 
-        Livewire::test('notebook.index')
-            ->assertSee('Keeps coming back')
-            ->assertSee('Earlier')
-            ->assertSee('Pi')
+        $page = Livewire::test('notebook.index')
+            ->assertSee('Past simple')
+            ->assertSee('a / an / the')
+            ->assertSee('Other mistakes')
+            ->assertSee('Buy time')
+            ->assertSee('Say it like this')
             ->assertSee('Added by you')
             ->assertSee('Repeating')
             ->assertSee('Not practised')
             ->assertSee('In Review')
             ->assertSee('Mine')
+            ->assertSeeHtml('aria-label="Search your mistakes"')
+            ->assertSeeHtml('aria-label="Search your tips"')
             ->assertDontSee('wire:confirm', false);
+
+        // The kind made most often comes first, the unsorted ones last.
+        $this->assertSame(['Past simple', 'a / an / the', 'Other mistakes'], $page->instance()->entryGroups(NotebookEntry::KIND_MISTAKE)->pluck('title')->all());
+    }
+
+    public function test_the_learned_list_shows_the_old_mistake_with_its_fix(): void
+    {
+        $learner = User::factory()->create();
+        NotebookEntry::factory()->for($learner, 'learner')->create(['original' => 'She go home.', 'better' => 'She goes home.', 'learned_at' => now()]);
+        $this->actingAs($learner);
+
+        Livewire::test('notebook.index')->assertSee('Learned and older (1)')->assertSee('She go home.')->assertSee('She goes home.');
     }
 
     public function test_a_word_is_new_until_reviewed_and_known_once_its_gap_is_long(): void

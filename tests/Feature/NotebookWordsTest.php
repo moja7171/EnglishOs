@@ -36,7 +36,6 @@ class NotebookWordsTest extends TestCase
         Livewire::test('notebook.index')
             ->assertDontSee('Cover the words')
             ->assertSeeInOrder(['Words', 'Mistakes', 'Tips'])
-            ->assertSee('Your words')
             ->assertSee('1 word ready to review')
             ->assertSeeHtml(route('review.track', 'words'));
     }
