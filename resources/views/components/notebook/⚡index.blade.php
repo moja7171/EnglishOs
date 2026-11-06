@@ -622,14 +622,14 @@ new class extends Component
             <div class="space-y-3 rounded-3xl bg-hero p-4 text-white">
                 <p class="text-xs font-extrabold tracking-wide text-white/70 uppercase">Your words</p>
                 <div class="flex h-2.5 gap-0.5 overflow-hidden rounded-full bg-white/10" role="img" aria-label="{{ $wordCounts->get('known', 0) }} known, {{ $wordCounts->get('learning', 0) }} learning, {{ $wordCounts->get('new', 0) }} new">
-                    @foreach (['known' => 'bg-success-dark', 'learning' => 'bg-warning', 'new' => 'bg-dusk'] as $status => $color)
+                    @foreach (['known' => 'bg-success-dark', 'learning' => 'bg-warning', 'new' => 'bg-white/40'] as $status => $color)
                         @if ($wordCounts->get($status, 0) > 0)
                             <span class="{{ $color }} block h-full" style="width: {{ $wordCounts->get($status) / $totalWords * 100 }}%"></span>
                         @endif
                     @endforeach
                 </div>
                 <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs font-semibold text-white/80">
-                    @foreach (['known' => ['Known', 'bg-success-dark'], 'learning' => ['Learning', 'bg-warning'], 'new' => ['New', 'bg-dusk']] as $status => [$label, $color])
+                    @foreach (['known' => ['Known', 'bg-success-dark'], 'learning' => ['Learning', 'bg-warning'], 'new' => ['New', 'bg-white/40']] as $status => [$label, $color])
                         <span class="inline-flex items-center gap-1.5"><span class="{{ $color }} h-2 w-2 rounded-full"></span><b class="tabular-nums text-white">{{ $wordCounts->get($status, 0) }}</b> {{ $label }}</span>
                     @endforeach
                 </div>
@@ -647,11 +647,7 @@ new class extends Component
                 <input type="search" x-model="search" placeholder="Search your words" aria-label="Search your words" class="w-full rounded-2xl border-0 bg-surface px-4 py-2.5 text-sm text-ink placeholder:text-ink-faint focus:ring-2 focus:ring-accent dark:bg-surface-dark dark:text-ink-dark dark:placeholder:text-ink-faint-dark">
                 <x-notebook-filter-bar
                     tab="words"
-                    :segments="[
-                        ['status' => 'known', 'label' => 'Known', 'count' => $wordCounts->get('known', 0)],
-                        ['status' => 'learning', 'label' => 'Learning', 'count' => $wordCounts->get('learning', 0)],
-                        ['status' => 'new', 'label' => 'New', 'count' => $wordCounts->get('new', 0)],
-                    ]"
+                    :segments="[]"
                     :chips="array_values(array_filter([
                         ['all', 'All', $this->words->count()],
                         $this->words->contains(fn (VocabularyWord $word) => $word->source_mission_run_id === null) ? ['mine', 'Mine', $this->words->whereNull('source_mission_run_id')->count()] : null,
@@ -672,7 +668,7 @@ new class extends Component
                 </div>
 
                 @if ($this->todayWords->isNotEmpty())
-                    <div x-show="! filtering('words') && ! cover" class="space-y-1.5">
+                    <div x-show="! filtering('words')" class="space-y-1.5">
                         <p class="px-2 text-xs font-extrabold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Today · {{ $this->todayWords->count() }}</p>
                         <div class="divide-y divide-line rounded-3xl bg-surface px-4 dark:divide-line-dark dark:bg-surface-dark">
                             @foreach ($this->todayWords as $word)

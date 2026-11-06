@@ -11,7 +11,7 @@
     $meaningFa = $word->meaning_fa ?: ($courseFa[mb_strtolower($word->word)] ?? null);
     $sentence = $word->displaySentence();
     $parts = $sentence ? $word->splitAround($sentence) : null;
-    $blank = $parts ? mb_substr($parts['hit'], 0, 1).' '.trim(str_repeat('_ ', max(2, min(mb_strlen($parts['hit']) - 1, 6)))) : null;
+    $blank = $parts ? mb_substr($parts['hit'], 0, 1).'…' : null;
 @endphp
 <div wire:key="{{ $keyPrefix }}-{{ $word->id }}" role="button" tabindex="0" x-show="{{ $show }}" x-on:click="if (! edit) { sheet = 'w{{ $word->id }}' }" x-on:keydown.enter="if (! edit) { sheet = 'w{{ $word->id }}' }" class="flex w-full cursor-pointer items-start gap-3 py-3 text-left">
     <span class="{{ $statusDot($word->studyStatus()) }} mt-2 h-2 w-2 shrink-0 rounded-full" title="{{ $word->strengthLabel() }}"></span>
@@ -29,7 +29,7 @@
             <span class="mt-1 block text-sm leading-relaxed text-ink-soft dark:text-ink-soft-dark">
                 @if ($parts)
                     <span x-show="! cover || revealed[{{ $word->id }}]">{{ $parts['before'] }}<mark class="rounded bg-accent-soft px-1 font-extrabold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">{{ $parts['hit'] }}</mark>{{ $parts['after'] }}</span>
-                    <span x-show="cover && ! revealed[{{ $word->id }}]" x-cloak>{{ $parts['before'] }}<button type="button" x-on:click.stop="revealed[{{ $word->id }}] = true" aria-label="Show the word" class="cursor-pointer border-b-2 border-dashed border-accent px-1 font-extrabold text-accent-ink dark:border-accent-dark dark:text-accent-ink-dark">{{ $blank }}</button>{{ $parts['after'] }}</span>
+                    <span x-show="cover && ! revealed[{{ $word->id }}]" x-cloak>{{ $parts['before'] }}<button type="button" x-on:click.stop="revealed[{{ $word->id }}] = true" aria-label="Show the word" class="inline-block min-w-16 cursor-pointer border-b-2 border-dashed border-accent px-1 text-center font-extrabold text-accent-ink dark:border-accent-dark dark:text-accent-ink-dark">{{ $blank }}</button>{{ $parts['after'] }}</span>
                 @else
                     {{ $sentence }}
                 @endif
