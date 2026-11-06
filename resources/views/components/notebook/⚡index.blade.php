@@ -545,36 +545,6 @@ new class extends Component
         </div>
     </div>
 
-    {{-- The practice card (or, after a round, today's score) for the open tab. --}}
-    @foreach ($tabs as $tab => $kind)
-        @php
-            $active = ($byKind->get($kind) ?? collect())->whereNull('learned_at');
-            $practicable = $kind === NotebookEntry::KIND_MISTAKE ? $active->whereNotNull('original') : $active;
-            $unpractised = $practicable->filter(fn (NotebookEntry $entry) => $entry->isUnpractised())->count();
-            $roundSize = min($this::PRACTICE_SIZE, $unpractised ?: $practicable->count());
-            $practiseAgain = $unpractised === 0 && $practicable->contains(fn (NotebookEntry $entry) => $entry->last_practised_at?->isToday());
-        @endphp
-        <div x-show="notebookTab === '{{ $tab }}'" x-cloak>
-            @if ($roundDone && $practiceKind === $kind)
-                <div class="flex items-center justify-between gap-3 rounded-2xl bg-success-soft px-4 py-3 text-sm font-extrabold text-success dark:bg-success-soft-dark dark:text-success-dark">
-                    <span>✓ {{ $practiceRight }}/{{ $practiceSize }} right today</span>
-                    @if ($this->morePractice > 0)
-                        <button type="button" wire:click="startPractice('{{ $kind }}')" class="cursor-pointer text-accent-ink dark:text-accent-ink-dark">{{ min($this::PRACTICE_SIZE, $this->morePractice) }} more ›</button>
-                    @endif
-                </div>
-            @elseif ($practicable->isNotEmpty())
-                <div class="flex items-center gap-3 rounded-3xl bg-accent-soft px-3 py-2 dark:bg-accent-soft-dark">
-                    <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent text-white dark:bg-accent-dark">@svg('heroicon-o-pencil', 'h-4 w-4')</span>
-                    <span class="min-w-0 flex-1">
-                        <span class="block text-base font-extrabold text-ink dark:text-ink-dark">{{ $practiseAgain ? '✓ Practice again' : 'Practice' }}</span>
-                        <span class="block text-xs font-bold text-accent-ink dark:text-accent-ink-dark">{{ $roundSize }} {{ Str::plural('line', $roundSize) }} · ~1 min</span>
-                    </span>
-                    <button type="button" wire:click="startPractice('{{ $kind }}')" class="cursor-pointer rounded-full bg-accent px-5 py-1.5 text-sm font-extrabold text-white dark:bg-accent-dark">Start</button>
-                </div>
-            @endif
-        </div>
-    @endforeach
-
     <div class="flex gap-1 rounded-full bg-surface-sunken p-1 dark:bg-surface-sunken-dark" role="tablist">
         @foreach (['words' => 'Words', 'mistakes' => 'Mistakes'] as $tab => $label)
             @php
@@ -736,24 +706,6 @@ new class extends Component
                 $totalWords = $this->words->count();
                 $dueCount = $this->words->filter(fn (VocabularyWord $word) => $word->isDue())->count();
             @endphp
-
-            <div class="space-y-2.5 rounded-3xl bg-hero px-4 py-3 text-white">
-                <div class="flex items-center justify-between gap-3">
-                    @if ($dueCount > 0)
-                        <p class="text-sm font-bold">{{ $dueCount }} {{ Str::plural('word', $dueCount) }} ready to review</p>
-                        <a href="{{ route('review.track', 'words') }}" wire:navigate class="shrink-0 rounded-full bg-accent px-4 py-1.5 text-sm font-extrabold text-white">Practice</a>
-                    @else
-                        <p class="text-sm font-bold">✓ Nothing to review today</p>
-                    @endif
-                </div>
-                <div class="flex h-1.5 gap-0.5 overflow-hidden rounded-full bg-white/10" role="img" aria-label="{{ $totalWords }} words: {{ $wordCounts->get('known', 0) }} known, {{ $wordCounts->get('learning', 0) }} learning, {{ $wordCounts->get('new', 0) }} new">
-                    @foreach (['known' => 'bg-success-dark', 'learning' => 'bg-warning', 'new' => 'bg-white/40'] as $status => $color)
-                        @if ($wordCounts->get($status, 0) > 0)
-                            <span class="{{ $color }} block h-full" style="width: {{ $wordCounts->get($status) / $totalWords * 100 }}%"></span>
-                        @endif
-                    @endforeach
-                </div>
-            </div>
 
             <div x-data="{ all: {{ \Illuminate\Support\Js::from($allWordMetas) }}, searching: false }" class="space-y-3">
                 <div x-show="searching || search !== ''" x-cloak class="relative">

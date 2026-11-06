@@ -416,7 +416,7 @@ class NotebookTest extends TestCase
         $this->assertNull($young->fresh()->learned_at);
     }
 
-    public function test_the_notebook_page_lists_every_line_most_repeated_first_with_a_practice_card(): void
+    public function test_the_notebook_page_lists_every_line_most_repeated_first_without_a_practice_board(): void
     {
         $learner = User::factory()->create();
         foreach ([5, 4, 3, 2] as $timesSeen) {
@@ -426,7 +426,6 @@ class NotebookTest extends TestCase
 
         Livewire::test('notebook.index')
             ->assertSeeInOrder(['5×', '4×', '3×', '2×'])
-            ->assertSee('4 lines · ~1 min')
             ->assertSee('Mistakes')
             ->assertSee('Words');
     }
@@ -452,8 +451,7 @@ class NotebookTest extends TestCase
             ->assertSee('Spot on!')
             ->call('drillNext')
             ->call('drillTap', 1)
-            ->call('drillNext')
-            ->assertSee('✓ 1/2 right today');
+            ->call('drillNext');
 
         $this->assertSame(NotebookEntry::LEVEL_PICK, $first->fresh()->practice_level);
         $this->assertSame(NotebookEntry::LEVEL_PICK, $second->fresh()->practice_level);
@@ -471,8 +469,7 @@ class NotebookTest extends TestCase
             ->call('startPractice', NotebookEntry::KIND_MISTAKE)
             ->call('drillShowFix')
             ->call('drillNext')
-            ->assertSet('practiceIds', [$only->id])
-            ->assertSee('✓ 0/1 right today');
+            ->assertSet('practiceIds', [$only->id]);
     }
 
     public function test_feedback_on_the_same_sentence_again_refreshes_its_line_instead_of_adding_a_twin(): void
@@ -548,13 +545,11 @@ class NotebookTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('notebook.index')
-            ->assertSee('1 line · ~1 min')
             ->call('startPractice', NotebookEntry::KIND_MISTAKE)
             ->assertSet('practiceIds', [$new->id, $practised->id])
             ->call('drillTap', 1)
             ->call('drillNext')
-            ->call('stopPractice')
-            ->assertSee('✓ Practice again');
+            ->call('stopPractice');
     }
 
     public function test_a_different_right_fix_counts_when_the_ai_accepts_it(): void
@@ -766,6 +761,19 @@ class NotebookTest extends TestCase
 
         $this->assertSame(['Past simple', 'a / an / the', 'Other mistakes', 'Sounds more natural'], $page->instance()->entryGroups()->pluck('title')->all());
         $this->assertSame(4, $page->instance()->entryMissionGroups()->sum(fn (array $group) => $group['entries']->count()));
+    }
+
+    public function test_neither_tab_has_a_practice_board_on_top(): void
+    {
+        $learner = User::factory()->create();
+        NotebookEntry::factory()->for($learner, 'learner')->create(['original' => 'She go home.', 'better' => 'She goes home.']);
+        $learner->vocabularyWords()->create(['word' => 'commute', 'next_review_at' => now()->subDay()]);
+        $this->actingAs($learner);
+
+        Livewire::test('notebook.index')
+            ->assertDontSee('~1 min')
+            ->assertDontSee('ready to review')
+            ->assertDontSee('Practice again');
     }
 
     public function test_the_old_tips_address_opens_the_mistakes_tab(): void
