@@ -55,9 +55,6 @@ new class extends Component
 
     public int $practiceRight = 0;
 
-    /** The word whose sheet was opened last (see sheetWord()). */
-    public ?int $sheetWordId = null;
-
     /** NotebookEntry::KIND_MISTAKE or KIND_TIP — which tab the round is from. */
     public string $practiceKind = NotebookEntry::KIND_MISTAKE;
 
@@ -112,21 +109,28 @@ new class extends Component
     }
 
     /**
-     * The word whose sheet is open: only that one is rendered, loaded when
-     * its row is tapped, so the page does not carry a sheet for every word.
+     * How common each word is (see VocabularyWord::commonnessOf()), by word id.
+     *
+     * @return array<int, int>
      */
     #[Computed]
-    public function sheetWord(): ?VocabularyWord
+    public function wordCommonness(): array
     {
-        return $this->sheetWordId === null ? null : auth()->user()->vocabularyWords()
-            ->with(['sourceMissionRun:id,mission_id', 'sourceMissionRun.mission:id,code,title', 'sentences'])
-            ->find($this->sheetWordId);
+        return VocabularyWord::commonnessOf($this->words);
     }
 
-    /** Opens the sheet of one of the learner's words (see sheetWord()). */
-    public function openWord(int $wordId): void
+    /**
+     * The data the one shared word sheet shows, for every word, by id. It
+     * rides on the page so a tapped word's sheet opens at once.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    #[Computed]
+    public function wordSheets(): array
     {
-        $this->sheetWordId = $wordId;
+        return $this->words->mapWithKeys(fn (VocabularyWord $word) => [
+            $word->id => $word->sheetData($this->wordCommonness[$word->id] ?? null, $this->courseMeaningsFa[mb_strtolower($word->word)] ?? null),
+        ])->all();
     }
 
     /**
@@ -243,10 +247,6 @@ new class extends Component
 
         $this->removed = ['type' => 'word', 'label' => $word->word, 'attributes' => $word->getAttributes()];
         $word->delete();
-
-        if ($this->sheetWordId === $wordId) {
-            $this->sheetWordId = null;
-        }
 
         unset($this->words, $this->wordGroups);
     }
@@ -697,7 +697,7 @@ new class extends Component
                         <p class="px-2 text-xs font-extrabold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Today · {{ $this->todayWords->count() }}</p>
                         <div class="divide-y divide-line rounded-3xl bg-surface px-4 dark:divide-line-dark dark:bg-surface-dark">
                             @foreach ($this->todayWords as $word)
-                                @include('components.notebook.partials.word-row', ['word' => $word, 'courseFa' => $this->courseMeaningsFa, 'statusDot' => $statusDot, 'removeButton' => $removeButton, 'show' => 'true', 'keyPrefix' => 'today'])
+                                @include('components.notebook.partials.word-row', ['word' => $word, 'courseFa' => $this->courseMeaningsFa, 'statusDot' => $statusDot, 'commonness' => $this->wordCommonness, 'removeButton' => $removeButton, 'show' => 'true', 'keyPrefix' => 'today'])
                             @endforeach
                         </div>
                     </div>
@@ -728,11 +728,11 @@ new class extends Component
                         <div x-show="isOpen('words', '{{ $key }}', {{ $first }})" @unless ($first === 'true') x-cloak @endunless class="divide-y divide-line rounded-3xl bg-surface px-4 dark:divide-line-dark dark:bg-surface-dark">
                             @foreach ($group['words'] as $word)
                                 @if ($loop->index < 4)
-                                    @include('components.notebook.partials.word-row', ['word' => $word, 'courseFa' => $this->courseMeaningsFa, 'statusDot' => $statusDot, 'removeButton' => $removeButton, 'show' => "shows('words', metas[".$loop->index."])", 'keyPrefix' => 'word'])
+                                    @include('components.notebook.partials.word-row', ['word' => $word, 'courseFa' => $this->courseMeaningsFa, 'statusDot' => $statusDot, 'commonness' => $this->wordCommonness, 'removeButton' => $removeButton, 'show' => "shows('words', metas[".$loop->index."])", 'keyPrefix' => 'word'])
                                 @else
                                     {{-- Past the first four a row is only built when "Show all" or a search/filter needs it, so a long list is not thousands of live elements. --}}
                                     <template x-if="expanded['{{ $key }}'] || filtering('words')">
-                                        @include('components.notebook.partials.word-row', ['word' => $word, 'courseFa' => $this->courseMeaningsFa, 'statusDot' => $statusDot, 'removeButton' => $removeButton, 'show' => "shows('words', metas[".$loop->index."])", 'keyPrefix' => 'word'])
+                                        @include('components.notebook.partials.word-row', ['word' => $word, 'courseFa' => $this->courseMeaningsFa, 'statusDot' => $statusDot, 'commonness' => $this->wordCommonness, 'removeButton' => $removeButton, 'show' => "shows('words', metas[".$loop->index."])", 'keyPrefix' => 'word'])
                                     </template>
                                 @endif
                             @endforeach
@@ -773,14 +773,7 @@ new class extends Component
                 <button type="button" wire:click="removeEntry({{ $entry->id }})" x-on:click="sheet = false" class="{{ $removeSheetButton }}">@svg('heroicon-o-trash', 'h-4 w-4') Remove from my {{ $entry->isMistake() ? 'mistakes' : 'tips' }}</button>
             </div>
         @endforeach
-        @if ($this->sheetWord)
-            @include('components.notebook.partials.word-sheet', ['word' => $this->sheetWord, 'courseFa' => $this->courseMeaningsFa, 'statusDot' => $statusDot, 'removeSheetButton' => $removeSheetButton])
-        @endif
-        <div x-show="typeof sheet === 'string' && sheet[0] === 'w' && $wire.sheetWordId !== Number(sheet.slice(1))" x-cloak class="animate-pulse space-y-3" aria-live="polite">
-            <div class="h-8 w-1/3 rounded bg-surface-sunken dark:bg-surface-sunken-dark"></div>
-            <div class="h-16 w-full rounded-2xl bg-surface-sunken dark:bg-surface-sunken-dark"></div>
-            <div class="h-16 w-full rounded-2xl bg-surface-sunken dark:bg-surface-sunken-dark"></div>
-        </div>
+        @include('components.notebook.partials.word-sheet', ['sheets' => $this->wordSheets, 'removeSheetButton' => $removeSheetButton])
     </x-bottom-sheet>
 
     @if ($removed)

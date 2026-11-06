@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
 use Illuminate\Support\HtmlString;
 
 #[Fillable(['learner_id', 'source_mission_run_id', 'word', 'meaning', 'meaning_fa', 'meaning_fa_previous', 'meaning_fa_checked_at', 'pos', 'example', 'user_sentence', 'ease_factor', 'interval_days', 'repetitions', 'next_review_at', 'last_reviewed_at'])]
@@ -268,6 +269,78 @@ class VocabularyWord extends Model
         }
 
         return preg_match("/^[a-z']+$/", $key) === 1 ? app(WordFrequency::class)->levelOf($key) : null;
+    }
+
+    /**
+     * How common each word is, for many words in two queries: id => level
+     * (see commonness()), with no entry for a word that has no rating.
+     *
+     * @param  Collection<int, VocabularyWord>  $words
+     * @return array<int, int>
+     */
+    public static function commonnessOf(Collection $words): array
+    {
+        $levels = [];
+        $baseOf = [];
+        $phraseKeys = $words->map(fn (self $word) => mb_strtolower(trim($word->word)))->filter(fn (string $key) => str_contains($key, ' '))->unique()->values();
+
+        if ($phraseKeys->isNotEmpty()) {
+            $forms = PhraseForm::whereIn('form', $phraseKeys)->get()->groupBy('form');
+
+            foreach ($phraseKeys as $key) {
+                $phrases = $forms->get($key)?->pluck('phrase') ?? collect();
+                $baseOf[$key] = $phrases->contains($key) ? $key : ($phrases->first() ?? $key);
+            }
+        }
+
+        // Until the commonness column is migrated the tab shows no ratings rather than failing.
+        $rated = $baseOf === [] ? collect() : rescue(fn () => DictionaryEntry::whereIn('word', array_values($baseOf))->whereNotNull('commonness')->pluck('commonness', 'word'), collect(), report: false);
+
+        foreach ($words as $word) {
+            $key = mb_strtolower(trim($word->word));
+            $level = str_contains($key, ' ')
+                ? $rated->get($baseOf[$key] ?? $key)
+                : (preg_match("/^[a-z']+$/", $key) === 1 ? app(WordFrequency::class)->levelOf($key) : null);
+
+            if ($level !== null) {
+                $levels[$word->id] = (int) $level;
+            }
+        }
+
+        return $levels;
+    }
+
+    /**
+     * What the Words tab's sheet shows for this word, as plain data the page
+     * carries for the browser to show at once when the word is tapped (no
+     * round trip to the server): the meanings, every sentence with the word
+     * cut out for picking out, and how well it is known.
+     *
+     * @return array<string, mixed>
+     */
+    public function sheetData(?int $commonness, ?string $courseMeaningFa): array
+    {
+        $mission = $this->sourceMissionRun?->mission;
+
+        return [
+            'id' => $this->id,
+            'word' => $this->word,
+            'pos' => $this->pos,
+            'fa' => $this->meaning_fa ?: $courseMeaningFa,
+            'meaning' => $this->meaning,
+            'status' => $this->studyStatus(),
+            'strength' => $this->strengthLabel(),
+            'mine' => $this->source_mission_run_id === null,
+            'mission' => $mission?->code,
+            'commonness' => $commonness,
+            'sentences' => array_map(function (array $item) {
+                $parts = $this->splitAround($item['text']);
+
+                return ['text' => $item['text'], 'source' => $item['source'], 'before' => $parts['before'] ?? $item['text'], 'hit' => $parts['hit'] ?? '', 'after' => $parts['after'] ?? ''];
+            }, $this->learningSentences()),
+            'ladder' => collect($this->ladder())->map(fn (bool $done, string $step) => ['step' => $step, 'done' => $done])->values()->all(),
+            'next' => $this->isDue() ? 'today' : $this->next_review_at->diffForHumans(),
+        ];
     }
 
     /**
