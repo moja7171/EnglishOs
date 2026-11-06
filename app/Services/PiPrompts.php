@@ -25,9 +25,10 @@ use Random\Randomizer;
  * Every prompt is self-contained — the learner's level and the rules
  * travel in it — because Pi keeps a single running conversation (no
  * separate chats per role) and a voice session may start fresh. There are
- * no rounds, no transcript and no wrap-up: the learner talks until they
- * say "stop", and the page takes their word that they did (see
- * App\Models\User::recordPiPracticeToday()).
+ * no rounds and no transcript: Pi corrects the learner's sentences as they
+ * talk and, after about ten minutes, says it is enough for today (the
+ * learner can ask to go on or say "stop" any time), and the page takes
+ * their word that they did (see App\Models\User::recordPiPracticeToday()).
  */
 class PiPrompts
 {
@@ -120,8 +121,8 @@ class PiPrompts
             'goal' => $day['goal'],
             'plan' => [
                 'Pi says hi and starts the chat',
-                'You talk freely for about '.PiPractice::MINUTES.' minutes',
-                'Say "stop" when you\'re done',
+                'You talk freely and Pi corrects your sentences',
+                'After about '.PiPractice::MINUTES.' minutes Pi says it is enough for today',
             ],
             'prompt' => $this->prompt($learner, $day, $title, $this->angle($seed)),
         ];
@@ -153,8 +154,9 @@ class PiPrompts
             ."- React to what I just said and share your own thoughts.\n"
             ."- Ask one question at most in a turn. Sometimes ask none.\n"
             ."- Never ask something I already answered, in any words. Don't go back to questions from our earlier chats.\n"
-            ."- If I make a mistake, don't stop me. Just use the correct words naturally in your reply. Explain only if I ask.\n"
-            ."- Keep going until I say \"stop\". If I say \"slower\", speak more slowly.\n\n"
+            ."- When I make a mistake, finish your reply first. Then say \"You can say:\" and the corrected sentence, once, for the most important mistake only. Don't explain unless I ask.\n"
+            .'- Watch the time: after about '.PiPractice::MINUTES.' minutes (roughly 15 of my turns), say warmly that this is enough for today, and say goodbye. If I ask to keep going, keep going. Otherwise don\'t end before that.'."\n"
+            ."- If I say \"stop\", end the chat. If I say \"slower\", speak more slowly.\n\n"
             .'Start now.';
     }
 }
