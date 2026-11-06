@@ -6,11 +6,30 @@ use App\Models\DictionaryEntry;
 use App\Models\User;
 use App\Models\VocabularyWord;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 class VocabularyWordControllerTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Gemini is only asked for the Persian in context; tests that want it say so.
+        config(['services.gemini.key' => '']);
+    }
+
+    private function fakeGeminiPersian(string $persian): void
+    {
+        config(['services.gemini.key' => 'test-key', 'services.gemini.chat_models' => ['model-a']]);
+        Http::fake([
+            'generativelanguage.googleapis.com/v1beta/models/model-a:generateContent' => Http::response([
+                'candidates' => [['content' => ['parts' => [['text' => json_encode(['items' => [['id' => '1', 'persian' => $persian]]])]]]]],
+            ]),
+        ]);
+    }
 
     public function test_a_guest_is_sent_to_the_login_page(): void
     {
@@ -41,6 +60,57 @@ class VocabularyWordControllerTest extends TestCase
         $this->assertSame('verb', $word->pos);
         $this->assertSame('I sleep eight hours.', $word->example);
         $this->assertSame(now()->addDay()->toDateTimeString(), $word->next_review_at->toDateTimeString());
+    }
+
+    public function test_the_persian_meaning_is_the_one_that_fits_the_chosen_meaning_and_sentence(): void
+    {
+        DictionaryEntry::factory()->create(['word' => 'bank', 'translation_fa' => 'بانک']);
+        $this->fakeGeminiPersian('ساحل');
+        $learner = User::factory()->create();
+
+        $this->actingAs($learner)
+            ->postJson(route('vocabulary.store'), [
+                'word' => 'bank',
+                'meaning' => 'the land beside a river',
+                'pos' => 'noun',
+                'example' => 'We sat on the bank of the river.',
+            ])
+            ->assertCreated();
+
+        $this->assertSame('ساحل', $learner->vocabularyWords()->sole()->meaning_fa);
+        Http::assertSent(fn ($request) => str_contains(json_encode($request->data(), JSON_UNESCAPED_UNICODE), 'We sat on the bank of the river.'));
+    }
+
+    public function test_the_dictionary_persian_stays_when_gemini_cannot_be_asked(): void
+    {
+        DictionaryEntry::factory()->create(['word' => 'bank', 'translation_fa' => 'بانک']);
+        $learner = User::factory()->create();
+
+        $this->actingAs($learner)
+            ->postJson(route('vocabulary.store'), ['word' => 'bank', 'meaning' => 'a place for money', 'example' => 'I go to the bank.'])
+            ->assertCreated();
+
+        $this->assertSame('بانک', $learner->vocabularyWords()->sole()->meaning_fa);
+    }
+
+    public function test_a_word_the_learner_already_has_keeps_its_persian(): void
+    {
+        $this->fakeGeminiPersian('ساحل');
+        $learner = User::factory()->create();
+        VocabularyWord::create([
+            'learner_id' => $learner->id,
+            'word' => 'bank',
+            'meaning' => 'a place for money',
+            'meaning_fa' => 'بانک',
+            'next_review_at' => now()->addDay(),
+        ]);
+
+        $this->actingAs($learner)
+            ->postJson(route('vocabulary.store'), ['word' => 'bank', 'meaning' => 'the land beside a river'])
+            ->assertOk();
+
+        $this->assertSame('بانک', $learner->vocabularyWords()->sole()->meaning_fa);
+        Http::assertNothingSent();
     }
 
     public function test_the_persian_meaning_comes_from_the_dictionary_not_from_the_request(): void

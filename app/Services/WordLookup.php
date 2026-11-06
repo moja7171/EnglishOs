@@ -41,6 +41,9 @@ class WordLookup
     /** How long a missing Persian translation waits before the next tap asks again. */
     private const TRANSLATION_RETRY_SECONDS = 600;
 
+    /** How long a failed Persian-meanings request waits before the sheet's "Try again" can ask Gemini once more. */
+    private const PERSIAN_RETRY_SECONDS = 30;
+
     public function __construct(
         private readonly WiktionaryClient $dictionary,
         private readonly MyMemoryClient $translator,
@@ -141,7 +144,7 @@ class WordLookup
      * first answer has been shown, so the tap itself stays fast, and kept
      * for every learner like the rest of the entry. Returns the entry
      * unchanged when it already has them or Gemini cannot be asked — a
-     * failure is not retried for a few minutes, so a quota that ran out is
+     * failure is not retried for half a minute, so a quota that ran out is
      * not hammered by every tap.
      */
     public function improvePersian(DictionaryEntry $entry): DictionaryEntry
@@ -150,12 +153,12 @@ class WordLookup
             return $entry;
         }
 
-        if (! Cache::add("dictionary-entry-persian-retry:{$entry->word}", true, self::TRANSLATION_RETRY_SECONDS)) {
+        if (! Cache::add("dictionary-entry-persian-retry:{$entry->word}", true, self::PERSIAN_RETRY_SECONDS)) {
             return $entry;
         }
 
-        $source = 'wiktionary';
         $senses = $this->glossary->senses($entry->word, $entry->meanings);
+        $source = $senses[0]['source'] ?? 'wiktionary';
 
         if ($senses === []) {
             $source = 'gemini';
@@ -175,6 +178,95 @@ class WordLookup
         }
 
         return $entry;
+    }
+
+    /**
+     * How common a phrase the dictionary lists is (WordFrequency::RARE to
+     * VERY_COMMON): rated by Gemini once and kept on the entry, asked again
+     * no sooner than ten minutes after a failure. Single words are read from
+     * the frequency list instead (DictionaryEntry::knownCommonness()). null
+     * for a phrase that could not be rated yet, or one the dictionary does
+     * not list.
+     */
+    public function ratePhrase(DictionaryEntry $entry): ?int
+    {
+        if ($entry->commonness !== null) {
+            return $entry->commonness;
+        }
+
+        if (! $entry->exists || ! self::isPhrase($entry->word) || $entry->isTranslationOnly()
+            || ! Cache::add("dictionary-entry-commonness-retry:{$entry->word}", true, self::TRANSLATION_RETRY_SECONDS)) {
+            return null;
+        }
+
+        try {
+            $level = $this->gemini->commonness($entry->word);
+        } catch (Throwable $exception) {
+            Log::warning("Commonness failed for \"{$entry->word}\": {$exception->getMessage()}");
+
+            return null;
+        }
+
+        if ($level !== null) {
+            $entry->update(['commonness' => $level]);
+        }
+
+        return $level;
+    }
+
+    /**
+     * The Persian of $word in the meaning and sentence a learner met it in
+     * (Gemini). The dictionary's own Persian is for the word in general —
+     * the first sense, often word for word — so this is what a word added
+     * to My Words keeps. Null when there is neither a meaning nor a
+     * sentence to go by, or when Gemini cannot be asked.
+     */
+    public function persianInContext(string $word, ?string $meaning, ?string $pos, ?string $sentence): ?string
+    {
+        if (blank($meaning) && blank($sentence)) {
+            return null;
+        }
+
+        try {
+            return $this->gemini->persianInContext([[
+                'id' => 1,
+                'word' => $word,
+                'meaning' => $meaning,
+                'pos' => $pos,
+                'sentence' => $sentence,
+            ]])['1'] ?? null;
+        } catch (Throwable $exception) {
+            Log::warning("In-context Persian failed for \"{$word}\": {$exception->getMessage()}");
+
+            return null;
+        }
+    }
+
+    /**
+     * The Persian of one English meaning of $word, for the sheet's line
+     * when the learner picks another meaning. The same for every learner,
+     * so it is kept for a month; a failure is not retried for a minute.
+     */
+    public function persianForMeaning(string $word, string $meaning, ?string $pos): ?string
+    {
+        $key = 'dictionary-meaning-persian:'.sha1($word.'|'.$meaning);
+
+        if (is_string($kept = Cache::get($key))) {
+            return $kept;
+        }
+
+        if (! Cache::add("{$key}:asked", true, 60)) {
+            return null;
+        }
+
+        $persian = $this->persianInContext($word, $meaning, $pos, null);
+
+        if ($persian !== null) {
+            Cache::put($key, $persian, now()->addDays(30));
+            Cache::forget("{$key}:asked");
+        }
+
+        return $persian;
     }
 
     /**
@@ -252,7 +344,7 @@ class WordLookup
             'meanings' => $definition['meanings'] ?? [],
             'translation_fa' => $senses !== [] ? $senses[0]['words'] : $translation,
             'persian_senses' => $senses ?: null,
-            'persian_source' => $senses !== [] ? 'wiktionary' : ($translation !== null ? $translationSource : null),
+            'persian_source' => $senses !== [] ? ($senses[0]['source'] ?? 'wiktionary') : ($translation !== null ? $translationSource : null),
         ];
 
         return $dictionaryAnswered

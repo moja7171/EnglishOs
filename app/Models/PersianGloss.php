@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Model;
  *
  * @property list<string> $words
  */
-#[Fillable(['word', 'pos', 'words'])]
+#[Fillable(['word', 'pos', 'words', 'source'])]
 class PersianGloss extends Model
 {
     use HasFactory;

@@ -11,8 +11,8 @@ use Illuminate\Http\Request;
 /**
  * The second step of a tap on a word: once the sheet has shown the quick
  * answer, it asks for the better Persian meanings (one line per part of
- * speech). Separate from the lookup so the first answer never waits for
- * Gemini.
+ * speech), and for a phrase its commonness. Separate from the lookup so the
+ * first answer never waits for Gemini.
  */
 class DictionaryPersianController extends Controller
 {
@@ -26,8 +26,9 @@ class DictionaryPersianController extends Controller
         }
 
         $entry = $lookup->improvePersian($entry);
+        $rated = $lookup->ratePhrase($entry) !== null;
 
-        if ($entry->persian_senses === null) {
+        if ($entry->persian_senses === null && ! $rated) {
             return response()->json(['message' => 'No better Persian meaning right now.'], 503);
         }
 

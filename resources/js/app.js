@@ -1765,6 +1765,9 @@ document.addEventListener('alpine:init', () => {
         chosen: 0,
         showOthers: false,
         improving: false,
+        persianFailed: false,
+        meaningPersian: null,
+        meaningLoading: false,
         pausedMedia: [],
         ticket: 0,
 
@@ -1818,8 +1821,12 @@ document.addEventListener('alpine:init', () => {
             return from === this.from && to === this.to ? null : this.suggestion;
         },
 
-        /** The Persian lines to show: one per part of speech once Gemini has answered, else the quick translation. */
+        /** The Persian lines to show: the picked meaning's own Persian, else one per part of speech once Gemini has answered, else the quick translation. */
         get persianLines() {
+            if (this.chosen !== 0 && this.meaningPersian) {
+                return [{ label: '', words: this.meaningPersian }];
+            }
+
             if (this.entry?.persian_senses?.length) {
                 return this.entry.persian_senses.map((line) => ({
                     label: this.entry.persian_senses.length > 1 ? (this.persianPos[line.pos] ?? '') : '',
@@ -1828,6 +1835,13 @@ document.addEventListener('alpine:init', () => {
             }
 
             return this.entry?.translation_fa ? [{ label: '', words: this.entry.translation_fa }] : [];
+        },
+
+        /** The commonness line: dots filled and words, or null while there is no rating. */
+        get commonnessLine() {
+            const level = this.entry?.commonness;
+
+            return level ? { dots: level, text: ['Less common', 'Common', 'Very common'][level - 1] } : null;
         },
 
         persianPos: {
@@ -1841,6 +1855,40 @@ document.addEventListener('alpine:init', () => {
             interjection: 'شبه‌جمله',
             determiner: 'حرف تعریف',
             phrase: 'عبارت',
+        },
+
+        /**
+         * A pick from the other meanings: the Persian line above follows it
+         * (asked once per meaning, kept on the server). While it is on its way,
+         * or if it never comes, the line stays the word's general Persian.
+         */
+        async pickMeaning(index) {
+            this.chosen = index;
+            this.showOthers = false;
+            this.meaningPersian = null;
+
+            const sense = this.senses[index];
+
+            if (index === 0 || !sense) return;
+
+            const ticket = this.ticket;
+            this.meaningLoading = true;
+
+            try {
+                const params = new URLSearchParams({ word: this.word, meaning: sense.definition, pos: sense.pos ?? '' });
+                const response = await fetch(`${urls.meaning}?${params}`, {
+                    headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                    credentials: 'same-origin',
+                });
+
+                if (!response.ok || ticket !== this.ticket || this.chosen !== index) return;
+
+                this.meaningPersian = (await response.json()).data.translation_fa;
+            } catch (error) {
+                // Keep the general Persian.
+            } finally {
+                if (ticket === this.ticket && this.chosen === index) this.meaningLoading = false;
+            }
         },
 
         firstClause(text) {
@@ -1937,6 +1985,9 @@ document.addEventListener('alpine:init', () => {
             this.failed = false;
             this.addFailed = false;
             this.chosen = 0;
+            this.meaningPersian = null;
+            this.meaningLoading = false;
+            this.persianFailed = false;
             this.showOthers = false;
             this.loading = true;
             this.markSelection(range);
@@ -1960,7 +2011,8 @@ document.addEventListener('alpine:init', () => {
                     this.suggestion = json.phrase ?? null;
                 }
 
-                if (json.data.english_status !== 'unavailable' && ! json.data.persian_senses && ! json.data.translation_only) {
+                if (json.data.english_status !== 'unavailable' && ! json.data.translation_only
+                    && (! json.data.persian_senses || (json.data.commonness === null && json.data.word.includes(' ')))) {
                     this.improvePersian(ticket);
                 }
             } catch (error) {
@@ -1977,6 +2029,7 @@ document.addEventListener('alpine:init', () => {
          */
         async improvePersian(ticket) {
             this.improving = true;
+            this.persianFailed = false;
 
             try {
                 const response = await fetch(`${urls.persian}?word=${encodeURIComponent(this.word)}`, {
@@ -1984,11 +2037,18 @@ document.addEventListener('alpine:init', () => {
                     credentials: 'same-origin',
                 });
 
-                if (! response.ok || ticket !== this.ticket) return;
+                if (ticket !== this.ticket) return;
+
+                if (! response.ok) {
+                    this.persianFailed = true;
+
+                    return;
+                }
 
                 this.entry = (await response.json()).data;
             } catch (error) {
-                // Keep the quick translation.
+                // Keep the quick translation; with none, the sheet says so and offers a retry.
+                if (ticket === this.ticket) this.persianFailed = true;
             } finally {
                 if (ticket === this.ticket) this.improving = false;
             }

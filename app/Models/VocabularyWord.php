@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\HtmlString;
 
-#[Fillable(['learner_id', 'source_mission_run_id', 'word', 'meaning', 'meaning_fa', 'pos', 'example', 'user_sentence', 'ease_factor', 'interval_days', 'repetitions', 'next_review_at', 'last_reviewed_at'])]
+#[Fillable(['learner_id', 'source_mission_run_id', 'word', 'meaning', 'meaning_fa', 'meaning_fa_previous', 'meaning_fa_checked_at', 'pos', 'example', 'user_sentence', 'ease_factor', 'interval_days', 'repetitions', 'next_review_at', 'last_reviewed_at'])]
 class VocabularyWord extends Model
 {
     use HasFactory;
@@ -35,6 +35,7 @@ class VocabularyWord extends Model
     {
         return [
             'ease_factor' => 'float',
+            'meaning_fa_checked_at' => 'datetime',
             'next_review_at' => 'datetime',
             'last_reviewed_at' => 'datetime',
         ];

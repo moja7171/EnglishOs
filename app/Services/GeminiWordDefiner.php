@@ -122,6 +122,151 @@ class GeminiWordDefiner
         return preg_match('/\p{Arabic}/u', $translation) === 1 ? mb_substr($translation, 0, 120) : null;
     }
 
+    /**
+     * The Persian a word or phrase has in the meaning and sentence it was
+     * met in — one short line per item, the way an educated Persian speaker
+     * would say it, not word by word. Several items go in one call (the
+     * command that corrects words saved before this existed sends twenty at
+     * a time). An item Gemini leaves out, or answers without Persian
+     * letters, is missing from the result.
+     *
+     * @param  list<array{id: int|string, word: string, meaning: ?string, pos: ?string, sentence: ?string}>  $items
+     * @return array<string, string> the Persian of each item, by the id it was sent with
+     *
+     * @throws RuntimeException when Gemini cannot be reached or answers with something that is not the agreed JSON
+     */
+    public function persianInContext(array $items): array
+    {
+        $lines = collect($items)->map(fn (array $item) => json_encode(array_filter([
+            'id' => (string) $item['id'],
+            'word' => $item['word'],
+            'part_of_speech' => $item['pos'] ?? null,
+            'english_meaning' => $item['meaning'] ?? null,
+            'sentence' => $item['sentence'] ?? null,
+        ], filled(...)), JSON_UNESCAPED_UNICODE))->implode("\n");
+
+        $raw = $this->gemini->chat(
+            [['role' => 'user', 'text' => $lines]],
+            systemPrompt: 'You translate English words and phrases into natural Persian for Persian-speaking English learners at A2-B1 level. '
+                .'Each line the user sends is one JSON object: an English "word" (or phrase), usually its "english_meaning" and '
+                .'"part_of_speech", and the "sentence" the learner met it in. Give the Persian of the word as it is used in THAT '
+                .'meaning and sentence: one or two common equivalents, separated by "، ", the way an educated Persian speaker '
+                .'would say it. Never word by word, never a transliteration, no explanation, no English. '
+                .'Reply with ONLY valid JSON, no markdown fences, shaped exactly like: {"items": [{"id": "...", "persian": "..."}]}, '
+                .'one entry per line, with the same "id". If a line is not English, leave its entry out.',
+        );
+
+        $data = json_decode($this->withoutCodeFence($raw), true);
+
+        if (! is_array($data) || ! is_array($data['items'] ?? null)) {
+            throw new RuntimeException('Unexpected in-context Persian format from Gemini.');
+        }
+
+        $asked = collect($items)->pluck('id')->map(fn ($id) => (string) $id)->all();
+
+        return collect($data['items'])
+            ->filter(fn ($item) => is_array($item) && in_array((string) ($item['id'] ?? ''), $asked, true)
+                && is_string($item['persian'] ?? null) && preg_match('/\p{Arabic}/u', $item['persian']) === 1)
+            ->mapWithKeys(fn (array $item) => [(string) $item['id'] => mb_substr(trim($item['persian']), 0, 120)])
+            ->all();
+    }
+
+    /**
+     * The Persian of many English words or phrases at once, for each part
+     * of speech it can be — what the offline dictionary lacks (see the
+     * dictionary:fill-persian command). A word Gemini leaves out (a name, an
+     * inflected form, not English) is missing from the result.
+     *
+     * @param  list<string>  $words
+     * @return array<string, list<array{pos: string, words: list<string>}>>
+     *
+     * @throws RuntimeException when Gemini cannot be reached or answers with something that is not the agreed JSON
+     */
+    public function persianGlosses(array $words): array
+    {
+        $raw = $this->gemini->chat(
+            [['role' => 'user', 'text' => implode("\n", $words)]],
+            systemPrompt: 'You build an English -> Persian learner dictionary. The user sends English words or phrases, one per line. '
+                .'For each one that is a base-form English word or a fixed phrase (a phrasal verb, an idiom), give its Persian '
+                .'equivalents for each part of speech it commonly has (at most 3 parts of speech): the everyday words an educated '
+                .'Persian speaker would use, most common first, at most 3 per part of speech, in Persian script — never a '
+                .'transliteration, never an explanation. Leave a line out when it is a person\'s or place name, an inflected form '
+                .'(a plural, a past tense, an -ing form), a contraction, or not English. Reply with ONLY valid JSON, no markdown '
+                .'fences, shaped exactly like: {"entries": [{"word": "boost", "senses": [{"pos": "verb", "fa": ["افزایش دادن", "تقویت کردن"]}]}]}. '
+                .'"pos" is one of: noun, verb, adjective, adverb, pronoun, preposition, conjunction, interjection, determiner, numeral, phrase.',
+        );
+
+        $data = json_decode($this->withoutCodeFence($raw), true);
+
+        if (! is_array($data) || ! is_array($data['entries'] ?? null)) {
+            throw new RuntimeException('Unexpected Persian-glosses format from Gemini.');
+        }
+
+        $asked = array_flip($words);
+        $positions = ['noun', 'verb', 'adjective', 'adverb', 'pronoun', 'preposition', 'conjunction', 'interjection', 'determiner', 'numeral', 'phrase'];
+        $glosses = [];
+
+        foreach ($data['entries'] as $entry) {
+            $word = is_array($entry) && is_string($entry['word'] ?? null) ? mb_strtolower(trim($entry['word'])) : null;
+
+            if ($word === null || ! isset($asked[$word]) || ! is_array($entry['senses'] ?? null)) {
+                continue;
+            }
+
+            $senses = collect($entry['senses'])
+                ->filter(fn ($sense) => is_array($sense) && in_array($sense['pos'] ?? null, $positions, true) && is_array($sense['fa'] ?? null))
+                ->map(fn (array $sense) => [
+                    'pos' => $sense['pos'],
+                    'words' => collect($sense['fa'])
+                        ->filter(fn ($fa) => is_string($fa) && preg_match('/\p{Arabic}/u', $fa) === 1)
+                        ->map(fn (string $fa) => mb_substr(trim($fa), 0, 60))
+                        ->unique()
+                        ->take(3)
+                        ->values()
+                        ->all(),
+                ])
+                ->filter(fn (array $sense) => $sense['words'] !== [])
+                ->unique('pos')
+                ->take(3)
+                ->values()
+                ->all();
+
+            if ($senses !== []) {
+                $glosses[$word] = $senses;
+            }
+        }
+
+        return $glosses;
+    }
+
+    /**
+     * How common an English phrase is for a learner: 3 = heard every day,
+     * 2 = common, 1 = uncommon (formal, old, specialist). null when Gemini
+     * does not give one of those. Single words are rated from a frequency
+     * list instead (see WordFrequency).
+     *
+     * @throws RuntimeException when Gemini cannot be reached or answers with something that is not the agreed JSON
+     */
+    public function commonness(string $phrase): ?int
+    {
+        $raw = $this->gemini->chat(
+            [['role' => 'user', 'text' => $phrase]],
+            systemPrompt: 'You rate how common an English phrase (a phrasal verb, an idiom, a fixed expression) is in everyday '
+                .'spoken and written English, for a learner. The user sends one phrase. Reply with ONLY valid JSON, no markdown '
+                .'fences, shaped exactly like: {"commonness": 3}. 3 = very common, a native speaker says or hears it in '
+                .'ordinary days ("give up", "look for"); 2 = common but not every day ("put up with"); 1 = uncommon: formal, '
+                .'old-fashioned, literary or specialist ("bring to bear"). If the text is not an English phrase, reply {"commonness": null}.',
+        );
+
+        $data = json_decode($this->withoutCodeFence($raw), true);
+
+        if (! is_array($data) || ! array_key_exists('commonness', $data)) {
+            throw new RuntimeException('Unexpected commonness format from Gemini.');
+        }
+
+        return in_array($data['commonness'], [1, 2, 3], true) ? $data['commonness'] : null;
+    }
+
     private function systemPrompt(): string
     {
         return 'You are a learner\'s dictionary for English learners at A2-B1 level whose first language is Persian. '

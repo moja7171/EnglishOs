@@ -19,7 +19,7 @@
     behind it (see Alpine directive 'back-close').
 --}}
 <div
-    x-data="dictionarySheet({ lookup: @js(route('dictionary.lookup')), persian: @js(route('dictionary.persian')), store: @js(route('vocabulary.store')) })"
+    x-data="dictionarySheet({ lookup: @js(route('dictionary.lookup')), persian: @js(route('dictionary.persian')), meaning: @js(route('dictionary.meaning')), store: @js(route('vocabulary.store')) })"
     x-on:eos-lookup.window="show($event.detail)"
     x-on:keydown.escape.window.capture="if (isOpen) { $event.stopPropagation(); close() }"
     x-back-close="{ open: isOpen, close: () => close() }"
@@ -128,7 +128,7 @@
                         x-show="persianLines.length"
                         dir="rtl"
                         class="font-fa space-y-1 rounded-xl bg-accent-soft px-4 py-3 text-accent-ink transition-opacity dark:bg-accent-soft-dark dark:text-accent-ink-dark"
-                        x-bind:class="improving ? 'opacity-70' : ''"
+                        x-bind:class="improving || meaningLoading ? 'opacity-70' : ''"
                     >
                         <template x-for="(line, index) in persianLines" :key="index">
                             <p class="text-2xl font-extrabold">
@@ -137,6 +137,24 @@
                             </p>
                         </template>
                     </div>
+
+                    <div x-show="persianFailed && ! improving && ! persianLines.length && ! entry.translation_only" x-cloak class="flex items-center gap-2 rounded-xl bg-warning-soft p-3 text-sm text-warning-ink" role="status">
+                        <p class="min-w-0 flex-1">Persian is not available right now.</p>
+                        <button
+                            type="button"
+                            x-on:click="improvePersian(ticket)"
+                            class="shrink-0 cursor-pointer rounded-full border border-current px-3 py-1 text-xs font-semibold transition-colors hover:bg-white/60"
+                        >Try again</button>
+                    </div>
+
+                    <p x-show="commonnessLine" x-cloak class="-mt-2 flex items-center gap-1.5 text-xs text-ink-soft dark:text-ink-soft-dark">
+                        <span class="flex gap-0.5" aria-hidden="true">
+                            <template x-for="dot in 3" :key="dot">
+                                <span class="h-1.5 w-1.5 rounded-full" x-bind:class="dot <= commonnessLine?.dots ? 'bg-accent dark:bg-accent-dark' : 'bg-line dark:bg-line-dark'"></span>
+                            </template>
+                        </span>
+                        <span x-text="commonnessLine?.text"></span>
+                    </p>
 
                     <p x-show="entry.persian_source === 'wiktionary'" class="-mt-2 flex items-center gap-1 text-[11px] text-ink-faint dark:text-ink-faint-dark" title="Persian: Wiktionary (CC BY-SA)">@svg('heroicon-o-information-circle', 'h-3.5 w-3.5')<span class="sr-only">Persian: Wiktionary (CC BY-SA)</span></p>
 
@@ -178,7 +196,7 @@
                                 <button
                                     type="button"
                                     x-show="index !== chosen"
-                                    x-on:click="chosen = index; showOthers = false"
+                                    x-on:click="pickMeaning(index)"
                                     class="block w-full cursor-pointer rounded-xl border border-line p-2.5 text-left transition-colors hover:border-ink-faint dark:border-line-dark"
                                 >
                                     <span class="text-[11px] font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark" x-text="sense.pos"></span>
