@@ -51,8 +51,11 @@ class PiPromptsTest extends TestCase
             $this->assertStringContainsString('The chat can go anywhere.', $task['prompt']);
             $this->assertStringContainsString('Ask one question at most in a turn. Sometimes ask none.', $task['prompt']);
             $this->assertStringContainsString('Never ask something I already answered', $task['prompt']);
-            $this->assertStringContainsString('use the correct words naturally', $task['prompt']);
-            $this->assertStringContainsString('Keep going until I say "stop"', $task['prompt']);
+            $this->assertStringContainsString('say "You can say:" and the corrected sentence', $task['prompt']);
+            $this->assertStringContainsString('after about 10 minutes', $task['prompt']);
+            $this->assertStringContainsString('this is enough for today', $task['prompt']);
+            $this->assertStringContainsString('If I ask to keep going, keep going.', $task['prompt']);
+            $this->assertStringContainsString('If I say "stop", end the chat.', $task['prompt']);
             $this->assertStringNotContainsString('Round', $task['prompt']);
             $this->assertStringNotContainsString('transcript', $task['prompt']);
             $this->assertCount(3, $task['plan']);

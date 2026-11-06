@@ -369,14 +369,14 @@ new class extends Component
             </button>
         @endif
 
-        {{-- Tara always, then who practised today with a green ring. --}}
+        {{-- Teddy always, then who practised today with a green ring. --}}
         <div class="-mx-4 flex gap-3 overflow-x-auto px-4 pt-2 pb-1" aria-label="Today">
-            <a href="{{ route('friends.tara') }}" wire:navigate class="flex w-14 shrink-0 flex-col items-center gap-1 text-[11px] font-bold text-ink-soft dark:text-ink-soft-dark">
+            <a href="{{ route('friends.teddy') }}" wire:navigate class="flex w-14 shrink-0 flex-col items-center gap-1 text-[11px] font-bold text-ink-soft dark:text-ink-soft-dark">
                 <span class="relative rounded-full ring-[2.5px] ring-accent ring-offset-2 ring-offset-ground dark:ring-accent-dark dark:ring-offset-ground-dark">
-                    <x-tara-avatar class="h-12 w-12" />
+                    <x-teddy-avatar class="h-12 w-12" />
                     <span class="absolute -right-1 -bottom-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-accent text-white dark:bg-accent-dark">@svg('heroicon-s-sparkles', 'h-3 w-3')</span>
                 </span>
-                <span class="w-full truncate text-center">Tara</span>
+                <span class="w-full truncate text-center">Teddy</span>
             </a>
             @foreach ($activeToday as $row)
                 <a href="{{ route('friends.conversation', $row['friend']) }}" wire:navigate wire:key="today-{{ $row['friend']->id }}" class="flex w-14 shrink-0 flex-col items-center gap-1 text-[11px] font-bold text-ink-soft dark:text-ink-soft-dark">

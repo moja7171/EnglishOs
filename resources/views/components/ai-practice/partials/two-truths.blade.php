@@ -1,6 +1,6 @@
 {{--
-    Two Truths with Tara. On the learner's turn they mark their lie, say
-    three things aloud and she guesses. On her turn she says three things,
+    Two Truths with Teddy. On the learner's turn they mark their lie, say
+    three things aloud and he guesses. On his turn he says three things,
     the learner may ask two questions, then picks the lie. Needs $practice,
     $card, $current.
 --}}
@@ -23,8 +23,8 @@
         </div>
     @else
         <div class="flex items-center gap-2 bg-surface-sunken px-5 py-3 dark:bg-surface-sunken-dark">
-            <x-tara-avatar class="h-6 w-6" />
-            <p class="text-sm font-bold text-ink dark:text-ink-dark">TARA’S TURN <span class="font-semibold text-ink-soft dark:text-ink-soft-dark">— find her lie</span></p>
+            <x-teddy-avatar class="h-6 w-6" />
+            <p class="text-sm font-bold text-ink dark:text-ink-dark">TEDDY’S TURN <span class="font-semibold text-ink-soft dark:text-ink-soft-dark">— find his lie</span></p>
         </div>
     @endif
 
@@ -58,14 +58,14 @@
                 <p class="text-xs font-semibold text-ink-soft dark:text-ink-soft-dark">I heard</p>
                 <p class="text-sm font-semibold text-ink dark:text-ink-dark">{{ $heard }}</p>
             </div>
-            <div wire:key="tara-guess-{{ $practice->position }}" x-data x-init="window.eosVoice?.speak(@js($current['line']))" class="rounded-xl bg-surface-sunken p-3 dark:bg-surface-sunken-dark">
+            <div wire:key="teddy-guess-{{ $practice->position }}" x-data x-init="window.eosVoice?.speak(@js($current['line']))" class="rounded-xl bg-surface-sunken p-3 dark:bg-surface-sunken-dark">
                 <p class="text-base font-bold text-ink dark:text-ink-dark">{{ $current['line'] }}</p>
                 <div class="mt-2"><x-speak-button :text="$current['line']" /></div>
             </div>
-            <p class="font-display text-xl font-extrabold text-ink dark:text-ink-dark">{{ $current['pick'] === $lie ? 'Tara found it!' : 'You tricked Tara!' }}</p>
+            <p class="font-display text-xl font-extrabold text-ink dark:text-ink-dark">{{ $current['pick'] === $lie ? 'Teddy found it!' : 'You tricked Teddy!' }}</p>
             <p class="text-sm font-semibold text-ink-soft dark:text-ink-soft-dark">Your lie: number {{ $lie }}</p>
         @elseif ($statements !== null)
-            <div wire:key="tara-three-{{ $practice->position }}" x-data x-init="window.eosVoice?.speak(@js(implode(' ', $statements)))" class="space-y-2">
+            <div wire:key="teddy-three-{{ $practice->position }}" x-data x-init="window.eosVoice?.speak(@js(implode(' ', $statements)))" class="space-y-2">
                 @foreach ($statements as $index => $statement)
                     @php $number = $index + 1; @endphp
                     <button type="button" wire:key="statement-{{ $number }}" wire:click="pickLie({{ $number }})" wire:loading.attr="disabled" wire:target="pickLie" @disabled($picked !== null) @class([
@@ -87,7 +87,7 @@
             @if ($picked === null)
                 <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">Tap the lie</p>
             @else
-                <p class="font-display text-xl font-extrabold text-ink dark:text-ink-dark">{{ $picked === $lie ? 'You found it!' : 'Tara tricked you!' }}</p>
+                <p class="font-display text-xl font-extrabold text-ink dark:text-ink-dark">{{ $picked === $lie ? 'You found it!' : 'Teddy tricked you!' }}</p>
             @endif
 
             @foreach ($asked as $row)
@@ -97,11 +97,11 @@
                 </div>
             @endforeach
             @if (filled($asked))
-                <div wire:key="tara-answers-{{ count($asked) }}" x-data x-init="window.eosVoice?.speak(@js(collect($asked)->last()['a']))"></div>
+                <div wire:key="teddy-answers-{{ count($asked) }}" x-data x-init="window.eosVoice?.speak(@js(collect($asked)->last()['a']))"></div>
             @endif
 
             @if ($picked === null && count($asked) < App\Models\AiPractice::TRUTHS_QUESTIONS)
-                <p class="text-sm font-semibold text-ink-soft dark:text-ink-soft-dark">Ask Tara a question first?</p>
+                <p class="text-sm font-semibold text-ink-soft dark:text-ink-soft-dark">Ask Teddy a question first?</p>
                 <div wire:key="truths-recorder-{{ $practice->position }}-{{ count($asked) }}" class="flex flex-col items-center gap-2">
                     <x-voice-recorder big field="audioFile" :file="$audioFile" on-recorded="submitAnswer" file-name="answer.webm" />
                     <p wire:loading wire:target="submitAnswer" class="text-sm font-semibold text-ink-soft dark:text-ink-soft-dark">Listening…</p>

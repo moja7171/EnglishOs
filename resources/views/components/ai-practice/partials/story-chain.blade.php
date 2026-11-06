@@ -1,6 +1,6 @@
 {{--
-    Story Chain with Tara. The learner records a line with their word and she
-    goes on at once; her last line ends the story. Skip lets her go on alone.
+    Story Chain with Teddy. The learner records a line with their word and he
+    goes on at once; his last line ends the story. Skip lets him go on alone.
     Needs $practice, $card, $current.
 --}}
 @php
@@ -26,15 +26,15 @@
             <div wire:key="line-{{ $loop->index }}" @class([
                 'rounded-xl p-3 text-sm font-semibold text-ink dark:text-ink-dark',
                 'ms-6 bg-success-soft dark:bg-success-soft-dark' => $line['who'] === 'you',
-                'me-6 bg-surface-sunken dark:bg-surface-sunken-dark' => $line['who'] === 'tara',
+                'me-6 bg-surface-sunken dark:bg-surface-sunken-dark' => $line['who'] !== 'you',
             ])>
-                <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">{{ $line['who'] === 'you' ? 'You' : 'Tara' }}</p>
+                <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">{{ $line['who'] === 'you' ? 'You' : 'Teddy' }}</p>
                 {{ $line['text'] }}
             </div>
         @endforeach
 
         @if ($lastLine)
-            <div wire:key="tara-tells-{{ count($lines) }}" x-data x-init="window.eosVoice?.speak(@js($lastLine['text']))" class="text-center"><x-speak-button :text="$lastLine['text']" /></div>
+            <div wire:key="teddy-tells-{{ count($lines) }}" x-data x-init="window.eosVoice?.speak(@js($lastLine['text']))" class="text-center"><x-speak-button :text="$lastLine['text']" /></div>
         @endif
 
         @unless ($ended)

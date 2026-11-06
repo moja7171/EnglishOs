@@ -8,16 +8,16 @@ use Illuminate\Support\Arr;
 use RuntimeException;
 
 /**
- * Tara, the AI classmate: what she says in a game. She talks like a
+ * Teddy, the AI classmate: what he says in a game. He talks like a
  * student at the learner's own level, in short, correct sentences, and
  * never teaches. Card answers need no AI: they are the deck's own
- * sentences. Her made-up life is the same in every game.
+ * sentences. His made-up life is the same in every game.
  */
 class AiPartner
 {
-    public const NAME = 'Tara';
+    public const NAME = 'Teddy';
 
-    private const PERSONA = 'You are Tara, a cheerful, talkative young woman who loves travel and food. You live in Shiraz with your parents '
+    private const PERSONA = 'You are Teddy, a cheerful, talkative young man who loves travel and food. You live in Shiraz with your parents '
         .'and your little brother, you work part-time at a small travel agency, and you are learning English too.';
 
     public function __construct(private readonly GeminiClient $gemini) {}
@@ -82,7 +82,7 @@ class AiPartner
     }
 
     /**
-     * Just a Minute, Tara's turn: her short talk on the topic, in her own
+     * Just a Minute, Teddy's turn: his short talk on the topic, in his own
      * life, using the card's words.
      *
      * @param  list<string>  $words
@@ -112,8 +112,8 @@ class AiPartner
     }
 
     /**
-     * Just a Minute, Tara's turn: her answer to the learner's question
-     * about her talk.
+     * Just a Minute, Teddy's turn: his answer to the learner's question
+     * about his talk.
      */
     public function replyToQuestion(string $talk, string $question, string $learnerDescription): string
     {
@@ -126,8 +126,8 @@ class AiPartner
     }
 
     /**
-     * Story Chain: Tara's next line of the story told so far, with her
-     * word in it. Her last line ends the story.
+     * Story Chain: Teddy's next line of the story told so far, with his
+     * word in it. His last line ends the story.
      */
     public function continueStory(string $story, string $word, bool $endsTheStory, string $learnerDescription): string
     {
@@ -141,7 +141,7 @@ class AiPartner
     }
 
     /**
-     * Two Truths, Tara's turn: three things about her made-up life, one
+     * Two Truths, Teddy's turn: three things about his made-up life, one
      * of them a lie. Their order is shuffled here: models keep putting the
      * lie in the same place.
      *
@@ -172,7 +172,7 @@ class AiPartner
     }
 
     /**
-     * Two Truths, Tara's turn: her answer to the learner's question, which
+     * Two Truths, Teddy's turn: his answer to the learner's question, which
      * keeps the lie safe.
      *
      * @param  list<string>  $statements
@@ -188,7 +188,7 @@ class AiPartner
     }
 
     /**
-     * Two Truths, the learner's turn: which of their three things Tara
+     * Two Truths, the learner's turn: which of their three things Teddy
      * thinks is the lie, and why.
      *
      * @return array{pick: int, line: string}
@@ -214,7 +214,7 @@ class AiPartner
     }
 
     /**
-     * Taboo, the learner's turn: Tara's guess at the word they are
+     * Taboo, the learner's turn: Teddy's guess at the word they are
      * explaining. Whether it's right is checked with no AI call.
      *
      * @param  list<array{said: string, guess: string}>  $tries
@@ -230,7 +230,7 @@ class AiPartner
     }
 
     /**
-     * Taboo, Tara's turn: three clues for the word in one call, so the next
+     * Taboo, Teddy's turn: three clues for the word in one call, so the next
      * clue costs nothing. A clue that lets the word slip is dropped.
      *
      * @return list<string>

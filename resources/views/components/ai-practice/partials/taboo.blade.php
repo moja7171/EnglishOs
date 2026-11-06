@@ -1,6 +1,6 @@
 {{--
-    Taboo with Tara, no clock. On the learner's turn they see the word,
-    explain it aloud without saying it and she guesses. On her turn she gives
+    Taboo with Teddy, no clock. On the learner's turn they see the word,
+    explain it aloud without saying it and he guesses. On his turn he gives
     a clue, the learner says their guess, and each wrong one brings the next
     clue. Needs $practice, $card, $current.
 --}}
@@ -23,8 +23,8 @@
         </div>
     @else
         <div class="flex items-center gap-2 bg-surface-sunken px-5 py-3 dark:bg-surface-sunken-dark">
-            <x-tara-avatar class="h-6 w-6" />
-            <p class="text-sm font-bold text-ink dark:text-ink-dark">TARA’S TURN <span class="font-semibold text-ink-soft dark:text-ink-soft-dark">— guess her word</span></p>
+            <x-teddy-avatar class="h-6 w-6" />
+            <p class="text-sm font-bold text-ink dark:text-ink-dark">TEDDY’S TURN <span class="font-semibold text-ink-soft dark:text-ink-soft-dark">— guess his word</span></p>
         </div>
     @endif
 
@@ -38,8 +38,8 @@
                 <p class="text-sm font-semibold text-ink-faint dark:text-ink-faint-dark">{{ implode(' ', App\Services\TabooDeck::STARTERS) }}</p>
             @endif
             @if ($lastTry)
-                <div wire:key="tara-guess-{{ count($tries) }}" x-data x-init="window.eosVoice?.speak(@js('Is it '.$lastTry['guess'].'?'))" class="rounded-xl bg-surface-sunken p-3 dark:bg-surface-sunken-dark">
-                    <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">Tara’s guess {{ count($tries) }} of {{ App\Models\AiPractice::TABOO_TRIES }}</p>
+                <div wire:key="teddy-guess-{{ count($tries) }}" x-data x-init="window.eosVoice?.speak(@js('Is it '.$lastTry['guess'].'?'))" class="rounded-xl bg-surface-sunken p-3 dark:bg-surface-sunken-dark">
+                    <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">Teddy’s guess {{ count($tries) }} of {{ App\Models\AiPractice::TABOO_TRIES }}</p>
                     <p class="mt-1 text-lg font-bold text-ink dark:text-ink-dark">Is it “{{ $lastTry['guess'] }}”?</p>
                 </div>
                 <div class="rounded-xl bg-success-soft p-3 text-start dark:bg-success-soft-dark">
@@ -48,7 +48,7 @@
                 </div>
             @endif
         @elseif ($clues !== null)
-            <div wire:key="tara-clue-{{ count($cluesShown) }}" x-data x-init="window.eosVoice?.speak(@js($newestClue))" class="space-y-2">
+            <div wire:key="teddy-clue-{{ count($cluesShown) }}" x-data x-init="window.eosVoice?.speak(@js($newestClue))" class="space-y-2">
                 @foreach ($cluesShown as $clue)
                     <p wire:key="clue-{{ $loop->index }}" class="rounded-xl bg-surface-sunken p-3 text-base font-semibold text-ink dark:bg-surface-sunken-dark dark:text-ink-dark">{{ $clue }}</p>
                 @endforeach
@@ -67,8 +67,8 @@
 
         @if ($over)
             <p class="font-display text-xl font-extrabold text-ink dark:text-ink-dark">{{ match (true) {
-                $mine && $current['won'] => 'Tara got it!',
-                $mine => 'Tara couldn’t guess it',
+                $mine && $current['won'] => 'Teddy got it!',
+                $mine => 'Teddy couldn’t guess it',
                 $current['won'] => 'You got it!',
                 default => 'Not this time',
             } }}</p>

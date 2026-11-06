@@ -52,11 +52,11 @@ new class extends Component
 <div class="mx-auto max-w-2xl space-y-4 px-4 pt-3 pb-6 sm:px-6">
     <header class="flex items-center gap-1">
         <a href="{{ route('friends.index') }}" wire:navigate aria-label="Back to Friends" class="-ms-2 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-surface-sunken dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">@svg('heroicon-o-chevron-left', 'h-6 w-6')</a>
-        <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Tara</h1>
+        <h1 class="font-display text-2xl font-extrabold text-ink dark:text-ink-dark">Teddy</h1>
     </header>
 
     <div class="card flex flex-col items-center gap-1 p-5 text-center">
-        <x-tara-avatar class="mb-1 h-20 w-20" />
+        <x-teddy-avatar class="mb-1 h-20 w-20" />
         <p class="font-semibold text-ink dark:text-ink-dark">Your AI classmate</p>
         <p class="text-sm text-ink-soft dark:text-ink-soft-dark">Loves travel and food. Always free to practice.</p>
         @if ($this->timesTogether > 0)
@@ -73,7 +73,7 @@ new class extends Component
     <div class="grid grid-cols-2 gap-2.5">
         @foreach (AiPractice::GAMES as $game)
             @php $info = PairGame::info($game); @endphp
-            <button type="button" wire:key="tara-game-{{ $game }}" wire:click="start('{{ $game }}')" wire:loading.attr="disabled" wire:target="start" class="cursor-pointer overflow-hidden rounded-2xl bg-surface text-start shadow-sm disabled:opacity-50 dark:bg-surface-dark">
+            <button type="button" wire:key="teddy-game-{{ $game }}" wire:click="start('{{ $game }}')" wire:loading.attr="disabled" wire:target="start" class="cursor-pointer overflow-hidden rounded-2xl bg-surface text-start shadow-sm disabled:opacity-50 dark:bg-surface-dark">
                 <img src="{{ $info['image'] }}" alt="" loading="lazy" class="h-20 w-full object-cover">
                 <span class="block px-3 pt-2 text-sm font-extrabold text-ink dark:text-ink-dark">{{ $info['name'] }}</span>
                 <span class="block truncate px-3 pb-2.5 text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">{{ in_array($game, $openKinds, true) ? 'Continue' : $info['line'] }}</span>

@@ -1,6 +1,6 @@
 {{--
-    A word, grammar or speaking card with Tara. On the learner's turn they
-    answer aloud and Tara checks it; on her turn she says the deck's answer
+    A word, grammar or speaking card with Teddy. On the learner's turn they
+    answer aloud and Teddy checks it; on his turn he says the deck's answer
     and the learner listens. Needs $practice, $card, $current, $stage.
 --}}
 @php
@@ -22,8 +22,8 @@
         </div>
     @else
         <div class="flex items-center gap-2 bg-surface-sunken px-5 py-3 dark:bg-surface-sunken-dark">
-            <x-tara-avatar class="h-6 w-6" />
-            <p class="text-sm font-bold text-ink dark:text-ink-dark">TARA’S TURN <span class="font-semibold text-ink-soft dark:text-ink-soft-dark">— listen</span></p>
+            <x-teddy-avatar class="h-6 w-6" />
+            <p class="text-sm font-bold text-ink dark:text-ink-dark">TEDDY’S TURN <span class="font-semibold text-ink-soft dark:text-ink-soft-dark">— listen</span></p>
         </div>
     @endif
 

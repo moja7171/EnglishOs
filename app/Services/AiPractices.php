@@ -7,7 +7,7 @@ use App\Models\PairGame;
 use App\Models\User;
 
 /**
- * Starting a practice with Tara: the learner's open one is picked up,
+ * Starting a practice with Teddy: the learner's open one is picked up,
  * otherwise a new one is drawn from the days they finished.
  */
 class AiPractices

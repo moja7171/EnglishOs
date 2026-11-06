@@ -254,7 +254,7 @@ new class extends Component
         <section class="card flex flex-col items-center gap-3 p-5 text-center" aria-label="Talk with Pi">
             <span class="inline-flex h-16 w-16 items-center justify-center rounded-3xl bg-linear-to-br from-[#1fa98a] to-[#0e5c4b] text-xl font-extrabold text-white" aria-hidden="true">Pi</span>
             <h2 class="text-lg font-extrabold text-ink dark:text-ink-dark">Talk with Pi · {{ App\Services\PiPractice::MINUTES }} min</h2>
-            <p class="text-sm text-ink-soft dark:text-ink-soft-dark">A free chat, like two friends. Say "stop" when you're done.</p>
+            <p class="text-sm text-ink-soft dark:text-ink-soft-dark">A free chat, like two friends. Pi fixes your sentences and ends after about 10 minutes.</p>
             @unless ($this->isAhead)
                 <button type="button" x-on:click="copyAndOpen()" class="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl bg-accent px-5 py-3.5 text-base font-extrabold text-white shadow-sm transition-colors hover:opacity-90 dark:bg-accent-dark">
                     @svg('heroicon-s-microphone', 'h-5 w-5') Copy &amp; open Pi

@@ -11,9 +11,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * One practice with Tara, the AI classmate at the learner's level: a Pair
+ * One practice with Teddy, the AI classmate at the learner's level: a Pair
  * Practice round's cards and game, or just one game. Turn about, with no
- * judging: the learner answers a card and she checks it, the next card she
+ * judging: the learner answers a card and he checks it, the next card he
  * answers and the learner listens. It is the learner's own practice: it
  * counts for their day, never for a pair's streak, the board, badges or
  * records.
@@ -40,13 +40,13 @@ class AiPractice extends Model
     /** @var list<string> */
     public const CARD_STAGES = [self::STAGE_VOCABULARY, self::STAGE_GRAMMAR, self::STAGE_SPEAKING];
 
-    /** The games Tara can play so far. */
+    /** The games Teddy can play so far. */
     public const GAMES = [PairGame::GAME_WHO, PairGame::GAME_RATHER, PairGame::GAME_MINUTE, PairGame::GAME_STORY, PairGame::GAME_TRUTHS, PairGame::GAME_TABOO];
 
     /** Questions about one secret: fewer than with a friend, each one is an AI call. */
     public const MAX_QUESTIONS = 8;
 
-    /** Two Truths: questions the learner may ask Tara before picking her lie. */
+    /** Two Truths: questions the learner may ask Teddy before picking his lie. */
     public const TRUTHS_QUESTIONS = 2;
 
     /** Taboo: tries at one word, for whichever of the two is guessing. */

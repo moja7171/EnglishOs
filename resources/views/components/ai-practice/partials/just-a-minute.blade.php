@@ -1,8 +1,8 @@
 {{--
-    Just a Minute with Tara. On the learner's turn they talk on the topic,
-    the target words they used light up, Tara asks one question and they
-    answer. On her turn she talks, the learner taps the words they hear and
-    asks her one question. Needs $practice, $card, $current.
+    Just a Minute with Teddy. On the learner's turn they talk on the topic,
+    the target words they used light up, Teddy asks one question and they
+    answer. On his turn he talks, the learner taps the words they hear and
+    asks him one question. Needs $practice, $card, $current.
 --}}
 @php
     $mine = $practice->isLearnersGameTurn();
@@ -18,12 +18,12 @@
     @if ($mine)
         <div class="flex items-center gap-2 bg-accent px-5 py-3 text-white dark:bg-accent-dark">
             @svg('heroicon-o-microphone', 'h-5 w-5')
-            <p class="text-sm font-bold">YOUR TURN <span class="font-semibold opacity-90">— {{ $question ? 'answer Tara' : 'talk for a minute' }}</span></p>
+            <p class="text-sm font-bold">YOUR TURN <span class="font-semibold opacity-90">— {{ $question ? 'answer Teddy' : 'talk for a minute' }}</span></p>
         </div>
     @else
         <div class="flex items-center gap-2 bg-surface-sunken px-5 py-3 dark:bg-surface-sunken-dark">
-            <x-tara-avatar class="h-6 w-6" />
-            <p class="text-sm font-bold text-ink dark:text-ink-dark">TARA’S TURN <span class="font-semibold text-ink-soft dark:text-ink-soft-dark">— tap the words you hear</span></p>
+            <x-teddy-avatar class="h-6 w-6" />
+            <p class="text-sm font-bold text-ink dark:text-ink-dark">TEDDY’S TURN <span class="font-semibold text-ink-soft dark:text-ink-soft-dark">— tap the words you hear</span></p>
         </div>
     @endif
 
@@ -56,13 +56,13 @@
                 <p class="text-xs font-semibold text-ink-soft dark:text-ink-soft-dark">I heard</p>
                 <p class="text-sm font-semibold text-ink dark:text-ink-dark">{{ $current['heard'] }}</p>
             </div>
-            <div wire:key="tara-asks-{{ $practice->position }}" x-data x-init="window.eosVoice?.speak(@js($question))" class="rounded-xl bg-surface-sunken p-3 dark:bg-surface-sunken-dark">
-                <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">Tara asks</p>
+            <div wire:key="teddy-asks-{{ $practice->position }}" x-data x-init="window.eosVoice?.speak(@js($question))" class="rounded-xl bg-surface-sunken p-3 dark:bg-surface-sunken-dark">
+                <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">Teddy asks</p>
                 <p class="mt-1 text-base font-bold text-ink dark:text-ink-dark">{{ $question }}</p>
                 <div class="mt-2"><x-speak-button :text="$question" /></div>
             </div>
         @elseif (! $mine && $talk !== null)
-            <div wire:key="tara-talks-{{ $practice->position }}" x-data="{ showText: false }" x-init="window.eosVoice?.speak(@js($talk))" class="rounded-xl bg-surface-sunken p-3 dark:bg-surface-sunken-dark">
+            <div wire:key="teddy-talks-{{ $practice->position }}" x-data="{ showText: false }" x-init="window.eosVoice?.speak(@js($talk))" class="rounded-xl bg-surface-sunken p-3 dark:bg-surface-sunken-dark">
                 <x-speak-button :text="$talk" />
                 <button type="button" x-show="! showText" x-on:click="showText = true" class="mt-2 block w-full cursor-pointer text-xs font-bold text-accent-ink dark:text-accent-ink-dark">Show text</button>
                 <p x-show="showText" x-cloak class="mt-2 text-start text-sm font-semibold text-ink dark:text-ink-dark">{{ $talk }}</p>
@@ -82,14 +82,14 @@
                     <p class="text-xs font-semibold text-ink-soft dark:text-ink-soft-dark">You asked</p>
                     <p class="text-sm font-semibold text-ink dark:text-ink-dark">{{ $question }}</p>
                 </div>
-                <div wire:key="tara-replies-{{ $practice->position }}" x-data x-init="window.eosVoice?.speak(@js($reply))" class="rounded-xl bg-surface-sunken p-3 dark:bg-surface-sunken-dark">
+                <div wire:key="teddy-replies-{{ $practice->position }}" x-data x-init="window.eosVoice?.speak(@js($reply))" class="rounded-xl bg-surface-sunken p-3 dark:bg-surface-sunken-dark">
                     <p class="text-base font-bold text-ink dark:text-ink-dark">{{ $reply }}</p>
                     <div class="mt-2"><x-speak-button :text="$reply" /></div>
                 </div>
             @endif
         @elseif ($mine || $talk !== null)
             @if (! $mine)
-                <p class="text-sm font-semibold text-ink-soft dark:text-ink-soft-dark">Ask Tara one question</p>
+                <p class="text-sm font-semibold text-ink-soft dark:text-ink-soft-dark">Ask Teddy one question</p>
             @endif
             <div wire:key="minute-recorder-{{ $practice->position }}-{{ $step }}" class="flex flex-col items-center gap-2">
                 <x-voice-recorder big field="audioFile" :file="$audioFile" on-recorded="submitAnswer" file-name="answer.webm" />
