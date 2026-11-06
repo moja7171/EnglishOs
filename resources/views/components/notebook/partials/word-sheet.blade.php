@@ -10,6 +10,7 @@
     $meaningFa = $word->meaning_fa ?: ($courseFa[mb_strtolower($word->word)] ?? null);
     $mission = $word->sourceMissionRun?->mission;
     $sourceLabels = ['own' => 'Your sentence', 'ai' => 'Made for you ✦', 'lesson' => 'From the lesson'];
+    $commonness = $word->commonness();
 @endphp
 <div
     x-show="sheet === 'w{{ $word->id }}'"
@@ -46,6 +47,12 @@
                     <span class="tracking-wide">{{ $word->pos }}</span>
                 @endif
                 <span class="inline-flex items-center gap-1"><span class="{{ $statusDot($word->studyStatus()) }} h-2 w-2 rounded-full"></span>{{ $word->strengthLabel() }}</span>
+                @if ($commonness)
+                    <span class="inline-flex items-center gap-1" title="{{ ['Less common', 'Common', 'Very common'][$commonness - 1] }}">
+                        <span class="flex gap-0.5" aria-hidden="true">@foreach ([1, 2, 3] as $dot)<span @class(['h-1.5 w-1.5 rounded-full', 'bg-accent dark:bg-accent-dark' => $dot <= $commonness, 'bg-line dark:bg-line-dark' => $dot > $commonness])></span>@endforeach</span>
+                        {{ ['Less common', 'Common', 'Very common'][$commonness - 1] }}
+                    </span>
+                @endif
                 @if ($word->source_mission_run_id === null)
                     <span class="rounded-md bg-accent-soft px-1.5 py-0.5 text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">Added by you</span>
                 @elseif ($mission)
