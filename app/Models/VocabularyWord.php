@@ -252,6 +252,45 @@ class VocabularyWord extends Model
         return ($byLength->first(fn (array $sentence) => static::isSimple($sentence['text'])) ?? $byLength->first())['text'];
     }
 
+    /**
+     * The sentence for a row of the Words tab: displaySentence(), and when
+     * that is a long one (a line the learner tapped in a text) only the
+     * few words around the word, with … where it was cut — the whole
+     * sentence is in the word's sheet.
+     */
+    public function rowSentence(): ?string
+    {
+        $sentence = $this->displaySentence();
+
+        return $sentence === null || static::isSimple($sentence) ? $sentence : $this->trimAround($sentence);
+    }
+
+    /**
+     * About SIMPLE_SENTENCE_WORDS words of $sentence around this word (the
+     * first ones when it is not in it), with … for each side that was cut.
+     */
+    public function trimAround(string $sentence): string
+    {
+        $parts = $this->splitAround($sentence);
+        $before = preg_split('/\s+/u', trim($parts['before'] ?? ''), -1, PREG_SPLIT_NO_EMPTY) ?: [];
+        $after = preg_split('/\s+/u', trim($parts['after'] ?? $sentence), -1, PREG_SPLIT_NO_EMPTY) ?: [];
+
+        if ($parts === null) {
+            return implode(' ', array_slice($after, 0, self::SIMPLE_SENTENCE_WORDS)).'…';
+        }
+
+        $room = max(0, self::SIMPLE_SENTENCE_WORDS - max(1, count(preg_split('/\s+/u', trim($parts['hit']), -1, PREG_SPLIT_NO_EMPTY) ?: [])));
+        $keepBefore = min(count($before), intdiv($room, 2));
+        $keepAfter = min(count($after), $room - $keepBefore);
+        $keepBefore = min(count($before), $room - $keepAfter);
+
+        return ($keepBefore < count($before) ? '… ' : '')
+            .($keepBefore > 0 ? implode(' ', array_slice($before, -$keepBefore)).' ' : '')
+            .$parts['hit']
+            .($keepAfter > 0 ? ' '.implode(' ', array_slice($after, 0, $keepAfter)) : '')
+            .($keepAfter < count($after) ? ' …' : '');
+    }
+
     /** A sentence short enough to learn by heart. */
     public const SIMPLE_SENTENCE_WORDS = 8;
 

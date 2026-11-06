@@ -9,11 +9,11 @@
 --}}
 @php
     $meaningFa = $word->meaning_fa ?: ($courseFa[mb_strtolower($word->word)] ?? null);
-    $sentence = $word->displaySentence();
+    $sentence = $word->rowSentence();
     $parts = $sentence ? $word->splitAround($sentence) : null;
     $blank = $parts ? mb_substr($parts['hit'], 0, 1).'…' : null;
 @endphp
-<div wire:key="{{ $keyPrefix }}-{{ $word->id }}" role="button" tabindex="0" x-show="{{ $show }}" x-on:click="if (! edit) { sheet = 'w{{ $word->id }}' }" x-on:keydown.enter="if (! edit) { sheet = 'w{{ $word->id }}' }" class="flex w-full cursor-pointer items-start gap-3 py-3 text-left">
+<div wire:key="{{ $keyPrefix }}-{{ $word->id }}" role="button" tabindex="0" x-show="{{ $show }}" x-on:click="if (! edit) { sheet = 'w{{ $word->id }}'; $wire.openWord({{ $word->id }}) }" x-on:keydown.enter="if (! edit) { sheet = 'w{{ $word->id }}'; $wire.openWord({{ $word->id }}) }" class="flex w-full cursor-pointer items-start gap-3 py-3 text-left">
     <span class="{{ $statusDot($word->studyStatus()) }} mt-2 h-2 w-2 shrink-0 rounded-full" title="{{ $word->strengthLabel() }}"></span>
     <span class="min-w-0 flex-1">
         <span class="flex flex-wrap items-baseline gap-x-2">
