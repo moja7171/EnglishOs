@@ -225,56 +225,66 @@ class NotebookWordsTest extends TestCase
 
         $this->assertSame('… down on the bank of the quiet river …', $word->rowSentence());
 
-        Livewire::test('notebook.index')
+        $component = Livewire::test('notebook.index')
             ->assertSeeHtml('>bank</mark>')
-            ->assertDontSee('We walked for hours')
-            ->call('openWord', $word->id)
-            ->assertSee('We walked for hours until we finally sat down on the bank of the quiet river near the old mill.');
+            ->assertSee('… down on the');
+
+        $this->assertSame('We walked for hours until we finally sat down on the bank of the quiet river near the old mill.', $component->instance()->wordSheets[$word->id]['sentences'][0]['text']);
     }
 
-    public function test_the_sheet_says_how_common_the_word_is(): void
+    public function test_the_list_and_the_sheet_say_how_common_each_word_is(): void
     {
         $learner = User::factory()->create();
         $this->actingAs($learner);
         $run = $this->word($learner, 'run', ['example' => 'I run every day.']);
         $rare = $this->word($learner, 'perspicacious', ['example' => 'A perspicacious reader.']);
         $phrase = $this->word($learner, 'give up', ['example' => 'Never give up.']);
+        $unrated = $this->word($learner, 'look forward to', ['example' => 'I look forward to it.']);
+        $hyphen = $this->word($learner, 'well-known', ['example' => 'A well-known song.']);
         DictionaryEntry::factory()->create(['word' => 'give up', 'commonness' => 3]);
 
         $this->assertSame(3, $run->commonness());
         $this->assertSame(1, $rare->commonness());
         $this->assertSame(3, $phrase->commonness());
-        $this->assertNull($this->word($learner, 'well-known')->commonness());
-        $this->assertNull($this->word($learner, 'look forward to')->commonness());
+        $this->assertNull($unrated->commonness());
+        $this->assertNull($hyphen->commonness());
 
-        Livewire::test('notebook.index')->call('openWord', $run->id)->assertSee('Very common');
-        Livewire::test('notebook.index')->call('openWord', $rare->id)->assertSee('Less common');
+        $component = Livewire::test('notebook.index')
+            ->assertSeeHtml('aria-label="Very common"')
+            ->assertSeeHtml('aria-label="Less common"');
+
+        $this->assertEquals([$run->id => 3, $rare->id => 1, $phrase->id => 3], $component->instance()->wordCommonness);
+        $this->assertSame(3, $component->instance()->wordSheets[$run->id]['commonness']);
+        $this->assertNull($component->instance()->wordSheets[$unrated->id]['commonness']);
     }
 
-    public function test_only_the_opened_word_has_a_sheet(): void
+    public function test_one_shared_sheet_carries_every_words_data_so_a_tap_needs_no_server_call(): void
     {
         $learner = User::factory()->create();
         $this->actingAs($learner);
-        $first = $this->word($learner, 'recipe', ['example' => 'I love this recipe.']);
+        $first = $this->word($learner, 'recipe', ['example' => 'I love this recipe.', 'meaning_fa' => 'دستور پخت']);
         $second = $this->word($learner, 'grab', ['example' => 'Grab your coat.']);
+        WordSentence::factory()->create(['vocabulary_word_id' => $first->id, 'sentence' => 'I cook a recipe.']);
 
-        Livewire::test('notebook.index')
-            ->assertDontSeeHtml('word-sheet-'.$first->id)
-            ->call('openWord', $first->id)
-            ->assertSeeHtml('word-sheet-'.$first->id)
-            ->assertDontSeeHtml('word-sheet-'.$second->id)
-            ->call('openWord', $second->id)
-            ->assertSeeHtml('word-sheet-'.$second->id)
-            ->assertDontSeeHtml('word-sheet-'.$first->id);
+        $component = Livewire::test('notebook.index');
+        $sheets = $component->instance()->wordSheets;
+
+        $this->assertSame([$first->id, $second->id], collect($sheets)->pluck('id')->sort()->values()->all());
+        $this->assertSame('دستور پخت', $sheets[$first->id]['fa']);
+        $this->assertSame(['I cook a recipe.', 'I love this recipe.'], collect($sheets[$first->id]['sentences'])->pluck('text')->all());
+        $this->assertSame(['before' => 'I cook a ', 'hit' => 'recipe', 'after' => '.'], collect($sheets[$first->id]['sentences'][0])->only(['before', 'hit', 'after'])->all());
+        $this->assertSame(1, substr_count($component->html(), 'x-data="notebookWordSheet"'));
     }
 
-    public function test_another_learners_word_cannot_be_opened(): void
+    public function test_another_learners_word_is_not_in_the_sheet_data(): void
     {
         $learner = User::factory()->create();
         $this->actingAs($learner);
+        $mine = $this->word($learner, 'recipe', ['example' => 'I love this recipe.']);
         $stranger = $this->word(User::factory()->create(), 'secret', ['example' => 'It is a secret.']);
 
-        Livewire::test('notebook.index')->call('openWord', $stranger->id)->assertDontSeeHtml('word-sheet-'.$stranger->id);
+        $this->assertSame([$mine->id], array_keys(Livewire::test('notebook.index')->instance()->wordSheets));
+        $this->assertNotContains($stranger->id, array_keys(Livewire::test('notebook.index')->instance()->wordSheets));
     }
 
     public function test_rows_past_the_fourth_of_a_group_are_only_built_on_demand(): void

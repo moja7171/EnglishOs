@@ -1745,7 +1745,86 @@ document.addEventListener('alpine:init', () => {
      * of a phrasal verb or fixed phrase the dictionary knows, that phrase is
      * offered ready-made (`suggestion`).
      */
-    Alpine.data('dictionarySheet', (urls) => ({
+    /**
+ * The shared word sheet of the Notebook's Words tab (see
+ * resources/views/components/notebook/partials/word-sheet.blade.php): shows
+ * the tapped word from the data the page carries, at once. It is read again
+ * from the page after each call to the server, which re-renders the page
+ * with the new sentence.
+ */
+Alpine.data('notebookWordSheet', () => ({
+    word: null,
+    active: false,
+    writing: '',
+    result: null,
+    checking: false,
+    making: false,
+    noneMade: false,
+    raw: '',
+    all: {},
+    sourceLabels: { own: 'Your sentence', ai: 'Made for you ✦', lesson: 'From the lesson' },
+
+    /** Called with the page's `sheet` value: 'w12' is word 12, 'n3' a notebook line, false is closed. */
+    open(sheet) {
+        if (typeof sheet !== 'string') return;
+
+        this.active = sheet[0] === 'w';
+
+        if (!this.active) return;
+
+        const id = sheet.slice(1);
+
+        if (this.word && String(this.word.id) !== id) {
+            this.writing = '';
+            this.result = null;
+            this.noneMade = false;
+        }
+
+        this.word = this.read(id);
+    },
+
+    /** The word's data, from the page as it is now. */
+    read(id) {
+        const raw = this.$root.dataset.words ?? '{}';
+
+        if (raw !== this.raw) {
+            this.raw = raw;
+            this.all = JSON.parse(raw);
+        }
+
+        return this.all[id] ?? null;
+    },
+
+    refresh() {
+        if (this.word) this.word = this.read(this.word.id) ?? this.word;
+    },
+
+    get statusDot() {
+        return { new: 'bg-ink-faint dark:bg-ink-faint-dark', learning: 'bg-warning', known: 'bg-success dark:bg-success-dark' }[this.word?.status] ?? 'bg-line';
+    },
+
+    async another() {
+        this.making = true;
+        this.noneMade = false;
+        const made = await this.$wire.makeSentence(this.word.id);
+        this.making = false;
+        this.noneMade = made === null;
+        this.refresh();
+    },
+
+    async check() {
+        if (this.writing.trim() === '') return;
+
+        this.checking = true;
+        this.result = await this.$wire.checkSentence(this.word.id, this.writing);
+        this.checking = false;
+        window.eosFeedback?.[this.result.ok ? 'right' : 'wrong']?.();
+        if (this.result.ok) this.writing = '';
+        this.refresh();
+    },
+}));
+
+Alpine.data('dictionarySheet', (urls) => ({
         isOpen: false,
         loading: false,
         failed: false,
