@@ -530,7 +530,7 @@ new class extends Component
             $hasPracticeFriend = $this->hasPracticeFriend;
             $card = 'flex min-h-16 items-center gap-3 rounded-2xl p-3';
         @endphp
-        <div x-data="{ openDay: @js($openDay) }" x-on:select-day.window="openDay = $event.detail.day" class="space-y-2.5">
+        <div x-data="{ openDay: @js($openDay), stepsOpen: false }" x-on:select-day.window="openDay = $event.detail.day" class="space-y-2.5">
             <div @class(['grid grid-cols-4 gap-2', 'hidden' => $embedded]) role="tablist" aria-label="Days">
                 @foreach ($this->missionDays as $day)
                     @php $allDone = $day['lesson'] && $day['listened'] && $day['talked']; @endphp
@@ -569,15 +569,15 @@ new class extends Component
                     @if ($openDay !== $number) x-cloak @endif
                     class="space-y-2"
                 >
-                    {{-- Tap the card: the day's steps open right here. Continue / Start
+                    {{-- Tap the card: the day's steps open right here (one shared open/closed state for all days; closed to begin with and kept until the learner changes it). Continue / Start
                          goes straight into the current step. --}}
-                    <div x-data="{ steps: @js($day['here']) }" x-on:select-day.window="if ($event.detail.day === {{ $number }}) steps = true" @class(['rounded-2xl', 'bg-accent-soft dark:bg-accent-soft-dark' => $day['primary'] === 'lesson', 'bg-surface dark:bg-surface-dark' => $day['primary'] !== 'lesson'])>
+                    <div @class(['rounded-2xl', 'bg-accent-soft dark:bg-accent-soft-dark' => $day['primary'] === 'lesson', 'bg-surface dark:bg-surface-dark' => $day['primary'] !== 'lesson'])>
                         <div
                             role="button"
                             tabindex="0"
-                            x-on:click="steps = ! steps"
-                            x-on:keydown.enter.prevent="steps = ! steps"
-                            x-bind:aria-expanded="steps"
+                            x-on:click="stepsOpen = ! stepsOpen"
+                            x-on:keydown.enter.prevent="stepsOpen = ! stepsOpen"
+                            x-bind:aria-expanded="stepsOpen"
                             aria-label="Day {{ $number }} Lesson{{ $day['lesson'] ? ', done' : '' }}"
                             class="{{ $card }} cursor-pointer"
                         >
@@ -591,10 +591,10 @@ new class extends Component
                             @elseif ($day['lessonUrl'] && ! $day['preview'])
                                 <a href="{{ $day['lessonUrl'] }}" wire:navigate x-on:click.stop class="shrink-0 rounded-full bg-accent px-4 py-2 text-sm font-extrabold text-white dark:bg-accent-dark">{{ $day['started'] || $stepsDone > 0 ? 'Continue' : 'Start' }}</a>
                             @endif
-                            <span class="shrink-0 text-ink-faint transition-transform dark:text-ink-faint-dark" x-bind:class="steps && 'rotate-180'">@svg('heroicon-o-chevron-down', 'h-5 w-5')</span>
+                            <span class="shrink-0 text-ink-faint transition-transform dark:text-ink-faint-dark" x-bind:class="stepsOpen && 'rotate-180'">@svg('heroicon-o-chevron-down', 'h-5 w-5')</span>
                         </div>
 
-                        <nav x-show="steps" x-cloak x-transition.opacity.duration.150ms class="px-2 pb-2" aria-label="Day {{ $number }} steps">
+                        <nav x-show="stepsOpen" x-cloak x-transition.opacity.duration.150ms class="px-2 pb-2" aria-label="Day {{ $number }} steps">
                             <div class="rounded-xl bg-surface p-1 dark:bg-surface-dark">
                                 @foreach ($day['steps'] as $step)
                                     <a

@@ -246,6 +246,19 @@ class MissionsOverviewTest extends TestCase
             ->assertSee('x-on:select-day.window', false);
     }
 
+    public function test_the_lessons_steps_start_closed_and_one_choice_is_kept_across_days(): void
+    {
+        $learner = User::factory()->create();
+        $this->startOnDayTwo($learner);
+        $this->actingAs($learner);
+
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertSee('stepsOpen: false', false)
+            ->assertSee('x-show="stepsOpen"', false)
+            ->assertDontSee('steps = true', false);
+    }
+
     public function test_the_banner_title_opens_the_missions_page_on_today(): void
     {
         $learner = User::factory()->create();
