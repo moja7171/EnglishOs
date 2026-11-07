@@ -38,7 +38,7 @@ class AskAnswerCheck extends Command
             $allowed = $this->wordsTaughtUpTo((int) $data['mission'], $pairPractice);
 
             foreach ($data['items'] as $item) {
-                $problems = $filter->problems($item, $allowed, $taken);
+                $problems = $filter->problems($item, $allowed, $taken, (int) $data['mission']);
                 $taken[] = AskAnswerChecker::normalize($item['q'][0][2] ?? '');
                 $checked++;
 

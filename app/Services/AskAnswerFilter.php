@@ -29,6 +29,13 @@ class AskAnswerFilter
     /** Little words that are always fine, so the frequency list is not asked about them. */
     private const ALWAYS_FINE = ['ok', 'cv', 'tv', 'pm', 'am', 'practise', 'practised', 'cafe', 'café'];
 
+    /** Comparatives are taught in M08: before that no sentence may use them. */
+    private const COMPARATIVES_FROM_MISSION = 8;
+
+    private const COMPARATIVE_WORDS = ['better', 'worse', 'cheaper', 'quicker', 'quieter', 'closer', 'funnier', 'harder', 'easier', 'fresher', 'faster', 'bigger', 'warmer', 'kinder', 'healthier', 'longer', 'shorter', 'later', 'earlier', 'slower', 'calmer'];
+
+    private ?int $mission = null;
+
     public function __construct(private readonly WordFrequency $frequency) {}
 
     /**
@@ -37,9 +44,10 @@ class AskAnswerFilter
      * @param  list<string>  $takenQuestions  normalised level 1 questions already in the bank or batch
      * @return list<string> what is wrong; empty when the item passes
      */
-    public function problems(array $item, array $allowedWords = [], array $takenQuestions = []): array
+    public function problems(array $item, array $allowedWords = [], array $takenQuestions = [], ?int $mission = null): array
     {
         $problems = [];
+        $this->mission = $mission;
 
         if (! in_array($item['k'] ?? null, ['s', 'f'], true)) {
             $problems[] = 'kind must be s or f';
@@ -143,11 +151,23 @@ class AskAnswerFilter
             $problems[] = "$where: \"$name\" looks like a name, which speech-to-text mishears";
         }
 
+        if ($this->mission !== null && $this->mission < self::COMPARATIVES_FROM_MISSION && $this->usesComparative($english)) {
+            $problems[] = "$where: a comparative, which is taught in M08";
+        }
+
         foreach ($this->hardWords($english, $allowedWords) as $word) {
             $problems[] = "$where: \"$word\" is beyond the level";
         }
 
         return $target === '' ? [...$problems, "$where: empty English"] : $problems;
+    }
+
+    private function usesComparative(string $english): bool
+    {
+        $lower = mb_strtolower($english);
+
+        return preg_match('/\bthan\b/', $lower) === 1
+            || preg_match('/\b('.implode('|', self::COMPARATIVE_WORDS).')\b/', $lower) === 1;
     }
 
     /**

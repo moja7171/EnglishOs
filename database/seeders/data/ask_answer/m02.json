@@ -1,0 +1,3525 @@
+{
+"mission": 2,
+"items": [
+{
+"d": 1,
+"k": "s",
+"s": "meet-up",
+"c": null,
+"q": [
+[
+"بپرس اغلب با دوستانش دیدار می‌کند",
+"بپرس هر هفته",
+"Do you often meet up with friends?",
+"Every week?",
+[],
+[
+[
+"Are you often meet up with friends?",
+"«meet up» فعل است؛ با «Do» بپرس."
+]
+]
+],
+[
+"بپرس با دوستانش دیدار می‌کند و کجا",
+"بپرس آخر هفته",
+"Do you meet up with friends, and where?",
+"At the weekend?",
+[],
+[
+[
+"Do you meet up with friends and where you go?",
+"کوتاه بپرس: and where?"
+]
+]
+],
+[
+"بپرس بیشتر با دوستانش دیدار می‌کند یا آنلاین حرف می‌زند و چرا",
+"بپرس کدام را دوست دارد",
+"Do you meet up with friends more, or talk online? Why?",
+"Which do you like?",
+[],
+[
+[
+"Do you meet up more or you talk online?",
+"بخش دوم هم سؤال است: or do you talk online."
+]
+]
+]
+],
+"a": [
+[
+"بگو بله",
+"بگو هر هفته",
+"Yes, I do.",
+"Every week.",
+[],
+[
+[
+"Yes, I meet.",
+"جواب «Do you…؟» با «do» است."
+]
+]
+],
+[
+"بگو بله، آخر هفته‌ها در یک کافه",
+"بگو با چهار نفر",
+"Yes, I do, at the weekend, in a café.",
+"With four friends.",
+[],
+[
+[
+"Yes, I do, in weekend in a café.",
+"«at the weekend» بگو."
+]
+]
+],
+[
+"بگو بیشتر دیدار می‌کنم چون دیدنشان خوب است ولی گاهی وقت ندارم",
+"بگو آنلاین حرف می‌زنم",
+"I meet up with friends more, because it's nice to see them, but sometimes I have no time.",
+"Then we talk online.",
+[],
+[
+[
+"I meet up more because it nice to see them.",
+"فعل را فراموش نکن: it's nice."
+]
+]
+]
+]
+},
+{
+"d": 1,
+"k": "s",
+"s": "stay-in-touch",
+"c": null,
+"q": [
+[
+"بپرس چطور با دوستانش در تماس می‌ماند",
+"بپرس هر روز",
+"How do you stay in touch with your friends?",
+"Every day?",
+[],
+[
+[
+"How you stay in touch with your friends?",
+"بعد از «How»، «do you» می‌آید."
+]
+]
+],
+[
+"بپرس چطور در تماس می‌ماند و چند بار",
+"بپرس تلفن",
+"How do you stay in touch, and how often?",
+"By phone?",
+[],
+[
+[
+"How do you stay in touch and how often you talk?",
+"کوتاه بپرس: and how often?"
+]
+]
+],
+[
+"بپرس با دوستان دور چطور در تماس می‌ماند و سخت است",
+"بپرس چرا",
+"How do you stay in touch with friends who live far away? Is it hard?",
+"Why?",
+[],
+[
+[
+"How you stay in touch with friends who live far?",
+"بعد از «How»، «do you» می‌آید."
+]
+]
+]
+],
+"a": [
+[
+"بگو با پیام",
+"بگو هر روز",
+"By message.",
+"Every day.",
+[],
+[
+[
+"With message.",
+"برای وسیله از «by» استفاده کن."
+]
+]
+],
+[
+"بگو با پیام و گاهی تلفن",
+"بگو شب‌ها",
+"I send messages, and sometimes I call.",
+"In the evening.",
+[],
+[
+[
+"I send messages and sometimes I calling.",
+"بعد از «I» فعل ساده: call."
+]
+]
+],
+[
+"بگو با پیام و تماس تصویری چون ساده است ولی گاهی وقت‌هایمان فرق دارد",
+"بگو سخت می‌شود",
+"By message and video call, because it's easy, but sometimes our times are different.",
+"It gets hard.",
+[],
+[
+[
+"By message and video call because is easy.",
+"بعد از «because» باید «it's» بیاید."
+]
+]
+]
+]
+},
+{
+"d": 1,
+"k": "s",
+"s": "lose-touch",
+"c": null,
+"q": [
+[
+"بپرس با دوستانش ارتباطش را از دست می‌دهد",
+"بپرس گاهی",
+"Do you lose touch with friends?",
+"Sometimes?",
+[],
+[
+[
+"Are you lose touch with friends?",
+"«lose» فعل است؛ با «Do» بپرس."
+]
+]
+],
+[
+"بپرس ارتباطش را از دست می‌دهد و چرا",
+"بپرس وقت",
+"Do you lose touch with friends? Why?",
+"No time?",
+[],
+[
+[
+"Do you lose touch with friends and why?",
+"«Why?» را جدا بپرس."
+]
+]
+],
+[
+"بپرس با دوستان مدرسه هنوز ارتباط دارد یا قطع شده",
+"بپرس با چند نفر",
+"Do you still talk to your school friends, or did you lose touch?",
+"How many?",
+[],
+[
+[
+"Do you still talk to your school friends or you lose touch?",
+"بخش دوم هم سؤال است."
+]
+]
+]
+],
+"a": [
+[
+"بگو بله",
+"بگو گاهی",
+"Yes, I do.",
+"Sometimes.",
+[],
+[
+[
+"Yes, I lose.",
+"جواب «Do you…؟» با «do» است."
+]
+]
+],
+[
+"بگو بله چون وقت ندارم",
+"بگو و پیام نمی‌دهم",
+"Yes, I do, because I have no time.",
+"I don't send messages.",
+[],
+[
+[
+"Yes, I do because I haven't time.",
+"بگو: I have no time."
+]
+]
+],
+[
+"بگو با دو نفر هنوز حرف می‌زنم ولی با بقیه ارتباطم قطع شده چون شهرها فرق دارد",
+"بگو دلم تنگ می‌شود",
+"I still talk to two of them, but I lose touch with the others, because we live in different cities.",
+"I miss them.",
+[],
+[
+[
+"I still talk to two of them but I lost touch with others.",
+"«the others» بگو."
+]
+]
+]
+]
+},
+{
+"d": 1,
+"k": "s",
+"s": "call-or-message",
+"c": null,
+"q": [
+[
+"بپرس به دوستانش زنگ می‌زند",
+"بپرس هر روز",
+"Do you call your friends?",
+"Every day?",
+[],
+[
+[
+"Do you calling your friends?",
+"بعد از «Do you» فعل ساده: call."
+]
+]
+],
+[
+"بپرس زنگ می‌زند یا پیام می‌دهد",
+"بپرس کدام را دوست دارد",
+"Do you call your friends, or send messages?",
+"Which do you like?",
+[],
+[
+[
+"Do you call your friends or you send messages?",
+"کوتاه بپرس: or send messages?"
+]
+]
+],
+[
+"بپرس بیشتر زنگ می‌زند یا پیام می‌دهد و چرا",
+"بپرس همیشه",
+"Do you call your friends more, or send messages? Why?",
+"Always?",
+[],
+[
+[
+"Do you call more your friends?",
+"ترتیب: call your friends more."
+]
+]
+]
+],
+"a": [
+[
+"بگو پیام",
+"بگو سریع است",
+"Messages.",
+"It's quick.",
+[],
+[
+[
+"Message.",
+"جمع: messages."
+]
+]
+],
+[
+"بگو بیشتر پیام می‌دهم و گاهی زنگ می‌زنم",
+"بگو شب‌ها",
+"I send messages, and sometimes I call.",
+"In the evening.",
+[],
+[
+[
+"I send message and sometimes I call.",
+"جمع: messages."
+]
+]
+],
+[
+"بگو پیام چون سریع است و سر کار نمی‌توانم حرف بزنم ولی آخر هفته زنگ می‌زنم",
+"بگو طولانی",
+"Messages, because it's quick and I can't talk at work, but at the weekend I call.",
+"A long call.",
+[],
+[
+[
+"Messages because is quick and I can't talk in work.",
+"«at work» بگو؛ و «it's quick»."
+]
+]
+]
+]
+},
+{
+"d": 1,
+"k": "s",
+"s": "talk-most",
+"c": null,
+"q": [
+[
+"بپرس با چه کسی بیشتر حرف می‌زند",
+"بپرس هر روز",
+"Who do you talk to most?",
+"Every day?",
+[],
+[
+[
+"Who you talk to most?",
+"بعد از «Who»، «do you» می‌آید."
+]
+]
+],
+[
+"بپرس با چه کسی بیشتر حرف می‌زند و درباره‌ی چه",
+"بپرس کار",
+"Who do you talk to most, and about what?",
+"Work?",
+[],
+[
+[
+"Who do you talk to most and what about?",
+"بگو: and about what?"
+]
+]
+],
+[
+"بپرس با دوستانش بیشتر حرف می‌زند یا با خانواده و چرا",
+"بپرس کدام را دوست دارد",
+"Do you talk to your friends more, or to your family? Why?",
+"Which do you like?",
+[],
+[
+[
+"Do you talk more to your friends or family?",
+"ترتیب را واضح بگو."
+]
+]
+]
+],
+"a": [
+[
+"بگو دوست صمیمی‌ام",
+"بگو هر شب",
+"My best friend.",
+"Every night.",
+[],
+[
+[
+"My best friend talk.",
+"فقط جواب کوتاه: My best friend."
+]
+]
+],
+[
+"بگو دوست صمیمی‌ام درباره‌ی کار",
+"بگو و فیلم",
+"My best friend, about work.",
+"And films.",
+[],
+[
+[
+"My best friend about the work.",
+"«about work» بدون the."
+]
+]
+],
+[
+"بگو با دوستانم بیشتر چون هم‌سن‌ایم و همه چیز را می‌فهمند ولی با خانواده هم حرف می‌زنم",
+"بگو آخر هفته",
+"With my friends more, because we are the same age and they understand everything, but I talk to my family too.",
+"At the weekend.",
+[],
+[
+[
+"With my friends more because we same age.",
+"فعل را فراموش نکن: we are the same age."
+]
+]
+]
+]
+},
+{
+"d": 1,
+"k": "f",
+"s": "meet-where",
+"c": "دوستت گفت: «من هر هفته با دوستانم دیدار می‌کنم.»",
+"q": [
+[
+"بپرس کجا",
+"بپرس همیشه همان‌جا",
+"Where do you meet up?",
+"Always there?",
+[],
+[
+[
+"Where you meet up?",
+"بعد از «Where»، «do you» می‌آید."
+]
+]
+],
+[
+"بپرس کجا دیدار می‌کنند و چه ساعتی",
+"بپرس عصر",
+"Where do you meet up, and what time?",
+"In the evening?",
+[],
+[
+[
+"Where do you meet up and what time you go?",
+"کوتاه بپرس: and what time?"
+]
+]
+],
+[
+"بپرس همیشه همان‌جا دیدار می‌کنند یا جاهای مختلف",
+"بپرس چرا",
+"Do you always meet in the same place, or in different places?",
+"Why?",
+[],
+[
+[
+"Do you meet always in the same place?",
+"«always» قبل از فعل: always meet."
+]
+]
+]
+],
+"a": [
+[
+"بگو یک کافه",
+"بگو نزدیک خانه",
+"In a café.",
+"Near my home.",
+[],
+[
+[
+"At a café near of home.",
+"«near my home» بدون of."
+]
+]
+],
+[
+"بگو در یک کافه ساعت هفت",
+"بگو چای می‌خوریم",
+"In a café, at seven.",
+"We drink tea.",
+[],
+[
+[
+"In a café in seven.",
+"برای ساعت از «at» استفاده کن."
+]
+]
+],
+[
+"بگو معمولاً همان کافه چون نزدیک است ولی گاهی در پارک",
+"بگو وقتی هوا خوب است",
+"Usually the same café, because it's near, but sometimes in the park.",
+"When the weather is nice.",
+[],
+[
+[
+"Usually same café because it near.",
+"«the same» و «it's near» بگو."
+]
+]
+]
+]
+},
+{
+"d": 1,
+"k": "f",
+"s": "miss-friend",
+"c": "دوستت گفت: «با دوست مدرسه‌ام ارتباطم قطع شده.»",
+"q": [
+[
+"بپرس دلش برایش تنگ می‌شود",
+"بپرس خیلی",
+"Do you miss that friend?",
+"A lot?",
+[],
+[
+[
+"Are you miss that friend?",
+"«miss» فعل است؛ با «Do» بپرس."
+]
+]
+],
+[
+"بپرس دلش تنگ می‌شود و می‌خواهد دوباره تماس بگیرد",
+"بپرس چطور",
+"Do you miss that friend, and do you want to get back in touch?",
+"How?",
+[],
+[
+[
+"Do you miss that friend and you want to get back in touch?",
+"بخش دوم هم سؤال است."
+]
+]
+],
+[
+"بپرس چرا ارتباطشان قطع شد و آخرین بار کی حرف زدند",
+"بپرس سال‌ها",
+"Why did you lose touch?",
+"Years ago?",
+[],
+[
+[
+"Why you lose touch?",
+"برای گذشته: Why did you lose touch."
+]
+]
+]
+],
+"a": [
+[
+"بگو بله",
+"بگو خیلی",
+"Yes, I do.",
+"A lot.",
+[],
+[
+[
+"Yes, I miss.",
+"جواب «Do you…؟» با «do» است."
+]
+]
+],
+[
+"بگو بله و می‌خواهم دوباره تماس بگیرم",
+"بگو ولی شماره‌اش را ندارم",
+"Yes, I do, and I want to get back in touch.",
+"But I don't have the number.",
+[],
+[
+[
+"Yes, I do and I want get back in touch.",
+"بعد از «want» باید «to» بیاید."
+]
+]
+],
+[
+"بگو چون شهرمان فرق کرد و وقت نداشتیم ولی حالا می‌خواهم پیام بدهم",
+"بگو شاید امروز",
+"Because we moved to different cities and we had no time, but now I want to send a message.",
+"Maybe today.",
+[],
+[
+[
+"Because we moved to different city and we had not time.",
+"جمع: different cities؛ و «no time»."
+]
+]
+]
+]
+},
+{
+"d": 1,
+"k": "f",
+"s": "get-back-in-touch",
+"c": "دوستت گفت: «می‌خواهم دوباره با او تماس بگیرم.»",
+"q": [
+[
+"بپرس چطور",
+"بپرس پیام",
+"How do you do it?",
+"By message?",
+[],
+[
+[
+"How you do it?",
+"بعد از «How»، «do you» می‌آید."
+]
+]
+],
+[
+"بپرس چطور و چه می‌نویسد",
+"بپرس ساده",
+"How do you do it, and what do you write?",
+"Something simple?",
+[],
+[
+[
+"How do you do it and what you write?",
+"بعد از «what»، «do you» می‌آید."
+]
+]
+],
+[
+"بپرس فکر می‌کند او هم دلش تنگ شده و جواب می‌دهد",
+"بپرس نگران",
+"Do you think your friend misses you too? Will he or she answer?",
+"Are you worried?",
+[],
+[
+[
+"Do you think your friend miss you too?",
+"با «friend» فعل s می‌گیرد: misses."
+]
+]
+]
+],
+"a": [
+[
+"بگو با پیام",
+"بگو ساده",
+"By message.",
+"Something simple.",
+[],
+[
+[
+"With message.",
+"برای وسیله از «by» استفاده کن."
+]
+]
+],
+[
+"بگو با پیام و یک پیام کوتاه می‌نویسم",
+"بگو و حالت چطور است",
+"By message. I write a short message.",
+"And a question.",
+[],
+[
+[
+"By message I writing a message.",
+"بعد از «I» فعل ساده: write."
+]
+]
+],
+[
+"بگو فکر می‌کنم بله ولی مطمئن نیستم چون خیلی وقت است حرف نزدیم",
+"بگو کمی نگرانم",
+"I think so, but I'm not sure, because we don't talk for a long time.",
+"I'm a bit worried.",
+[],
+[
+[
+"I think so but I not sure because we not talk.",
+"منفی: we don't talk / I'm not sure."
+]
+]
+]
+]
+},
+{
+"d": 1,
+"k": "f",
+"s": "which-app",
+"c": "دوستت گفت: «من بیشتر پیام می‌دهم.»",
+"q": [
+[
+"بپرس از کدام برنامه استفاده می‌کند",
+"بپرس همیشه همان",
+"Which app do you use?",
+"Always?",
+[],
+[
+[
+"Which app you use?",
+"بعد از «Which app»، «do you» می‌آید."
+]
+]
+],
+[
+"بپرس از کدام برنامه استفاده می‌کند و چرا",
+"بپرس راحت",
+"Which app do you use, and why?",
+"Is it easy?",
+[],
+[
+[
+"Which app do you use and why you use it?",
+"کوتاه بپرس: and why?"
+]
+]
+],
+[
+"بپرس پیام را دوست دارد یا تماس را",
+"بپرس چرا",
+"Do you like messages or calls?",
+"Why?",
+[],
+[
+[
+"Do you like messages or you like calls?",
+"بخش دوم هم سؤال است: or do you like calls."
+]
+]
+]
+],
+"a": [
+[
+"بگو یک برنامه‌ی ساده",
+"بگو هر روز",
+"A simple app.",
+"Every day.",
+[],
+[
+[
+"A simple apps.",
+"مفرد: app."
+]
+]
+],
+[
+"بگو یک برنامه که همه دارند",
+"بگو راحت است",
+"An app that everyone has.",
+"It's easy.",
+[],
+[
+[
+"An app what everyone has.",
+"بگو: that."
+]
+]
+],
+[
+"بگو بله چون ساکت است و هر وقت وقت دارم جواب می‌دهم ولی تماس را بیشتر دوست دارم",
+"بگو گرم است",
+"Yes, because it's quiet and I answer when I have time, but I like calls more.",
+"They feel warm.",
+[],
+[
+[
+"Yes because is quiet and I answer when I have time.",
+"بعد از «because» باید «it's» بیاید."
+]
+]
+]
+]
+},
+{
+"d": 1,
+"k": "f",
+"s": "see-each-other",
+"c": "دوستت گفت: «ما بعد از مدرسه هم دوست ماندیم.»",
+"q": [
+[
+"بپرس همدیگر را می‌بینند",
+"بپرس اغلب",
+"Do you see each other often?",
+"Every month?",
+[],
+[
+[
+"Are you see each other often?",
+"«see» فعل است؛ با «Do» بپرس."
+]
+]
+],
+[
+"بپرس همدیگر را می‌بینند و چطور در تماس می‌مانند",
+"بپرس پیام",
+"Do you see each other, and how do you stay in touch?",
+"Messages?",
+[],
+[
+[
+"Do you see each other and how you stay in touch?",
+"بعد از «how»، «do you» می‌آید."
+]
+]
+],
+[
+"بپرس چه چیزی باعث شد دوست بمانند و فکر می‌کند ادامه پیدا می‌کند",
+"بپرس چرا",
+"Why do you stay friends? Do you think it will last?",
+"Why?",
+[],
+[
+[
+"Why you stay friends?",
+"بعد از «Why»، «do you» می‌آید."
+]
+]
+]
+],
+"a": [
+[
+"بگو بله",
+"بگو ماهی یک بار",
+"Yes, we do.",
+"Once a month.",
+[],
+[
+[
+"Yes, we see.",
+"جواب «Do you…؟» با «we do» است."
+]
+]
+],
+[
+"بگو ماهی یک بار و پیام می‌دهیم",
+"بگو هر روز",
+"We see each other once a month, and we send messages.",
+"Every day.",
+[],
+[
+[
+"We see us once a month.",
+"همدیگر: each other."
+]
+]
+],
+[
+"بگو چون خیلی چیزها مشترک داریم و همیشه به هم کمک می‌کنیم و فکر می‌کنم ادامه پیدا می‌کند",
+"بگو مطمئنم",
+"Because we have a lot in common and we always help each other, and I think it will last.",
+"I'm sure.",
+[],
+[
+[
+"Because we have much in common and we help always each other.",
+"در جمله‌ی مثبت «a lot»؛ و «always help»."
+]
+]
+]
+]
+},
+{
+"d": 2,
+"k": "s",
+"s": "best-friend",
+"c": null,
+"q": [
+[
+"بپرس دوست صمیمی‌اش کیست",
+"بپرس چند وقت است",
+"Who is your best friend?",
+"Is it a man or a woman?",
+[],
+[
+[
+"Who your best friend is?",
+"ترتیب سؤال: Who is your best friend."
+]
+]
+],
+[
+"بپرس دوست صمیمی‌اش کیست و کجا زندگی می‌کند",
+"بپرس دور است",
+"Who is your best friend, and where does your friend live?",
+"Is it far?",
+[],
+[
+[
+"Who is your best friend and where lives your friend?",
+"بعد از «where»، «does your friend live» می‌آید."
+]
+]
+],
+[
+"بپرس دوست صمیمی‌اش کیست و چه چیزی او را خاص می‌کند",
+"بپرس چرا",
+"Who is your best friend, and what makes your friend special?",
+"Why?",
+[],
+[
+[
+"Who is your best friend and what make your friend special?",
+"با «what» فعل s می‌گیرد: makes."
+]
+]
+]
+],
+"a": [
+[
+"بگو دوست قدیمی‌ام از مدرسه",
+"بگو از مدرسه",
+"An old friend from school.",
+"From school.",
+[],
+[
+[
+"A old friend.",
+"قبل از مصوت «an» می‌آید."
+]
+]
+],
+[
+"بگو یک دوست قدیمی که در شهر دیگری زندگی می‌کند",
+"بگو دور است",
+"An old friend who lives in another city.",
+"It's far.",
+[],
+[
+[
+"An old friend who live in another city.",
+"با «who» (سوم شخص) فعل s می‌گیرد: lives."
+]
+]
+],
+[
+"بگو دوست قدیمی‌ام از مدرسه که همیشه به من گوش می‌دهد و صادق است",
+"بگو دوستش دارم",
+"An old friend who always listens to me, and he or she is honest.",
+"I love my friend.",
+[],
+[
+[
+"An old friend who always listen to me.",
+"فعل s می‌گیرد: listens."
+]
+]
+]
+]
+},
+{
+"d": 2,
+"k": "s",
+"s": "old-friend",
+"c": null,
+"q": [
+[
+"بپرس یک دوست قدیمی دارد",
+"بپرس چند ساله",
+"Do you have an old friend?",
+"How old is the friendship?",
+[],
+[
+[
+"Have you an old friend?",
+"با «have» به معنی داشتن از «Do you have» استفاده کن."
+]
+]
+],
+[
+"بپرس دوست قدیمی دارد و کجا با هم آشنا شدند",
+"بپرس مدرسه",
+"Do you have an old friend, and where did you meet?",
+"At school?",
+[],
+[
+[
+"Do you have an old friend and where you meet?",
+"برای گذشته: where did you meet."
+]
+]
+],
+[
+"بپرس دوست قدیمی‌اش را هنوز می‌بیند یا فقط حرف می‌زنند",
+"بپرس چقدر",
+"Do you still see your old friend, or only talk?",
+"How often?",
+[],
+[
+[
+"Do you still see your old friend or only you talk?",
+"کوتاه بپرس: or only talk?"
+]
+]
+]
+],
+"a": [
+[
+"بگو بله",
+"بگو دو نفر",
+"Yes, I do.",
+"Two of them.",
+[],
+[
+[
+"Yes, I have.",
+"جواب «Do you…؟» با «do» است."
+]
+]
+],
+[
+"بگو بله، در مدرسه با هم آشنا شدیم",
+"بگو کلاس اول",
+"Yes, I do. We met at school.",
+"In first grade.",
+[],
+[
+[
+"Yes, I do. We meet at school.",
+"برای گذشته: met."
+]
+]
+],
+[
+"بگو هنوز می‌بینمش ماهی یک بار چون هر دو در یک شهر زندگی می‌کنیم",
+"بگو و حرف می‌زنیم",
+"I still see my friend once a month, because we both live in the same city.",
+"And we talk.",
+[],
+[
+[
+"I still see him once in month because we both living in same city.",
+"بگو: once a month؛ و «live»."
+]
+]
+]
+]
+},
+{
+"d": 2,
+"k": "s",
+"s": "get-on-well",
+"c": null,
+"q": [
+[
+"بپرس با همسایه‌هایش خوب کنار می‌آید",
+"بپرس همیشه",
+"Do you get on well with your neighbours?",
+"Always?",
+[],
+[
+[
+"Are you get on well with your neighbours?",
+"«get on» فعل است؛ با «Do» بپرس."
+]
+]
+],
+[
+"بپرس با همسایه‌ها و همکلاسی‌ها خوب کنار می‌آید",
+"بپرس با کدام",
+"Do you get on well with your neighbours and friends?",
+"Which one?",
+[],
+[
+[
+"Do you get on well with your neighbours and your classmates you?",
+"ساده بپرس."
+]
+]
+],
+[
+"بپرس با چه کسانی خوب کنار نمی‌آید و چرا",
+"بپرس چه می‌کند",
+"Who don't you get on well with, and why?",
+"What do you do?",
+[],
+[
+[
+"Who you don't get on well with?",
+"بعد از «Who»، «don't you» می‌آید."
+]
+]
+]
+],
+"a": [
+[
+"بگو بله",
+"بگو خیلی خوب",
+"Yes, I do.",
+"Very well.",
+[],
+[
+[
+"Yes, I get.",
+"جواب «Do you…؟» با «do» است."
+]
+]
+],
+[
+"بگو بله، با همه‌شان",
+"بگو مهربان‌اند",
+"Yes, I do, with all of them.",
+"They are kind.",
+[],
+[
+[
+"Yes, I do, with all they.",
+"بعد از حرف اضافه: all of them."
+]
+]
+],
+[
+"بگو با یکی نه چون خیلی سروصدا می‌کند ولی سعی می‌کنم مؤدب باشم",
+"بگو شب‌ها",
+"With one neighbour, because he or she makes a lot of noise, but I try to be polite.",
+"At night.",
+[],
+[
+[
+"With one neighbour because makes a lot of noise.",
+"فاعل را فراموش نکن: he or she makes."
+]
+]
+]
+]
+},
+{
+"d": 2,
+"k": "s",
+"s": "get-to-know",
+"c": null,
+"q": [
+[
+"بپرس چطور با آدم‌های تازه آشنا می‌شود",
+"بپرس راحت",
+"How do you get to know new people?",
+"Is it easy?",
+[],
+[
+[
+"How you get to know new people?",
+"بعد از «How»، «do you» می‌آید."
+]
+]
+],
+[
+"بپرس چطور با آدم‌های تازه آشنا می‌شود و کجا",
+"بپرس باشگاه",
+"How do you get to know new people, and where?",
+"At a club?",
+[],
+[
+[
+"How do you get to know new people and where you meet?",
+"کوتاه بپرس: and where?"
+]
+]
+],
+[
+"بپرس آشنایی با آدم‌های تازه برایش آسان است یا سخت و چرا",
+"بپرس شرمنده",
+"Is it easy or hard for you to get to know new people? Why?",
+"Are you shy?",
+[],
+[
+[
+"Is it easy or hard to you get to know people?",
+"بگو: for you to get to know."
+]
+]
+]
+],
+"a": [
+[
+"بگو سر کار",
+"بگو و دانشگاه",
+"At work.",
+"And at university.",
+[],
+[
+[
+"In work.",
+"«at work» بگو."
+]
+]
+],
+[
+"بگو سر کار و در کلاس",
+"بگو و با دوستان",
+"At work and in class.",
+"And through friends.",
+[],
+[
+[
+"In work and at class.",
+"«at work» و «in class»."
+]
+]
+],
+[
+"بگو آسان نیست چون کمی خجالتی‌ام ولی وقتی حرف می‌زنیم راحت می‌شوم",
+"بگو کم‌کم",
+"It's not easy, because I'm a bit shy, but when we talk I feel good.",
+"Little by little.",
+[],
+[
+[
+"It not easy because I a bit shy.",
+"فعل را فراموش نکن: It's not easy / I'm a bit shy."
+]
+]
+]
+]
+},
+{
+"d": 2,
+"k": "s",
+"s": "friend-activities",
+"c": null,
+"q": [
+[
+"بپرس با دوست صمیمی‌اش چه می‌کند",
+"بپرس اغلب",
+"What do you do with your best friend?",
+"Often?",
+[],
+[
+[
+"What you do with your best friend?",
+"بعد از «What»، «do you» می‌آید."
+]
+]
+],
+[
+"بپرس با دوست صمیمی‌اش چه می‌کند و کجا می‌روند",
+"بپرس پارک",
+"What do you do with your best friend, and where do you go?",
+"The park?",
+[],
+[
+[
+"What do you do with your best friend and where you go?",
+"بعد از «where»، «do you» می‌آید."
+]
+]
+],
+[
+"بپرس با دوست صمیمی‌اش وقت می‌گذراند یا بیشتر حرف می‌زنند",
+"بپرس کدام",
+"Do you do things together, or do you mostly talk?",
+"Which?",
+[],
+[
+[
+"Do you do things together or you mostly talk?",
+"بخش دوم هم سؤال است."
+]
+]
+]
+],
+"a": [
+[
+"بگو قدم می‌زنیم",
+"بگو و حرف",
+"We walk.",
+"And talk.",
+[],
+[
+[
+"We walking.",
+"بعد از «we» فعل ساده: walk."
+]
+]
+],
+[
+"بگو قدم می‌زنیم و چای می‌خوریم",
+"بگو در پارک",
+"We walk and drink tea.",
+"In the park.",
+[],
+[
+[
+"We walk and drinking tea.",
+"هر دو فعل ساده."
+]
+]
+],
+[
+"بگو بیشتر حرف می‌زنیم چون هر دو شلوغ‌ایم ولی گاهی فیلم می‌بینیم",
+"بگو آخر هفته",
+"We mostly talk, because we are both busy, but sometimes we watch a film.",
+"At the weekend.",
+[],
+[
+[
+"We mostly talk because we both busy.",
+"فعل را فراموش نکن: we are both busy."
+]
+]
+]
+]
+},
+{
+"d": 2,
+"k": "f",
+"s": "friend-like",
+"c": "دوستت گفت: «دوست صمیمی‌ام خیلی شوخ است.»",
+"q": [
+[
+"بپرس دوستش چه شکلی است",
+"بپرس مهربان",
+"What is your friend like?",
+"Kind?",
+[],
+[
+[
+"What your friend is like?",
+"ترتیب: What is your friend like."
+]
+]
+],
+[
+"بپرس دوستش چه جور آدمی است و چه چیزی را دوست دارد",
+"بپرس شوخی",
+"What is your friend like, and what does your friend like?",
+"Jokes?",
+[],
+[
+[
+"What is your friend like and what likes your friend?",
+"بعد از «what»، «does your friend like» می‌آید."
+]
+]
+],
+[
+"بپرس دوستش خیلی شوخ است",
+"بپرس چرا",
+"Is your friend very funny?",
+"Why?",
+[],
+[
+[
+"Do your friend very funny?",
+"با صفت از «Is» استفاده کن."
+]
+]
+]
+],
+"a": [
+[
+"بگو مهربان",
+"بگو و بامزه",
+"Kind.",
+"And funny.",
+[],
+[
+[
+"He kind.",
+"فقط صفت: Kind."
+]
+]
+],
+[
+"بگو مهربان و خیلی بامزه",
+"بگو همیشه می‌خندد",
+"Kind, and very funny.",
+"He or she always laughs.",
+[],
+[
+[
+"Very funny and kind he.",
+"ساده: Kind, and very funny."
+]
+]
+],
+[
+"بگو بله چون همیشه جک می‌گوید ولی من ساکتم",
+"بگو او را دوست دارم",
+"Yes, because he or she always tells jokes, but I'm quiet.",
+"I like that.",
+[],
+[
+[
+"Yes because he tell jokes.",
+"فعل s می‌گیرد: tells."
+]
+]
+]
+]
+},
+{
+"d": 2,
+"k": "f",
+"s": "friendship-important",
+"c": "دوستت گفت: «دوستی برای من خیلی مهم است.»",
+"q": [
+[
+"بپرس چرا مهم است",
+"بپرس خیلی",
+"Why is it important?",
+"Very important?",
+[],
+[
+[
+"Why it is important?",
+"ترتیب: Why is it important."
+]
+]
+],
+[
+"بپرس چرا مهم است و دوستانش چه کمکی می‌کنند",
+"بپرس همیشه",
+"Why is it important, and how do your friends help you?",
+"Always?",
+[],
+[
+[
+"Why is it important and how your friends help you?",
+"بعد از «how»، «do your friends» می‌آید."
+]
+]
+],
+[
+"بپرس بدون دوست سخت است و تنهایی را دوست دارد",
+"بپرس چرا",
+"Is life hard without friends? Do you like being alone?",
+"Why?",
+[],
+[
+[
+"Is life hard without friends? You like being alone?",
+"سؤال دوم: Do you like being alone?"
+]
+]
+]
+],
+"a": [
+[
+"بگو چون کمکم می‌کنند",
+"بگو همیشه",
+"Because they help me.",
+"Always.",
+[],
+[
+[
+"Because they helps me.",
+"با «they» فعل بدون s."
+]
+]
+],
+[
+"بگو چون کمکم می‌کنند و با آن‌ها خوشحالم",
+"بگو حرف می‌زنیم",
+"Because they help me, and I'm happy with them.",
+"We talk.",
+[],
+[
+[
+"Because they help me and I happy with them.",
+"فعل را فراموش نکن: I'm happy."
+]
+]
+],
+[
+"بگو بله سخت است چون تنهایی غمگینم می‌کند ولی گاهی تنهایی را هم دوست دارم",
+"بگو برای استراحت",
+"Yes, it is, because being alone makes me sad, but sometimes I like it too.",
+"To rest.",
+[],
+[
+[
+"Yes it is because be alone makes me sad.",
+"بگو: being alone."
+]
+]
+]
+]
+},
+{
+"d": 2,
+"k": "f",
+"s": "neighbour-do",
+"c": "دوستت گفت: «با همسایه‌ام خوب کنار می‌آیم.»",
+"q": [
+[
+"بپرس با هم دیگر را می‌بیند",
+"بپرس هر روز",
+"Do you visit each other?",
+"Every day?",
+[],
+[
+[
+"Are you visit each other?",
+"«visit» فعل است؛ با «Do» بپرس."
+]
+]
+],
+[
+"بپرس همدیگر را می‌بینند و چه می‌کنند",
+"بپرس چای",
+"Do you visit each other, and what do you do?",
+"Drink tea?",
+[],
+[
+[
+"Do you visit each other and what you do?",
+"بعد از «what»، «do you» می‌آید."
+]
+]
+],
+[
+"بپرس همسایه‌اش کمک می‌کند و او هم کمک می‌کند",
+"بپرس مثلاً",
+"Does your neighbour help you? Do you help your neighbour?",
+"For example?",
+[],
+[
+[
+"Do your neighbour help you?",
+"با «neighbour» (سوم شخص) «Does» می‌آید."
+]
+]
+]
+],
+"a": [
+[
+"بگو بله",
+"بگو گاهی",
+"Yes, we do.",
+"Sometimes.",
+[],
+[
+[
+"Yes, we visit.",
+"جواب «Do you…؟» با «we do» است."
+]
+]
+],
+[
+"بگو بله و چای می‌نوشیم",
+"بگو و حرف می‌زنیم",
+"Yes, we do, and we drink tea.",
+"And talk.",
+[],
+[
+[
+"Yes, we do and we drinking tea.",
+"بعد از «we» فعل ساده: drink."
+]
+]
+],
+[
+"بگو بله او وقتی مسافرت می‌روم به گل‌هایم آب می‌دهد و من هم برایش خرید می‌کنم",
+"بگو خوب است",
+"Yes, he or she waters my flowers when I travel, and I do the shopping for him or her.",
+"It's good.",
+[],
+[
+[
+"Yes, he or she water my flowers.",
+"فعل s می‌گیرد: waters."
+]
+]
+]
+]
+},
+{
+"d": 2,
+"k": "f",
+"s": "meet-new",
+"c": "دوستت گفت: «من هر سال دوستان جدید پیدا می‌کنم.»",
+"q": [
+[
+"بپرس آن‌ها را کجا می‌بیند",
+"بپرس همیشه",
+"Where do you meet them?",
+"Always there?",
+[],
+[
+[
+"Where you meet them?",
+"بعد از «Where»، «do you» می‌آید."
+]
+]
+],
+[
+"بپرس آن‌ها را کجا می‌بیند و با آن‌ها چه می‌کند",
+"بپرس حرف",
+"Where do you meet them, and what do you do?",
+"Talk?",
+[],
+[
+[
+"Where do you meet them and what you do?",
+"بعد از «what»، «do you» می‌آید."
+]
+]
+],
+[
+"بپرس دوستان جدید با دوستان قدیمی فرق دارند",
+"بپرس چرا",
+"Are new friends different from old friends?",
+"Why?",
+[],
+[
+[
+"Do new friends different from old friends?",
+"با صفت از «Are» استفاده کن."
+]
+]
+]
+],
+"a": [
+[
+"بگو سر کار",
+"بگو و باشگاه",
+"At work.",
+"And at the gym.",
+[],
+[
+[
+"In work.",
+"«at work» بگو."
+]
+]
+],
+[
+"بگو سر کار و باشگاه و با آن‌ها قهوه می‌خورم",
+"بگو و حرف می‌زنیم",
+"At work and at the gym, and we have coffee.",
+"And we talk.",
+[],
+[
+[
+"In work and gym we have coffee.",
+"«at the gym» بگو."
+]
+]
+],
+[
+"بگو کمی فرق دارند چون دوستان قدیمی من را بهتر می‌شناسند ولی جدیدها هیجان‌انگیزند",
+"بگو هر دو خوب",
+"A bit, because old friends know me well, but the new ones are exciting.",
+"Both are good.",
+[],
+[
+[
+"A bit because old friends knows me well.",
+"با «friends» (جمع) فعل بدون s: know."
+]
+]
+]
+]
+},
+{
+"d": 2,
+"k": "f",
+"s": "old-friend-now",
+"c": "دوستت گفت: «او دوست قدیمی‌ام است.»",
+"q": [
+[
+"بپرس او الان کجاست",
+"بپرس همین شهر",
+"Where is your old friend now?",
+"In the same city?",
+[],
+[
+[
+"Where your old friend is now?",
+"ترتیب: Where is your old friend."
+]
+]
+],
+[
+"بپرس او الان کجا زندگی می‌کند و چه کار می‌کند",
+"بپرس راضی",
+"Where does your old friend live now, and what does your friend do?",
+"Is your friend happy?",
+[],
+[
+[
+"Where lives your old friend now?",
+"بعد از «where»، «does your friend live» می‌آید."
+]
+]
+],
+[
+"بپرس دوست قدیمی‌اش الان چه می‌کند و هنوز مثل قبل است",
+"بپرس فرق کرده",
+"What is your old friend doing these days? Is your friend the same?",
+"Has anything changed?",
+[],
+[
+[
+"What your old friend doing these days?",
+"بعد از «What»، «is your old friend doing» می‌آید."
+]
+]
+]
+],
+"a": [
+[
+"بگو در تهران",
+"بگو دور",
+"In another city.",
+"It's far.",
+[],
+[
+[
+"At another city.",
+"شهر: in."
+]
+]
+],
+[
+"بگو در شهر دیگری زندگی می‌کند و معلم است",
+"بگو دوستش دارد",
+"He or she lives in another city, and works as a teacher.",
+"He or she likes it.",
+[],
+[
+[
+"He or she live in other city.",
+"فعل s می‌گیرد: lives."
+]
+]
+],
+[
+"بگو این روزها خیلی کار می‌کند و کمی عوض شده ولی هنوز همان آدم مهربان است",
+"بگو خوشحالم",
+"He or she is working a lot these days and is a bit different, but still the same kind person.",
+"I'm happy.",
+[],
+[
+[
+"He or she working a lot these days.",
+"فعل را فراموش نکن: is working."
+]
+]
+]
+]
+},
+{
+"d": 3,
+"k": "s",
+"s": "outgoing",
+"c": null,
+"q": [
+[
+"بپرس آدم اجتماعی است",
+"بپرس چرا",
+"Are you an outgoing person?",
+"Why?",
+[],
+[
+[
+"Do you an outgoing person?",
+"با اسم (person) از «Are» استفاده کن."
+]
+]
+],
+[
+"بپرس آدم اجتماعی است و مهمانی دوست دارد",
+"بپرس زیاد",
+"Are you an outgoing person, and do you like parties?",
+"A lot?",
+[],
+[
+[
+"Are you an outgoing person and you like parties?",
+"بخش دوم هم سؤال است."
+]
+]
+],
+[
+"بپرس اجتماعی بودن در کار کمک می‌کند و خودش چطور است",
+"بپرس مثال",
+"Does being outgoing help at work? What about you?",
+"An example?",
+[],
+[
+[
+"Do being outgoing help at work?",
+"با «being» (سوم شخص) «Does» می‌آید."
+]
+]
+]
+],
+"a": [
+[
+"بگو بله",
+"بگو خیلی",
+"Yes, I am.",
+"Very.",
+[],
+[
+[
+"Yes, I do.",
+"جواب «Are you…؟» با «am» است."
+]
+]
+],
+[
+"بگو بله و با همه حرف می‌زنم",
+"بگو راحت",
+"Yes, I am, and I talk to everyone.",
+"Easily.",
+[],
+[
+[
+"Yes, I am and I talking to everyone.",
+"بعد از «I» فعل ساده: talk."
+]
+]
+],
+[
+"بگو نه چندان چون کمی خجالتی‌ام ولی در کار سعی می‌کنم حرف بزنم",
+"بگو کم‌کم",
+"Not really, because I'm a bit shy, but at work I try to talk.",
+"Little by little.",
+[],
+[
+[
+"Not really because I a bit shy.",
+"فعل را فراموش نکن: I'm a bit shy."
+]
+]
+]
+]
+},
+{
+"d": 3,
+"k": "s",
+"s": "relatives",
+"c": null,
+"q": [
+[
+"بپرس اغلب اقوامش را می‌بیند",
+"بپرس چند بار",
+"Do you see your relatives often?",
+"How often?",
+[],
+[
+[
+"Are you see your relatives often?",
+"«see» فعل است؛ با «Do» بپرس."
+]
+]
+],
+[
+"بپرس اقوامش را می‌بیند و آن‌ها کجا زندگی می‌کنند",
+"بپرس دور",
+"Do you see your relatives, and where do they live?",
+"Far?",
+[],
+[
+[
+"Do you see your relatives and where they live?",
+"بعد از «where»، «do they» می‌آید."
+]
+]
+],
+[
+"بپرس بیشتر اقوام پدری را می‌بیند یا مادری و چرا",
+"بپرس کدام نزدیک‌اند",
+"Do you see your father's relatives more, or your mother's? Why?",
+"Which are near?",
+[],
+[
+[
+"Do you see more your father's relatives?",
+"ترتیب را واضح بگو."
+]
+]
+]
+],
+"a": [
+[
+"بگو بله",
+"بگو ماهی یک بار",
+"Yes, I do.",
+"Once a month.",
+[],
+[
+[
+"Yes, I see.",
+"جواب «Do you…؟» با «do» است."
+]
+]
+],
+[
+"بگو بله و آن‌ها در شهر دیگری زندگی می‌کنند",
+"بگو سه ساعت راه",
+"Yes, I do, and they live in another city.",
+"It's three hours away.",
+[],
+[
+[
+"Yes, I do and they lives in another city.",
+"با «they» فعل بدون s."
+]
+]
+],
+[
+"بگو اقوام مادری را بیشتر چون نزدیک زندگی می‌کنند ولی پدری را عید می‌بینم",
+"بگو دور",
+"My mother's relatives more, because they live near, but I see my father's at holidays.",
+"They live far.",
+[],
+[
+[
+"My mother relatives more because they live near.",
+"بگو: my mother's relatives."
+]
+]
+]
+]
+},
+{
+"d": 3,
+"k": "s",
+"s": "close-family",
+"c": null,
+"q": [
+[
+"بپرس خانواده‌اش صمیمی است",
+"بپرس چرا",
+"Is your family close?",
+"Why?",
+[],
+[
+[
+"Does your family close?",
+"با صفت (close) از «Is» استفاده کن."
+]
+]
+],
+[
+"بپرس خانواده‌اش صمیمی است و با هم شام می‌خورند",
+"بپرس هر شب",
+"Is your family close, and do you eat dinner together?",
+"Every night?",
+[],
+[
+[
+"Is your family close and you eat dinner together?",
+"بخش دوم هم سؤال است."
+]
+]
+],
+[
+"بپرس خانواده‌اش خیلی صمیمی است",
+"بپرس دوستش دارد",
+"Is your family very close? Why?",
+"Do you like it?",
+[],
+[
+[
+"Does your family very close? Why?",
+"«Why?» را جدا بپرس."
+]
+]
+]
+],
+"a": [
+[
+"بگو بله",
+"بگو خیلی",
+"Yes, it is.",
+"Very.",
+[],
+[
+[
+"Yes, they are.",
+"جواب «Is your family…؟» با «it is» است."
+]
+]
+],
+[
+"بگو بله و شب‌ها با هم شام می‌خوریم",
+"بگو و چای",
+"Yes, it is, and we eat dinner together at night.",
+"And drink tea.",
+[],
+[
+[
+"Yes, it is and we eating dinner together.",
+"بعد از «we» فعل ساده: eat."
+]
+]
+],
+[
+"بگو فکر می‌کنم بله چون هر هفته دور هم جمع می‌شویم ولی همه شلوغ‌اند",
+"بگو یکشنبه‌ها",
+"I think so, because we get together every week, but everyone is busy.",
+"On Sundays.",
+[],
+[
+[
+"I think so because we get together each week but everyone busy.",
+"فعل را فراموش نکن: everyone is busy."
+]
+]
+]
+]
+},
+{
+"d": 3,
+"k": "s",
+"s": "these-days",
+"c": null,
+"q": [
+[
+"بپرس این روزها چه می‌کند",
+"بپرس کار",
+"What are you doing these days?",
+"Working?",
+[],
+[
+[
+"What you are doing these days?",
+"ترتیب سؤال: What are you doing."
+]
+]
+],
+[
+"بپرس این روزها چه می‌کند و کجا زندگی می‌کند",
+"بپرس همان شهر",
+"What are you doing these days, and where are you living?",
+"In the same place?",
+[],
+[
+[
+"What are you doing these days and where you are living?",
+"بعد از «where»، «are you» می‌آید."
+]
+]
+],
+[
+"بپرس این روزها چه می‌کند و از آن راضی است",
+"بپرس چرا",
+"What are you doing these days? Are you happy with it?",
+"Why?",
+[],
+[
+[
+"What are you doing these days? You are happy with it?",
+"سؤال دوم: Are you happy with it?"
+]
+]
+]
+],
+"a": [
+[
+"بگو درس می‌خوانم",
+"بگو انگلیسی",
+"I'm studying.",
+"English.",
+[],
+[
+[
+"I studying.",
+"فعل را فراموش نکن: I'm studying."
+]
+]
+],
+[
+"بگو درس می‌خوانم و کار می‌کنم",
+"بگو پاره‌وقت",
+"I'm studying and working.",
+"Part-time.",
+[],
+[
+[
+"I'm studying and work.",
+"هر دو -ing: studying and working."
+]
+]
+],
+[
+"بگو درس می‌خوانم و راضی‌ام چون یاد می‌گیرم ولی کمی خسته‌ام",
+"بگو ولی ارزشش را دارد",
+"I'm studying and I'm happy with it, because I'm learning, but I'm a bit tired.",
+"But it's worth it.",
+[],
+[
+[
+"I'm studying and happy with it because I learning.",
+"فعل را فراموش نکن: I'm learning."
+]
+]
+]
+]
+},
+{
+"d": 3,
+"k": "s",
+"s": "family-size",
+"c": null,
+"q": [
+[
+"بپرس خانواده‌اش چند نفر است",
+"بپرس کیا",
+"How many people are in your family?",
+"Who?",
+[],
+[
+[
+"How many people in your family are?",
+"ترتیب: How many people are in your family."
+]
+]
+],
+[
+"بپرس خانواده‌اش چند نفر است و با چند نفر زندگی می‌کند",
+"بپرس خانه",
+"How many people are in your family, and who do you live with?",
+"In one house?",
+[],
+[
+[
+"How many people are in your family and with who you live?",
+"بگو: who do you live with."
+]
+]
+],
+[
+"بپرس خانواده‌اش بزرگ است و دوست دارد",
+"بپرس چرا",
+"Is your family big? Do you like that?",
+"Why?",
+[],
+[
+[
+"Is your family big? You like that?",
+"سؤال دوم: Do you like that?"
+]
+]
+]
+],
+"a": [
+[
+"بگو پنج نفر",
+"بگو پدر و مادر",
+"Five people.",
+"Parents and children.",
+[],
+[
+[
+"Five person.",
+"جمع: five people."
+]
+]
+],
+[
+"بگو پنج نفر و با پدر و مادرم زندگی می‌کنم",
+"بگو و دو خواهر",
+"Five people, and I live with my parents.",
+"And two sisters.",
+[],
+[
+[
+"Five people and I live with my parent.",
+"جمع: parents."
+]
+]
+],
+[
+"بگو بزرگ است و دوستش دارم چون همیشه کسی هست ولی گاهی شلوغ است",
+"بگو سروصدا",
+"It's big, and I like it, because someone is always there, but sometimes it's noisy.",
+"A lot of noise.",
+[],
+[
+[
+"It big and I like because someone always there.",
+"فعل را فراموش نکن: someone is always there."
+]
+]
+]
+]
+},
+{
+"d": 3,
+"k": "f",
+"s": "outgoing-parties",
+"c": "دوستت گفت: «من خیلی اجتماعی‌ام.»",
+"q": [
+[
+"بپرس مهمانی دوست دارد",
+"بپرس هر هفته",
+"Do you like parties?",
+"Every week?",
+[],
+[
+[
+"Are you like parties?",
+"«like» فعل است؛ با «Do» بپرس."
+]
+]
+],
+[
+"بپرس مهمانی دوست دارد و با چه کسانی می‌رود",
+"بپرس با دوستان",
+"Do you like parties, and who do you go with?",
+"With friends?",
+[],
+[
+[
+"Do you like parties and who you go with?",
+"بعد از «who»، «do you» می‌آید."
+]
+]
+],
+[
+"بپرس مهمانی بزرگ را دوست دارد یا کوچک و چرا",
+"بپرس کدام",
+"Do you like big parties or small ones? Why?",
+"Which?",
+[],
+[
+[
+"Do you like big parties or small? Why?",
+"بگو: small ones."
+]
+]
+]
+],
+"a": [
+[
+"بگو بله",
+"بگو خیلی",
+"Yes, I do.",
+"A lot.",
+[],
+[
+[
+"Yes, I like.",
+"جواب «Do you…؟» با «do» است."
+]
+]
+],
+[
+"بگو بله و با دوستانم می‌روم",
+"بگو آخر هفته",
+"Yes, I do, and I go with my friends.",
+"At the weekend.",
+[],
+[
+[
+"Yes, I do and I going with my friends.",
+"بعد از «I» فعل ساده: go."
+]
+]
+],
+[
+"بگو کوچک را دوست دارم چون می‌توانم حرف بزنم ولی بزرگ هم خوب است",
+"بگو و رقص",
+"I like small ones, because I can talk, but big ones are good too.",
+"And dancing.",
+[],
+[
+[
+"I like small because I can talk.",
+"بگو: small ones."
+]
+]
+]
+]
+},
+{
+"d": 3,
+"k": "f",
+"s": "visit-relatives",
+"c": "دوستت گفت: «اقوامم در شهر دیگری زندگی می‌کنند.»",
+"q": [
+[
+"بپرس چند بار به دیدنشان می‌رود",
+"بپرس سالی",
+"How often do you visit them?",
+"Every year?",
+[],
+[
+[
+"How often you visit them?",
+"بعد از «How often»، «do you» می‌آید."
+]
+]
+],
+[
+"بپرس چند بار به دیدنشان می‌رود و چطور می‌رود",
+"بپرس با قطار",
+"How often do you visit them, and how do you get there?",
+"By train?",
+[],
+[
+[
+"How often do you visit them and how you go?",
+"بعد از «how»، «do you» می‌آید."
+]
+]
+],
+[
+"بپرس رفتن به دیدنشان سخت است و دوست دارد",
+"بپرس چرا",
+"Is it hard to visit them? Do you like it?",
+"Why?",
+[],
+[
+[
+"Is hard to visit them?",
+"بعد از «Is» باید «it» بیاید."
+]
+]
+]
+],
+"a": [
+[
+"بگو سالی دو بار",
+"بگو در عید",
+"Twice a year.",
+"At holidays.",
+[],
+[
+[
+"Two times a year.",
+"بگو: twice a year."
+]
+]
+],
+[
+"بگو سالی دو بار و با قطار",
+"بگو چهار ساعت",
+"Twice a year, by train.",
+"Four hours.",
+[],
+[
+[
+"Twice a year with train.",
+"برای وسیله از «by» استفاده کن."
+]
+]
+],
+[
+"بگو سخت است چون دور است ولی دوستش دارم چون همه را می‌بینم",
+"بگو و بچه‌ها",
+"It's hard, because it's far, but I like it, because I see everyone.",
+"And the children.",
+[],
+[
+[
+"It hard because it far.",
+"فعل را فراموش نکن: It's hard / it's far."
+]
+]
+]
+]
+},
+{
+"d": 3,
+"k": "f",
+"s": "together-family",
+"c": "دوستت گفت: «خانواده‌ام خیلی صمیمی است.»",
+"q": [
+[
+"بپرس با هم چه می‌کنند",
+"بپرس آخر هفته",
+"What do you do together?",
+"At the weekend?",
+[],
+[
+[
+"What you do together?",
+"بعد از «What»، «do you» می‌آید."
+]
+]
+],
+[
+"بپرس با هم چه می‌کنند و کجا می‌روند",
+"بپرس پارک",
+"What do you do together, and where do you go?",
+"The park?",
+[],
+[
+[
+"What do you do together and where you go?",
+"بعد از «where»، «do you» می‌آید."
+]
+]
+],
+[
+"بپرس همه با هم خوب کنار می‌آیند یا گاهی دعوا می‌کنند",
+"بپرس درباره‌ی چه",
+"Does everyone get on well, or do you sometimes argue?",
+"About what?",
+[],
+[
+[
+"Do everyone get on well?",
+"با «everyone» «Does» می‌آید."
+]
+]
+]
+],
+"a": [
+[
+"بگو غذا می‌خوریم",
+"بگو با هم",
+"We eat.",
+"Together.",
+[],
+[
+[
+"We are eat.",
+"بعد از «we» فعل ساده: eat."
+]
+]
+],
+[
+"بگو غذا می‌خوریم و به پارک می‌رویم",
+"بگو یکشنبه‌ها",
+"We eat together and go to the park.",
+"On Sundays.",
+[],
+[
+[
+"We eat together and go to park.",
+"«the park» بگو."
+]
+]
+],
+[
+"بگو معمولاً خوب کنار می‌آییم ولی گاهی درباره‌ی کوچک‌ترین چیزها بحث می‌کنیم",
+"بگو بعد آشتی",
+"Usually we get on well, but sometimes we argue about small things.",
+"Then we make up.",
+[],
+[
+[
+"Usually we get on well but sometimes we argue about the small things.",
+"«about small things» بدون the."
+]
+]
+]
+]
+},
+{
+"d": 3,
+"k": "f",
+"s": "busy-tired",
+"c": "دوستت گفت: «این روزها خیلی کار می‌کنم.»",
+"q": [
+[
+"بپرس خسته است",
+"بپرس خیلی",
+"Are you tired?",
+"Very?",
+[],
+[
+[
+"Do you tired?",
+"با صفت (tired) از «Are» استفاده کن."
+]
+]
+],
+[
+"بپرس خسته است و استراحت می‌کند",
+"بپرس کی",
+"Are you tired, and do you rest?",
+"When?",
+[],
+[
+[
+"Are you tired and you rest?",
+"بخش دوم هم سؤال است."
+]
+]
+],
+[
+"بپرس خسته است چون زیاد کار می‌کند و کسی کمک می‌کند",
+"بپرس چه کسی",
+"Are you tired because you work a lot? Does anyone help you?",
+"Who?",
+[],
+[
+[
+"Are you tired because you working a lot?",
+"بعد از «you» فعل ساده: work."
+]
+]
+]
+],
+"a": [
+[
+"بگو بله",
+"بگو کمی",
+"Yes, I am.",
+"A bit.",
+[],
+[
+[
+"Yes, I do.",
+"جواب «Are you…؟» با «am» است."
+]
+]
+],
+[
+"بگو بله و آخر هفته استراحت می‌کنم",
+"بگو خیلی",
+"Yes, I am, and I rest at the weekend.",
+"A lot.",
+[],
+[
+[
+"Yes, I am and I resting at the weekend.",
+"بعد از «I» فعل ساده: rest."
+]
+]
+],
+[
+"بگو بله چون کارم زیاد است و کسی کمک نمی‌کند ولی دوستانم گاهی می‌آیند",
+"بگو و چای می‌آورند",
+"Yes, I am, because I have a lot of work and no one helps, but my friends sometimes come.",
+"And bring tea.",
+[],
+[
+[
+"Yes, I am because I have much work and no one help.",
+"«a lot of work»؛ و «no one helps»."
+]
+]
+]
+]
+},
+{
+"d": 3,
+"k": "f",
+"s": "sunday-lunch",
+"c": "دوستت گفت: «ما یکشنبه‌ها دور هم جمع می‌شویم.»",
+"q": [
+[
+"بپرس چه کسی غذا می‌پزد",
+"بپرس همیشه",
+"Who cooks?",
+"Always?",
+[],
+[
+[
+"Who cook?",
+"با «Who» فعل s می‌گیرد: cooks."
+]
+]
+],
+[
+"بپرس چه کسی غذا می‌پزد و چند نفر می‌آیند",
+"بپرس خیلی",
+"Who cooks, and how many people come?",
+"A lot?",
+[],
+[
+[
+"Who cooks and how many people comes?",
+"بعد از «people» فعل بدون s: come."
+]
+]
+],
+[
+"بپرس همه می‌آیند و اگر یکی نتواند بیاید چه می‌کنند",
+"بپرس زنگ",
+"Does everyone come? What do you do if someone can't?",
+"Call?",
+[],
+[
+[
+"Do everyone come?",
+"با «everyone» «Does» می‌آید."
+]
+]
+]
+],
+"a": [
+[
+"بگو مادرم",
+"بگو ساعت یک",
+"My mum.",
+"At one.",
+[],
+[
+[
+"My mum cook.",
+"با «mum» فعل s می‌گیرد."
+]
+]
+],
+[
+"بگو مادرم و حدود ده نفر می‌آیند",
+"بگو و بچه‌ها",
+"My mum, and about ten people come.",
+"With children.",
+[],
+[
+[
+"My mum and about ten people comes.",
+"با «people» فعل بدون s: come."
+]
+]
+],
+[
+"بگو بله همه می‌آیند و اگر کسی نیاید زنگ می‌زنیم چون می‌خواهیم نگران نباشیم",
+"بگو و پیام",
+"Yes, everyone comes, and if someone doesn't, we call, because we don't want to worry.",
+"And message.",
+[],
+[
+[
+"Yes, everyone come and if someone not come we call.",
+"با «everyone» فعل s می‌گیرد: comes."
+]
+]
+]
+]
+},
+{
+"d": 4,
+"k": "s",
+"s": "friend-like-2",
+"c": null,
+"q": [
+[
+"بپرس بهترین دوستش چه شکلی است",
+"بپرس چه جور آدم",
+"What is your best friend like?",
+"Funny?",
+[],
+[
+[
+"What your best friend is like?",
+"ترتیب: What is your best friend like."
+]
+]
+],
+[
+"بپرس بهترین دوستش چه شکلی است و چه چیزی را دوست دارد",
+"بپرس ورزش",
+"What is your best friend like, and what does he or she like?",
+"Sports?",
+[],
+[
+[
+"What is your best friend like and what likes he or she?",
+"بعد از «what»، «does he or she like» می‌آید."
+]
+]
+],
+[
+"بپرس بهترین دوستش خیلی شوخ است و چرا",
+"بپرس مثال",
+"Is your best friend very funny? Why?",
+"An example?",
+[],
+[
+[
+"Does your best friend very funny? Why?",
+"«Why?» را جدا بپرس."
+]
+]
+]
+],
+"a": [
+[
+"بگو مهربان",
+"بگو و آرام",
+"Kind.",
+"And quiet.",
+[],
+[
+[
+"Is kind.",
+"فقط صفت: Kind."
+]
+]
+],
+[
+"بگو مهربان و آرام و فیلم دوست دارد",
+"بگو و موسیقی",
+"Kind and quiet, and he or she likes films.",
+"And music.",
+[],
+[
+[
+"Kind and quiet, and likes he films.",
+"ترتیب: he or she likes films."
+]
+]
+],
+[
+"بگو نه او ساکت است ولی وقتی با هم هستیم هر دو می‌خندیم",
+"بگو خیلی",
+"No, my friend is quiet, but when we are together we both laugh.",
+"A lot.",
+[],
+[
+[
+"No my friend quiet but we both laugh.",
+"فعل را فراموش نکن: my friend is quiet."
+]
+]
+]
+]
+},
+{
+"d": 4,
+"k": "s",
+"s": "doing-now",
+"c": null,
+"q": [
+[
+"بپرس الان چه می‌کند",
+"بپرس کار",
+"What are you doing now?",
+"Working?",
+[],
+[
+[
+"What you are doing now?",
+"ترتیب سؤال: What are you doing."
+]
+]
+],
+[
+"بپرس الان چه می‌کند و با چه کسی",
+"بپرس تنها",
+"What are you doing now, and who are you with?",
+"Alone?",
+[],
+[
+[
+"What are you doing now and who you are with?",
+"بعد از «who»، «are you» می‌آید."
+]
+]
+],
+[
+"بپرس الان چه می‌کند و می‌تواند حرف بزند",
+"بپرس مشغول",
+"What are you doing now? Can you talk?",
+"Are you busy?",
+[],
+[
+[
+"What are you doing now? You can talk?",
+"سؤال دوم: Can you talk?"
+]
+]
+]
+],
+"a": [
+[
+"بگو درس می‌خوانم",
+"بگو انگلیسی",
+"I'm studying.",
+"English.",
+[],
+[
+[
+"I studying.",
+"فعل را فراموش نکن: I'm studying."
+]
+]
+],
+[
+"بگو درس می‌خوانم و چای می‌خورم",
+"بگو تنها",
+"I'm studying and drinking tea.",
+"Alone.",
+[],
+[
+[
+"I'm study and drink tea.",
+"هر دو -ing: studying and drinking."
+]
+]
+],
+[
+"بگو برای امتحان درس می‌خوانم و می‌توانم حرف بزنم چون استراحت می‌کنم",
+"بگو پنج دقیقه",
+"I'm studying for an exam, but I can talk, because I'm taking a break.",
+"Five minutes.",
+[],
+[
+[
+"I studying for an exam but I can talk because I take a break now.",
+"برای الان: I'm taking a break."
+]
+]
+]
+]
+},
+{
+"d": 4,
+"k": "s",
+"s": "friend-living",
+"c": null,
+"q": [
+[
+"بپرس دوستش الان کجا زندگی می‌کند",
+"بپرس همین شهر",
+"Where is your friend living now?",
+"In this city?",
+[],
+[
+[
+"Where your friend is living now?",
+"ترتیب: Where is your friend living."
+]
+]
+],
+[
+"بپرس دوستش کجا زندگی می‌کند و چه کار می‌کند",
+"بپرس معلم",
+"Where is your friend living, and what is your friend doing?",
+"A teacher?",
+[],
+[
+[
+"Where is your friend living and what your friend doing?",
+"بعد از «what»، «is your friend doing» می‌آید."
+]
+]
+],
+[
+"بپرس دوستش از جایی که زندگی می‌کند راضی است و چرا",
+"بپرس دلتنگ",
+"Is your friend happy where he or she is living? Why?",
+"Does he or she miss home?",
+[],
+[
+[
+"Is your friend happy where is he or she living?",
+"بعد از «where»: he or she is living."
+]
+]
+]
+],
+"a": [
+[
+"بگو در شهر دیگر",
+"بگو دور",
+"In another city.",
+"Far away.",
+[],
+[
+[
+"At another city.",
+"شهر: in."
+]
+]
+],
+[
+"بگو در شهر دیگری و در یک بانک کار می‌کند",
+"بگو خوب",
+"In another city, and working in a bank.",
+"It's good.",
+[],
+[
+[
+"In another city and work in a bank.",
+"بگو: working."
+]
+]
+],
+[
+"بگو بله راضی است چون کارش خوب است ولی گاهی دلش برای خانه تنگ می‌شود",
+"بگو زنگ می‌زند",
+"Yes, he or she is happy, because the job is good, but sometimes he or she misses home.",
+"He or she calls.",
+[],
+[
+[
+"Yes he or she happy because job is good.",
+"فعل را فراموش نکن: is happy / the job is."
+]
+]
+]
+]
+},
+{
+"d": 4,
+"k": "s",
+"s": "friend-work-now",
+"c": null,
+"q": [
+[
+"بپرس دوستش این روزها چه می‌کند",
+"بپرس درس",
+"What is your friend doing these days?",
+"Studying?",
+[],
+[
+[
+"What your friend doing these days?",
+"بعد از «What»، «is your friend doing» می‌آید."
+]
+]
+],
+[
+"بپرس دوستش این روزها چه می‌کند و راضی است",
+"بپرس خسته",
+"What is your friend doing these days, and is he or she happy?",
+"Tired?",
+[],
+[
+[
+"What is your friend doing these days and he or she is happy?",
+"بخش دوم هم سؤال است: is he or she happy."
+]
+]
+],
+[
+"بپرس دوستش این روزها زیاد کار می‌کند",
+"بپرس چرا",
+"Is your friend working a lot these days?",
+"Why?",
+[],
+[
+[
+"Does your friend working a lot these days?",
+"با -ing از «Is» استفاده کن."
+]
+]
+]
+],
+"a": [
+[
+"بگو کار می‌کند",
+"بگو زیاد",
+"He or she is working.",
+"A lot.",
+[],
+[
+[
+"He or she work.",
+"فعل را فراموش نکن: is working."
+]
+]
+],
+[
+"بگو کار می‌کند و درس می‌خواند",
+"بگو راضی است",
+"He or she is working and studying.",
+"He or she is happy.",
+[],
+[
+[
+"He or she is working and study.",
+"هر دو -ing."
+]
+]
+],
+[
+"بگو زیاد کار می‌کند چون کار تازه دارد ولی راضی است",
+"بگو خسته",
+"He or she is working a lot, because he or she has a new job, but is happy.",
+"A bit tired.",
+[],
+[
+[
+"He or she working a lot because new job.",
+"فعل را فراموش نکن: is working / has."
+]
+]
+]
+]
+},
+{
+"d": 4,
+"k": "s",
+"s": "good-friend",
+"c": null,
+"q": [
+[
+"بپرس یک دوست خوب چه ویژگی‌ای دارد",
+"بپرس صادق",
+"What makes a good friend?",
+"Honest?",
+[],
+[
+[
+"What make a good friend?",
+"با «What» فعل s می‌گیرد: makes."
+]
+]
+],
+[
+"بپرس یک دوست خوب چه ویژگی‌هایی دارد و خودش چنین است",
+"بپرس چرا",
+"What makes a good friend, and are you one?",
+"Why?",
+[],
+[
+[
+"What makes a good friend and you are one?",
+"بخش دوم هم سؤال است: are you one."
+]
+]
+],
+[
+"بپرس کدام مهم‌تر است، صداقت یا شوخ‌طبعی",
+"بپرس چرا",
+"Which is more important, being honest or being funny?",
+"Why?",
+[],
+[
+[
+"Which is importanter, honest or funny?",
+"صفت بلند با «more» می‌آید."
+]
+]
+]
+],
+"a": [
+[
+"بگو صداقت",
+"بگو و مهربانی",
+"Being honest.",
+"And kind.",
+[],
+[
+[
+"Honesty.",
+"طبیعی‌تر: Being honest."
+]
+]
+],
+[
+"بگو صداقت و کمک",
+"بگو همیشه",
+"Being honest and helping.",
+"Always.",
+[],
+[
+[
+"Be honest and help.",
+"شکل -ing: being honest."
+]
+]
+],
+[
+"بگو صداقت چون بدون آن دوستی ادامه پیدا نمی‌کند ولی شوخ‌طبعی هم لازم است",
+"بگو هر دو",
+"Being honest, because without it a friendship doesn't last, but being funny is needed too.",
+"Both.",
+[],
+[
+[
+"Being honest because without it friendship not last.",
+"منفی: a friendship doesn't last."
+]
+]
+]
+]
+},
+{
+"d": 4,
+"k": "f",
+"s": "agree",
+"c": "دوستت گفت: «یک دوست خوب باید صادق باشد.»",
+"q": [
+[
+"بپرس با این موافق است",
+"بپرس همیشه",
+"Do you agree?",
+"Always?",
+[],
+[
+[
+"Are you agree?",
+"«agree» فعل است؛ با «Do» بپرس."
+]
+]
+],
+[
+"بپرس موافق است و چه مثالی دارد",
+"بپرس دوست",
+"Do you agree, and do you have an example?",
+"A friend?",
+[],
+[
+[
+"Do you agree and you have an example?",
+"بخش دوم هم سؤال است."
+]
+]
+],
+[
+"بپرس موافق است و فکر می‌کند همه باید صادق باشند",
+"بپرس چرا",
+"Do you agree? Do you think everyone has to be honest?",
+"Why?",
+[],
+[
+[
+"Do you agree? Everyone has to be honest, you think?",
+"سؤال دوم: Do you think everyone has to be honest?"
+]
+]
+]
+],
+"a": [
+[
+"بگو بله",
+"بگو کاملاً",
+"Yes, I do.",
+"Completely.",
+[],
+[
+[
+"Yes, I agree.",
+"جواب «Do you…؟» با «do» است."
+]
+]
+],
+[
+"بگو بله چون دروغ بد است",
+"بگو همیشه",
+"Yes, I do, because lying is bad.",
+"Always.",
+[],
+[
+[
+"Yes, I do because lie is bad.",
+"بعد از because: lying is bad."
+]
+]
+],
+[
+"بگو بله و فکر می‌کنم بله ولی گاهی صادق بودن سخت است",
+"بگو مثلاً",
+"Yes, I do, and I think so, but sometimes being honest is hard.",
+"For example.",
+[],
+[
+[
+"Yes I do and I think so but sometimes honest is hard.",
+"بگو: being honest."
+]
+]
+]
+]
+},
+{
+"d": 4,
+"k": "f",
+"s": "talk-often",
+"c": "دوستت گفت: «دوستم الان در خارج زندگی می‌کند.»",
+"q": [
+[
+"بپرس اغلب حرف می‌زنند",
+"بپرس هر هفته",
+"Do you talk often?",
+"Every week?",
+[],
+[
+[
+"Are you talk often?",
+"«talk» فعل است؛ با «Do» بپرس."
+]
+]
+],
+[
+"بپرس اغلب حرف می‌زنند و چطور",
+"بپرس تصویری",
+"Do you talk often, and how?",
+"By video?",
+[],
+[
+[
+"Do you talk often and how you talk?",
+"کوتاه بپرس: and how?"
+]
+]
+],
+[
+"بپرس دوری سخت است و دلش تنگ می‌شود",
+"بپرس چرا",
+"Is the distance hard? Do you miss your friend?",
+"Why?",
+[],
+[
+[
+"The distance is hard? Do you miss your friend?",
+"سؤال اول: Is the distance hard?"
+]
+]
+]
+],
+"a": [
+[
+"بگو بله",
+"بگو هر هفته",
+"Yes, we do.",
+"Every week.",
+[],
+[
+[
+"Yes, we talk.",
+"جواب «Do you…؟» با «we do» است."
+]
+]
+],
+[
+"بگو بله و با تماس تصویری",
+"بگو یکشنبه‌ها",
+"Yes, we do, by video call.",
+"On Sundays.",
+[],
+[
+[
+"Yes, we do, with video call.",
+"برای وسیله از «by» استفاده کن."
+]
+]
+],
+[
+"بگو بله سخت است چون خیلی دور است و دلم تنگ می‌شود ولی حرف زدنمان کمک می‌کند",
+"بگو خوب است",
+"Yes, it is, because it's very far and I miss my friend, but talking helps.",
+"It's good.",
+[],
+[
+[
+"Yes it is because it very far.",
+"فعل را فراموش نکن: it's very far."
+]
+]
+]
+]
+},
+{
+"d": 4,
+"k": "f",
+"s": "see-friend",
+"c": "دوستت گفت: «دوستم این روزها خیلی کار می‌کند.»",
+"q": [
+[
+"بپرس دوستش را می‌بیند",
+"بپرس اغلب",
+"Do you see your friend?",
+"Often?",
+[],
+[
+[
+"Are you see your friend?",
+"«see» فعل است؛ با «Do» بپرس."
+]
+]
+],
+[
+"بپرس دوستش را می‌بیند و وقت دارند",
+"بپرس آخر هفته",
+"Do you see your friend, and do you have time?",
+"At the weekend?",
+[],
+[
+[
+"Do you see your friend and you have time?",
+"بخش دوم هم سؤال است."
+]
+]
+],
+[
+"بپرس الان دوستش را اغلب می‌بیند و چه می‌کند",
+"بپرس ناراحت",
+"Do you see your friend often now? What do you do?",
+"Are you sad?",
+[],
+[
+[
+"Do you see often your friend now?",
+"«often» آخر جمله می‌آید: see your friend often."
+]
+]
+]
+],
+"a": [
+[
+"بگو بله",
+"بگو کم",
+"Yes, I do.",
+"Not much.",
+[],
+[
+[
+"Yes, I see.",
+"جواب «Do you…؟» با «do» است."
+]
+]
+],
+[
+"بگو بله ولی کم",
+"بگو ماهی یک بار",
+"Yes, but not often.",
+"Once a month.",
+[],
+[
+[
+"Yes but not much often.",
+"بگو: not often."
+]
+]
+],
+[
+"بگو کمتر می‌بینمش چون کار می‌کند ولی هر شب پیام می‌دهیم",
+"بگو و آخر هفته‌ها",
+"I see my friend less, because he or she is working, but we send messages every night.",
+"And at the weekend.",
+[],
+[
+[
+"I see him or her less because working.",
+"فعل را فراموش نکن: he or she is working."
+]
+]
+]
+]
+},
+{
+"d": 4,
+"k": "f",
+"s": "talking-about",
+"c": "دوستت گفت: «الان با دوستم صحبت می‌کنم.»",
+"q": [
+[
+"بپرس درباره‌ی چه حرف می‌زنند",
+"بپرس کار",
+"What are you talking about?",
+"Work?",
+[],
+[
+[
+"What you are talking about?",
+"ترتیب سؤال: What are you talking about."
+]
+]
+],
+[
+"بپرس درباره‌ی چه حرف می‌زنند و چقدر طول می‌کشد",
+"بپرس ساعت",
+"What are you talking about, and how long is the call?",
+"An hour?",
+[],
+[
+[
+"What are you talking about and how long the call is?",
+"ترتیب: how long is the call."
+]
+]
+],
+[
+"بپرس درباره‌ی چه حرف می‌زنند و هر دو خوشحال‌اند",
+"بپرس می‌خندید",
+"What are you talking about? Are you both happy?",
+"Are you laughing?",
+[],
+[
+[
+"What are you talking about? You both are happy?",
+"سؤال دوم: Are you both happy?"
+]
+]
+]
+],
+"a": [
+[
+"بگو درباره‌ی کار",
+"بگو و برنامه",
+"About work.",
+"And plans.",
+[],
+[
+[
+"Of work.",
+"با talk «about» می‌آید."
+]
+]
+],
+[
+"بگو درباره‌ی کار و تقریباً یک ساعت",
+"بگو طولانی",
+"About work, for about an hour.",
+"It's long.",
+[],
+[
+[
+"About work, since one hour.",
+"برای مدت: for."
+]
+]
+],
+[
+"بگو درباره‌ی کارمان و بله هر دو خوشحالیم چون خبر خوب داریم",
+"بگو و می‌خندیم",
+"About our work, and yes, we are both happy, because we have good news.",
+"And we're laughing.",
+[],
+[
+[
+"About our work and yes we both happy because we have a good news.",
+"«good news» شمارش‌ناپذیر است."
+]
+]
+]
+]
+},
+{
+"d": 4,
+"k": "f",
+"s": "friend-funny-too",
+"c": "دوستت گفت: «دوستم خیلی مهربان است.»",
+"q": [
+[
+"بپرس شوخ هم هست",
+"بپرس خیلی",
+"Is your friend funny too?",
+"Very?",
+[],
+[
+[
+"Do your friend funny too?",
+"با صفت (funny) از «Is» استفاده کن."
+]
+]
+],
+[
+"بپرس شوخ هم هست و شما چه می‌کنید",
+"بپرس می‌خندید",
+"Is your friend funny too, and what do you do together?",
+"Laugh?",
+[],
+[
+[
+"Is your friend funny too and what you do together?",
+"بعد از «what»، «do you» می‌آید."
+]
+]
+],
+[
+"بپرس مهربان بودن برایش مهم است",
+"بپرس چرا",
+"Is being kind important to you?",
+"Why?",
+[],
+[
+[
+"Is kind important to you?",
+"بگو: being kind."
+]
+]
+]
+],
+"a": [
+[
+"بگو بله",
+"بگو خیلی",
+"Yes, he or she is.",
+"Very.",
+[],
+[
+[
+"Yes, he is funny too.",
+"ساده: Yes, he or she is."
+]
+]
+],
+[
+"بگو بله و با هم زیاد می‌خندیم",
+"بگو شوخی",
+"Yes, he or she is, and we laugh a lot together.",
+"Jokes.",
+[],
+[
+[
+"Yes, he or she is and we laughing a lot.",
+"بعد از «we» فعل ساده: laugh."
+]
+]
+],
+[
+"بگو بله مهربان بودن مهم است چون شوخی بدون مهربانی خوب نیست ولی هر دو را دوست دارم",
+"بگو هر دو",
+"Yes, being kind is important, because jokes without kindness aren't good, but I like both.",
+"Both.",
+[],
+[
+[
+"Yes being kind is more important because jokes without kind not good.",
+"اسم لازم است: kindness؛ و «aren't good»."
+]
+]
+]
+]
+}
+]
+}
