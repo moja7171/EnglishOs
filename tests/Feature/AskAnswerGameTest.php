@@ -110,6 +110,7 @@ class AskAnswerGameTest extends TestCase
 
     public function test_the_game_has_nothing_to_draw_for_missions_without_situations(): void
     {
+        AskAnswerItem::where('mission_number', 1)->delete();
         $me = User::factory()->create();
         $friend = $this->makeMutualFriend($me);
 
@@ -256,8 +257,8 @@ class AskAnswerGameTest extends TestCase
         $second = app(PairGames::class)->start($me, $friend, PairGame::GAME_ASK, 5);
 
         // M11 day 1 has 5 plain and 5 follow-up situations; the unplayed one of each leads.
-        $unplayedPlain = AskAnswerItem::where('day', 1)->where('kind', 'simple')->whereNotIn('id', $played)->value('id');
-        $unplayedFollowUp = AskAnswerItem::where('day', 1)->where('kind', 'followup')->whereNotIn('id', $played)->value('id');
+        $unplayedPlain = AskAnswerItem::where('mission_number', 11)->where('day', 1)->where('kind', 'simple')->whereNotIn('id', $played)->value('id');
+        $unplayedFollowUp = AskAnswerItem::where('mission_number', 11)->where('day', 1)->where('kind', 'followup')->whereNotIn('id', $played)->value('id');
 
         $this->assertSame($unplayedPlain, $second->deck[0]['id']);
         $this->assertSame($unplayedFollowUp, $second->deck[4]['id']);
@@ -324,6 +325,7 @@ class AskAnswerGameTest extends TestCase
 
     public function test_the_setup_page_remembers_levels_and_says_when_there_is_nothing_to_play(): void
     {
+        AskAnswerItem::where('mission_number', 1)->delete();
         $me = User::factory()->create();
         $this->makeMutualFriend($me);
 

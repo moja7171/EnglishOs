@@ -28,6 +28,19 @@ class AskAnswerBankTest extends TestCase
         }
     }
 
+    public function test_each_written_mission_has_forty_situations_ten_on_each_day(): void
+    {
+        $this->seed(AskAnswerSeeder::class);
+
+        foreach (AskAnswerItem::pluck('mission_number')->unique() as $mission) {
+            $this->assertSame(40, AskAnswerItem::where('mission_number', $mission)->count(), "M$mission");
+
+            foreach ([1, 2, 3, 4] as $day) {
+                $this->assertSame(10, AskAnswerItem::where('mission_number', $mission)->where('day', $day)->count(), "M$mission day $day");
+            }
+        }
+    }
+
     public function test_every_situation_has_three_complete_levels_on_both_sides(): void
     {
         $this->seed(AskAnswerSeeder::class);
@@ -89,13 +102,16 @@ class AskAnswerBankTest extends TestCase
         }
     }
 
-    public function test_the_forty_situations_are_all_different(): void
+    public function test_the_situations_are_all_different(): void
     {
         $this->seed(AskAnswerSeeder::class);
 
-        $questions = AskAnswerItem::all()->map(fn (AskAnswerItem $item) => AskAnswerChecker::normalize($item->level(AskAnswerItem::SIDE_QUESTION, 1)['en']));
+        foreach (AskAnswerItem::all()->groupBy('mission_number') as $mission => $items) {
+            $questions = $items->map(fn (AskAnswerItem $item) => AskAnswerChecker::normalize($item->level(AskAnswerItem::SIDE_QUESTION, 1)['en']));
 
-        $this->assertSame($questions->count(), $questions->unique()->count());
-        $this->assertSame(40, AskAnswerItem::pluck('slug')->unique()->count());
+            $this->assertSame($questions->count(), $questions->unique()->count(), "M$mission repeats a level 1 question");
+        }
+
+        $this->assertSame(AskAnswerItem::count(), AskAnswerItem::pluck('slug')->unique()->count());
     }
 }
