@@ -34,8 +34,10 @@ class NotebookEntry extends Model
     public const KIND_TIP = 'tip';
 
     /**
-     * At most this many of Daily Review's eight cards a day are notebook
-     * lines, so a busy feedback day can't push words and grammar out.
+     * At most this many of a day's speaking & grammar cards are notebook
+     * lines while other items are waiting, so a busy feedback day can't push
+     * speaking and grammar out. Places nothing else wants go to notebook
+     * lines too.
      */
     public const DAILY_REVIEW_SLOTS = 3;
 

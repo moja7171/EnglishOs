@@ -72,7 +72,8 @@ class GameBadgesTest extends TestCase
 
         $badges = $this->badgesOf($me);
         $this->assertTrue($badges['all-games']['earned']);
-        $this->assertSame(8, $badges['games-10']['progress']);
+        // One finished game of each playable game, and one more of Taboo.
+        $this->assertSame(count(PairGame::PLAYABLE) + 1, $badges['games-10']['progress']);
         $this->assertTrue($badges['records-5']['earned']);
         $this->assertFalse($badges['games-10']['earned']);
     }

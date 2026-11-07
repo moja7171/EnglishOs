@@ -23,7 +23,7 @@ class GameBadges
      */
     public const BADGES = [
         'first-game' => ['name' => 'First game', 'line' => 'Play your first game', 'icon' => 'heroicon-o-play', 'target' => 1],
-        'all-games' => ['name' => 'Explorer', 'line' => 'Try all 7 games', 'icon' => 'heroicon-o-map', 'target' => 7],
+        'all-games' => ['name' => 'Explorer', 'line' => 'Try all 8 games', 'icon' => 'heroicon-o-map', 'target' => 8],
         'games-10' => ['name' => '10 games', 'line' => 'Play 10 games', 'icon' => 'heroicon-o-fire', 'target' => 10],
         'games-50' => ['name' => '50 games', 'line' => 'Play 50 games', 'icon' => 'heroicon-o-star', 'target' => 50],
         'friend-streak' => ['name' => '3 days in a row', 'line' => 'Play with one friend 3 days running', 'icon' => 'heroicon-o-calendar-days', 'target' => 3],

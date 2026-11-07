@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\AskAnswerStep;
 use App\Services\FeedbackNotebook;
 use App\Services\StreakRing;
 use App\Services\TeddyLevel;
@@ -43,7 +44,7 @@ class AiPractice extends Model
     public const CARD_STAGES = [self::STAGE_VOCABULARY, self::STAGE_GRAMMAR, self::STAGE_SPEAKING];
 
     /** The games Teddy can play so far. */
-    public const GAMES = [PairGame::GAME_WHO, PairGame::GAME_RATHER, PairGame::GAME_MINUTE, PairGame::GAME_STORY, PairGame::GAME_TRUTHS, PairGame::GAME_TABOO];
+    public const GAMES = [PairGame::GAME_WHO, PairGame::GAME_RATHER, PairGame::GAME_MINUTE, PairGame::GAME_STORY, PairGame::GAME_TRUTHS, PairGame::GAME_TABOO, PairGame::GAME_ASK];
 
     /** Questions about one secret: fewer than with a friend, each one is an AI call. */
     public const MAX_QUESTIONS = 8;
@@ -173,6 +174,156 @@ class AiPractice extends Model
     public function aiHoldsSecret(): bool
     {
         return $this->position % 2 === 0;
+    }
+
+    /**
+     * Ask & Answer: the learner asks on even cards and answers on odd ones;
+     * Teddy takes the other part.
+     */
+    public function isAskGame(): bool
+    {
+        return $this->isGameStage() && $this->game() === PairGame::GAME_ASK;
+    }
+
+    /**
+     * The levels (1-3) the learner picked for the questions they ask and
+     * the answers they give.
+     *
+     * @return array{q: int, a: int}
+     */
+    public function askLevels(): array
+    {
+        return [
+            'q' => min(3, max(1, (int) $this->learner->ask_question_level)),
+            'a' => min(3, max(1, (int) $this->learner->ask_answer_level)),
+        ];
+    }
+
+    /**
+     * The sentence of the round the learner says, at their level: the
+     * Persian line and the English target.
+     *
+     * @return array<string, mixed>|null
+     */
+    public function askTarget(): ?array
+    {
+        $card = $this->currentCard();
+
+        if ($card === null) {
+            return null;
+        }
+
+        return $this->askLevelOf($card, $this->isLearnersGameTurn() ? 'questions' : 'answers', $this->askLevels()[$this->isLearnersGameTurn() ? 'q' : 'a']);
+    }
+
+    /**
+     * What Teddy says in the round, at the learner's levels: his answer to
+     * their question, or the question he asks them.
+     */
+    public function askTeddyLine(): ?string
+    {
+        $card = $this->currentCard();
+
+        if ($card === null) {
+            return null;
+        }
+
+        $line = $this->isLearnersGameTurn()
+            ? $this->askLevelOf($card, 'answers', $this->askLevels()['a'])
+            : $this->askLevelOf($card, 'questions', $this->askLevels()['q']);
+
+        return $line['en'] ?? null;
+    }
+
+    /**
+     * @param  array<string, mixed>  $card
+     * @return array<string, mixed>|null
+     */
+    private function askLevelOf(array $card, string $side, int $level): ?array
+    {
+        for ($try = $level; $try >= 1; $try--) {
+            if (isset($card[$side][$try])) {
+                return $card[$side][$try];
+            }
+        }
+
+        return $card[$side][1] ?? null;
+    }
+
+    /**
+     * The state of the learner's sentence in this round.
+     *
+     * @return array<string, mixed>
+     */
+    public function askStep(): array
+    {
+        return $this->current['qa'] ?? AskAnswerStep::fresh();
+    }
+
+    /**
+     * The level to check the learner's next try against (after a miss, the
+     * corrected sentence).
+     *
+     * @return array<string, mixed>|null
+     */
+    public function askTargetToCheck(): ?array
+    {
+        $target = $this->askTarget();
+
+        return $target === null ? null : AskAnswerStep::levelToCheck($target, $this->askStep());
+    }
+
+    /**
+     * The learner's sentence was checked: a miss shows the right sentence
+     * to repeat, a right one or a second miss ends the round's step. A step
+     * that ended counts for the day, and scores a point only when it was
+     * right the first time.
+     *
+     * @param  array{status: string, extra: bool, correct: string, why: ?string}  $result
+     */
+    public function recordAskSpoken(string $heard, array $result): void
+    {
+        $step = $this->askStep();
+
+        if ($step['status'] !== null) {
+            return;
+        }
+
+        $levels = $this->askLevels();
+
+        $this->storeAskStep(AskAnswerStep::apply($step, $heard, $result, $levels[$this->isLearnersGameTurn() ? 'q' : 'a']));
+    }
+
+    /**
+     * The learner skips: the right sentence stays on screen.
+     */
+    public function passAsk(): void
+    {
+        $step = $this->askStep();
+
+        if ($step['status'] !== null) {
+            return;
+        }
+
+        $this->storeAskStep(AskAnswerStep::pass($step, $this->askLevels()[$this->isLearnersGameTurn() ? 'q' : 'a'], $this->askTarget()['en'] ?? null));
+    }
+
+    /**
+     * @param  array<string, mixed>  $step
+     */
+    private function storeAskStep(array $step): void
+    {
+        $this->current = ['qa' => $step];
+
+        if ($step['status'] !== null) {
+            $this->answered++;
+            $this->score += $step['status'] === 'ok' ? 1 : 0;
+
+            $tally = $this->deck['tally'][$this->stage] ?? ['right' => 0, 'total' => 0];
+            $this->deck = [...$this->deck, 'tally' => [...($this->deck['tally'] ?? []), $this->stage => ['right' => $tally['right'] + ($step['status'] === 'ok' ? 1 : 0), 'total' => $tally['total'] + 1]]];
+        }
+
+        $this->save();
     }
 
     /**
@@ -555,6 +706,12 @@ class AiPractice extends Model
         }
 
         app(StreakRing::class)->record($this->learner, 'ai-practice');
+
+        // Ask & Answer made for one day is that day's Daily talk.
+        if ($this->game() === PairGame::GAME_ASK && count($this->days ?? []) === 1 && preg_match('/^(M\d+)-(\d)$/', $this->days[0], $match) === 1) {
+            $this->learner->recordPiPracticeToday($match[1], (int) $match[2]);
+        }
+
         $this->deck = [...$this->deck, 'credited' => true];
         $this->save();
     }

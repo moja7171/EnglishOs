@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\AskAnswerItem;
 use App\Models\User;
 
 /**
@@ -27,6 +28,17 @@ class PiPractice
     public const MINUTES = 10;
 
     public function __construct(private ListeningPicks $picks) {}
+
+    /**
+     * Whether Ask & Answer has situations written for this mission day: where it
+     * has, the Daily talk is that game (with Teddy or a friend) and Pi is the
+     * optional free talk.
+     */
+    public static function hasAskAnswer(string $missionCode, int $dayNumber): bool
+    {
+        return preg_match('/^M(\d+)$/', $missionCode, $match) === 1
+            && AskAnswerItem::where('mission_number', (int) $match[1])->where('day', $dayNumber)->exists();
+    }
 
     /**
      * The day the practice entry points should open: the day the learner

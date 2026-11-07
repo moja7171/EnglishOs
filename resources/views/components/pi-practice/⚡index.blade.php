@@ -1,6 +1,8 @@
 <?php
 
 use App\Models\Mission;
+use App\Models\PairGame;
+use App\Services\AiPractices;
 use App\Services\ListeningPicks;
 use App\Services\PiPractice;
 use App\Services\PiPrompts;
@@ -53,6 +55,32 @@ new class extends Component
      * day is re-checked here, not trusted from mount(): a day ahead is
      * refused.
      */
+    /**
+     * Whether Ask & Answer is written for this day: then it is the Daily
+     * talk, and Pi is the optional free talk below it.
+     */
+    #[Computed]
+    public function hasGame(): bool
+    {
+        return PiPractice::hasAskAnswer($this->missionCode, $this->day);
+    }
+
+    /**
+     * The Daily talk with Teddy: Ask & Answer on this day's situations.
+     */
+    public function startGame(): void
+    {
+        if ($this->isAhead || ! $this->hasGame) {
+            return;
+        }
+
+        $practice = app(AiPractices::class)->start(auth()->user(), PairGame::GAME_ASK, [$this->missionCode.'-'.$this->day]);
+
+        if ($practice) {
+            $this->redirectRoute('ai-practice.show', $practice, navigate: true);
+        }
+    }
+
     public function markPracticed(): void
     {
         if ($this->isAhead) {
@@ -229,6 +257,21 @@ new class extends Component
         $openPi = 'if (/Android/i.test(navigator.userAgent)) { window.location.href = '.App\Services\PiPrompts::piAndroidIntentJs().' }';
     @endphp
 
+    @if ($this->hasGame)
+        {{-- Where Ask & Answer is written for the day it is the Daily talk. --}}
+        <div class="card space-y-3 p-5">
+            <div>
+                <p class="text-xs font-extrabold tracking-wider text-ink-faint uppercase dark:text-ink-faint-dark">Ask &amp; Answer</p>
+                <p class="font-display text-xl font-extrabold text-ink dark:text-ink-dark">{{ $this->isPracticed ? 'Done today ✓' : 'Ask it. Answer it. 6 min.' }}</p>
+            </div>
+            <button type="button" wire:click="startGame" wire:loading.attr="disabled" wire:target="startGame" @disabled($this->isAhead) class="block w-full cursor-pointer rounded-2xl bg-accent px-5 py-4 text-base font-extrabold text-white shadow-[0_4px_0_color-mix(in_srgb,var(--color-accent)_60%,black)] disabled:opacity-50 dark:bg-accent-dark">With Teddy</button>
+            <a href="{{ route('games.setup', ['game' => PairGame::GAME_ASK]) }}" wire:navigate class="block text-center text-sm font-bold text-accent-ink dark:text-accent-ink-dark">With a friend ›</a>
+        </div>
+        <details class="group">
+            <summary class="cursor-pointer text-center text-sm font-bold text-ink-soft dark:text-ink-soft-dark">Free talk with Pi (optional)</summary>
+            <div class="mt-4">
+    @endif
+
     {{-- One card: copy the prompt and talk in Pi, then "I did it" ticks the
          day. The page remembers the copy tap, so coming back from Pi finds
          the tick button even after a reload. --}}
@@ -289,4 +332,8 @@ new class extends Component
             @endunless
         </x-bottom-sheet>
     </div>
+    @if ($this->hasGame)
+            </div>
+        </details>
+    @endif
 </div>

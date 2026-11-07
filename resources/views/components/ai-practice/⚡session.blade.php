@@ -5,6 +5,8 @@ use App\Models\PairGame;
 use App\Services\AiFailure;
 use App\Services\AiPartner;
 use App\Services\AiPractices;
+use App\Services\AskAnswerChecker;
+use App\Services\FeedbackNotebook;
 use App\Services\GroqClient;
 use App\Services\SpokenAnswerChecker;
 use Livewire\Component;
@@ -106,8 +108,58 @@ new class extends Component
             $this->practice->game() === PairGame::GAME_STORY => $this->tellStory(),
             $this->practice->game() === PairGame::GAME_TRUTHS => $this->speakInTruths(),
             $this->practice->game() === PairGame::GAME_TABOO => $this->speakInTaboo(),
+            $this->practice->game() === PairGame::GAME_ASK => $this->speakAskAnswer(),
             default => $this->sayWhy(),
         };
+    }
+
+    /**
+     * Ask & Answer: the learner's sentence is checked against the one asked
+     * for. A miss shows the right sentence to repeat and is kept in the
+     * notebook; a second miss passes on.
+     */
+    private function speakAskAnswer(): void
+    {
+        $practice = $this->practice;
+        $target = $practice->askTargetToCheck();
+
+        if ($target === null || $practice->askStep()['status'] !== null || ($heard = $this->hear()) === null) {
+            return;
+        }
+
+        $result = app(AskAnswerChecker::class)->check($target, $heard, auth()->user()->levelDescription());
+
+        $practice->recordAskSpoken($heard, $result);
+
+        if ($result['status'] === 'wrong' && $result['by'] !== 'none') {
+            app(FeedbackNotebook::class)->recordCheck(auth()->user(), $heard, $result['correct'], $result['why'], 'Ask & Answer');
+        }
+    }
+
+    /**
+     * Ask & Answer: skip this sentence.
+     */
+    public function passAskStep(): void
+    {
+        if ($this->practice->isFinished() || ! $this->practice->isAskGame()) {
+            return;
+        }
+
+        $this->practice->passAsk();
+    }
+
+    /**
+     * Ask & Answer: the level (1-3) of the questions the learner asks ('q')
+     * or of the answers they give ('a'); kept for next time.
+     */
+    public function setAskLevel(string $side, int $level): void
+    {
+        if (! in_array($side, ['q', 'a'], true) || ! $this->practice->isAskGame()) {
+            return;
+        }
+
+        auth()->user()->update([$side === 'q' ? 'ask_question_level' : 'ask_answer_level' => min(3, max(1, $level))]);
+        $this->practice->unsetRelation('learner');
     }
 
     private function answerCard(): void
@@ -909,6 +961,8 @@ new class extends Component
             @include('components.ai-practice.partials.two-truths')
         @elseif ($stage === AiPractice::STAGE_GAME && $game === PairGame::GAME_TABOO)
             @include('components.ai-practice.partials.taboo')
+        @elseif ($stage === AiPractice::STAGE_GAME && $game === PairGame::GAME_ASK)
+            @include('components.ai-practice.partials.ask-answer')
         @elseif ($stage === AiPractice::STAGE_GAME)
             @include('components.ai-practice.partials.would-you-rather')
         @else

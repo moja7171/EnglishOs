@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\PlaysAskAnswer;
+use App\Services\AskAnswerDeck;
 use App\Services\StreakRing;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
@@ -24,6 +26,18 @@ use Illuminate\Support\Facades\DB;
 class PairGame extends Model
 {
     use HasFactory;
+    use PlaysAskAnswer;
+
+    /**
+     * One friend asks a question in English from a Persian prompt, the
+     * other answers from a Persian prompt, each checked on the spot; the
+     * two swap every round.
+     */
+    public const GAME_ASK = 'ask-answer';
+
+    public const PHASE_QUESTION = 'question';
+
+    public const PHASE_ANSWER = 'answer';
 
     public const GAME_TABOO = 'taboo';
 
@@ -102,10 +116,10 @@ class PairGame extends Model
      *
      * @var list<string>
      */
-    public const GAMES = [self::GAME_TABOO, self::GAME_WHO, self::GAME_MINUTE, self::GAME_STORY, self::GAME_ROLE, self::GAME_TRUTHS, self::GAME_RATHER];
+    public const GAMES = [self::GAME_ASK, self::GAME_TABOO, self::GAME_WHO, self::GAME_MINUTE, self::GAME_STORY, self::GAME_ROLE, self::GAME_TRUTHS, self::GAME_RATHER];
 
     /** @var list<string> */
-    public const PLAYABLE = [self::GAME_TABOO, self::GAME_WHO, self::GAME_MINUTE, self::GAME_STORY, self::GAME_ROLE, self::GAME_TRUTHS, self::GAME_RATHER];
+    public const PLAYABLE = [self::GAME_ASK, self::GAME_TABOO, self::GAME_WHO, self::GAME_MINUTE, self::GAME_STORY, self::GAME_ROLE, self::GAME_TRUTHS, self::GAME_RATHER];
 
     /** @var list<int> */
     public const LENGTHS = [5, 10];
@@ -116,7 +130,7 @@ class PairGame extends Model
      *
      * @var list<string>
      */
-    public const DAY_BASED = [self::GAME_TABOO, self::GAME_MINUTE, self::GAME_STORY, self::GAME_ROLE, self::GAME_RATHER];
+    public const DAY_BASED = [self::GAME_ASK, self::GAME_TABOO, self::GAME_MINUTE, self::GAME_STORY, self::GAME_ROLE, self::GAME_RATHER];
 
     /**
      * A game's tile on the Games page: its name, one line, what it trains
@@ -127,6 +141,7 @@ class PairGame extends Model
     public static function info(string $game): array
     {
         [$name, $line, $tag] = match ($game) {
+            self::GAME_ASK => ['Ask & Answer', 'Ask it, answer it', 'Questions'],
             self::GAME_TABOO => ['Taboo', 'Explain it, don’t say it', 'Words'],
             self::GAME_WHO => ['Who am I?', 'Guess with yes/no questions', 'Questions'],
             self::GAME_MINUTE => ['Just a Minute', 'Talk for a minute', 'Speaking'],
@@ -155,6 +170,11 @@ class PairGame extends Model
     public static function guide(string $game): array
     {
         return match ($game) {
+            self::GAME_ASK => [
+                'فارسی می‌گه چی بپرسی یا چی بگی؛ همون رو به انگلیسی بلند بگو. اشتباه بود، جمله‌ی درست رو می‌بینی و تکرارش می‌کنی.',
+                'دوستت انگلیسیِ درستِ جمله‌ت رو (تار، با یک ضربه باز می‌شه) می‌بینه و کمکت می‌کنه. بعد نقش‌ها عوض می‌شه.',
+                'بار اول درست +۱، بعد از یک اصلاح نصف. خط کم‌رنگِ «بیشتر بگو» اختیاریه؛ بگی +½.',
+            ],
             self::GAME_TABOO => [
                 'نوبت توست: کلمه رو فقط تو می‌بینی؛ بدون گفتن خودِ کلمه و بدون فارسی توضیحش بده.',
                 'دوستت حدس می‌زنه؛ درست گفت، «got it» رو بزن. گیر کردی؟ Skip یا «حرف اول».',
@@ -205,6 +225,12 @@ class PairGame extends Model
     public static function roleGuide(string $game): ?array
     {
         return match ($game) {
+            self::GAME_ASK => [
+                'first' => ['title' => 'نوبت اول، تو می‌پرسی', 'you' => 'فارسی می‌گه چی بپرسی؛ همون رو به انگلیسی بلند می‌پرسی.', 'friend' => 'سؤالت رو می‌شنوه و جواب می‌ده.'],
+                'second' => ['title' => 'نوبت اول، تو جواب می‌دی', 'you' => 'سؤال دوستت رو می‌شنوی و از روی فارسی جواب می‌دی.', 'friend' => 'فارسی می‌بینه و به انگلیسی می‌پرسه.'],
+                'example' => ['label' => 'بپرس کجا کار می‌کنه', 'line' => '"Where do you work?" — "I work for a small company."'],
+                'points' => 'بار اول درست ۱+، بعد از یک اصلاح ½. «بیشتر بگو» اختیاریه (½+). بعد از هر دور جاها عوض می‌شه.',
+            ],
             self::GAME_TABOO => [
                 'first' => ['title' => 'نوبت اول، تو توضیح می‌دی', 'you' => 'کلمه رو می‌بینی و بدون گفتن خودِ کلمه و بدون فارسی توضیحش می‌دی.', 'friend' => 'گوش می‌ده و حدسش رو بلند می‌گه.'],
                 'second' => ['title' => 'نوبت اول، تو حدس می‌زنی', 'you' => 'گوش می‌دی و حدست رو بلند می‌گی.', 'friend' => 'کلمه رو می‌بینه و بدون گفتن خودِ کلمه توضیحش می‌ده.'],
@@ -579,6 +605,11 @@ class PairGame extends Model
             $current['phase'] = self::PHASE_PICK;
         }
 
+        // Ask & Answer starts with the asker's question.
+        if ($this->isAskAnswer()) {
+            $current['phase'] = self::PHASE_QUESTION;
+        }
+
         $this->turns = [...($this->turns ?? []), [
             'explainer_id' => $user->id,
             'started_at' => now()->getTimestamp(),
@@ -656,7 +687,7 @@ class PairGame extends Model
      */
     public function isOneCardPerTurn(): bool
     {
-        return in_array($this->game, [self::GAME_WHO, self::GAME_MINUTE, self::GAME_STORY, self::GAME_ROLE, self::GAME_TRUTHS, self::GAME_RATHER], true);
+        return in_array($this->game, [self::GAME_ASK, self::GAME_WHO, self::GAME_MINUTE, self::GAME_STORY, self::GAME_ROLE, self::GAME_TRUTHS, self::GAME_RATHER], true);
     }
 
     public function isWouldYouRather(): bool
@@ -1059,7 +1090,10 @@ class PairGame extends Model
 
         $alreadyCounted = 0;
 
-        if ($this->isRolePlay()) {
+        if ($this->isAskAnswer()) {
+            $points = $this->askAnswerPoints($current);
+            $result = $points > 0 ? self::RESULT_GOT : self::RESULT_MISSED;
+        } elseif ($this->isRolePlay()) {
             $points = collect($current['guesses'] ?? [])->map(function (array $guess, int $userId) use ($card) {
                 $guesser = $this->user_a_id === $userId ? $this->userA : $this->userB;
                 $options = $this->guessOptionsFor($guesser, $card, count($this->turns) - 1);
@@ -1099,6 +1133,7 @@ class PairGame extends Model
             'lie' => $current['lie'] ?? null,
             'picks' => $current['picks'] ?? [],
             'guess' => $current['guess'] ?? null,
+            'qa' => $current['qa'] ?? [],
             'points' => $points,
             'at' => now()->getTimestamp(),
         ];
@@ -1224,6 +1259,19 @@ class PairGame extends Model
 
         $this->forceFill(['stage' => self::STAGE_DONE, 'finished_at' => now()])->save();
 
+        if ($this->isAskAnswer()) {
+            app(AskAnswerDeck::class)->recordPlayed($this);
+
+            // Played for one day, it is that day's Daily talk for both.
+            $days = $this->rules['days'] ?? [];
+
+            if (count($days) === 1 && preg_match('/^(M\d+)-(\d)$/', $days[0], $match) === 1) {
+                foreach ([$this->userA, $this->userB] as $player) {
+                    $player->recordPiPracticeToday($match[1], (int) $match[2]);
+                }
+            }
+        }
+
         if ($this->isPractice()) {
             $this->practiceSession->gameOver($this->ended_by_id);
 
@@ -1346,6 +1394,10 @@ class PairGame extends Model
      */
     public function creditFor(User $user): int
     {
+        if ($this->isAskAnswer()) {
+            return $this->askCreditFor($user);
+        }
+
         if ($this->isStoryChain()) {
             return collect($this->playedCards())->where('explainer_id', $user->id)->where('result', self::RESULT_GOT)->count();
         }
@@ -1383,7 +1435,7 @@ class PairGame extends Model
      */
     public function missedWords(): array
     {
-        if ($this->isRolePlay() || $this->isTwoTruths() || $this->isWouldYouRather()) {
+        if ($this->isAskAnswer() || $this->isRolePlay() || $this->isTwoTruths() || $this->isWouldYouRather()) {
             return [];
         }
 
