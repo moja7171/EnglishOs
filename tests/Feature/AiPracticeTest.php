@@ -789,15 +789,18 @@ class AiPracticeTest extends TestCase
         $learner = $this->learnerWithAFinishedDay();
         $played = [];
 
-        foreach (range(0, count(AiPractice::GAMES)) as $round) {
+        // Ask & Answer has no situations written for this learner's mission, so a round skips it.
+        $games = array_values(array_diff(AiPractice::GAMES, [PairGame::GAME_ASK]));
+
+        foreach (range(0, count($games)) as $round) {
             $practice = app(AiPractices::class)->start($learner, AiPractice::KIND_PRACTICE);
             $played[] = $practice->game();
             $practice->finish();
         }
 
-        $this->assertSame(AiPractice::GAMES[0], $played[0]);
-        $this->assertSame(AiPractice::GAMES[1], $played[1]);
-        $this->assertSame($played[0], $played[count(AiPractice::GAMES)]);
+        $this->assertSame($games[0], $played[0]);
+        $this->assertSame($games[1], $played[1]);
+        $this->assertSame($played[0], $played[count($games)]);
     }
 
     public function test_someone_elses_practice_cannot_be_opened(): void

@@ -25,7 +25,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use NotificationChannels\WebPush\HasPushSubscriptions;
 
-#[Fillable(['name', 'username', 'email', 'password', 'cefr_level', 'target_band', 'avatar_color', 'avatar_path', 'avatar_style', 'gender', 'discoverable', 'friend_alerts', 'celebrated_streak_milestone', 'weekly_goal_days', 'pinned_highlight', 'game_voice_feedback', 'games_voice_feedback'])]
+#[Fillable(['name', 'username', 'email', 'password', 'cefr_level', 'target_band', 'avatar_color', 'avatar_path', 'avatar_style', 'gender', 'discoverable', 'friend_alerts', 'celebrated_streak_milestone', 'weekly_goal_days', 'pinned_highlight', 'game_voice_feedback', 'games_voice_feedback', 'ask_question_level', 'ask_answer_level'])]
 #[Hidden(['password', 'remember_token', 'gemini_api_key', 'groq_api_key', 'invite_code'])]
 class User extends Authenticatable
 {
@@ -71,6 +71,8 @@ class User extends Authenticatable
         'is_admin' => false,
         'ai_keys_required' => false,
         'review_reminder_enabled' => true,
+        'ask_question_level' => 1,
+        'ask_answer_level' => 1,
     ];
 
     /**
@@ -604,12 +606,37 @@ class User extends Authenticatable
     }
 
     /**
+     * The notebook lines due now, the most repeated mistakes first, as
+     * review entries — at most $limit of them. Empty when the track has no
+     * notebook lines.
+     *
+     * @return Collection<int, array{type: string, id: int, dueAt: int}>
+     */
+    private function dueNotebookItems(int $limit, bool $inTrack): Collection
+    {
+        if (! $inTrack) {
+            return collect();
+        }
+
+        return $this->notebookEntries()->inReview()
+            ->where('next_review_at', '<=', now())
+            ->orderByDesc('times_seen')
+            ->orderBy('next_review_at')
+            ->orderBy('id')
+            ->limit($limit)
+            ->get(['id', 'next_review_at'])
+            ->map(fn (NotebookEntry $note) => ['type' => 'note', 'id' => $note->id, 'dueAt' => $note->next_review_at->getTimestamp()])
+            ->values();
+    }
+
+    /**
      * Today's review: the most overdue due items of a track (or of both),
      * up to what is left of its daily limit — of them at most
      * NotebookEntry::DAILY_REVIEW_SLOTS notebook lines, the most repeated
-     * mistakes first; slots they leave go to the rest. Shrinks as items get
-     * reviewed (a reviewed item leaves the due set while the allowance
-     * drops by one), so the same ones stay "today's" all day.
+     * mistakes first, while other items are waiting; places the other items
+     * leave empty go to more notebook lines. Shrinks as items get reviewed
+     * (a reviewed item leaves the due set while the allowance drops by one),
+     * so the same ones stay "today's" all day.
      *
      * With $more batches asked for, the limit grows by a batch each time and
      * the words track fills what the due words leave from the ones coming
@@ -629,17 +656,24 @@ class User extends Authenticatable
             return collect();
         }
 
-        $items = collect($this->reviewSources($track))
+        $sources = $this->reviewSources($track);
+        $notes = $this->dueNotebookItems($allowance, isset($sources['note']));
+        unset($sources['note']);
+
+        $noteSlots = $this->notebookReviewAllowance($more);
+
+        $items = collect($sources)
             ->flatMap(fn (HasMany $relation, string $type) => $relation
                 ->where('next_review_at', '<=', now())
-                ->when($type === 'note', fn ($notes) => $notes
-                    ->orderByDesc('times_seen')
-                    ->orderBy('next_review_at')
-                    ->limit($this->notebookReviewAllowance($more)))
                 ->get(['id', 'next_review_at'])
                 ->map(fn ($item) => ['type' => $type, 'id' => $item->id, 'dueAt' => $item->next_review_at->getTimestamp()]))
+            ->concat($notes->take($noteSlots))
             ->sortBy([['dueAt', 'asc'], ['type', 'asc'], ['id', 'asc']])
             ->take($allowance)
+            ->values();
+
+        $items = $items
+            ->concat($notes->slice($noteSlots)->take($allowance - $items->count()))
             ->map(fn (array $entry) => ['type' => $entry['type'], 'id' => $entry['id']])
             ->values();
 
@@ -678,12 +712,17 @@ class User extends Authenticatable
             return $this->dailyReviewCount('words') + $this->dailyReviewCount('talk');
         }
 
-        $due = collect($this->reviewSources($track))
-            ->sum(fn (HasMany $relation, string $type) => $type === 'note'
-                ? min($relation->where('next_review_at', '<=', now())->count(), $this->notebookReviewAllowance())
-                : $relation->where('next_review_at', '<=', now())->count());
+        $sources = $this->reviewSources($track);
+        $dueNotes = isset($sources['note']) ? $sources['note']->where('next_review_at', '<=', now())->count() : 0;
+        unset($sources['note']);
 
-        return $due === 0 ? 0 : min($due, $this->dailyReviewAllowance($track));
+        $dueOthers = collect($sources)->sum(fn (HasMany $relation) => $relation->where('next_review_at', '<=', now())->count());
+        $allowance = $this->dailyReviewAllowance($track);
+        $noteSlots = $this->notebookReviewAllowance();
+
+        $mixed = min($dueOthers + min($dueNotes, $noteSlots), $allowance);
+
+        return $mixed + min(max(0, $dueNotes - $noteSlots), $allowance - $mixed);
     }
 
     /**

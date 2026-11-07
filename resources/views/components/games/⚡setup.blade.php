@@ -4,6 +4,7 @@ use App\Models\AiPractice;
 use App\Models\PairGame;
 use App\Models\User;
 use App\Services\AiPractices;
+use App\Services\AskAnswerDeck;
 use App\Services\PairGames;
 use App\Services\PairPractice;
 use App\Services\TabooDeck;
@@ -75,6 +76,7 @@ new class extends Component
     {
         $me = auth()->user();
         $deck = match ($this->game) {
+            PairGame::GAME_ASK => app(AskAnswerDeck::class),
             PairGame::GAME_WHO => app(WhoAmIDeck::class),
             PairGame::GAME_MINUTE => app(JustAMinuteDeck::class),
             PairGame::GAME_STORY => app(StoryChainDeck::class),
@@ -111,6 +113,33 @@ new class extends Component
     public function setVoiceFeedback(bool $on): void
     {
         auth()->user()->update(['games_voice_feedback' => $on]);
+    }
+
+    /**
+     * Ask & Answer: the level (1-3) of the questions I ask ('q') and of the
+     * answers I give ('a') — kept for next time.
+     */
+    public function setAskLevel(string $side, int $level): void
+    {
+        if (in_array($side, ['q', 'a'], true)) {
+            auth()->user()->update([$side === 'q' ? 'ask_question_level' : 'ask_answer_level' => min(3, max(1, $level))]);
+        }
+    }
+
+    /**
+     * Whether any Ask & Answer situation is written for the days these two
+     * draw from.
+     */
+    public function hasCards(): bool
+    {
+        if ($this->game !== PairGame::GAME_ASK || $this->friend === null) {
+            return true;
+        }
+
+        $friend = $this->allFriends->firstWhere('id', $this->friend);
+        $days = $this->dayMode === 'choose' && $this->usesDays() ? array_values(array_filter($this->days, 'is_string')) : null;
+
+        return $friend === null || app(AskAnswerDeck::class)->available(auth()->user(), $friend, $days);
     }
 
     public function updatedMinutes(): void
@@ -188,6 +217,7 @@ new class extends Component
         <div class="min-w-0 flex-1">
             <h1 class="font-display text-3xl font-extrabold text-ink dark:text-ink-dark">{{ $info['name'] }}</h1>
             <p class="text-sm font-semibold text-ink-faint dark:text-ink-faint-dark">{{ match ($game) {
+                PairGame::GAME_ASK => 'Ask in English. Answer in English. Fix it on the spot.',
                 PairGame::GAME_WHO => 'Ask yes/no questions. Guess the secret.',
                 PairGame::GAME_MINUTE => 'Talk about a topic. Use the four words.',
                 PairGame::GAME_STORY => 'Tell a story together, a sentence or two each.',
@@ -290,9 +320,18 @@ new class extends Component
                 </div>
             @endif
 
-            @include('components.games.partials.voice-switch', ['voiceOn' => auth()->user()->games_voice_feedback])
+            @if ($game === PairGame::GAME_ASK)
+                @include('components.games.partials.ask-levels', ['levels' => ['q' => (int) auth()->user()->ask_question_level, 'a' => (int) auth()->user()->ask_answer_level], 'action' => 'setAskLevel'])
+            @else
+                @include('components.games.partials.voice-switch', ['voiceOn' => auth()->user()->games_voice_feedback])
+            @endif
+
+            @unless ($this->hasCards())
+                <p class="rounded-2xl border border-dashed border-line px-4 py-3 text-center text-sm font-semibold text-ink-soft dark:border-line-dark dark:text-ink-soft-dark">No situations for your missions yet. They come mission by mission.</p>
+            @endunless
 
             <p class="text-center text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">{{ match ($game) {
+                PairGame::GAME_ASK => '5 min = 8 rounds · 10 min = 16 · from your missions',
                 PairGame::GAME_WHO => 'Secrets: jobs, food, places… from your missions',
                 PairGame::GAME_MINUTE => 'Topics and words: your missions',
                 PairGame::GAME_STORY => '5 min = one story · 10 min = two',
@@ -307,6 +346,7 @@ new class extends Component
                 wire:click="play"
                 wire:loading.attr="disabled"
                 wire:target="play"
+                @disabled(! $this->hasCards())
                 class="block w-full cursor-pointer rounded-full bg-accent px-5 py-4 text-base font-extrabold text-white transition-opacity hover:opacity-90 disabled:opacity-50 dark:bg-accent-dark"
             >Invite {{ $picked['user']->name ?? '' }} · Play</button>
         @endif

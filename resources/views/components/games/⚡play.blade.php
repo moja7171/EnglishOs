@@ -3,6 +3,10 @@
 use App\Livewire\Concerns\ChecksGameVoice;
 use App\Models\PairGame;
 use App\Notifications\PairGameInvite;
+use App\Services\AiFailure;
+use App\Services\AskAnswerChecker;
+use App\Services\FeedbackNotebook;
+use App\Services\GroqClient;
 use App\Services\PairGames;
 use App\Services\UsageGuides;
 use Illuminate\Support\Facades\DB;
@@ -13,6 +17,12 @@ new class extends Component
     use ChecksGameVoice;
 
     public PairGame $pairGame;
+
+    /** Ask & Answer: the speaker's recording, sent by <x-voice-recorder>. */
+    public $audioFile = null;
+
+    /** Ask & Answer: why the last recording could not be checked. */
+    public ?string $askError = null;
 
     /**
      * Opened from an invite's Join (?join=1), the invited friend is in the
@@ -162,6 +172,75 @@ new class extends Component
         $this->act(fn (PairGame $pairGame) => $pairGame->doneWhy(auth()->user()));
     }
 
+    /**
+     * Ask & Answer: the level (1-3) of the questions I ask ('q') or of the
+     * answers I give ('a'); kept for next time too.
+     */
+    public function setAskLevel(string $side, int $level): void
+    {
+        $level = min(3, max(1, $level));
+
+        $this->act(fn (PairGame $pairGame) => $pairGame->setAskLevel(auth()->user(), $side, $level));
+
+        if (in_array($side, ['q', 'a'], true)) {
+            auth()->user()->update([$side === 'q' ? 'ask_question_level' : 'ask_answer_level' => $level]);
+        }
+    }
+
+    /**
+     * Ask & Answer: the speaker's recording is turned into text and checked
+     * against the sentence asked for (AskAnswerChecker). A miss shows the
+     * right sentence to repeat and is kept in the notebook.
+     */
+    public function submitAskAnswer(): void
+    {
+        $this->askError = null;
+        $me = auth()->user();
+        $game = $this->pairGame->refresh();
+
+        if (! $game->isAskAnswer() || ! $game->isAccessibleBy($me) || ! $game->askSpeaker()?->is($me)) {
+            $this->audioFile = null;
+
+            return;
+        }
+
+        $this->validate(['audioFile' => ['required', 'file', 'extensions:webm,ogg,mp3,wav,m4a', 'max:20480']]);
+
+        $level = $game->askLevelToCheck();
+
+        try {
+            $heard = trim(app(GroqClient::class)->transcribe($this->audioFile->getRealPath()));
+        } catch (\Throwable $e) {
+            $this->askError = AiFailure::checkMessage($e);
+
+            return;
+        } finally {
+            $this->audioFile = null;
+        }
+
+        if ($heard === '' || $level === null) {
+            $this->askError = 'I couldn’t hear you. Try again.';
+
+            return;
+        }
+
+        $result = app(AskAnswerChecker::class)->check($level, $heard, $me->levelDescription());
+
+        $this->act(fn (PairGame $pairGame) => $pairGame->recordSpoken($me, $heard, $result));
+
+        if ($result['status'] === 'wrong' && $result['by'] !== 'none') {
+            app(FeedbackNotebook::class)->recordCheck($me, $heard, $result['correct'], $result['why'], 'Ask & Answer');
+        }
+    }
+
+    /**
+     * Ask & Answer: skip this sentence — the right one stays on both screens.
+     */
+    public function passAsk(): void
+    {
+        $this->act(fn (PairGame $pairGame) => $pairGame->passStep(auth()->user()));
+    }
+
     public function showLetter(int $seen): void
     {
         $this->act(fn (PairGame $pairGame) => $pairGame->showLetter(auth()->user(), $seen));
@@ -226,6 +305,11 @@ new class extends Component
     {
         $isHolder = $turn['explainer_id'] === auth()->id();
 
+        // Ask & Answer is checked on the spot; nothing is recorded in the background.
+        if ($this->pairGame->isAskAnswer()) {
+            return false;
+        }
+
         if ($this->pairGame->isRolePlay() || $this->pairGame->isWouldYouRather()) {
             return true;
         }
@@ -272,6 +356,10 @@ new class extends Component
     {
         // A round's game is checked with the round, on its result screen.
         if (! $this->pairGame->refresh()->isFinished() || $this->pairGame->isPractice()) {
+            return;
+        }
+
+        if ($this->pairGame->isAskAnswer()) {
             return;
         }
 
@@ -424,7 +512,11 @@ new class extends Component
                     @endunless
                 </div>
                 @include('components.games.partials.role-guide')
-                @include('components.games.partials.voice-switch')
+                @if ($pairGame->isAskAnswer())
+                    @include('components.games.partials.ask-levels', ['levels' => $pairGame->askLevels($me), 'action' => 'setAskLevel'])
+                @else
+                    @include('components.games.partials.voice-switch')
+                @endif
                 <p class="text-center text-xs text-ink-faint dark:text-ink-faint-dark">Not together? Call on any app.</p>
                 <button type="button" wire:click="end" class="mx-auto block cursor-pointer text-xs font-semibold text-ink-faint hover:text-ink-soft dark:text-ink-faint-dark dark:hover:text-ink-soft-dark">Cancel</button>
             @endif

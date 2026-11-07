@@ -150,7 +150,7 @@ new class extends Component
     <button type="button" x-on:click="$wire.start('{{ AiPractice::KIND_PRACTICE }}', chosen())" wire:loading.attr="disabled" wire:target="start" class="block w-full cursor-pointer rounded-2xl bg-accent px-4 py-3 text-base font-extrabold text-white shadow-[0_4px_0_color-mix(in_srgb,var(--color-accent)_60%,black)] transition-opacity hover:opacity-90 disabled:opacity-50 dark:bg-accent-dark">@if (in_array(AiPractice::KIND_PRACTICE, $openKinds, true))<span x-text="chosen() === null ? 'Continue practice' : 'Practice together'">Continue practice</span>@else Practice together @endif</button>
 
     <div class="grid grid-cols-2 gap-2.5">
-        @foreach (AiPractice::GAMES as $game)
+        @foreach (collect(AiPractice::GAMES)->sortBy(fn (string $game) => $game === PairGame::GAME_ASK ? 0 : 1)->values() as $game)
             @php $info = PairGame::info($game); @endphp
             <button type="button" wire:key="teddy-game-{{ $game }}" x-on:click="$wire.start('{{ $game }}', chosen())" wire:loading.attr="disabled" wire:target="start" class="cursor-pointer overflow-hidden rounded-2xl bg-surface text-start shadow-sm disabled:opacity-50 dark:bg-surface-dark">
                 <img src="{{ $info['image'] }}" alt="" loading="lazy" class="h-20 w-full object-cover">

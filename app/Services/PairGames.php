@@ -24,12 +24,13 @@ class PairGames
      * @var array<string, array<string, int>>
      */
     private const PRACTICE_RULES = [
+        PairGame::GAME_ASK => ['turns' => 4],
         PairGame::GAME_TABOO => ['turns' => 2],
         PairGame::GAME_ROLE => ['turns' => 1],
         PairGame::GAME_STORY => ['turns' => 4, 'story_turns' => 4],
     ];
 
-    public function __construct(private readonly TabooDeck $taboo, private readonly WhoAmIDeck $whoAmI, private readonly JustAMinuteDeck $justAMinute, private readonly StoryChainDeck $storyChain, private readonly RolePlayDeck $rolePlay, private readonly TwoTruthsDeck $twoTruths, private readonly WouldYouRatherDeck $wouldYouRather) {}
+    public function __construct(private readonly TabooDeck $taboo, private readonly WhoAmIDeck $whoAmI, private readonly JustAMinuteDeck $justAMinute, private readonly StoryChainDeck $storyChain, private readonly RolePlayDeck $rolePlay, private readonly TwoTruthsDeck $twoTruths, private readonly WouldYouRatherDeck $wouldYouRather, private readonly AskAnswerDeck $askAnswer) {}
 
     /**
      * @param  list<string>|null  $days  chosen mission days ("M03-2"); null = every day both finished
@@ -141,9 +142,10 @@ class PairGames
         return null;
     }
 
-    private function deckFor(string $game): TabooDeck|WhoAmIDeck|JustAMinuteDeck|StoryChainDeck|RolePlayDeck|TwoTruthsDeck|WouldYouRatherDeck
+    private function deckFor(string $game): AskAnswerDeck|TabooDeck|WhoAmIDeck|JustAMinuteDeck|StoryChainDeck|RolePlayDeck|TwoTruthsDeck|WouldYouRatherDeck
     {
         return match ($game) {
+            PairGame::GAME_ASK => $this->askAnswer,
             PairGame::GAME_WHO => $this->whoAmI,
             PairGame::GAME_MINUTE => $this->justAMinute,
             PairGame::GAME_STORY => $this->storyChain,

@@ -73,7 +73,7 @@
                         </div>
                     @endforeach
                 </div>
-                @if ($turn)
+                @if ($turn && ! $pairGame->isAskAnswer())
                     <span
                         role="timer"
                         x-bind:aria-label="left + ' seconds left'"
@@ -116,6 +116,12 @@
                 @if (($pairGame->turns ?? []) === [])
                     @include('components.games.partials.role-guide')
                 @endif
+                @if ($previousTurn && $pairGame->isAskAnswer())
+                    @php $lastRound = collect($previousTurn['cards'])->last(); @endphp
+                    @if ($lastRound)
+                        <p @class(['animate-badge-pop rounded-full px-4 py-1.5 text-sm font-extrabold', 'bg-success-soft dark:bg-success-soft-dark text-success dark:text-success-dark' => $lastRound['points'] > 0, 'bg-surface dark:bg-surface-dark text-ink-soft dark:text-ink-soft-dark' => $lastRound['points'] <= 0])>{{ $lastRound['points'] > 0 ? 'Round done · +'.App\Models\PairGame::formatPoints($lastRound['points']) : 'Round done' }}</p>
+                    @endif
+                @endif
                 @if ($previousTurn && $pairGame->isRolePlay())
                     @include('components.games.partials.role-reveal', ['revealTurn' => $previousTurn, 'revealIndex' => count($pairGame->turns) - 1])
                 @elseif ($previousTurn && $pairGame->isStoryChain())
@@ -155,7 +161,18 @@
                     <p class="animate-badge-pop rounded-full bg-success-soft dark:bg-success-soft-dark px-4 py-1.5 text-sm font-extrabold text-success dark:text-success-dark">+{{ $lastTurnWords }} {{ Str::plural('word', $lastTurnWords) }} last turn</p>
                 @endif
                 <x-user-avatar :user="$explainer" class="h-20 w-20 text-xl" />
-                @if ($pairGame->isRolePlay())
+                @if ($pairGame->isAskAnswer())
+                    <div>
+                        <p class="font-display text-3xl font-extrabold">Round {{ count($pairGame->turns ?? []) + 1 }} of {{ $pairGame->plannedTurns() }}</p>
+                        <p class="mt-1 text-sm font-semibold text-ink-soft dark:text-ink-soft-dark">{{ $isExplainer ? 'You ask · '.$friend->name.' answers' : $explainer->name.' asks · you answer' }}</p>
+                    </div>
+                    @if ($isExplainer)
+                        <button type="button" wire:click="startTurn" wire:loading.attr="disabled" wire:target="startTurn" class="w-full max-w-xs cursor-pointer rounded-2xl bg-accent dark:bg-accent-dark px-6 py-4 text-xl font-extrabold text-white shadow-sm disabled:opacity-50">Start</button>
+                    @endif
+                    <div class="w-full max-w-sm">
+                        @include('components.games.partials.ask-levels', ['levels' => $pairGame->askLevels($me), 'action' => 'setAskLevel'])
+                    </div>
+                @elseif ($pairGame->isRolePlay())
                     <div>
                         <p class="font-display text-3xl font-extrabold">Scene {{ count($pairGame->turns ?? []) + 1 }} of {{ $pairGame->plannedTurns() }}</p>
                         <p class="mt-1 text-sm font-semibold text-ink-soft dark:text-ink-soft-dark">{{ $isExplainer ? 'You start · 2 min to talk' : $explainer->name.' starts · get ready' }}</p>
@@ -222,6 +239,8 @@
                     </div>
                 @endif
             </div>
+        @elseif ($pairGame->isAskAnswer())
+            @include('components.games.partials.ask-turn')
         @elseif ($pairGame->isWouldYouRather())
             @include('components.games.partials.rather-turn')
         @elseif ($pairGame->isTwoTruths())

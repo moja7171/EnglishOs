@@ -29,7 +29,7 @@
         <div class="relative mt-4 grid grid-cols-2 gap-2 text-start">
             @foreach ([$me, $friend] as $player)
                 <div wire:key="explained-{{ $player->id }}" class="rounded-2xl bg-surface-sunken p-3 dark:bg-surface-sunken-dark">
-                    <p class="truncate text-xs font-bold text-ink-soft dark:text-ink-soft-dark">{{ $player->is($me) ? 'You' : $player->name }} {{ match ($pairGame->game) { App\Models\PairGame::GAME_WHO => 'guessed', App\Models\PairGame::GAME_TRUTHS => 'found (lies)', App\Models\PairGame::GAME_RATHER => 'guessed right', App\Models\PairGame::GAME_ROLE => 'reached (goals)', App\Models\PairGame::GAME_MINUTE, App\Models\PairGame::GAME_STORY => 'used (words)', default => 'explained' } }}</p>
+                    <p class="truncate text-xs font-bold text-ink-soft dark:text-ink-soft-dark">{{ $player->is($me) ? 'You' : $player->name }} {{ match ($pairGame->game) { App\Models\PairGame::GAME_ASK => 'said right', App\Models\PairGame::GAME_WHO => 'guessed', App\Models\PairGame::GAME_TRUTHS => 'found (lies)', App\Models\PairGame::GAME_RATHER => 'guessed right', App\Models\PairGame::GAME_ROLE => 'reached (goals)', App\Models\PairGame::GAME_MINUTE, App\Models\PairGame::GAME_STORY => 'used (words)', default => 'explained' } }}</p>
                     <p class="text-xl font-extrabold text-ink tabular-nums dark:text-ink-dark">{{ $pairGame->creditFor($player) }}</p>
                 </div>
             @endforeach
@@ -59,6 +59,30 @@
                 @endforeach
             </div>
         </div>
+    @endif
+
+    @if ($pairGame->isAskAnswer())
+        @php $fixes = $pairGame->askFixesFor($me); @endphp
+        @if ($fixes !== [])
+            <section class="space-y-2.5">
+                <h2 class="font-display text-xl font-extrabold text-ink dark:text-ink-dark">Say it like this</h2>
+                @foreach ($fixes as $fix)
+                    <div wire:key="ask-fix-{{ $loop->index }}" class="space-y-1.5 rounded-2xl bg-surface p-4 shadow-sm dark:bg-surface-dark">
+                        @if (filled($fix['said']))
+                            <p class="text-sm font-semibold text-ink-faint line-through dark:text-ink-faint-dark" dir="ltr">{{ $fix['said'] }}</p>
+                        @endif
+                        <p class="text-base font-extrabold text-ink dark:text-ink-dark" dir="ltr">{{ $fix['correct'] }}</p>
+                        @if (filled($fix['why']))
+                            <p dir="rtl" class="text-sm font-semibold text-ink-soft dark:text-ink-soft-dark">{{ $fix['why'] }}</p>
+                        @endif
+                        <button type="button" x-on:click="window.eosVoice?.speak(@js($fix['correct']))" class="cursor-pointer text-sm font-bold text-accent-ink dark:text-accent-ink-dark">🔊 Listen</button>
+                    </div>
+                @endforeach
+                <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">These lines are in your Notebook.</p>
+            </section>
+        @else
+            <p class="rounded-2xl bg-success-soft px-4 py-3 text-center text-sm font-bold text-success dark:bg-success-soft-dark dark:text-success-dark">No mistakes to fix. Great!</p>
+        @endif
     @endif
 
     @if ($pairGame->isWouldYouRather())

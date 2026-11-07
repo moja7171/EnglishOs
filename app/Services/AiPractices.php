@@ -18,6 +18,11 @@ class AiPractices
 
     private const TURNS_ALONE = 4;
 
+    /** Ask & Answer rounds: inside a Practice round, and as a game of its own. */
+    private const ASK_ROUNDS_IN_ROUND = 4;
+
+    private const ASK_ROUNDS_ALONE = 8;
+
     /** Cards of a game that carry one of the learner's own words from My Words. */
     private const OWN_WORD_GAME_CARDS = 2;
 
@@ -40,6 +45,7 @@ class AiPractices
         private readonly TwoTruthsDeck $twoTruths,
         private readonly TabooDeck $taboo,
         private readonly TeddyLevel $teddyLevel,
+        private readonly AskAnswerDeck $askAnswer,
     ) {}
 
     /**
@@ -173,6 +179,7 @@ class AiPractices
     private function gameDeck(User $learner, string $game, ?array $days, bool $inRound): array
     {
         $deckMaker = match ($game) {
+            PairGame::GAME_ASK => $this->askAnswer,
             PairGame::GAME_WHO => $this->whoAmI,
             PairGame::GAME_MINUTE => $this->justAMinute,
             PairGame::GAME_STORY => $this->storyChain,
@@ -183,6 +190,12 @@ class AiPractices
         $rules = [...$deckMaker->rulesFor($learner, $learner, PairGames::PRACTICE_MINUTES), 'days' => $days];
 
         if ($game === PairGame::GAME_WHO) {
+            return ['game' => $game, 'cards' => $deckMaker->cardsFor($learner, $learner, $rules)];
+        }
+
+        if ($game === PairGame::GAME_ASK) {
+            $rules['turns'] = $inRound ? self::ASK_ROUNDS_IN_ROUND : self::ASK_ROUNDS_ALONE;
+
             return ['game' => $game, 'cards' => $deckMaker->cardsFor($learner, $learner, $rules)];
         }
 
