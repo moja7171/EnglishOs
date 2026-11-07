@@ -7,8 +7,9 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
 /**
- * The Ask & Answer situations, one JSON file per mission day in
- * database/seeders/data/ask_answer (m11_d1.json …). Safe to run again: an
+ * The Ask & Answer situations in database/seeders/data/ask_answer: one JSON
+ * file per mission day (m11_d1.json) or one per mission whose items each name
+ * their day (m01.json, "d": 1-4). Safe to run again: an
  * item is found by its slug (mission, day, subject) and updated in place,
  * so edits to the files reach the table without duplicating rows.
  *
@@ -24,11 +25,12 @@ class AskAnswerSeeder extends Seeder
             $data = json_decode((string) file_get_contents($file), true);
 
             foreach ($data['items'] ?? [] as $item) {
-                $slug = self::slugFor((int) $data['mission'], (int) $data['day'], $item['s']);
+                $day = (int) ($item['d'] ?? $data['day'] ?? 0);
+                $slug = self::slugFor((int) $data['mission'], $day, $item['s']);
 
                 AskAnswerItem::updateOrCreate(['slug' => $slug], [
                     'mission_number' => (int) $data['mission'],
-                    'day' => (int) $data['day'],
+                    'day' => $day,
                     'kind' => $item['k'] === 'f' ? AskAnswerItem::KIND_FOLLOWUP : AskAnswerItem::KIND_SIMPLE,
                     'situation' => $item['s'],
                     'context_fa' => $item['c'] ?? null,

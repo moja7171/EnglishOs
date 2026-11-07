@@ -28,7 +28,7 @@ class AskAnswerCheck extends Command
         foreach ($files as $file) {
             $data = json_decode((string) file_get_contents($file), true);
 
-            if (! is_array($data) || ! isset($data['mission'], $data['day'], $data['items'])) {
+            if (! is_array($data) || ! isset($data['mission'], $data['items'])) {
                 $this->error(basename($file).': not a situation file');
                 $failed++;
 
