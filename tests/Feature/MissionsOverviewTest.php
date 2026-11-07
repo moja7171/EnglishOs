@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\AudioListen;
 use App\Models\DayActivity;
 use App\Models\Evidence;
 use App\Models\GrammarPoint;
@@ -475,6 +476,22 @@ class MissionsOverviewTest extends TestCase
         Livewire::test('missions.overview')
             ->assertSee('Extra listening')
             ->assertSeeHtml('aria-label="Extra listening"');
+    }
+
+    public function test_the_extra_listening_row_says_how_many_listens_there_were_today(): void
+    {
+        $learner = User::factory()->create();
+        AudioListen::factory()->pick(1, 0)->count(3)->create(['learner_id' => $learner->id]);
+        $this->actingAs($learner);
+
+        Livewire::test('missions.overview')->assertSeeHtml('data-testid="today-row-note">3× today<');
+    }
+
+    public function test_the_extra_listening_row_has_no_count_before_the_first_listen(): void
+    {
+        $this->actingAs(User::factory()->create());
+
+        Livewire::test('missions.overview')->assertDontSeeHtml('data-testid="today-row-note"');
     }
 
     public function test_the_today_box_previews_day_1_picks_before_any_run_exists(): void

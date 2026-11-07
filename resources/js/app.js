@@ -1098,8 +1098,12 @@ window.eosConfetti = {
  * eosResume): without it, the half heard before leaving was forgotten and a
  * resumed listen could never reach 90%. Storage may be blocked; the
  * tracker then simply works per page load as before.
+ *
+ * `onProgress(heard)` runs on every update with the fraction of the
+ * recording heard so far (0-1), so a page can show how close a listen is
+ * to counting.
  */
-window.eosListenTracker = function (media, onListened, threshold = 0.9, onFinished = null, finishedThreshold = 0.6, memoryKey = null) {
+window.eosListenTracker = function (media, onListened, threshold = 0.9, onFinished = null, finishedThreshold = 0.6, memoryKey = null, onProgress = null) {
     const heard = new Set();
     let last = null;
     let waitingForRestart = false;
@@ -1169,7 +1173,11 @@ window.eosListenTracker = function (media, onListened, threshold = 0.9, onFinish
 
         last = now;
 
-        if (heard.size / Math.ceil(duration) >= threshold) {
+        const share = heard.size / Math.ceil(duration);
+
+        if (onProgress) onProgress(share);
+
+        if (share >= threshold) {
             reset();
             waitingForRestart = true;
             onListened(duration);

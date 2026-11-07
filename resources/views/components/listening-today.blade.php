@@ -12,6 +12,7 @@
         title="Extra listening · anytime"
         label="Extra listening"
         :done="$listening['listenedToday']"
+        :note="$listening['listensToday'] > 0 ? $listening['listensToday'].'× today' : null"
         muted
     />
 </ul>

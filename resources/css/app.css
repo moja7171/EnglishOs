@@ -429,9 +429,27 @@ html:has([data-step-header]) {
     animation: badge-pop 0.45s var(--ease-spring) both;
 }
 
+/* The listen count in the Listening player, once, the moment a listen counts. */
+@keyframes count-bump {
+    0% {
+        transform: scale(1);
+    }
+    40% {
+        transform: scale(1.35);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.animate-count-bump {
+    animation: count-bump 0.5s var(--ease-spring);
+}
+
 @media (prefers-reduced-motion: reduce) {
     .animate-review-card-in,
-    .animate-badge-pop {
+    .animate-badge-pop,
+    .animate-count-bump {
         animation: none;
     }
 }

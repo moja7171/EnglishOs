@@ -35,7 +35,7 @@ new class extends Component
      * where the picks live; the row is ticked once one of them has really
      * been heard (no manual tick anywhere).
      *
-     * @return array{missionCode: string, dayNumber: int, listenedToday: bool}|null
+     * @return array{missionCode: string, dayNumber: int, listenedToday: bool, listensToday: int}|null
      */
     #[Computed]
     public function listening(): ?array
@@ -50,6 +50,7 @@ new class extends Component
 
         return $day + [
             'listenedToday' => auth()->user()->hasListenedToday(),
+            'listensToday' => auth()->user()->listensToday(),
         ];
     }
 

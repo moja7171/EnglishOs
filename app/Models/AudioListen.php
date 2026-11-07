@@ -37,11 +37,16 @@ class AudioListen extends Model
     public const TARGET = 4;
 
     /**
-     * The target for one of the three daily picks on /listening and for a
-     * Video Shadowing video: neither comes back on all four days of a
-     * mission, so two listens of it is plenty.
+     * The target for a Video Shadowing video: it doesn't come back on all
+     * four days of a mission, so two listens of it is plenty.
      */
     public const SHORT_TARGET = 2;
+
+    /**
+     * The target for one of the three daily picks on /listening: three
+     * listens, shown as three holes on its card that each listen fills.
+     */
+    public const PICK_TARGET = 3;
 
     /**
      * The fraction of a recording's own length that must pass before the
@@ -71,7 +76,11 @@ class AudioListen extends Model
      */
     public static function targetFor(string $source): int
     {
-        return in_array($source, [self::SOURCE_LISTENING_PICK, self::SOURCE_VIDEO_SHADOWING], true) ? self::SHORT_TARGET : self::TARGET;
+        return match ($source) {
+            self::SOURCE_LISTENING_PICK => self::PICK_TARGET,
+            self::SOURCE_VIDEO_SHADOWING => self::SHORT_TARGET,
+            default => self::TARGET,
+        };
     }
 
     /**
