@@ -69,7 +69,7 @@
                     <x-user-avatar :user="$friend" class="h-11 w-11 text-sm" />
                 </x-friends.day-ring>
                 <span class="min-w-0 flex-1" dir="rtl">
-                    <span class="font-fa block truncate text-sm font-extrabold">{{ $friend->name }}</span>
+                    <span class="font-fa block truncate text-sm font-extrabold">{{ $pages['self'] ? 'تو' : $friend->name }}</span>
                     <span class="font-fa block truncate text-xs font-semibold text-white/75">{{ $pages['where'] ?? 'الان مأموریتی باز ندارد' }}</span>
                 </span>
             </a>
@@ -82,7 +82,7 @@
                 <p class="text-xs font-extrabold tracking-wide text-white/70">امروز</p>
                 <div class="flex items-end gap-3">
                     <span class="font-display text-7xl leading-none font-extrabold tabular-nums">{{ $today['count'] }}</span>
-                    <span class="pb-2 text-base font-bold">{{ $today['count'] === 0 ? 'کار تا حالا' : 'کار انجام داد' }}</span>
+                    <span class="pb-2 text-base font-bold">{{ $today['count'] === 0 ? 'کار تا حالا' : ($pages['self'] ? 'کار انجام دادی' : 'کار انجام داد') }}</span>
                 </div>
                 <p @class(['self-start rounded-full px-3 py-1 text-xs font-extrabold', 'bg-emerald-300/25 text-emerald-200' => $pages['ring'] >= 2, 'bg-white/15 text-white' => $pages['ring'] < 2])>{{ $today['ringNote'] }}</p>
                 <div class="flex flex-col gap-2.5 overflow-y-auto">
@@ -109,7 +109,7 @@
                 <p class="text-xs font-extrabold tracking-wide text-white/70">این هفته</p>
                 <div class="flex items-end gap-3">
                     <span class="font-display text-7xl leading-none font-extrabold tabular-nums">{{ $week['practised'] }}</span>
-                    <span class="pb-2 text-base font-bold">روز از 7 روز تمرین کرد</span>
+                    <span class="pb-2 text-base font-bold">روز از 7 روز تمرین {{ $pages['self'] ? 'کردی' : 'کرد' }}</span>
                 </div>
                 <div class="grid grid-cols-7 gap-1" dir="rtl">
                     @foreach ($week['days'] as $day)
@@ -128,7 +128,8 @@
                     @endforeach
                 </div>
                 <p class="text-xs font-semibold text-white/75">نارنجی = روز مأموریت · سبز = تمرین دیگر · شنبه تا جمعه</p>
-                <div class="{{ $panel }} flex flex-col gap-2.5">
+                @unless ($pages['self'])
+                <div class="{{ $panel }} flex flex-col gap-2.5" data-testid="story-compare">
                     @foreach ([[$friend->name, $week['practised'], 'bg-emerald-300'], ['تو', $week['viewerPractised'], 'bg-[#ffb49c]']] as [$who, $count, $color])
                         <div class="grid grid-cols-[3.5rem_1fr_1.5rem] items-center gap-3 text-sm font-extrabold">
                             <span class="truncate">{{ $who }}</span>
@@ -137,6 +138,7 @@
                         </div>
                     @endforeach
                 </div>
+                @endunless
                 <p class="text-xs font-semibold text-white/75">{{ $week['amount'] }} کار از شنبه تا حالا</p>
             </section>
 
@@ -152,7 +154,7 @@
                         <span class="absolute inset-0 grid place-items-center text-center"><span><b class="font-display text-4xl font-extrabold">{{ $overall['percent'] }}%</b></span></span>
                     </span>
                     <p class="min-w-0 flex-1 text-sm font-bold">
-                        <span class="block text-xs text-white/70">الان کجاست</span>
+                        <span class="block text-xs text-white/70">{{ $pages['self'] ? 'الان کجایی' : 'الان کجاست' }}</span>
                         @if ($position)
                             <span class="block text-lg font-extrabold">{{ $position['code'] }} · {{ $position['title'] }}</span>
                             <span class="block">روز {{ $position['day'] }} از {{ $position['dayCount'] }}</span>
@@ -178,8 +180,12 @@
         </div>
 
         <div class="font-fa flex gap-2.5 px-4 pt-1 pb-[max(1rem,env(safe-area-inset-bottom))]" dir="rtl">
-            <a href="{{ route('friends.conversation', $friend) }}" wire:navigate class="flex-1 rounded-full bg-white py-3 text-center text-sm font-extrabold text-[#1d1b3a]">پیام</a>
-            <a href="{{ route('games.index') }}" wire:navigate class="flex-1 rounded-full bg-white/15 py-3 text-center text-sm font-extrabold">بازی</a>
+            @if ($pages['self'])
+                <a href="{{ route('friends.profile', $friend) }}" wire:navigate class="flex-1 rounded-full bg-white py-3 text-center text-sm font-extrabold text-[#1d1b3a]">صفحهٔ من</a>
+            @else
+                <a href="{{ route('friends.conversation', $friend) }}" wire:navigate class="flex-1 rounded-full bg-white py-3 text-center text-sm font-extrabold text-[#1d1b3a]">پیام</a>
+                <a href="{{ route('games.index') }}" wire:navigate class="flex-1 rounded-full bg-white/15 py-3 text-center text-sm font-extrabold">بازی</a>
+            @endif
         </div>
     </div>
 </div>

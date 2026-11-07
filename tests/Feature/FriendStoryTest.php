@@ -157,4 +157,23 @@ class FriendStoryTest extends TestCase
 
         Livewire::test('friends.index')->assertSee('Tap a photo to see their day');
     }
+
+    public function test_a_learner_can_open_their_own_story_without_a_comparison_or_chat_buttons(): void
+    {
+        $me = User::factory()->create(['name' => 'Mina Me']);
+        DayActivity::create(['learner_id' => $me->id, 'on_date' => now()->toDateString(), 'activity' => 'review']);
+        $this->actingAs($me);
+
+        Livewire::test('friends.index')
+            ->assertSee('Your day')
+            ->call('openStory', $me->id)
+            ->assertSet('storyFriendId', $me->id)
+            ->assertSee('کار انجام دادی', false)
+            ->assertSee('الان کجایی', false)
+            ->assertSee('صفحهٔ من', false)
+            ->assertDontSeeHtml('data-testid="story-compare"')
+            ->assertDontSeeHtml(route('friends.conversation', $me));
+
+        $this->assertTrue(app(FriendStory::class)->for($me, $me)['self']);
+    }
 }

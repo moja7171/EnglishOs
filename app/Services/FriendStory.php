@@ -40,6 +40,7 @@ class FriendStory
      * Everything the story shows about $friend, for $viewer.
      *
      * @return array{
+     *     self: bool,
      *     ring: int,
      *     where: ?string,
      *     today: array{count: int, headline: string, ringNote: string, items: list<array{kind: string, title: string, line: string}>, last: ?string},
@@ -53,6 +54,7 @@ class FriendStory
         $position = $this->position($friend);
 
         return [
+            'self' => $viewer->is($friend),
             'ring' => $ring,
             'where' => $position ? $this->whereLine($position) : null,
             'today' => $this->today($viewer, $friend, $ring),
