@@ -76,28 +76,44 @@
             <button type="button" x-on:click="$wire.closeStory()" aria-label="Close" class="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full bg-white/15 hover:bg-white/25">@svg('heroicon-o-x-mark', 'h-5 w-5')</button>
         </div>
 
-        <div class="font-fa relative min-h-0 flex-1 overflow-hidden px-5 pt-4 pb-3" dir="rtl">
+        {{-- Tap the right two thirds: on; the left third: back; hold: pause. Scrolling a long page doesn't count as a tap. --}}
+        <div class="font-fa relative min-h-0 flex-1 overflow-hidden px-5 pt-4 pb-3" dir="rtl" x-on:click="const box = $el.getBoundingClientRect(); go($event.clientX - box.left < box.width / 3 ? page - 1 : page + 1)" x-on:pointerdown="held = true" x-on:pointerup="held = false" x-on:pointerleave="held = false" x-on:pointercancel="held = false">
             {{-- 1 · Today --}}
-            <section x-show="page === 0" x-transition.opacity.duration.300ms class="flex h-full flex-col gap-4" data-testid="story-today">
+            <section x-show="page === 0" x-transition.opacity.duration.300ms class="flex h-full flex-col gap-3.5 overflow-y-auto pb-2" data-testid="story-today">
                 <p class="text-xs font-extrabold tracking-wide text-white/70">امروز</p>
                 <div class="flex items-end gap-3">
                     <span class="font-display text-7xl leading-none font-extrabold tabular-nums">{{ $today['count'] }}</span>
                     <span class="pb-2 text-base font-bold">{{ $today['count'] === 0 ? 'کار تا حالا' : ($pages['self'] ? 'کار انجام دادی' : 'کار انجام داد') }}</span>
                 </div>
-                <p @class(['self-start rounded-full px-3 py-1 text-xs font-extrabold', 'bg-emerald-300/25 text-emerald-200' => $pages['ring'] >= 2, 'bg-white/15 text-white' => $pages['ring'] < 2])>{{ $today['ringNote'] }}</p>
-                <div class="flex flex-col gap-2.5 overflow-y-auto">
+                <div class="flex flex-wrap items-center gap-2">
+                    <p @class(['rounded-full px-3 py-1 text-xs font-extrabold', 'bg-emerald-300/25 text-emerald-200' => $pages['ring'] >= 2, 'bg-white/15 text-white' => $pages['ring'] < 2])>{{ $today['ringNote'] }}</p>
+                    @if ($today['lastAt'])
+                        <p class="rounded-full bg-white/15 px-3 py-1 text-xs font-extrabold">آخرین کار: ساعت <bdi dir="ltr">{{ $today['lastAt'] }}</bdi></p>
+                    @endif
+                </div>
+                <div class="flex min-h-0 flex-col gap-2.5 overflow-y-auto pb-2">
                     @forelse ($today['items'] as $item)
                         <div class="{{ $panel }} flex flex-col gap-0.5">
                             <span class="text-sm font-extrabold">{{ $item['title'] }}</span>
                             @if ($item['line'] !== '')
                                 <span class="text-xs font-semibold text-white/80">{{ $item['line'] }}</span>
                             @endif
+                            @foreach ($item['details'] ?? [] as $detail)
+                                <span class="mt-1 flex items-baseline gap-2 text-xs font-semibold text-white/90">
+                                    <span class="min-w-0 flex-1"><bdi class="font-bold">{{ $detail['name'] }}</bdi>@if ($detail['note'] !== '')<span class="block text-[11px] text-white/65">{{ $detail['note'] }}</span>@endif</span>
+                                    @if ($detail['times'] > 0)
+                                        <span class="shrink-0 rounded-full bg-white/15 px-2 py-0.5 font-extrabold tabular-nums">{{ $detail['times'] }} بار</span>
+                                    @else
+                                        <span class="shrink-0 text-emerald-300" aria-hidden="true">✓</span>
+                                    @endif
+                                </span>
+                            @endforeach
                         </div>
                     @empty
                         <div class="{{ $panel }} flex flex-col gap-0.5">
                             <span class="text-sm font-extrabold">{{ $today['last'] }}</span>
                             @if ($overall['streak'] > 0)
-                                <span class="text-xs font-semibold text-white/80">استریک {{ $overall['streak'] }} روزه منتظر امروز است</span>
+                                <span class="text-xs font-semibold text-white/80">{{ $pages['self'] ? 'زنجیرهٔ '.$overall['streak'].' روزهٔ تمرینت منتظر امروز است' : 'زنجیرهٔ '.$overall['streak'].' روزهٔ تمرینش منتظر امروز است' }}</span>
                             @endif
                         </div>
                     @endforelse
@@ -105,7 +121,7 @@
             </section>
 
             {{-- 2 · This week --}}
-            <section x-show="page === 1" x-cloak x-transition.opacity.duration.300ms class="flex h-full flex-col gap-4" data-testid="story-week">
+            <section x-show="page === 1" x-cloak x-transition.opacity.duration.300ms class="flex h-full flex-col gap-3.5 overflow-y-auto pb-2" data-testid="story-week">
                 <p class="text-xs font-extrabold tracking-wide text-white/70">این هفته</p>
                 <div class="flex items-end gap-3">
                     <span class="font-display text-7xl leading-none font-extrabold tabular-nums">{{ $week['practised'] }}</span>
@@ -128,6 +144,13 @@
                     @endforeach
                 </div>
                 <p class="text-xs font-semibold text-white/75">نارنجی = روز مأموریت · سبز = تمرین دیگر · شنبه تا جمعه</p>
+                <div class="flex min-h-0 flex-col gap-1.5 overflow-y-auto" data-testid="story-week-days">
+                    @foreach ($week['days'] as $day)
+                        @if ($day['kinds'])
+                            <p class="flex items-baseline gap-2 text-xs font-semibold"><span class="w-5 shrink-0 font-extrabold text-white/70">{{ $day['letter'] }}</span><span class="min-w-0 flex-1">{{ implode('، ', $day['kinds']) }}</span></p>
+                        @endif
+                    @endforeach
+                </div>
                 @unless ($pages['self'])
                 <div class="{{ $panel }} flex flex-col gap-2.5" data-testid="story-compare">
                     @foreach ([[$friend->name, $week['practised'], 'bg-emerald-300'], ['تو', $week['viewerPractised'], 'bg-[#ffb49c]']] as [$who, $count, $color])
@@ -139,11 +162,11 @@
                     @endforeach
                 </div>
                 @endunless
-                <p class="text-xs font-semibold text-white/75">{{ $week['amount'] }} کار از شنبه تا حالا</p>
+                <p class="text-xs font-semibold text-white/75">{{ $week['amount'] }} کار از شنبه تا حالا@if ($week['totals']) · @foreach ($week['totals'] as $total){{ $total['name'] }} {{ $total['days'] }} روز{{ $loop->last ? '' : '، ' }}@endforeach @endif</p>
             </section>
 
             {{-- 3 · Overall --}}
-            <section x-show="page === 2" x-cloak x-transition.opacity.duration.300ms class="flex h-full flex-col gap-4" data-testid="story-overall">
+            <section x-show="page === 2" x-cloak x-transition.opacity.duration.300ms class="flex h-full flex-col gap-3.5 overflow-y-auto pb-2" data-testid="story-overall">
                 <p class="text-xs font-extrabold tracking-wide text-white/70">وضعیت کلی</p>
                 <div class="flex items-center gap-4">
                     <span class="relative h-[130px] w-[130px] shrink-0" dir="ltr">
@@ -166,17 +189,26 @@
                         @endif
                     </p>
                 </div>
+                @if ($overall['missionDays'])
+                    <div class="flex items-center gap-2" aria-hidden="true" data-testid="story-mission-days">
+                        @foreach ($overall['missionDays'] as $state)
+                            <span @class(['h-2 flex-1 rounded-full', 'bg-emerald-300' => $state === 'done', 'bg-white' => $state === 'current', 'bg-white/20' => $state === 'todo'])></span>
+                        @endforeach
+                        <span class="text-xs font-extrabold tabular-nums text-white/80">{{ $overall['missionPercent'] }}%</span>
+                    </div>
+                @endif
                 <div class="grid grid-cols-2 gap-2.5">
-                    <div class="{{ $panel }}"><b class="font-display block text-3xl font-extrabold tabular-nums">{{ $overall['streak'] }}</b><span class="text-xs font-bold text-white/80">روز استریک · بهترین {{ $overall['longest'] }}</span></div>
+                    <div class="{{ $panel }}"><b class="font-display block text-3xl font-extrabold tabular-nums">{{ $overall['streak'] }}</b><span class="text-xs font-bold text-white/80">روز پشت‌سرهم تمرین · بیشترین: {{ $overall['longest'] }}</span></div>
                     <div class="{{ $panel }}"><b class="font-display block text-3xl font-extrabold tabular-nums"><bdi dir="ltr">{{ $overall['finished'] }} / 24</bdi></b><span class="text-xs font-bold text-white/80">مأموریت تمام شده</span></div>
                     <div class="{{ $panel }}"><b class="font-display block text-3xl font-extrabold tabular-nums">{{ $overall['listens'] }}</b><span class="text-xs font-bold text-white/80">بار گوش دادن</span></div>
                     <div class="{{ $panel }}"><b class="font-display block text-3xl font-extrabold tabular-nums">{{ $overall['badges'] }}</b><span class="text-xs font-bold text-white/80">نشان گرفته</span></div>
+                    <div class="{{ $panel }}"><b class="font-display block text-3xl font-extrabold tabular-nums">{{ $overall['practiceDays'] }}</b><span class="text-xs font-bold text-white/80">روز تمرین در کل</span></div>
+                    <div class="{{ $panel }}"><b class="font-display block text-3xl font-extrabold tabular-nums">{{ $overall['words'] }}</b><span class="text-xs font-bold text-white/80">واژه در دفترچه</span></div>
+                    <div class="{{ $panel }}"><b class="font-display block text-3xl font-extrabold tabular-nums">{{ $overall['games'] }}</b><span class="text-xs font-bold text-white/80">بازی انجام شده</span></div>
+                    <div class="{{ $panel }}"><b class="font-display block text-3xl font-extrabold tabular-nums">{{ $overall['joinedDaysAgo'] }}</b><span class="text-xs font-bold text-white/80">روز از شروع</span></div>
                 </div>
             </section>
 
-            {{-- Tap on the right: on; on the left: back; hold: pause. --}}
-            <button type="button" tabindex="-1" aria-label="Previous" class="absolute inset-y-0 left-0 w-1/3 cursor-default" x-on:click="go(page - 1)" x-on:pointerdown="held = true" x-on:pointerup="held = false" x-on:pointerleave="held = false" x-on:pointercancel="held = false"></button>
-            <button type="button" tabindex="-1" aria-label="Next" class="absolute inset-y-0 right-0 w-2/3 cursor-default" x-on:click="go(page + 1)" x-on:pointerdown="held = true" x-on:pointerup="held = false" x-on:pointerleave="held = false" x-on:pointercancel="held = false"></button>
         </div>
 
         <div class="font-fa flex gap-2.5 px-4 pt-1 pb-[max(1rem,env(safe-area-inset-bottom))]" dir="rtl">
