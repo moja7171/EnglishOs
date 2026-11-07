@@ -1,4 +1,4 @@
-@props(['title', 'href' => null, 'minutes' => null, 'done' => false, 'current' => false, 'tick' => null, 'tickLabel' => null, 'label' => null, 'muted' => false])
+@props(['title', 'href' => null, 'minutes' => null, 'done' => false, 'current' => false, 'tick' => null, 'tickLabel' => null, 'label' => null, 'muted' => false, 'note' => null])
 
 {{-- One line of the Today box: the day's steps, Daily Review and voice
      practice all share it (Extra listening too, $muted), so the whole day
@@ -50,6 +50,9 @@
             <span class="min-w-0 flex-1 truncate">{{ $title }}</span>
             @if ($minutes && ! $done)
                 <span class="shrink-0 text-xs font-normal text-ink-faint dark:text-ink-faint-dark">{{ $minutes }} min</span>
+            @endif
+            @if ($note)
+                <span class="shrink-0 rounded-full bg-success-soft px-2 py-0.5 text-xs font-extrabold text-success no-underline dark:bg-success-soft-dark dark:text-success-dark" data-testid="today-row-note">{{ $note }}</span>
             @endif
         </a>
     @else

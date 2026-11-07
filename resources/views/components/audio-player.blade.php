@@ -32,6 +32,9 @@
         played, never skipped to — see eosListenTracker). Unlike $listen it
         keeps no count and needs no mission step, so any page can react to
         "the learner really listened", e.g. ticking an "I listened" box.
+    @param string|null $onProgress Raw Alpine statement(s) run on every update of a
+        listen in progress with `heard` (0-1, the part of the recording heard
+        so far; 0.9 is when it counts). Only used together with $onListened.
     @param array{mission_code: string, source: string, day_number?: int, pick_key?: string, chip?: bool}|null $listen When
         given, the player counts real listens of this recording (at least
         90% played through, never skipped to — see eosListenTracker),
@@ -65,6 +68,7 @@
     'listen' => null,
     'onEnded' => null,
     'onListened' => null,
+    'onProgress' => null,
     'segments' => [],
     'textHidden' => false,
     'shadowLines' => [],
@@ -172,7 +176,7 @@
                 @endif
 
                 @if ($onListened)
-                    window.eosListenTracker(audio, () => { {{ $onListened }} }, 0.9, null, 0.6, {{ Illuminate\Support\Js::from($resumeKey ? $resumeKey.':heard' : null) }});
+                    window.eosListenTracker(audio, () => { {{ $onListened }} }, 0.9, null, 0.6, {{ Illuminate\Support\Js::from($resumeKey ? $resumeKey.':heard' : null) }}@if ($onProgress), (heard) => { {{ $onProgress }} }@endif);
                 @endif
 
                 @if ($resumeKey)

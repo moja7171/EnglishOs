@@ -341,67 +341,114 @@ new class extends Component
                 x-effect="if (open === {{ $level }}) { loaded = true; current = {{ $level }} } else { refresh() } if (current !== {{ $level }}) $el.querySelectorAll('audio').forEach((audio) => audio.pause())"
             >
                 @php
-                    $cardInner = 'flex w-full items-center gap-3 rounded-3xl bg-surface p-2 pr-3 text-left shadow-sm dark:bg-surface-dark';
+                    $target = AudioListen::PICK_TARGET;
+                    $stripState = match (true) {
+                        $listens === 0 => 'new',
+                        $listens < $target => 'started',
+                        $listens < 5 => 'goal',
+                        default => 'replayed',
+                    };
+                    $cardOuter = 'block w-full overflow-hidden rounded-3xl bg-surface text-left shadow-md ring-1 ring-line dark:bg-surface-dark dark:ring-line-dark';
                 @endphp
                 @if ($pick['local'])
-                    <button type="button" x-on:click="open = {{ $level }}" class="{{ $cardInner }} cursor-pointer">
+                    <button type="button" x-on:click="open = {{ $level }}" class="{{ $cardOuter }} cursor-pointer">
                 @else
-                    <a href="{{ $pick['url'] }}" target="_blank" rel="noopener noreferrer" class="{{ $cardInner }}">
+                    <a href="{{ $pick['url'] }}" target="_blank" rel="noopener noreferrer" class="{{ $cardOuter }}">
                 @endif
-                    <span class="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-linear-to-br from-hero to-hero-2">
-                        @if ($image)
-                            <img src="{{ $image }}" alt="" class="h-full w-full object-cover">
-                        @endif
-                    </span>
-                    <span class="flex min-w-0 flex-1 flex-col gap-0.5">
-                        <span class="flex items-center gap-1.5 text-[11px] font-extrabold text-ink-faint dark:text-ink-faint-dark">
-                            <span class="inline-flex h-3 items-end gap-0.5" role="img" aria-label="Difficulty: {{ \App\Services\ListeningPicks::LEVELS[$level] }}">
-                                @foreach ([1, 2, 3] as $bar => $height)
-                                    <span @class([
-                                        'w-[3px] rounded-sm',
-                                        'h-1' => $height === 1,
-                                        'h-2' => $height === 2,
-                                        'h-3' => $height === 3,
-                                        'bg-accent dark:bg-accent-dark' => $bar <= $level,
-                                        'bg-line dark:bg-line-dark' => $bar > $level,
-                                    ])></span>
-                                @endforeach
-                            </span>
-                            {{ \App\Services\ListeningPicks::LEVELS[$level] }}
-                            @if ($pick['grammar'])
-                                <span class="text-warning-ink" title="Grammar of the day: {{ $this->mission['grammar'] }}" aria-label="Grammar of the day">★</span>
+                    <span class="flex w-full items-center gap-3 p-3">
+                        <span class="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-linear-to-br from-hero to-hero-2">
+                            @if ($image)
+                                <img src="{{ $image }}" alt="" class="h-full w-full object-cover">
                             @endif
                         </span>
-                        <span class="line-clamp-2 text-sm leading-snug font-extrabold text-ink dark:text-ink-dark">{{ $pick['title'] }}</span>
-                        <span class="flex flex-wrap items-center gap-1.5 text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">
-                            {{ $sourceShort }}{{ $pick['min'] ? ' · '.$pick['min'].' min' : '' }}
-                            @if ($listens > 0)
-                                <span class="rounded-full bg-success-soft px-1.5 font-extrabold text-success dark:bg-success-soft-dark dark:text-success-dark">✓ {{ $listens > 1 ? $listens.'×' : 'Heard' }}</span>
-                            @elseif (! $this->isAhead)
-                                <span class="rounded-full bg-surface-sunken px-1.5 font-extrabold text-ink-faint dark:bg-surface-sunken-dark dark:text-ink-faint-dark">Not heard yet</span>
+                        <span class="flex min-w-0 flex-1 flex-col gap-0.5">
+                            <span class="flex items-center gap-1.5 text-[11px] font-extrabold text-ink-faint dark:text-ink-faint-dark">
+                                <span class="inline-flex h-3 items-end gap-0.5" role="img" aria-label="Difficulty: {{ \App\Services\ListeningPicks::LEVELS[$level] }}">
+                                    @foreach ([1, 2, 3] as $bar => $height)
+                                        <span @class([
+                                            'w-[3px] rounded-sm',
+                                            'h-1' => $height === 1,
+                                            'h-2' => $height === 2,
+                                            'h-3' => $height === 3,
+                                            'bg-accent dark:bg-accent-dark' => $bar <= $level,
+                                            'bg-line dark:bg-line-dark' => $bar > $level,
+                                        ])></span>
+                                    @endforeach
+                                </span>
+                                {{ \App\Services\ListeningPicks::LEVELS[$level] }}
+                                @if ($pick['grammar'])
+                                    <span class="text-warning-ink" title="Grammar of the day: {{ $this->mission['grammar'] }}" aria-label="Grammar of the day">★</span>
+                                @endif
+                            </span>
+                            <span class="line-clamp-2 text-sm leading-snug font-extrabold text-ink dark:text-ink-dark">{{ $pick['title'] }}</span>
+                            <span class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">{{ $sourceShort }}{{ $pick['min'] ? ' · '.$pick['min'].' min' : '' }}</span>
+                            @if ($pick['local'])
+                                <span x-show="resumeAt !== null" x-cloak class="mt-1 flex items-center gap-2">
+                                    <span class="h-1 flex-1 overflow-hidden rounded-full bg-line dark:bg-line-dark"><span class="block h-full rounded-full bg-accent dark:bg-accent-dark" :style="`width: ${share * 100}%`"></span></span>
+                                    <span class="text-[11px] font-extrabold text-accent-ink tabular-nums dark:text-accent-ink-dark" x-text="clock(resumeAt ?? 0)"></span>
+                                </span>
                             @endif
                         </span>
-                        @if ($pick['local'])
-                            <span x-show="resumeAt !== null" x-cloak class="mt-1 flex items-center gap-2">
-                                <span class="h-1 flex-1 overflow-hidden rounded-full bg-line dark:bg-line-dark"><span class="block h-full rounded-full bg-accent dark:bg-accent-dark" :style="`width: ${share * 100}%`"></span></span>
-                                <span class="text-[11px] font-extrabold text-accent-ink tabular-nums dark:text-accent-ink-dark" x-text="clock(resumeAt ?? 0)"></span>
-                            </span>
-                        @endif
+                        @unless ($pick['local'])
+                            <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent text-white dark:bg-accent-dark" aria-label="Listen on the original page">@svg('heroicon-o-arrow-top-right-on-square', 'h-5 w-5')</span>
+                        @endunless
                     </span>
                     @if ($pick['local'])
-                        <span @class([
-                            'inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
-                            'bg-success-soft text-success dark:bg-success-soft-dark dark:text-success-dark' => $listens > 0,
-                            'bg-accent text-white dark:bg-accent-dark' => $listens === 0,
-                        ]) aria-label="Play">
-                            @if ($listens > 0)
-                                @svg('heroicon-s-check', 'h-5 w-5')
-                            @else
-                                @svg('heroicon-s-play', 'ml-0.5 h-5 w-5')
-                            @endif
+                        {{-- The count strip: always the same place on every
+                             card, so the three read side by side. One hole
+                             per listen the day asks for, filled as they
+                             happen; the colour says where the pick stands
+                             (new, started, goal reached, replayed). A pick
+                             that plays outside the app can't be heard, so
+                             it has no count. --}}
+                        <span
+                            data-testid="pick-count"
+                            data-state="{{ $stripState }}"
+                            @class([
+                                'flex w-full items-center gap-3 border-t border-line py-2.5 pr-3 pl-4 dark:border-line-dark',
+                                'bg-surface-sunken dark:bg-surface-sunken-dark' => in_array($stripState, ['new', 'started'], true),
+                                'bg-success-soft dark:bg-success-soft-dark' => $stripState === 'goal',
+                                'bg-warning-soft' => $stripState === 'replayed',
+                            ])
+                        >
+                            <span @class([
+                                'flex items-baseline gap-1.5',
+                                'text-ink-faint dark:text-ink-faint-dark' => $stripState === 'new',
+                                'text-accent-ink dark:text-accent-ink-dark' => $stripState === 'started',
+                                'text-success dark:text-success-dark' => $stripState === 'goal',
+                                'text-warning-ink' => $stripState === 'replayed',
+                            ])>
+                                <span class="font-display text-3xl leading-none font-extrabold tabular-nums">{{ $listens }}</span>
+                                <span class="text-xs font-extrabold">heard</span>
+                            </span>
+                            <span class="flex items-center gap-1.5" aria-hidden="true">
+                                @for ($hole = 1; $hole <= $target; $hole++)
+                                    <span @class([
+                                        'h-4 w-4 rounded-full',
+                                        'bg-ground shadow-[inset_0_2px_3px_rgba(0,0,0,0.28)] ring-[1.5px] ring-line dark:bg-ground-dark dark:ring-line-dark' => $hole > $listens,
+                                        'bg-accent ring-[1.5px] ring-accent dark:bg-accent-dark dark:ring-accent-dark' => $hole <= $listens && $stripState === 'started',
+                                        'bg-success ring-[1.5px] ring-success dark:bg-success-dark dark:ring-success-dark' => $hole <= $listens && $stripState === 'goal',
+                                        'bg-warning ring-[1.5px] ring-warning' => $hole <= $listens && $stripState === 'replayed',
+                                    ])></span>
+                                @endfor
+                            </span>
+                            <span @class([
+                                'ml-auto text-xs font-bold whitespace-nowrap',
+                                'text-ink-faint dark:text-ink-faint-dark' => in_array($stripState, ['new', 'started'], true),
+                                'text-success dark:text-success-dark' => $stripState === 'goal',
+                                'text-warning-ink' => $stripState === 'replayed',
+                            ])>
+                                @if ($stripState === 'started'){{ $target - $listens }} more @elseif ($stripState === 'goal')Goal ✓ @elseif ($stripState === 'replayed')Replayed @endif
+                            </span>
+                            <span @class([
+                                'inline-flex shrink-0 items-center gap-1 rounded-full px-3.5 py-1.5 text-sm font-extrabold',
+                                'bg-accent text-white dark:bg-accent-dark' => $listens === 0,
+                                'bg-surface text-ink ring-[1.5px] ring-line dark:bg-surface-dark dark:text-ink-dark dark:ring-line-dark' => $listens > 0,
+                            ]) aria-label="Play">
+                                @svg('heroicon-s-play', 'h-3.5 w-3.5')
+                                {{ $listens === 0 ? 'Play' : 'Again' }}
+                            </span>
                         </span>
-                    @else
-                        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent text-white dark:bg-accent-dark" aria-label="Listen on the original page">@svg('heroicon-o-arrow-top-right-on-square', 'h-5 w-5')</span>
                     @endif
                 @if ($pick['local'])
                     </button>
@@ -428,7 +475,7 @@ new class extends Component
                         aria-label="{{ $pick['title'] }}"
                         class="fixed inset-0 z-50 overflow-y-auto bg-ground dark:bg-ground-dark"
                     >
-                        <div x-data="{ menu: false, listens: {{ $listens }} }" class="mx-auto flex min-h-full max-w-lg flex-col gap-4 px-5 pt-[max(0.75rem,env(safe-area-inset-top))] pb-8">
+                        <div x-data="{ menu: false, listens: {{ $listens }}, goal: {{ $target }}, share: 0, counted: false }" class="mx-auto flex min-h-full max-w-lg flex-col gap-4 px-5 pt-[max(0.75rem,env(safe-area-inset-top))] pb-8">
                             <div class="relative flex items-center gap-2">
                                 <button type="button" x-on:click="open = null" aria-label="Back to the list" class="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-ink-soft hover:bg-surface-sunken dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">@svg('heroicon-o-chevron-down', 'h-6 w-6')</button>
                                 <span class="flex-1 text-center text-xs font-extrabold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">{{ $missionCode }} · Day {{ $day }}</span>
@@ -451,7 +498,28 @@ new class extends Component
                             <div>
                                 <p class="text-lg leading-snug font-extrabold text-ink dark:text-ink-dark">{{ $pick['title'] }}</p>
                                 <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">{{ $source }}</p>
-                                <p class="mt-1.5 inline-flex items-center gap-1.5 rounded-full bg-surface-sunken px-2.5 py-1 text-xs font-extrabold text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark">@svg('heroicon-o-speaker-wave', 'h-3.5 w-3.5') Listens: <span class="tabular-nums" x-text="listens">{{ $listens }}</span></p>
+                            </div>
+
+                            {{-- How many times it was heard, big. The ring
+                                 fills as the listen gets to 90% (when it
+                                 counts), turns green and the number jumps
+                                 the moment it does. --}}
+                            <div class="flex items-center gap-4 rounded-3xl bg-surface p-3 shadow-sm ring-1 ring-line dark:bg-surface-dark dark:ring-line-dark" data-testid="player-count">
+                                <div class="relative h-[68px] w-[68px] shrink-0">
+                                    <svg viewBox="0 0 68 68" class="h-full w-full -rotate-90" aria-hidden="true">
+                                        <circle cx="34" cy="34" r="29" fill="none" stroke-width="6" class="stroke-line dark:stroke-line-dark"></circle>
+                                        <circle cx="34" cy="34" r="29" fill="none" stroke-width="6" stroke-linecap="round" stroke-dasharray="182.2" class="transition-[stroke-dashoffset] duration-150" x-bind:class="counted ? 'stroke-success dark:stroke-success-dark' : 'stroke-accent dark:stroke-accent-dark'" x-bind:style="{ strokeDashoffset: 182.2 * (1 - Math.min(share / 0.9, 1)) }" style="stroke-dashoffset: 182.2"></circle>
+                                    </svg>
+                                    <span class="absolute inset-0 grid place-items-center font-display text-2xl font-extrabold text-ink tabular-nums dark:text-ink-dark" x-bind:class="counted && 'animate-count-bump'" x-text="listens">{{ $listens }}</span>
+                                </div>
+                                <div class="flex min-w-0 flex-col">
+                                    <p class="text-sm font-extrabold text-ink dark:text-ink-dark" x-text="listens === 1 ? '1 listen' : listens + ' listens'">{{ $listens === 1 ? '1 listen' : $listens.' listens' }}</p>
+                                    @if ($this->isAhead)
+                                        <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">Preview · not counted</p>
+                                    @else
+                                        <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark" x-bind:class="counted && 'text-success dark:text-success-dark'" x-text="counted ? (listens < goal ? 'Counted · ' + (goal - listens) + ' more to reach your goal' : listens === goal ? 'Counted · goal reached ✓' : 'Counted · heard again') : 'Counts when you reach 90%'">Counts when you reach 90%</p>
+                                    @endif
+                                </div>
                             </div>
 
                             <template x-if="loaded">
@@ -460,7 +528,8 @@ new class extends Component
                                     text-panel-class="mt-4 max-h-[45dvh] text-base"
                                     :url="$pick['local']['audioUrl']"
                                     :segments="$this->localSegments[$level] ?? []"
-                                    :onListened="$this->isAhead ? null : '$wire.heardPick('.$level.'); listens++'"
+                                    :onListened="$this->isAhead ? null : '$wire.heardPick('.$level.'); listens++; counted = true; share = 1'"
+                                    :onProgress="$this->isAhead ? null : 'if (heard > 0.02) counted = false; if (! counted) share = heard'"
                                     :resume-key="$this->isAhead ? null : $resumeKey"
                                 />
                             </template>

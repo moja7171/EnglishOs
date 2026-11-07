@@ -220,7 +220,6 @@ class ListeningPageTest extends TestCase
 
         Livewire::test('listening.index', ['requestedMission' => 'M01', 'requestedDay' => 1])
             ->call('heardPick', 1)
-            ->assertSee('Heard')
             ->assertSee('Listened');
 
         $this->assertDatabaseHas('audio_listens', [
@@ -261,26 +260,6 @@ class ListeningPageTest extends TestCase
 
         $this->assertSame(0, $learner->audioListens()->count());
         $this->assertFalse($learner->hasListenedToday());
-    }
-
-    public function test_only_the_heard_pick_is_marked_heard(): void
-    {
-        $learner = User::factory()->create();
-        AudioListen::factory()->pick(1, 1)->create(['learner_id' => $learner->id]);
-        $this->actingAs($learner);
-
-        $html = $this->get(route('listening.show'))->getContent();
-
-        $this->assertSame(1, substr_count($html, '✓ Heard</span>'));
-    }
-
-    public function test_a_pick_heard_more_than_once_shows_how_many_times(): void
-    {
-        $learner = User::factory()->create();
-        AudioListen::factory()->pick(1, 0)->count(3)->create(['learner_id' => $learner->id]);
-        $this->actingAs($learner);
-
-        $this->get(route('listening.show'))->assertSee('✓ 3×');
     }
 
     public function test_each_pick_shows_its_own_cached_photo(): void

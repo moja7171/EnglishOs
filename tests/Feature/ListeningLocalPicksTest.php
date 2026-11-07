@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Services\ListeningPicks;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\File;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 /**
@@ -105,10 +106,9 @@ class ListeningLocalPicksTest extends TestCase
             ->assertSeeInOrder(['Alex', 'First fixture line.', 'Sam', 'Second fixture line.'])
             ->assertSee('Original page')
             // The player says how many times it was heard, even when that is none yet.
-            ->assertSee('Listens:')
-            ->assertSee('Not heard yet')
+            ->assertSee('Counts when you reach 90%')
             // The heard seconds outlive the page, so leaving mid-way and resuming can still tick.
-            ->assertSeeHtml('window.eosListenTracker(audio, () => { $wire.heardPick(0); listens++ }, 0.9, null, 0.6, \'eos-resume:M01:'.AudioListen::pickKey(1, 0).':heard\');')
+            ->assertSeeHtml('window.eosListenTracker(audio, () => { $wire.heardPick(0); listens++; counted = true; share = 1 }, 0.9, null, 0.6, \'eos-resume:M01:'.AudioListen::pickKey(1, 0).':heard\', (heard) => { if (heard &gt; 0.02) counted = false; if (! counted) share = heard });')
             ->assertSeeHtml('href="https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/240607"');
     }
 
@@ -119,6 +119,44 @@ class ListeningLocalPicksTest extends TestCase
         $html = $this->get(route('listening.show'))->getContent();
 
         $this->assertSame(1, substr_count($html, 'aria-label="Play"'), 'only the one fixture pick has a player');
+        $this->assertSame(1, substr_count($html, 'data-testid="pick-count"'), 'a pick that plays elsewhere can not be heard here, so it has no count');
         $this->assertStringContainsString('href="https://learningenglish.voanews.com/a/describing-your-day-mornings/6241274.html"', $html);
+    }
+
+    /**
+     * @return array<string, array{int, string, string}>
+     */
+    public static function countStrips(): array
+    {
+        return [
+            'not heard yet' => [0, 'new', 'Play'],
+            'started' => [2, 'started', '1 more'],
+            'goal reached' => [3, 'goal', 'Goal ✓'],
+            'replayed' => [6, 'replayed', 'Replayed'],
+        ];
+    }
+
+    #[DataProvider('countStrips')]
+    public function test_a_played_here_pick_shows_how_many_times_it_was_heard_and_where_that_stands(int $listens, string $state, string $text): void
+    {
+        $learner = User::factory()->create();
+        AudioListen::factory()->pick(1, 0)->count($listens)->create(['learner_id' => $learner->id]);
+        AudioListen::factory()->pick(1, 1)->count(1)->create(['learner_id' => $learner->id]);
+        $this->actingAs($learner);
+
+        $html = $this->get(route('listening.show'))->getContent();
+
+        $this->assertStringContainsString('data-state="'.$state.'"', $html);
+        $this->assertStringContainsString($text, $html);
+        $this->assertMatchesRegularExpression('/tabular-nums">'.$listens.'<\/span>\s*<span class="text-xs font-extrabold">heard/', $html);
+    }
+
+    public function test_a_day_ahead_plays_in_preview_without_counting_the_listen(): void
+    {
+        $this->actingAs(User::factory()->create());
+
+        $this->get(route('listening.show', ['M01', 3]))
+            ->assertOk()
+            ->assertDontSeeHtml('$wire.heardPick(');
     }
 }
