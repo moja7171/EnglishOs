@@ -143,6 +143,7 @@ return array(
     'App\\Services\\FixChecker' => $baseDir . '/app/Services/FixChecker.php',
     'App\\Services\\FriendActivity' => $baseDir . '/app/Services/FriendActivity.php',
     'App\\Services\\FriendAlerts' => $baseDir . '/app/Services/FriendAlerts.php',
+    'App\\Services\\FriendStory' => $baseDir . '/app/Services/FriendStory.php',
     'App\\Services\\GameBadges' => $baseDir . '/app/Services/GameBadges.php',
     'App\\Services\\GameVoice' => $baseDir . '/app/Services/GameVoice.php',
     'App\\Services\\GeminiClient' => $baseDir . '/app/Services/GeminiClient.php',

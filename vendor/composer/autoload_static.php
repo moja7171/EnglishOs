@@ -685,6 +685,7 @@ class ComposerStaticInitdd10e30ec7065eb577b19a4c3968c74e
         'App\\Services\\FixChecker' => __DIR__ . '/../..' . '/app/Services/FixChecker.php',
         'App\\Services\\FriendActivity' => __DIR__ . '/../..' . '/app/Services/FriendActivity.php',
         'App\\Services\\FriendAlerts' => __DIR__ . '/../..' . '/app/Services/FriendAlerts.php',
+        'App\\Services\\FriendStory' => __DIR__ . '/../..' . '/app/Services/FriendStory.php',
         'App\\Services\\GameBadges' => __DIR__ . '/../..' . '/app/Services/GameBadges.php',
         'App\\Services\\GameVoice' => __DIR__ . '/../..' . '/app/Services/GameVoice.php',
         'App\\Services\\GeminiClient' => __DIR__ . '/../..' . '/app/Services/GeminiClient.php',
