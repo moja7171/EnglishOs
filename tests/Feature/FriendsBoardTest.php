@@ -283,14 +283,16 @@ class FriendsBoardTest extends TestCase
         Livewire::test('friends.index')->assertSeeHtml(route('friends.board'));
     }
 
-    public function test_a_friends_avatar_on_the_friends_page_opens_their_page(): void
+    public function test_a_friends_photo_opens_their_story_which_leads_to_their_page(): void
     {
         $me = User::factory()->create();
         $this->actingAs($me);
         $friend = $this->makeMutualFriend($me);
 
         Livewire::test('friends.index')
-            ->assertSeeHtml(route('friends.profile', $friend))
-            ->assertSeeHtml(route('friends.conversation', $friend));
+            ->assertSeeHtml(route('friends.conversation', $friend))
+            ->assertDontSeeHtml(route('friends.profile', $friend))
+            ->call('openStory', $friend->id)
+            ->assertSeeHtml(route('friends.profile', $friend));
     }
 }

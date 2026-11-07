@@ -120,7 +120,7 @@ class FriendsIndexTest extends TestCase
             ->assertDontSee('Bob Blocked');
     }
 
-    public function test_friends_who_practiced_today_get_a_ring_and_the_rest_a_nudge(): void
+    public function test_each_friends_photo_shows_how_much_of_today_is_done_and_those_idle_get_a_nudge(): void
     {
         $me = User::factory()->create();
         $mutualActive = User::factory()->create(['name' => 'Ann Active']);
@@ -154,13 +154,13 @@ class FriendsIndexTest extends TestCase
         $this->actingAs($me);
 
         Livewire::test('friends.index')
-            ->assertSeeInOrder(['practiced today', $mutualActive->name, $mutualInactive->name])
+            ->assertSeeInOrder(['2 of 3 done today', $mutualActive->name, 'nothing yet today', $mutualInactive->name])
             ->assertSee('Not today')
             ->assertSee('🔥 Nudge');
-        $this->assertSame(1, substr_count(Livewire::test('friends.index')->html(), 'practiced today</span>'));
+        $this->assertSame(1, substr_count(Livewire::test('friends.index')->html(), 'of 3 done today</span>'));
     }
 
-    public function test_no_ring_when_no_mutual_friend_has_practiced(): void
+    public function test_the_ring_is_grey_when_no_mutual_friend_has_practiced(): void
     {
         $me = User::factory()->create();
         $bob = User::factory()->create();
@@ -170,7 +170,8 @@ class FriendsIndexTest extends TestCase
         $this->actingAs($me);
 
         Livewire::test('friends.index')
-            ->assertDontSee('practiced today</span>', false);
+            ->assertSee('nothing yet today')
+            ->assertDontSee('done today');
     }
 
     public function test_friends_are_ordered_by_latest_message_with_preview_and_unread_count(): void
@@ -408,13 +409,13 @@ class FriendsIndexTest extends TestCase
             ->assertSee('Friend 01');
     }
 
-    public function test_the_today_strip_shows_only_friends_who_practised(): void
+    public function test_teddy_is_the_first_row_of_the_list(): void
     {
         $me = User::factory()->create();
-        $this->friendOf($me);
+        $friend = $this->friendOf($me);
         $this->actingAs($me);
 
-        Livewire::test('friends.index')->assertSee('Teddy')->assertDontSee('practiced today');
+        Livewire::test('friends.index')->assertSeeInOrder(['Teddy', 'Your AI classmate', $friend->name]);
     }
 
     public function test_the_lesson_friend_picker_lists_the_latest_partner_first_with_usernames(): void

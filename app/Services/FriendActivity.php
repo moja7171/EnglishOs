@@ -171,6 +171,30 @@ class FriendActivity
     }
 
     /**
+     * The mission days $user worked on during $date (Y-m-d): which mission
+     * and day, the steps done (their keys too) and whether the day was
+     * finished on that date.
+     *
+     * @return list<array{code: string, day: int, steps: list<string>, stepKeys: list<string>, finished: bool}>
+     */
+    public function missionDaysOn(User $user, string $date): array
+    {
+        $slices = $this->byDate($user)->get($date, collect());
+
+        return $this->missionDaysIn($slices, $this->slices[$user->id]);
+    }
+
+    /**
+     * The last local day $user did anything, or null if never.
+     */
+    public function lastPracticedOn(User $user): ?Carbon
+    {
+        $latest = $this->byDate($user)->keys()->max();
+
+        return $latest === null ? null : Carbon::parse($latest);
+    }
+
+    /**
      * The mission days $slices (one date's) touched: which mission and
      * day, the steps done, and whether the day was finished on that date —
      * every step of it done ($everything holds all the learner's slices),
@@ -178,7 +202,7 @@ class FriendActivity
      *
      * @param  Collection<int, DayActivity>  $slices
      * @param  Collection<int, DayActivity>  $everything
-     * @return list<array{code: string, day: int, steps: list<string>, finished: bool}>
+     * @return list<array{code: string, day: int, steps: list<string>, stepKeys: list<string>, finished: bool}>
      */
     private function missionDaysIn(Collection $slices, Collection $everything): array
     {
@@ -200,8 +224,9 @@ class FriendActivity
 
                 if ($keys->contains($match[2])) {
                     $key = $run->id.'-'.$index;
-                    $days[$key] ??= ['code' => $run->mission->code, 'day' => $index + 1, 'steps' => [], 'finished' => false, 'keys' => $keys->map(fn (string $stepKey) => 'step:'.$run->id.':'.$stepKey)->all(), 'date' => $slice->on_date->toDateString()];
+                    $days[$key] ??= ['code' => $run->mission->code, 'day' => $index + 1, 'steps' => [], 'stepKeys' => [], 'finished' => false, 'keys' => $keys->map(fn (string $stepKey) => 'step:'.$run->id.':'.$stepKey)->all(), 'date' => $slice->on_date->toDateString()];
                     $days[$key]['steps'][] = $run->mission->stepLabel($match[2]);
+                    $days[$key]['stepKeys'][] = $match[2];
                 }
             }
         }
@@ -211,6 +236,7 @@ class FriendActivity
         return collect($days)->map(function (array $day) use ($doneOn) {
             $dates = collect($day['keys'])->map(fn (string $key) => $doneOn->get($key));
             $day['steps'] = array_values(array_unique($day['steps']));
+            $day['stepKeys'] = array_values(array_unique($day['stepKeys']));
             $day['finished'] = $dates->every(fn (?string $date) => $date !== null) && $dates->max() === $day['date'];
             unset($day['keys'], $day['date']);
 

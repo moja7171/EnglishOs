@@ -4,7 +4,9 @@ use App\Models\DirectMessage;
 use App\Models\PairGame;
 use App\Models\PairPracticeSession;
 use App\Models\User;
+use App\Services\FriendStory;
 use App\Services\PairPractice;
+use App\Services\StreakRing;
 use App\Services\Usernames;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
@@ -17,9 +19,6 @@ new class extends Component
     /** Rows shown at first, and added by each "Show more". */
     public const PAGE_SIZE = 20;
 
-    /** How many faces fit the "practised today" strip. */
-    public const TODAY_STRIP_SIZE = 10;
-
     public string $search = '';
 
     /** How many search results are showing. */
@@ -27,6 +26,9 @@ new class extends Component
 
     /** How many chats are showing; a chat with unread messages always is. */
     public int $friendLimit = self::PAGE_SIZE;
+
+    /** The friend whose story is open (see openStory()). */
+    public ?int $storyFriendId = null;
 
     /** The invite link this page was opened from (see the 'invite' route). */
     #[Url]
@@ -45,6 +47,37 @@ new class extends Component
     public function showMoreFriends(): void
     {
         $this->friendLimit += self::PAGE_SIZE;
+    }
+
+    /**
+     * Opens a friend's story — only a friend (a mutual follow, not blocked)
+     * has one.
+     */
+    public function openStory(int $friendId): void
+    {
+        abort_unless($this->friends->contains('id', $friendId), 403);
+
+        $this->storyFriendId = $friendId;
+        unset($this->story);
+    }
+
+    public function closeStory(): void
+    {
+        $this->storyFriendId = null;
+        unset($this->story);
+    }
+
+    /**
+     * The open story's friend and pages, or null when none is open.
+     *
+     * @return array{friend: User, pages: array<string, mixed>}|null
+     */
+    #[Computed]
+    public function story(): ?array
+    {
+        $friend = $this->storyFriendId === null ? null : $this->friends->firstWhere('id', $this->storyFriendId);
+
+        return $friend ? ['friend' => $friend, 'pages' => app(FriendStory::class)->for(auth()->user(), $friend)] : null;
     }
 
     public function follow(int $userId): void
@@ -169,7 +202,7 @@ new class extends Component
      * whether they practised today and where they are (mission · step) —
      * counts and positions only, never what they answered.
      *
-     * @return list<array{friend: User, summary: ?array, unread: int, streak: int, active: bool, where: ?string, nudged: bool}>
+     * @return list<array{friend: User, summary: ?array, unread: int, streak: int, active: bool, slices: int, where: ?string, nudged: bool}>
      */
     #[Computed]
     public function rows(): array
@@ -185,6 +218,7 @@ new class extends Component
                 'unread' => $summary['unread'] ?? 0,
                 'streak' => $friend->currentStreak(),
                 'active' => $friend->wasActiveToday(),
+                'slices' => min(StreakRing::SLICES_FOR_FULL, $friend->streakRing()['todaySlices']),
                 'where' => $run ? $run->mission->code.($step ? ' · '.$run->mission->stepLabel($step) : '') : null,
                 'nudged' => Cache::has(PairPractice::nudgeKey(auth()->user(), $friend)),
             ];
@@ -346,13 +380,13 @@ new class extends Component
     $pill = 'shrink-0 cursor-pointer rounded-full px-3 py-1.5 text-xs font-extrabold transition-colors disabled:pointer-events-none disabled:opacity-50';
     $iconButton = 'inline-flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full transition-colors';
     $hasAnyone = $this->friends->isNotEmpty() || $this->oneWayFollowing->isNotEmpty() || $this->pendingRequests->isNotEmpty();
-    $activeToday = collect($this->rows)->where('active', true)->take(self::TODAY_STRIP_SIZE)->values();
     $moreFriends = $this->friends->count() - $this->shownFriends->count();
     $findBox = 'flex w-full items-center gap-2 rounded-2xl border-2 bg-surface px-3 py-2.5 dark:bg-surface-dark';
 @endphp
 
-{{-- Like a messenger: who practised today on top, Practice together, the
-     requests, then one row per chat. The search box swaps the page for
+{{-- Like a messenger: Practice together, the requests, then Teddy and one
+     row per chat. A friend's photo carries their day's ring and opens
+     their story (see x-friends.story). The search box swaps the page for
      Find friends (search, invite link, "They follow you"); Mute, Unfollow, Block and Report live
      in each chat's ⋯. --}}
 <div class="mx-auto max-w-2xl px-4 pt-3 pb-6 sm:px-6" x-data="{ adding: @js(trim($search) !== '') }" x-on:eos-friends-changed.window="$wire.$refresh()" x-back-close="{ open: adding, close: () => adding = false }">
@@ -368,26 +402,6 @@ new class extends Component
                 Find or add friends
             </button>
         @endif
-
-        {{-- Teddy always, then who practised today with a green ring. --}}
-        <div class="-mx-4 flex gap-3 overflow-x-auto px-4 pt-2 pb-1" aria-label="Today">
-            <a href="{{ route('friends.teddy') }}" wire:navigate class="flex w-14 shrink-0 flex-col items-center gap-1 text-[11px] font-bold text-ink-soft dark:text-ink-soft-dark">
-                <span class="relative rounded-full ring-[2.5px] ring-accent ring-offset-2 ring-offset-ground dark:ring-accent-dark dark:ring-offset-ground-dark">
-                    <x-teddy-avatar class="h-12 w-12" />
-                    <span class="absolute -right-1 -bottom-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-accent text-white dark:bg-accent-dark">@svg('heroicon-s-sparkles', 'h-3 w-3')</span>
-                </span>
-                <span class="w-full truncate text-center">Teddy</span>
-            </a>
-            @foreach ($activeToday as $row)
-                <a href="{{ route('friends.conversation', $row['friend']) }}" wire:navigate wire:key="today-{{ $row['friend']->id }}" class="flex w-14 shrink-0 flex-col items-center gap-1 text-[11px] font-bold text-ink-soft dark:text-ink-soft-dark">
-                    <span class="relative rounded-full ring-[2.5px] ring-success ring-offset-2 ring-offset-ground dark:ring-success-dark dark:ring-offset-ground-dark">
-                        <x-user-avatar :user="$row['friend']" class="h-12 w-12 text-sm" />
-                        <span class="sr-only">practiced today</span>
-                    </span>
-                    <span class="w-full truncate text-center">{{ $row['friend']->name }}</span>
-                </a>
-            @endforeach
-        </div>
 
         @if ($invited = $this->invitedPerson)
             <div wire:key="invited-{{ $invited->id }}" class="flex items-center gap-3 rounded-2xl bg-surface px-3 py-2.5 shadow-sm dark:bg-surface-dark">
@@ -482,19 +496,51 @@ new class extends Component
             </div>
         @endforeach
 
+        @if ($this->friends->isNotEmpty())
+            {{-- Said once: the photos are the way into a friend's story. --}}
+            <p
+                x-data="{ seen: (() => { try { return localStorage.getItem('eos-story-hint') === '1' } catch (e) { return true } })() }"
+                x-show="! seen"
+                x-cloak
+                class="flex items-center gap-2 rounded-2xl bg-accent-soft px-3 py-2 text-xs font-bold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark"
+            >
+                <span class="flex-1">Tap a photo to see their day</span>
+                <button type="button" x-on:click="seen = true; try { localStorage.setItem('eos-story-hint', '1') } catch (e) {}" aria-label="Got it" class="inline-flex h-6 w-6 cursor-pointer items-center justify-center rounded-full hover:bg-black/5">@svg('heroicon-o-x-mark', 'h-4 w-4')</button>
+            </p>
+        @endif
+
+        <div class="-mx-2">
+            <div class="relative flex items-center gap-3 rounded-2xl px-2 py-2.5 hover:bg-surface-sunken dark:hover:bg-surface-sunken-dark">
+                <a href="{{ route('friends.teddy') }}" wire:navigate aria-label="Teddy, your AI classmate" class="absolute inset-0 rounded-2xl"></a>
+                <span class="relative shrink-0">
+                    <x-friends.day-ring :slices="3" tone="accent">
+                        <x-teddy-avatar class="h-11 w-11" />
+                    </x-friends.day-ring>
+                    <span class="absolute right-0 bottom-0 inline-flex h-5 w-5 items-center justify-center rounded-full bg-accent text-white dark:bg-accent-dark">@svg('heroicon-s-sparkles', 'h-3 w-3')</span>
+                </span>
+                <div class="pointer-events-none min-w-0 flex-1">
+                    <p class="truncate text-sm font-extrabold text-ink dark:text-ink-dark">Teddy</p>
+                    <p class="mt-0.5 truncate text-xs text-ink-faint dark:text-ink-faint-dark">Your AI classmate</p>
+                </div>
+            </div>
+        </div>
+
         @if ($this->rows || $this->oneWayFollowing->isNotEmpty())
             <div class="-mx-2">
                 @foreach ($this->rows as $row)
                     @php $friend = $row['friend']; @endphp
-                    {{-- The whole row opens the chat; the avatar opens the friend's page, and Nudge sits above it too. --}}
+                    {{-- The whole row opens the chat; the photo (with the day's ring) opens the friend's story, and Nudge sits above it too. --}}
                     <div wire:key="friend-{{ $friend->id }}" class="relative flex items-center gap-3 rounded-2xl px-2 py-2.5 hover:bg-surface-sunken dark:hover:bg-surface-sunken-dark">
                         <a href="{{ route('friends.conversation', $friend) }}" wire:navigate aria-label="Open chat with {{ $friend->name }}" class="absolute inset-0 rounded-2xl"></a>
-                        <a href="{{ route('friends.profile', $friend) }}" wire:navigate aria-label="{{ $friend->name }}’s page" class="relative shrink-0">
-                            <x-user-avatar :user="$friend" class="h-12 w-12 text-sm" />
+                        <button type="button" wire:click="openStory({{ $friend->id }})" wire:loading.attr="disabled" wire:target="openStory({{ $friend->id }})" aria-label="{{ $friend->name }}’s day" class="relative shrink-0 cursor-pointer">
+                            <x-friends.day-ring :slices="$row['slices']">
+                                <x-user-avatar :user="$friend" class="h-11 w-11 text-sm" />
+                            </x-friends.day-ring>
+                            <span class="sr-only">{{ $row['slices'] >= 3 ? 'finished the day' : ($row['slices'] > 0 ? $row['slices'].' of 3 done today' : 'nothing yet today') }}</span>
                             @if ($row['streak'] > 0)
-                                <span class="absolute -right-1 -bottom-1 rounded-full bg-surface px-1 text-[10px] font-extrabold text-accent-ink shadow-sm dark:bg-surface-dark dark:text-accent-ink-dark">🔥{{ $row['streak'] }}</span>
+                                <span class="absolute right-0 bottom-0 rounded-full bg-surface px-1 text-[10px] font-extrabold text-accent-ink shadow-sm dark:bg-surface-dark dark:text-accent-ink-dark">🔥{{ $row['streak'] }}</span>
                             @endif
-                        </a>
+                        </button>
                         <div class="pointer-events-none min-w-0 flex-1">
                             <p class="flex items-baseline gap-1.5 truncate text-sm font-extrabold text-ink dark:text-ink-dark">
                                 {{ $friend->name }}
@@ -628,4 +674,8 @@ new class extends Component
             </div>
         @endif
     </div>
+
+    @if ($story = $this->story)
+        <x-friends.story :friend="$story['friend']" :pages="$story['pages']" />
+    @endif
 </div>
