@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Mission;
 use App\Models\MissionRun;
 use App\Models\NotebookEntry;
+use App\Models\SpeakingPrompt;
 use App\Models\User;
 use App\Models\VocabularyWord;
 use App\Services\AppShell;
@@ -376,29 +377,70 @@ class NotebookTest extends TestCase
         $this->assertSame(0, $learner->notebookEntries()->whereNotNull('label')->count());
     }
 
-    public function test_daily_review_takes_at_most_three_notebook_lines_the_most_repeated_first(): void
+    public function test_daily_review_takes_at_most_three_notebook_lines_while_other_items_wait_the_most_repeated_first(): void
     {
         $learner = User::factory()->create();
         $notes = collect([1, 5, 2, 4])->map(fn (int $timesSeen) => NotebookEntry::factory()->for($learner, 'learner')->create(['times_seen' => $timesSeen, 'next_review_at' => now()->subDay()]));
         $word = VocabularyWord::create(['learner_id' => $learner->id, 'word' => 'commute', 'meaning' => 'to travel to work', 'next_review_at' => now()->subHour()]);
+        $prompts = collect(range(1, 3))->map(fn (int $number) => SpeakingPrompt::create(['learner_id' => $learner->id, 'prompt' => "Prompt {$number}", 'next_review_at' => now()->subHours(2)]));
 
         $items = $learner->dailyReviewItems();
 
         $this->assertEqualsCanonicalizing(
-            [['type' => 'note', 'id' => $notes[1]->id], ['type' => 'note', 'id' => $notes[3]->id], ['type' => 'note', 'id' => $notes[2]->id], ['type' => 'word', 'id' => $word->id]],
+            [
+                ['type' => 'note', 'id' => $notes[1]->id], ['type' => 'note', 'id' => $notes[3]->id], ['type' => 'note', 'id' => $notes[2]->id],
+                ['type' => 'word', 'id' => $word->id],
+                ...$prompts->map(fn (SpeakingPrompt $prompt) => ['type' => 'speaking', 'id' => $prompt->id])->all(),
+            ],
             $items->all(),
         );
-        $this->assertSame(4, $learner->dailyReviewCount());
+        $this->assertSame(7, $learner->dailyReviewCount());
     }
 
-    public function test_notebook_lines_reviewed_today_use_up_the_three_slots(): void
+    public function test_notebook_lines_fill_the_places_other_items_leave_empty(): void
+    {
+        $learner = User::factory()->create();
+        $notes = collect([1, 5, 2, 4, 3, 6, 7])->map(fn (int $timesSeen) => NotebookEntry::factory()->for($learner, 'learner')->create(['times_seen' => $timesSeen, 'next_review_at' => now()->subDay()]));
+        $prompt = SpeakingPrompt::create(['learner_id' => $learner->id, 'prompt' => 'Prompt', 'next_review_at' => now()->subHour()]);
+
+        $items = $learner->dailyReviewItems('talk');
+
+        $this->assertCount(User::DAILY_TALK_LIMIT, $items);
+        $this->assertSame(['type' => 'speaking', 'id' => $prompt->id], $items->firstWhere('type', 'speaking'));
+        $this->assertEqualsCanonicalizing(
+            $notes->sortByDesc('times_seen')->take(5)->map(fn (NotebookEntry $note) => ['type' => 'note', 'id' => $note->id])->values()->all(),
+            $items->where('type', 'note')->values()->all(),
+        );
+        $this->assertSame(User::DAILY_TALK_LIMIT, $learner->dailyReviewCount('talk'));
+    }
+
+    public function test_todays_notebook_lines_stay_the_same_while_they_are_reviewed(): void
+    {
+        $learner = User::factory()->create();
+        collect(range(1, 8))->each(fn (int $timesSeen) => NotebookEntry::factory()->for($learner, 'learner')->create(['times_seen' => $timesSeen, 'next_review_at' => now()->subDay()]));
+
+        $before = $learner->dailyReviewItems('talk');
+        $first = NotebookEntry::findOrFail($before->first()['id']);
+        $first->update(['last_reviewed_at' => now(), 'next_review_at' => now()->addDay()]);
+        $after = $learner->dailyReviewItems('talk');
+
+        $this->assertCount(6, $before);
+        $this->assertSame($before->slice(1)->values()->all(), $after->values()->all());
+        $this->assertSame(5, $learner->dailyReviewCount('talk'));
+    }
+
+    public function test_notebook_lines_reviewed_today_use_up_the_three_slots_when_other_items_wait(): void
     {
         $learner = User::factory()->create();
         NotebookEntry::factory()->count(2)->for($learner, 'learner')->create(['last_reviewed_at' => now(), 'next_review_at' => now()->addDay()]);
         NotebookEntry::factory()->count(3)->for($learner, 'learner')->create(['next_review_at' => now()->subDay()]);
+        collect(range(1, 4))->each(fn (int $number) => SpeakingPrompt::create(['learner_id' => $learner->id, 'prompt' => "Prompt {$number}", 'next_review_at' => now()->subHour()]));
 
-        $this->assertSame(1, $learner->dailyReviewItems()->where('type', 'note')->count());
-        $this->assertSame(1, $learner->dailyReviewCount());
+        $items = $learner->dailyReviewItems('talk');
+
+        $this->assertSame(1, $items->where('type', 'note')->count());
+        $this->assertSame(3, $items->where('type', 'speaking')->count());
+        $this->assertSame(4, $learner->dailyReviewCount('talk'));
     }
 
     public function test_a_line_remembered_three_times_in_a_row_becomes_learned(): void
