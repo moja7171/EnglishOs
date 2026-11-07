@@ -504,11 +504,14 @@ class AiPractice extends Model
      * whole sentence goes into the notebook at once, to be spotted again
      * in Review. Saved with the model, not here.
      *
+     * The part of the practice it happened in is kept too, to see where he
+     * slips.
+     *
      * @param  'sentence'|'answer'  $kind
      */
     public function logSlip(string $said, string $fix, bool $caught, string $kind = 'sentence'): void
     {
-        $this->deck = [...$this->deck, 'slip_log' => [...($this->deck['slip_log'] ?? []), ['said' => $said, 'fix' => $fix, 'caught' => $caught, 'kind' => $kind]]];
+        $this->deck = [...$this->deck, 'slip_log' => [...($this->deck['slip_log'] ?? []), ['said' => $said, 'fix' => $fix, 'caught' => $caught, 'kind' => $kind, 'stage' => $this->stage]]];
 
         if (! $caught && $kind === 'sentence' && $said !== '' && mb_strlen($said) <= self::NOTEBOOK_LINE_LIMIT) {
             app(FeedbackNotebook::class)->recordCheck($this->learner, $said, $fix, null, 'games');

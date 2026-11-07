@@ -143,6 +143,31 @@ class TeddyPlaysFairTest extends TestCase
         }
     }
 
+    public function test_slips_are_about_a_third_of_his_turns_and_spread_over_every_part(): void
+    {
+        $cards = fn (int $count) => array_map(fn (int $position) => ['answer' => 'x'.$position], range(0, $count - 1));
+        $deck = [AiPractice::STAGE_VOCABULARY => $cards(8), AiPractice::STAGE_GRAMMAR => $cards(8), AiPractice::STAGE_SPEAKING => $cards(4)];
+
+        for ($try = 0; $try < 40; $try++) {
+            $slips = app(TeddyLevel::class)->planSlips($deck, TeddyLevel::NORMAL);
+
+            $this->assertContains(collect($slips)->flatten()->count(), [3, 4]);
+
+            foreach (AiPractice::CARD_STAGES as $stage) {
+                $this->assertNotEmpty($slips[$stage] ?? [], "no slip planned in {$stage}");
+            }
+        }
+    }
+
+    public function test_a_slip_is_kept_with_the_part_of_the_practice_it_happened_in(): void
+    {
+        $practice = $this->roundWithSlips([1]);
+
+        Livewire::test('ai-practice.session', ['practice' => $practice])->call('judgeTeddy', 'mistake');
+
+        $this->assertSame(AiPractice::STAGE_VOCABULARY, $practice->refresh()->deck['slip_log'][0]['stage']);
+    }
+
     public function test_he_plays_easy_after_losses_hard_after_wins_and_normal_with_too_little_to_go_on(): void
     {
         $learner = User::factory()->create();

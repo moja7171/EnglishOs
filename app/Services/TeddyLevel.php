@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\AiPractice;
 use App\Models\PairGame;
 use App\Models\User;
+use Illuminate\Support\Arr;
 
 /**
  * How well Teddy plays today: easy after the learner has been losing,
@@ -40,7 +41,7 @@ class TeddyLevel
      */
     private const SLIP_PERCENT = [self::EASY => 25, self::NORMAL => 34, self::HARD => 45];
 
-    /** A grammar card made from the learner's own notebook mistake: he slips on it at least this often. */
+    /** A grammar card made from the learner's own notebook mistake: it counts at least this much when a slip is drawn. */
     private const NOTEBOOK_SLIP_PERCENT = 60;
 
     public function levelFor(User $learner, string $kind): string
@@ -66,8 +67,12 @@ class TeddyLevel
     }
 
     /**
-     * Which of Teddy's own turns he slips on, by part of the practice:
-     * each turn by chance, drawn once and then kept.
+     * Which of Teddy's own turns he slips on, by part of the practice.
+     * About the level's share of all his turns (a whole number, rounded
+     * up or down by chance), spread over the parts one at a time so that
+     * no part is skipped while another has two. Within a part a card made
+     * from the learner's own notebook mistake is likelier to be picked.
+     * Drawn once and then kept.
      *
      * @param  array<string, mixed>  $deck
      * @return array<string, list<int>>
@@ -75,27 +80,86 @@ class TeddyLevel
     public function planSlips(array $deck, string $level): array
     {
         $chance = self::SLIP_PERCENT[$level] ?? self::SLIP_PERCENT[self::NORMAL];
+        $turns = $this->turnsWithSlips($deck, $chance);
+        $toPlan = $this->slipsToPlan(array_sum(array_map(count(...), $turns)), $chance);
         $slips = [];
+
+        while ($toPlan > 0 && array_filter($turns) !== []) {
+            foreach (Arr::shuffle(array_keys(array_filter($turns))) as $part) {
+                if ($toPlan === 0) {
+                    break;
+                }
+
+                $position = $this->drawTurn($turns[$part]);
+                unset($turns[$part][$position]);
+                $slips[$part][] = $position;
+                $toPlan--;
+            }
+        }
+
+        return array_map(function (array $positions) {
+            sort($positions);
+
+            return $positions;
+        }, $slips);
+    }
+
+    /**
+     * How many slips a practice with this many of Teddy's turns gets: the
+     * share of them, rounded up with the chance of its fraction, and never
+     * none when he has a turn to slip on.
+     */
+    private function slipsToPlan(int $turns, int $chance): int
+    {
+        $percentOfTurns = $turns * $chance;
+        $wholeSlips = intdiv($percentOfTurns, 100) + (random_int(1, 100) <= $percentOfTurns % 100 ? 1 : 0);
+
+        return min($turns, max($turns > 0 ? 1 : 0, $wholeSlips));
+    }
+
+    /**
+     * Teddy's turns he may slip on in each part, as position => weight.
+     *
+     * @param  array<string, mixed>  $deck
+     * @return array<string, array<int, int>>
+     */
+    private function turnsWithSlips(array $deck, int $chance): array
+    {
+        $turns = [];
 
         foreach (AiPractice::CARD_STAGES as $stage) {
             foreach ($deck[$stage] ?? [] as $position => $card) {
-                $isTeddysTurn = $position % 2 === 1 && ! isset($card['owner_id']) && filled($card['answer'] ?? null);
-
-                $cardChance = isset($card['notebook_id']) ? max($chance, self::NOTEBOOK_SLIP_PERCENT) : $chance;
-
-                if ($isTeddysTurn && random_int(1, 100) <= $cardChance) {
-                    $slips[$stage][] = $position;
+                if ($position % 2 === 1 && ! isset($card['owner_id']) && filled($card['answer'] ?? null)) {
+                    $turns[$stage][$position] = isset($card['notebook_id']) ? max($chance, self::NOTEBOOK_SLIP_PERCENT) : $chance;
                 }
             }
         }
 
         foreach ($this->gameTurnsWithSlips($deck) as $position) {
-            if (random_int(1, 100) <= $chance) {
-                $slips[AiPractice::STAGE_GAME][] = $position;
+            $turns[AiPractice::STAGE_GAME][$position] = $chance;
+        }
+
+        return $turns;
+    }
+
+    /**
+     * One position drawn by weight.
+     *
+     * @param  array<int, int>  $weights
+     */
+    private function drawTurn(array $weights): int
+    {
+        $draw = random_int(1, array_sum($weights));
+
+        foreach ($weights as $position => $weight) {
+            $draw -= $weight;
+
+            if ($draw <= 0) {
+                return $position;
             }
         }
 
-        return $slips;
+        return array_key_last($weights);
     }
 
     /**
