@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Models\AiPractice;
+use App\Models\AskAnswerItem;
 use App\Models\Evidence;
 use App\Models\ListeningLog;
 use App\Models\Mission;
@@ -10,6 +12,7 @@ use App\Models\PiChatFeedback;
 use App\Models\PiPracticeLog;
 use App\Models\User;
 use App\Services\GeminiClient;
+use Database\Seeders\AskAnswerSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Features\SupportLockedProperties\CannotUpdateLockedPropertyException;
 use Livewire\Livewire;
@@ -416,5 +419,49 @@ class PiPracticePageTest extends TestCase
 
         $this->get(route('pi.practice'))
             ->assertSeeHtml('href="'.route('missions.index').'"');
+    }
+
+    public function test_a_day_with_ask_and_answer_cards_makes_it_the_daily_talk_and_pi_the_optional_extra(): void
+    {
+        $this->seed(AskAnswerSeeder::class);
+        $learner = $this->learnerWhoFinishedDay1();
+        $this->actingAs($learner);
+
+        Livewire::test('pi-practice.index')
+            ->assertSee('With Teddy')
+            ->assertSee('Free talk with Pi (optional)');
+
+        $this->get(route('missions.index'))->assertOk();
+    }
+
+    public function test_a_day_without_cards_stays_a_plain_pi_page(): void
+    {
+        AskAnswerItem::query()->delete();
+        $this->actingAs($this->learnerWhoFinishedDay1());
+
+        Livewire::test('pi-practice.index')
+            ->assertDontSee('With Teddy')
+            ->assertDontSee('Free talk with Pi (optional)');
+    }
+
+    public function test_starting_the_game_makes_a_teddy_practice_for_that_day_and_playing_it_ticks_the_daily_talk(): void
+    {
+        $this->seed(AskAnswerSeeder::class);
+        $learner = $this->learnerWhoFinishedDay1();
+        $this->actingAs($learner);
+
+        Livewire::test('pi-practice.index')->call('startGame')->assertRedirect();
+
+        $practice = AiPractice::where('learner_id', $learner->id)->latest('id')->first();
+        $this->assertSame(['M01-1'], $practice->days);
+        $this->assertSame('ask-answer', $practice->game());
+        $this->assertSame(['M01-1'], collect($practice->cards())->pluck('source')->map(fn (string $source) => 'M01-'.substr($source, -1))->unique()->values()->all());
+        $this->assertFalse($learner->hasPracticedWithPiToday());
+
+        $practice->update(['answered' => AiPractice::MIN_COUNTED_ANSWERS]);
+        $practice->creditTheDay();
+
+        $this->assertTrue($learner->refresh()->hasPracticedWithPiToday());
+        $this->assertContains(1, $learner->piPracticedDaysOf('M01'));
     }
 }

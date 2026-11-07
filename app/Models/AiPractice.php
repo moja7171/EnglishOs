@@ -706,6 +706,12 @@ class AiPractice extends Model
         }
 
         app(StreakRing::class)->record($this->learner, 'ai-practice');
+
+        // Ask & Answer made for one day is that day's Daily talk.
+        if ($this->game() === PairGame::GAME_ASK && count($this->days ?? []) === 1 && preg_match('/^(M\d+)-(\d)$/', $this->days[0], $match) === 1) {
+            $this->learner->recordPiPracticeToday($match[1], (int) $match[2]);
+        }
+
         $this->deck = [...$this->deck, 'credited' => true];
         $this->save();
     }

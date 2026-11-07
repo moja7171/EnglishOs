@@ -6,8 +6,8 @@
      circle here is never a button. --}}
 <x-today-row
     :href="route('pi.practice')"
-    :title="'Daily talk · '.$practice['title']"
-    label="Daily talk"
+    :title="($practice['game'] ?? false) ? 'Ask & Answer' : 'Daily talk · '.$practice['title']"
+    :label="($practice['game'] ?? false) ? 'Ask & Answer' : 'Daily talk'"
     :minutes="\App\Services\PiPractice::MINUTES"
     :done="$practice['practicedToday']"
     :current="$current"

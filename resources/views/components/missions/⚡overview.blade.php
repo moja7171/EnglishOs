@@ -74,6 +74,7 @@ new class extends Component
         }
 
         return $target + [
+            'game' => PiPractice::hasAskAnswer($target['missionCode'], $target['dayNumber']),
             'title' => PiPrompts::DAYS[$target['dayNumber']]['title'],
             // The day's Daily talk also counts when it was done on an
             // earlier calendar day — the card ticks it, so no minutes left.
@@ -138,7 +139,7 @@ new class extends Component
         }
 
         if ($this->piLeft) {
-            return ['label' => 'Daily talk', 'url' => route('pi.practice')];
+            return ['label' => ($this->piPractice['game'] ?? false) ? 'Ask & Answer' : 'Daily talk', 'url' => route('pi.practice')];
         }
 
         return null;
@@ -173,7 +174,7 @@ new class extends Component
         }
 
         if ($this->piLeft) {
-            return ['key' => 'pi', 'title' => 'Daily talk', 'sub' => $this->piPractice['title'].' · '.PiPractice::MINUTES.' min', 'icon' => 'heroicon-s-chat-bubble-left-right', 'url' => route('pi.practice')];
+            return ['key' => 'pi', 'title' => ($this->piPractice['game'] ?? false) ? 'Ask & Answer' : 'Daily talk', 'sub' => ($this->piPractice['game'] ?? false) ? 'With Teddy or a friend · '.PiPractice::MINUTES.' min' : $this->piPractice['title'].' · '.PiPractice::MINUTES.' min', 'icon' => 'heroicon-s-chat-bubble-left-right', 'url' => route('pi.practice')];
         }
 
         return null;

@@ -1261,6 +1261,15 @@ class PairGame extends Model
 
         if ($this->isAskAnswer()) {
             app(AskAnswerDeck::class)->recordPlayed($this);
+
+            // Played for one day, it is that day's Daily talk for both.
+            $days = $this->rules['days'] ?? [];
+
+            if (count($days) === 1 && preg_match('/^(M\d+)-(\d)$/', $days[0], $match) === 1) {
+                foreach ([$this->userA, $this->userB] as $player) {
+                    $player->recordPiPracticeToday($match[1], (int) $match[2]);
+                }
+            }
         }
 
         if ($this->isPractice()) {

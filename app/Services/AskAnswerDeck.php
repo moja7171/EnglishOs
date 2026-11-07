@@ -148,9 +148,17 @@ class AskAnswerDeck
      */
     private function candidates(User $a, User $b, array $rules): Collection
     {
-        $days = $this->pairPractice->gameDays($a, $b, $rules['days'] ?? null)
-            ->map(fn (array $day) => [$day['mission']->number(), $day['day']])
+        // Days named outright (the Daily talk of a day) are used as they are;
+        // otherwise the days both friends finished.
+        $named = collect($rules['days'] ?? [])
+            ->map(fn (string $key) => preg_match('/^M(\d+)-(\d)$/', $key, $match) === 1 ? [(int) $match[1], (int) $match[2]] : null)
+            ->filter()
             ->values();
+        $days = $named->isNotEmpty()
+            ? $named
+            : $this->pairPractice->gameDays($a, $b, $rules['days'] ?? null)
+                ->map(fn (array $day) => [$day['mission']->number(), $day['day']])
+                ->values();
 
         $items = AskAnswerItem::query()
             ->whereIn('mission_number', $days->pluck(0)->unique()->all())
