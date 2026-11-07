@@ -51,11 +51,11 @@ new class extends Component
 
     /**
      * Opens a friend's story — only a friend (a mutual follow, not blocked)
-     * has one.
+     * has one — or the learner's own.
      */
     public function openStory(int $friendId): void
     {
-        abort_unless($this->friends->contains('id', $friendId), 403);
+        abort_unless($friendId === auth()->id() || $this->friends->contains('id', $friendId), 403);
 
         $this->storyFriendId = $friendId;
         unset($this->story);
@@ -75,7 +75,11 @@ new class extends Component
     #[Computed]
     public function story(): ?array
     {
-        $friend = $this->storyFriendId === null ? null : $this->friends->firstWhere('id', $this->storyFriendId);
+        $friend = match (true) {
+            $this->storyFriendId === null => null,
+            $this->storyFriendId === auth()->id() => auth()->user(),
+            default => $this->friends->firstWhere('id', $this->storyFriendId),
+        };
 
         return $friend ? ['friend' => $friend, 'pages' => app(FriendStory::class)->for(auth()->user(), $friend)] : null;
     }
@@ -510,6 +514,16 @@ new class extends Component
         @endif
 
         <div class="-mx-2">
+            {{-- You: your own photo and ring, opening your own story. --}}
+            <button type="button" wire:click="openStory({{ auth()->id() }})" wire:loading.attr="disabled" wire:target="openStory({{ auth()->id() }})" class="relative flex w-full cursor-pointer items-center gap-3 rounded-2xl px-2 py-2.5 text-left hover:bg-surface-sunken dark:hover:bg-surface-sunken-dark">
+                <x-friends.day-ring :slices="min(\App\Services\StreakRing::SLICES_FOR_FULL, auth()->user()->streakRing()['todaySlices'])">
+                    <x-user-avatar :user="auth()->user()" class="h-11 w-11 text-sm" />
+                </x-friends.day-ring>
+                <span class="min-w-0 flex-1">
+                    <span class="block truncate text-sm font-extrabold text-ink dark:text-ink-dark">You</span>
+                    <span class="mt-0.5 block truncate text-xs text-ink-faint dark:text-ink-faint-dark">Your day</span>
+                </span>
+            </button>
             <div class="relative flex items-center gap-3 rounded-2xl px-2 py-2.5 hover:bg-surface-sunken dark:hover:bg-surface-sunken-dark">
                 <a href="{{ route('friends.teddy') }}" wire:navigate aria-label="Teddy, your AI classmate" class="absolute inset-0 rounded-2xl"></a>
                 <span class="relative shrink-0">

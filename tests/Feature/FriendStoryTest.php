@@ -2,12 +2,14 @@
 
 namespace Tests\Feature;
 
+use App\Models\AudioListen;
 use App\Models\DayActivity;
 use App\Models\Evidence;
 use App\Models\Mission;
 use App\Models\MissionRun;
 use App\Models\User;
 use App\Services\FriendStory;
+use App\Services\ListeningPicks;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Livewire\Livewire;
@@ -87,7 +89,7 @@ class FriendStoryTest extends TestCase
         $this->assertSame('M01 · روز 2 از 2 · الان در «گرامر»', $story['where']);
         $this->assertSame(2, $story['today']['count']);
         $this->assertSame('مأموریت M01 · روز 1 تمام شد ✓', $story['today']['items'][0]['title']);
-        $this->assertSame('آماده‌سازی، واژه‌های جدید', $story['today']['items'][0]['line']);
+        $this->assertSame(['آماده‌سازی', 'واژه‌های جدید'], array_column($story['today']['items'][0]['details'], 'name'));
         $this->assertSame('گوش دادن', $story['today']['items'][1]['title']);
         $this->assertSame('حلقهٔ امروز کامل شد ✓', $story['today']['ringNote']);
     }
@@ -156,5 +158,60 @@ class FriendStoryTest extends TestCase
         $this->friendOf($me);
 
         Livewire::test('friends.index')->assertSee('Tap a photo to see their day');
+    }
+
+    public function test_a_learner_can_open_their_own_story_without_a_comparison_or_chat_buttons(): void
+    {
+        $me = User::factory()->create(['name' => 'Mina Me']);
+        DayActivity::create(['learner_id' => $me->id, 'on_date' => now()->toDateString(), 'activity' => 'review']);
+        $this->actingAs($me);
+
+        Livewire::test('friends.index')
+            ->assertSee('Your day')
+            ->call('openStory', $me->id)
+            ->assertSet('storyFriendId', $me->id)
+            ->assertSee('کار انجام دادی', false)
+            ->assertSee('الان کجایی', false)
+            ->assertSee('صفحهٔ من', false)
+            ->assertDontSeeHtml('data-testid="story-compare"')
+            ->assertDontSeeHtml(route('friends.conversation', $me));
+
+        $this->assertTrue(app(FriendStory::class)->for($me, $me)['self']);
+    }
+
+    public function test_the_story_names_which_listenings_were_heard_today_and_how_many_times(): void
+    {
+        $this->travelTo(Carbon::parse('2026-11-04 12:00', 'Asia/Tehran'));
+        $me = User::factory()->create();
+        $friend = $this->friendOf($me);
+        AudioListen::factory()->pick(1, 0)->count(3)->create(['learner_id' => $friend->id, 'created_at' => now()]);
+        AudioListen::factory()->pick(1, 2)->create(['learner_id' => $friend->id, 'created_at' => now()]);
+        AudioListen::factory()->pick(1, 1)->create(['learner_id' => $friend->id, 'created_at' => now()->subDays(2)]);
+        $trio = app(ListeningPicks::class)->forDay('M01', 1);
+
+        $item = app(FriendStory::class)->for($me, $friend)['today']['items'][0];
+
+        $this->assertSame('گوش دادن · 4 بار', $item['title']);
+        $this->assertSame([$trio[0]['title'], $trio[2]['title']], array_column($item['details'], 'name'));
+        $this->assertSame([3, 1], array_column($item['details'], 'times'));
+        $this->assertSame('M01 · روز 1 · سبک‌تر', $item['details'][0]['note']);
+    }
+
+    public function test_the_week_lists_what_each_day_held_and_the_overall_page_adds_the_mission_days(): void
+    {
+        $this->travelTo(Carbon::parse('2026-11-04 12:00', 'Asia/Tehran'));
+        $me = User::factory()->create();
+        $friend = $this->friendOf($me);
+        $run = MissionRun::findOrStart($friend, $this->makeMission());
+        Evidence::create(['mission_run_id' => $run->id, 'phase' => 'mission_brief', 'type' => Evidence::TYPE_SCORE, 'content_ref' => '3']);
+        DayActivity::create(['learner_id' => $friend->id, 'on_date' => '2026-11-02', 'activity' => 'review']);
+        DayActivity::create(['learner_id' => $friend->id, 'on_date' => '2026-11-02', 'activity' => 'pi']);
+
+        $story = app(FriendStory::class)->for($me, $friend);
+
+        $this->assertSame(['صحبت با Pi', 'مرور'], collect($story['week']['days'][2]['kinds'])->sort()->values()->all());
+        $this->assertSame(['مأموریت'], $story['week']['days'][4]['kinds']);
+        $this->assertSame(['current', 'todo'], $story['overall']['missionDays']);
+        $this->assertSame(2, $story['overall']['practiceDays']);
     }
 }

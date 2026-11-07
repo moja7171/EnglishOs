@@ -185,6 +185,30 @@ class FriendActivity
     }
 
     /**
+     * What kind of things $user did on each of $days days from $start:
+     * "mission" for any mission step, otherwise the slice's own kind
+     * (listening, pi, review, pair, game, ai-practice).
+     *
+     * @return array<string, list<string>> keyed by date (Y-m-d)
+     */
+    public function kindsByDate(User $user, Carbon $start, int $days = 7): array
+    {
+        $byDate = $this->byDate($user);
+        $kinds = [];
+
+        for ($offset = 0; $offset < $days; $offset++) {
+            $date = $start->copy()->addDays($offset)->toDateString();
+            $kinds[$date] = $byDate->get($date, collect())
+                ->map(fn (DayActivity $slice) => str_starts_with($slice->activity, 'step:') ? 'mission' : $slice->activity)
+                ->unique()
+                ->values()
+                ->all();
+        }
+
+        return $kinds;
+    }
+
+    /**
      * The last local day $user did anything, or null if never.
      */
     public function lastPracticedOn(User $user): ?Carbon
