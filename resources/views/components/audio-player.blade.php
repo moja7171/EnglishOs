@@ -95,6 +95,7 @@
             focusOnPlay: false,
             showText: {{ $textHidden ? 'false' : 'true' }},
             playing: false,
+            finished: false,
             currentTime: 0,
             duration: 0,
             dragging: false,
@@ -146,6 +147,7 @@
                 audio.addEventListener('seeking', () => this.lastShadowCheck = null);
                 audio.addEventListener('play', () => {
                     this.playing = true;
+                    this.finished = false;
                     this.resumedFrom = null;
                     this.watchShadowPoints(audio);
                     if (this.focusOnPlay && this.segments.length && {{ $podcast ? 'false' : 'true' }}) this.focus = true;
@@ -155,6 +157,7 @@
                 // to ~250ms short of it, leaving the bar visibly unfinished.
                 audio.addEventListener('ended', () => {
                     this.playing = false;
+                    this.finished = true;
                     this.currentTime = this.duration || audio.currentTime;
                     seek.value = this.currentTime;
                     {{ $onEnded }}
@@ -298,6 +301,14 @@
                 this.replayEndTime = point.end;
                 this.$refs.audio.play();
             },
+            playAgain() {
+                const audio = this.$refs.audio;
+                audio.currentTime = 0;
+                this.currentTime = 0;
+                this.$refs.seek.value = 0;
+                this.finished = false;
+                audio.play();
+            },
             resumeAfterShadow() {
                 this.activeShadowIndex = null;
                 this.$refs.audio.play();
@@ -360,6 +371,14 @@
 
             <span class="w-9 shrink-0 text-xs text-ink-faint tabular-nums dark:text-ink-faint-dark" x-text="formatTime(duration)"></span>
         </div>
+
+        <button
+            type="button"
+            x-show="finished"
+            x-cloak
+            x-on:click="playAgain()"
+            class="mx-auto mt-2 inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-accent-soft px-4 py-1.5 text-sm font-extrabold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark"
+        >@svg('heroicon-o-arrow-path', 'h-4 w-4') Play again</button>
 
         @if ($resumeKey)
             <p x-show="resumedFrom !== null" x-cloak class="mt-1 text-center text-xs text-ink-faint dark:text-ink-faint-dark">

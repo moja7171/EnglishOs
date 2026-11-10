@@ -212,7 +212,8 @@ class AiConversation1StepTest extends TestCase
         $run = MissionRun::findOrStart($learner, $mission);
 
         Livewire::test('missions.steps.ai-conversation1', ['run' => $run])
-            ->assertSee('What time do you usually wake up?');
+            ->assertSee('What time do you usually wake up?')
+            ->assertSee('Hear the questions again');
     }
 
     public function test_finishing_the_warm_up_dispatches_a_clear_draft_event(): void

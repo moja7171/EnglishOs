@@ -68,6 +68,7 @@
         x-back-close="{ open: mode !== 'inline', close: () => closeExpanded() }"
         x-data="{
             playing: false,
+            finished: false,
             currentTime: 0,
             duration: 0,
             dragging: false,
@@ -102,6 +103,7 @@
                 video.addEventListener('seeking', () => this.lastShadowCheck = null);
                 video.addEventListener('play', () => {
                     this.playing = true;
+                    this.finished = false;
                     this.resumedFrom = null;
                     this.watchShadowPoints(video);
                     this.scheduleHide();
@@ -110,6 +112,7 @@
                 video.addEventListener('pause', () => { this.playing = false; this.showControls() });
                 video.addEventListener('ended', () => {
                     this.playing = false;
+                    this.finished = true;
                     this.showControls();
                     // The full-screen layouts cover the step's Continue; the end of the video brings the page back.
                     if (this.mode !== 'inline') this.mode = 'inline';
@@ -358,8 +361,10 @@
             class="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/20 transition-opacity"
         >
             <span class="inline-flex h-16 w-16 items-center justify-center rounded-full bg-accent/90 text-white shadow-lg transition-transform hover:scale-105 dark:bg-accent-dark/90">
-                @svg('heroicon-s-play', 'ml-1 h-7 w-7')
+                <span x-show="! finished">@svg('heroicon-s-play', 'ml-1 h-7 w-7')</span>
+                <span x-show="finished" x-cloak>@svg('heroicon-o-arrow-path', 'h-7 w-7')</span>
             </span>
+            <span x-show="finished" x-cloak class="rounded-full bg-black/60 px-3 py-1 text-sm font-extrabold text-white">Play again</span>
             @if ($resumeKey)
                 <span x-show="resumedFrom !== null" x-cloak class="rounded-full bg-black/60 px-2.5 py-1 text-xs text-white">
                     Continue from <span x-text="formatTime(resumedFrom)"></span>

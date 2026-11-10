@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Database\UniqueConstraintViolationException;
 use App\Services\MissionGrid;
+use App\Services\WordDetails;
 use App\Services\WordSentences;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
@@ -83,6 +84,38 @@ new class extends Component
     }
 
     /**
+     * Words that still miss their type, meaning, Persian or a sentence get
+     * them after the page has loaded (see WordDetails), so the list gets
+     * fuller each visit without making the page wait.
+     */
+    public function mount(): void
+    {
+        app(WordDetails::class)->fillLaterFor(auth()->id(), $this->words);
+    }
+
+    /** How many words' sheets ride on the page. */
+    public const SHEETS_ON_PAGE = 30;
+
+    /**
+     * One word's sheet data, for a word whose sheet is not on the page.
+     * Renderless: the answer is just the data.
+     *
+     * @return array<string, mixed>
+     */
+    #[Renderless]
+    public function wordSheet(int $wordId): array
+    {
+        $word = auth()->user()->vocabularyWords()
+            ->with(['sourceMissionRun.mission:id,code,title', 'addedInMission:id,code,title', 'sentences'])
+            ->findOrFail($wordId);
+
+        return $word->sheetData(
+            VocabularyWord::commonnessOf(collect([$word]))[$word->id] ?? null,
+            Mission::persianMeanings()[mb_strtolower($word->word)] ?? null,
+        );
+    }
+
+    /**
      * Every saved word, newest mission first, with the mission it came
      * from — the Words tab.
      *
@@ -122,15 +155,20 @@ new class extends Component
     }
 
     /**
-     * The data the one shared word sheet shows, for every word, by id. It
-     * rides on the page so a tapped word's sheet opens at once.
+     * The data the one shared word sheet shows, by id, for the words the
+     * learner most likely taps (the due ones first): it rides on the page so
+     * their sheet opens at once. Any other word's sheet is fetched when it is
+     * tapped (see wordSheet()), so a long list never makes the page heavy.
      *
      * @return array<int, array<string, mixed>>
      */
     #[Computed]
     public function wordSheets(): array
     {
-        return $this->words->mapWithKeys(fn (VocabularyWord $word) => [
+        return $this->words
+            ->sortBy(fn (VocabularyWord $word) => $word->isDue() ? 0 : 1)
+            ->take(self::SHEETS_ON_PAGE)
+            ->mapWithKeys(fn (VocabularyWord $word) => [
             $word->id => $word->sheetData($this->wordCommonness[$word->id] ?? null, $this->courseMeaningsFa[mb_strtolower($word->word)] ?? null),
         ])->all();
     }

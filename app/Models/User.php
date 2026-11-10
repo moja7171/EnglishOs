@@ -524,9 +524,9 @@ class User extends Authenticatable
      * How many items count as "today's review" in each track — a finishable
      * amount, so a backlog of forty due items reads as ten things to do
      * today, not as a wall. The rest stay due and roll into tomorrow's; a
-     * learner who wants more asks for another batch ("6 more").
+     * learner who wants more asks for another batch ("12 more words").
      */
-    public const DAILY_WORD_LIMIT = 6;
+    public const DAILY_WORD_LIMIT = 12;
 
     public const DAILY_TALK_LIMIT = 6;
 

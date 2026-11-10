@@ -537,10 +537,28 @@ new class extends Component
 
     <x-lesson-screen when="screen === 1">
         <span class="inline-flex w-fit rounded-full bg-accent-soft px-3 py-1 text-xs font-extrabold tracking-wide text-accent-ink uppercase dark:bg-accent-soft-dark dark:text-accent-ink-dark">Talk alone · 2 min</span>
-        <div class="flex flex-col gap-2">
+        {{-- The four questions are read out one after the other when the screen opens (until there is a recording), and ▶ reads them again. --}}
+        <div
+            class="flex flex-col gap-2"
+            x-data="{
+                questions: @js(array_values($warmUpQuestions)),
+                run: 0,
+                readAll() {
+                    const run = ++this.run;
+                    const next = (index) => {
+                        if (run !== this.run || index >= this.questions.length) return;
+                        window.eosVoice?.speak(this.questions[index], { onEnd: () => setTimeout(() => next(index + 1), 400) });
+                    };
+                    next(0);
+                },
+                stopReading() { this.run++; window.eosVoice?.stop(); },
+            }"
+            x-effect="if (screen === 1) { @if (! $warmUpAudioUrl) $nextTick(() => readAll()) @endif } else { stopReading() }"
+        >
             @foreach ($warmUpQuestions as $question)
-                <p class="rounded-2xl bg-surface px-4 py-2.5 text-sm font-semibold text-ink dark:bg-surface-dark dark:text-ink-dark">{{ $question }}</p>
+                <x-speak-word :word="$question" block class="rounded-2xl bg-surface px-4 py-2.5 text-sm font-semibold text-ink dark:bg-surface-dark dark:text-ink-dark" />
             @endforeach
+            <button type="button" x-on:click="readAll()" class="flex w-fit cursor-pointer items-center gap-1.5 self-center rounded-full bg-accent-soft px-4 py-2 text-sm font-extrabold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">@svg('heroicon-o-speaker-wave', 'h-4 w-4') Hear the questions again</button>
         </div>
         <div class="flex justify-center">
             <x-voice-recorder big field="warmUpAudioFile" :file="$warmUpAudioUrl" file-name="warmup-speaking.webm" :target="120" />
