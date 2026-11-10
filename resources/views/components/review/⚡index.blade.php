@@ -926,7 +926,7 @@ new class extends Component
                         <button type="button" wire:click="cantListen" class="cursor-pointer self-center text-sm font-bold text-ink-faint hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark">@svg('heroicon-o-speaker-x-mark', 'mr-1 inline h-4 w-4') I can't listen right now</button>
                     @endif
                 @elseif ($type === 'speaking')
-                    <p class="font-display lesson-title text-ink dark:text-ink-dark">{{ $model->prompt }}</p>
+                    <x-heard-text :text="$model->prompt" auto-when="true" class="font-display lesson-title text-ink dark:text-ink-dark" />
                     <div class="mt-auto flex flex-col items-center gap-3">
                         <x-voice-recorder big field="recording" :file="$recording" on-recorded="recorded" file-name="daily-review.webm" />
                     </div>

@@ -540,6 +540,7 @@ new class extends Component
         {{-- The four questions are read out one after the other when the screen opens (until there is a recording), and ▶ reads them again. --}}
         <div
             class="flex flex-col gap-2"
+            x-on:eos-heard-text-played.window="stopReading()"
             x-data="{
                 questions: @js(array_values($warmUpQuestions)),
                 run: 0,
@@ -556,8 +557,9 @@ new class extends Component
             x-effect="if (screen === 1) { @if (! $warmUpAudioUrl) $nextTick(() => readAll()) @endif } else { stopReading() }"
         >
             @foreach ($warmUpQuestions as $question)
-                <x-speak-word :word="$question" block class="rounded-2xl bg-surface px-4 py-2.5 text-sm font-semibold text-ink dark:bg-surface-dark dark:text-ink-dark" />
+                <x-heard-text :text="$question" :hint="false" :toggle="false" class="rounded-2xl bg-surface px-4 py-2.5 text-sm font-semibold text-ink dark:bg-surface-dark dark:text-ink-dark" />
             @endforeach
+            <x-show-text-toggle class="self-center" />
             <button type="button" x-on:click="readAll()" class="flex w-fit cursor-pointer items-center gap-1.5 self-center rounded-full bg-accent-soft px-4 py-2 text-sm font-extrabold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">@svg('heroicon-o-speaker-wave', 'h-4 w-4') Hear the questions again</button>
         </div>
         <div class="flex justify-center">
@@ -587,10 +589,9 @@ new class extends Component
             @if ($this->currentQuestion)
                 <div
                     wire:key="question-{{ $round }}"
-                    x-effect="if (screen === 2) $nextTick(() => window.eosVoice?.speak(@js($this->currentQuestion)))"
-                    class="flex max-w-[85%] items-start gap-1.5 self-start rounded-2xl rounded-bl-md bg-surface px-3.5 py-2.5 text-base font-semibold text-ink dark:bg-surface-dark dark:text-ink-dark"
+                    class="max-w-[85%] self-start rounded-2xl rounded-bl-md bg-surface px-3.5 py-2.5 text-base font-semibold text-ink dark:bg-surface-dark dark:text-ink-dark"
                 >
-                    <x-speak-word :word="$this->currentQuestion" top />
+                    <x-heard-text :text="$this->currentQuestion" auto-when="screen === 2" />
                 </div>
 
                 @if ($offTopicHint[$round] ?? null)

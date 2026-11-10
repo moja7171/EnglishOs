@@ -416,6 +416,19 @@ class AskAnswerGameTest extends TestCase
         $this->assertNull($practice->current);
     }
 
+    public function test_teddys_line_is_heard_first_and_blurred_until_tapped(): void
+    {
+        [$me] = $this->twoFriendsWhoFinishedM11Day1();
+        $practice = app(AiPractices::class)->start($me, PairGame::GAME_ASK);
+        $practice->update(['position' => 1]);
+
+        $this->actingAs($me);
+        Livewire::test('ai-practice.session', ['practice' => $practice->refresh()])
+            ->assertSeeHtml('heardReveal')
+            ->assertSee('Tap to read the text')
+            ->assertSee($practice->askTeddyLine());
+    }
+
     public function test_with_teddy_skipping_shows_the_right_sentence_and_levels_are_remembered(): void
     {
         [$me] = $this->twoFriendsWhoFinishedM11Day1();

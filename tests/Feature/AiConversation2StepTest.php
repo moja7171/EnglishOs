@@ -332,8 +332,10 @@ class AiConversation2StepTest extends TestCase
         $run = $this->makeRun();
 
         Livewire::test('missions.steps.ai-conversation2', ['run' => $run])
-            ->assertSeeHtml('data-text="Describe your typical weekday."')
-            ->assertSeeHtml('eosVoice?.speak');
+            ->assertSee('Describe your typical weekday.')
+            ->assertSee('Hear “Describe your typical weekday.”', false)
+            ->assertSeeHtml('heardText(')
+            ->assertSee('Tap to read the text');
     }
 
     public function test_the_feedback_screen_offers_a_partner_session_with_a_mutual_friend(): void

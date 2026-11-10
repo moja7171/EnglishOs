@@ -25,7 +25,7 @@
 
         <div class="space-y-4 p-5 text-center">
             @if (! $learnerAsks)
-                <x-teddy-says wire:key="ask-teddy-{{ $practice->position }}" :say="$teddyLine">
+                <x-teddy-says wire:key="ask-teddy-{{ $practice->position }}" :say="$teddyLine" blur>
                     <p class="text-base font-semibold text-ink dark:text-ink-dark">{{ $teddyLine }}</p>
                 </x-teddy-says>
             @endif
@@ -81,7 +81,7 @@
                 @endif
 
                 @if ($learnerAsks)
-                    <x-teddy-says wire:key="ask-teddy-{{ $practice->position }}-reply" :say="$teddyLine">
+                    <x-teddy-says wire:key="ask-teddy-{{ $practice->position }}-reply" :say="$teddyLine" blur>
                         <p class="text-base font-semibold text-ink dark:text-ink-dark">{{ $teddyLine }}</p>
                     </x-teddy-says>
                 @endif
