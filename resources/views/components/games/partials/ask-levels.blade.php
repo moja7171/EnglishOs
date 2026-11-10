@@ -3,10 +3,12 @@
     (1 simple · 2 with detail · 3 challenge). A level changes how the
     sentence is built and how long it is, never how hard the words are.
     Needs $levels (['q' => 1-3, 'a' => 1-3]) and $action, the name of a
-    method on the page: setAskLevel(string $side, int $level).
+    method on the page: setAskLevel(string $side, int $level). With a
+    friend only the questions have a level: the answer follows the
+    question that was asked (pass $sides = ['q']).
 --}}
 @php
-    $rows = ['q' => 'Questions I ask', 'a' => 'Answers I give'];
+    $rows = array_intersect_key(['q' => 'Questions I ask', 'a' => 'Answers I give'], array_flip($sides ?? ['q', 'a']));
     $names = [1 => 'Simple', 2 => 'More detail', 3 => 'Challenge'];
 @endphp
 

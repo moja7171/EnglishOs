@@ -20,19 +20,22 @@ class AskAnswerFilter
     /** A level 1 question is this many words at most. */
     private const MAX_WORDS_LEVEL_ONE_QUESTION = 10;
 
+    /** A level this short ("Why?", "Yes, very.") has no typical wrong version to write. */
+    private const MAX_WORDS_WITHOUT_WRONG_VERSION = 3;
+
     /** Subjects that are sensitive for the learners or silly as practice. */
     private const BANNED = ['beer', 'wine', 'vodka', 'alcohol', 'drunk', 'boyfriend', 'girlfriend', 'dating', 'politics', 'religion', 'salary of', 'how old are you', 'cat on the table'];
 
     /** Capitalised words that speech-to-text writes right anyway. */
-    private const SAFE_CAPITALS = ['I', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', 'English', 'CV', 'Persian'];
+    private const SAFE_CAPITALS = ['I', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', 'English', 'CV', 'Persian', 'Italian'];
 
     /** Little words that are always fine, so the frequency list is not asked about them. */
     private const ALWAYS_FINE = ['ok', 'cv', 'tv', 'pm', 'am', 'practise', 'practised', 'cafe', 'café'];
 
-    /** Comparatives are taught in M08: before that no sentence may use them. */
+    /** Comparatives and superlatives are taught in M08: before that no sentence may use them. */
     private const COMPARATIVES_FROM_MISSION = 8;
 
-    private const COMPARATIVE_WORDS = ['better', 'worse', 'cheaper', 'quicker', 'quieter', 'closer', 'funnier', 'harder', 'easier', 'fresher', 'faster', 'bigger', 'warmer', 'kinder', 'healthier', 'longer', 'shorter', 'later', 'earlier', 'slower', 'calmer'];
+    private const COMPARATIVE_WORDS = ['better', 'worse', 'cheaper', 'quicker', 'quieter', 'closer', 'funnier', 'harder', 'easier', 'fresher', 'faster', 'bigger', 'warmer', 'kinder', 'healthier', 'longer', 'shorter', 'later', 'earlier', 'slower', 'calmer', 'hardest', 'easiest', 'biggest', 'cheapest', 'longest', 'shortest', 'busiest', 'worst', 'oldest', 'youngest', 'highest', 'lowest', 'nicest', 'quickest', 'fastest', 'healthiest', 'happiest', 'funniest', 'newest'];
 
     private ?int $mission = null;
 
@@ -119,7 +122,7 @@ class AskAnswerFilter
             }
         }
 
-        if (blank($wrong) || ! is_array($wrong)) {
+        if ((blank($wrong) || ! is_array($wrong)) && str_word_count((string) $en) > self::MAX_WORDS_WITHOUT_WRONG_VERSION) {
             $problems[] = "$where: no known wrong version";
         }
 

@@ -481,6 +481,22 @@ class MissionRunnerNavigationTest extends TestCase
             ->assertSeeHtml('href="'.route('pi.practice', ['M01', 1]).'"');
     }
 
+    public function test_a_day_with_ask_and_answer_cards_shows_it_instead_of_pi_on_the_mission_page(): void
+    {
+        $this->seed(MissionSeeder::class);
+        $this->seed(\Database\Seeders\AskAnswerSeeder::class);
+
+        $learner = User::factory()->create();
+        $mission = Mission::where('code', 'M01')->firstOrFail();
+        MissionRun::findOrStart($learner, $mission);
+        $this->actingAs($learner);
+
+        Livewire::test('missions.runner', ['mission' => $mission, 'step' => 'overview'])
+            ->assertSeeHtml('aria-label="Day 1 Ask &amp; Answer"')
+            ->assertSee('Teddy or a friend')
+            ->assertDontSee('with Pi');
+    }
+
     public function test_the_day_asked_for_is_the_one_unfolded(): void
     {
         $this->seed(MissionSeeder::class);

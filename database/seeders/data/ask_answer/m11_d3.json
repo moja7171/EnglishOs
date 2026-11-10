@@ -1,81 +1,912 @@
-{"mission": 11, "day": 3, "items": [
-{"k":"s","s":"arrange-meeting","c":null,
- "q":[["از دوستت بخواه برای دوشنبه یک جلسه ترتیب بدهد","بخواه ساعتش را هم بگوید","Can you arrange a meeting for Monday?","What time is good?",["Can you set up a meeting for Monday?"],[["Can you to arrange a meeting for Monday?","بعد از «Can» «to» نمی‌آید."],["Can you arrange a meeting in Monday?","برای روز هفته از «for/on» استفاده کن."]]],
-      ["بخواه برای دوشنبه جلسه ترتیب بدهد و به همه ایمیل بزند","بپرس اتاق خالی است","Can you arrange a meeting for Monday and send everyone an email?","Is the room free?",[],[["Can you arrange a meeting for Monday and send an email everyone?","ترتیب: send everyone an email."]]],
-      ["بپرس می‌تواند جلسه‌ای برای دوشنبه ترتیب بدهد و اگر نشد چه روزی بهتر است","بپرس سه‌شنبه","Can you arrange a meeting for Monday? If not, what day is better?","How about Tuesday?",[],[["Can you arrange a meeting for Monday? If not what day better?","بعد از «what day» باید «is» بیاید: what day is better."]]]],
- "a":[["بگو بله حتماً","بگو ایمیل می‌زنم","Yes, of course.","I'll send an email.",[],[["Yes, I can arrange.","کوتاه بگو: Yes, of course."]]],
-      ["بگو بله، ایمیل می‌زنم","بگو تا ظهر","Yes, of course. I'll send an email.","I'll do it by noon.",[],[["Yes, of course. I send an email.","برای قول دادن «I'll send» بگو."]]],
-      ["بگو بله ولی چند روز طول می‌کشد چون اتاق شلوغ است","بگو سه‌شنبه بهتر است","Yes, I can arrange it, but I'll need a few days because the room is busy.","Tuesday is better.",[],[["Yes, I can arrange it, but I need few days.","قبل از «few» باید «a» بیاید: a few days."]]]]},
-
-{"k":"s","s":"make-appointment","c":null,
- "q":[["بپرس می‌تواند برای جمعه وقت بگیرد","بپرس صبح","Can I make an appointment for Friday?","In the morning?",["Can I book an appointment for Friday?"],[["Can I make a appointment for Friday?","قبل از «appointment» باید «an» بیاید."],["Can I do an appointment for Friday?","با «appointment» فعل «make» می‌آید."]]],
-      ["بپرس می‌تواند برای جمعه صبح وقت بگیرد","بگو لطفاً","Can I make an appointment for Friday morning, please?","Is ten o'clock free?",[],[["Can I make appointment for Friday morning, please?","قبل از «appointment» باید «an» بیاید."]]],
-      ["مؤدبانه بگو می‌خواهی برای جمعه وقت بگیری و بپرس ممکن است","بگو اگر نشد، پنجشنبه","I'd like to make an appointment for Friday. Is that possible?","If not, Thursday is fine.",[],[["I'd like make an appointment for Friday.","بعد از «I'd like» باید «to» بیاید."]]]],
- "a":[["بگو بله حتماً","بپرس چه ساعتی","Yes, of course.","What time?",[],[["Yes, sure of course.","ساده بگو: Yes, of course."]]],
-      ["بگو بله، چه ساعتی برایتان خوب است","بگو ساعت ده خالی است","Yes, of course. What time is good for you?","Ten o'clock is free.",[],[["Yes, of course. What time good for you?","بعد از «What time» باید «is» بیاید."]]],
-      ["بگو متأسفم جمعه پر است ولی پنجشنبه صبح می‌توانم وقت بدهم","بگو ساعت نه","I'm sorry, we're full on Friday, but I can offer you Thursday morning.","Nine o'clock is free.",[],[["I'm sorry, we are full in Friday.","برای روز هفته: on Friday."]]]]},
-
-{"k":"s","s":"attend-meeting","c":null,
- "q":[["بپرس در جلسه شرکت می‌کند","بپرس چه ساعتی","Are you going to attend the meeting?","What time is it?",["Are you going to go to the meeting?"],[["Do you going to attend the meeting?","«going to» با «Are» می‌آید."]]],
-      ["بپرس در جلسه شرکت می‌کند و چه کسانی هستند","بپرس مدیر هم می‌آید","Are you going to attend the meeting, and who else is coming?","Is the manager coming too?",[],[["Are you going to attend the meeting and who else coming?","بخش دوم هم فعل لازم دارد: is coming."]]],
-      ["بپرس در جلسه شرکت می‌کند یا خیلی شلوغ است","بپرس می‌تواند بعداً بگوید","Are you going to attend the meeting, or will you be too busy?","Can you tell me later?",[],[["Are you going to attend the meeting or you will be too busy?","بخش دوم هم سؤال است: or will you be."]]]],
- "a":[["بگو بله","بگو ساعت ده شروع می‌شود","Yes, I am.","It starts at ten.",[],[["Yes, I go.","جواب «Are you going to…؟» با «Yes, I am» است."]]],
-      ["بگو بله و ساعت ده شروع می‌شود","بگو در اتاق دو","Yes, I am. It starts at ten.","It's in room two.",[],[["Yes, I am. It start at ten.","با «it» فعل s می‌گیرد: starts."]]],
-      ["بگو مطمئن نیستم چون مشتری دارم ولی سعی می‌کنم","بگو بهت خبر می‌دهم","I'm not sure, because I have a client at ten, but I'll try.","I'll tell you later.",[],[["I'm not sure because I have a client in ten.","برای ساعت از «at» استفاده کن: at ten."]]]]},
-
-{"k":"s","s":"paperwork","c":null,
- "q":[["بپرس امروز کاغذبازی زیادی دارد","بپرس تمام می‌شود","Do you have a lot of paperwork today?","Will you finish it?",[],[["Do you have a lot of paperworks today?","«paperwork» شمارش‌ناپذیر است؛ s نمی‌گیرد."],["Have you a lot of paperwork today?","با «have» به معنی داشتن از «Do you have» استفاده کن."]]],
-      ["بپرس امروز کاغذبازی زیادی دارد و کی باید تمام کند","بپرس فردا","Do you have a lot of paperwork today, and when do you need to finish it?","Is it for tomorrow?",[],[["Do you have a lot of paperwork today and when you need to finish it?","بعد از «when»، «do you» می‌آید."]]],
-      ["بپرس کاغذبازی‌اش از هفته‌ی پیش بیشتر است و چه می‌کند","بپرس کمک لازم دارد","Do you have more paperwork than last week, and what are you going to do about it?","Do you need help?",[],[["Do you have more paperwork that last week?","برای مقایسه «than» می‌آید."]]]],
- "a":[["بگو بله","بگو خیلی","Yes, I do.","A lot.",[],[["Yes, I have.","جواب «Do you have…؟»: Yes, I do."]]],
-      ["بگو بله و باید همه را تمام کنم","بگو تا ساعت پنج","Yes, I do. I have a lot to finish.","I need to finish by five.",[],[["Yes, I do. I have a lot for finish.","بعد از «a lot» از «to finish» استفاده کن."]]],
-      ["بگو بله و دیر می‌مانم چون باید قبل از فردا تمامش کنم","بگو کمکی لازم نیست","Yes, I do, and I'm going to stay late because I need to finish it before tomorrow.","I don't need help.",[],[["Yes I do and I stay late because I need finish it.","بعد از «need» باید «to» بیاید."]]]]},
-
-{"k":"s","s":"printer","c":null,
- "q":[["بپرس چاپگر کار می‌کند","بپرس دیگری هست","Is the printer working?","Do we have another one?",["Does the printer work?"],[["Do the printer work?","برای «printer» (سوم شخص) «Does» یا «Is … working»."],["The printer is working?","در سؤال، «Is» اول جمله می‌آید."]]],
-      ["بپرس چاپگر کار می‌کند و دیگری داریم","بپرس کی خراب شد","Is the printer working, and do we have another one?","When did it break down?",[],[["Is the printer working and we have another one?","بخش دوم هم سؤال است: do we have."]]],
-      ["بپرس چاپگر کار می‌کند یا کسی امروز درستش می‌کند","بپرس به مدیر گفتی","Is the printer working, or will somebody fix it today?","Did you tell the manager?",[],[["Is the printer working or somebody will fix it today?","بخش دوم هم سؤال است: or will somebody fix."]]]],
- "a":[["بگو نه","بگو خراب است","No, it isn't.","It's broken.",[],[["No, it doesn't.","جواب «Is…؟» با «isn't» است: No, it isn't."]]],
-      ["بگو نه، امروز صبح خراب شد","بگو ساعت ده","No, it isn't. It broke down this morning.","It stopped at ten.",[],[["No, it isn't. It breaked down this morning.","گذشته‌ی «break» می‌شود broke."]]],
-      ["بگو نه، صبح خراب شد برای همین به مدیر زنگ می‌زنم","بگو یک نفر می‌آید","No, it isn't. It broke down this morning, so I'm going to call the manager.","Someone is coming at noon.",[],[["No, it isn't. It broke down this morning, so I call the manager.","برای برنامه «I'm going to call» بگو."]]]]},
-
-{"k":"f","s":"ran-out","c":"دوستت گفت: «کاغذ تمام شده.»",
- "q":[["بپرس در کمد بیشتر هست","بپرس کجا","Is there more in the cupboard?","Where?",[],[["Is there have more in the cupboard?","بعد از «Is there» فعل «have» نمی‌آید."]]],
-      ["بپرس در کمد بیشتر هست یا می‌خواهند بخرند","بپرس کی","Is there more in the cupboard, or are we going to buy some?","When?",[],[["Is there more in the cupboard or we go to buy some?","بخش دوم هم سؤال است: or are we going to buy some."]]],
-      ["بپرس برای فردا کافی دارند یا او سفارش می‌دهد","بپرس چقدر لازم است","Will we have enough for tomorrow, or are you going to order some?","How much do we need?",[],[["Will we have enough for tomorrow or you will order?","بخش دوم هم سؤال است: or are you going to order some."]]]],
- "a":[["بگو نه","بگو تمام شد","No, there isn't.","We've run out.",[],[["No, it isn't.","جواب «Is there…؟» با «there isn't» است."]]],
-      ["بگو نه، کاغذمان تمام شده","بگو دیروز","No, there isn't. We've run out of paper.","It ended yesterday.",["No, there isn't. We have run out of paper."],[["No, there isn't. We have run out paper.","بعد از «run out» حرف اضافه‌ی «of» می‌آید."]]],
-      ["بگو نه، کاغذ تمام شده برای همین امروز سفارش می‌دهم","بگو فردا می‌رسد","No, there isn't. We've run out of paper, so I'm going to order some today.","It will arrive tomorrow.",[],[["We've run out of paper so I order some today.","برای برنامه «I'm going to order» بگو."]]]]},
-
-{"k":"f","s":"meeting-time","c":"دوستت گفت: «فردا در یک جلسه شرکت می‌کنم.»",
- "q":[["بپرس چه ساعتی شروع می‌شود","بپرس کجا","What time does it start?","Where is it?",["What time is it?"],[["What time it starts?","بعد از «What time»، «does it» می‌آید."],["What time does it starts?","بعد از «does» فعل بدون s می‌آید: start."]]],
-      ["بپرس چه ساعتی شروع می‌شود و کجاست","بپرس چند نفرند","What time does it start, and where is it?","How many people are coming?",[],[["What time does it start and where it is?","ترتیب سؤال: where is it."]]],
-      ["بپرس چه ساعتی شروع می‌شود و چقدر طول می‌کشد","بپرس ناهار دارند","What time does it start, and how long is it going to be?","Is there lunch?",[],[["What time does it start and how long it is going to be?","ترتیب سؤال: how long is it going to be."]]]],
- "a":[["بگو ساعت ده","بگو در اتاق دو","At ten.","In room two.",["It starts at ten."],[["In ten.","برای ساعت از «at» استفاده کن."]]],
-      ["بگو ساعت ده شروع می‌شود و ساعت دوازده تمام می‌شود","بگو ناهار هم هست","It starts at ten and finishes at twelve.","There's lunch too.",[],[["It starts at ten and finish at twelve.","با «it» فعل s می‌گیرد: finishes."]]],
-      ["بگو ساعت ده ولی زودتر می‌روم چون می‌خواهم آماده شوم","بگو ساعت نه می‌رسم","It starts at ten, but I'm going to arrive early because I want to prepare.","I'll be there at nine.",[],[["It starts at ten but I arrive early because I want prepare.","بعد از «want» باید «to» بیاید."]]]]},
-
-{"k":"f","s":"appointment-day","c":"دوستت گفت: «برای جمعه وقت گرفتم.»",
- "q":[["بپرس ساعتش چند است","بپرس کجا","What time is it?","Where?",[],[["What time it is?","ترتیب سؤال: What time is it."]]],
-      ["بپرس ساعتش چند است و کجاست","بپرس دور است","What time is it, and where is it?","Is it far?",[],[["What time is it and where it is?","ترتیب سؤال: where is it."]]],
-      ["بپرس ساعتش چند است و زودتر از سر کار می‌رود","بپرس مدیر می‌داند","What time is it, and are you going to leave work early?","Does your manager know?",[],[["What time is it and you are going to leave work early?","بخش دوم هم سؤال است: are you going to leave."]]]],
- "a":[["بگو ساعت سه","بگو بعدازظهر","At three.","In the afternoon.",["It's at three."],[["In three.","برای ساعت از «at» استفاده کن."]]],
-      ["بگو ساعت سه بعدازظهر","بگو نزدیک است","It's at three in the afternoon.","It's near my office.",[],[["It's at three on the afternoon.","بعدازظهر: in the afternoon."]]],
-      ["بگو ساعت سه ولی ممکن است دیر برسم چون ساعت دو کارم تمام می‌شود","بگو به مدیر گفتم","It's at three, but I may be late because I finish work at two.","I told my manager.",[],[["It's at three but I can be late because I finish work at two.","احتمال را با «may» بگو."]]]]},
-
-{"k":"f","s":"help-paperwork","c":"دوستت گفت: «کاغذبازی‌ام خیلی زیاد است.»",
- "q":[["بپرس می‌تواند کمک کند","بپرس با چه","Can I help?","With what?",["Can I help you?"],[["Can I to help?","بعد از «Can» «to» نمی‌آید."]]],
-      ["بپرس می‌تواند کمک کند یا می‌خواهد تنها انجامش بدهد","بپرس کدام فرم","Can I help, or do you want to do it alone?","Which form?",[],[["Can I help or you want to do it alone?","بخش دوم هم سؤال است: or do you want."]]],
-      ["بپرس می‌تواند در این کار کمک کند و چقدر طول می‌کشد","بپرس فردا تمام می‌شود","Can I help you with it, and how long will it take?","Will it be ready tomorrow?",[],[["Can I help you with it and how long it will take?","ترتیب سؤال: how long will it take."]]]],
- "a":[["بگو بله لطفاً","بگو ممنون","Yes, please.","Thank you.",[],[["Yes, I help.","برای پذیرفتن کمک بگو: Yes, please."]]],
-      ["بگو بله لطفاً و بپرس این فرم را چک می‌کنی","بگو آسان است","Yes, please. Can you check this form?","It's easy.",[],[["Yes, please. Can you checking this form?","بعد از «Can you» فعل ساده می‌آید: check."]]],
-      ["بگو بله، عالی می‌شود چون باید قبل از پنج تمامش کنم","بگو یک ساعت طول می‌کشد","Yes, please. That would be great, because I need to finish it before five.","It'll take an hour.",[],[["Yes please that would be great because I need finish it before five.","بعد از «need» باید «to» بیاید."]]]]},
-
-{"k":"f","s":"speak-meeting","c":"دوستت گفت: «همه به جلسه می‌آیند.»",
- "q":[["بپرس سخنرانی می‌کند","بپرس اول","Are you going to speak?","First?",[],[["Do you going to speak?","«going to» با «Are» می‌آید."]]],
-      ["بپرس سخنرانی می‌کند و چند دقیقه","بپرس اسلاید دارد","Are you going to speak, and how long will you talk?","Do you have slides?",[],[["Are you going to speak and how long you will talk?","ترتیب سؤال: how long will you talk."]]],
-      ["بپرس سخنرانی می‌کند یا مدیرش این کار را می‌کند","بپرس آماده است","Are you going to speak, or will your manager do it?","Are you ready?",[],[["Are you going to speak or your manager will do it?","بخش دوم هم سؤال است: or will your manager do it."]]]],
- "a":[["بگو بله","بگو پنج دقیقه","Yes, I am.","Five minutes.",[],[["Yes, I speak.","جواب «Are you going to…؟» با «Yes, I am» است."]]],
-      ["بگو بله، پنج دقیقه صحبت می‌کنم","بگو درباره‌ی برنامه","Yes, I am. I'm going to talk for five minutes.","About our plan.",[],[["Yes, I am. I'm going to talk since five minutes.","برای مدت: for five minutes."]]],
-      ["بگو بله، درباره‌ی برنامه‌مان پنج دقیقه صحبت می‌کنم چون مدیر خواست","بگو کمی استرس دارم","Yes, I am. I'm going to talk for five minutes about our plan because the manager asked me.","I'm a bit stressed.",[],[["Yes, I am. I'm going to talk for five minutes about our plan because the manager asked.","«asked me» کامل‌تر است."]]]]}
-]}
+{
+ "mission": 11,
+ "day": 3,
+ "items": [
+  {
+   "k": "s",
+   "s": "arrange-meeting",
+   "c": null,
+   "q": [
+    [
+     "از دوستت بخواه برای دوشنبه یک جلسه ترتیب بدهد",
+     "بخواه ساعتش را هم بگوید",
+     "Can you arrange a meeting for Monday?",
+     "What time is good?",
+     [
+      "Can you set up a meeting for Monday?"
+     ],
+     [
+      [
+       "Can you to arrange a meeting for Monday?",
+       "بعد از «Can» «to» نمی‌آید."
+      ],
+      [
+       "Can you arrange a meeting in Monday?",
+       "برای روز هفته از «for/on» استفاده کن."
+      ]
+     ]
+    ],
+    [
+     "بخواه برای دوشنبه جلسه ترتیب بدهد و به همه ایمیل بزند",
+     "بپرس اتاق خالی است",
+     "Can you arrange a meeting for Monday and send everyone an email?",
+     "Is the room free?",
+     [],
+     [
+      [
+       "Can you arrange a meeting for Monday and send an email everyone?",
+       "ترتیب: send everyone an email."
+      ]
+     ]
+    ],
+    [
+     "بپرس می‌تواند جلسه‌ای برای دوشنبه ترتیب بدهد و اگر نشد چه روزی بهتر است",
+     "بپرس سه‌شنبه",
+     "Can you arrange a meeting for Monday? If not, what day is better?",
+     "How about Tuesday?",
+     [],
+     [
+      [
+       "Can you arrange a meeting for Monday? If not what day better?",
+       "بعد از «what day» باید «is» بیاید: what day is better."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله حتماً",
+     "بگو ایمیل می‌زنم",
+     "Yes, of course.",
+     "I'll send an email.",
+     [],
+     [
+      [
+       "Yes, I can arrange.",
+       "کوتاه بگو: Yes, of course."
+      ]
+     ]
+    ],
+    [
+     "بگو بله، ایمیل می‌زنم",
+     "بگو تا ظهر",
+     "Yes, of course. I'll send an email.",
+     "I'll do it by noon.",
+     [],
+     [
+      [
+       "Yes, of course. I send an email.",
+       "برای قول دادن «I'll send» بگو."
+      ]
+     ]
+    ],
+    [
+     "بگو بله ولی چند روز طول می‌کشد چون اتاق شلوغ است",
+     "بگو سه‌شنبه بهتر است",
+     "Yes, I can arrange it, but I'll need a few days because the room is busy.",
+     "Tuesday is better.",
+     [],
+     [
+      [
+       "Yes, I can arrange it, but I need few days.",
+       "قبل از «few» باید «a» بیاید: a few days."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "k": "s",
+   "s": "make-appointment",
+   "c": null,
+   "q": [
+    [
+     "بپرس می‌تواند برای جمعه وقت بگیرد",
+     "بپرس صبح",
+     "Can I make an appointment for Friday?",
+     "In the morning?",
+     [
+      "Can I book an appointment for Friday?"
+     ],
+     [
+      [
+       "Can I make a appointment for Friday?",
+       "قبل از «appointment» باید «an» بیاید."
+      ],
+      [
+       "Can I do an appointment for Friday?",
+       "با «appointment» فعل «make» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس می‌تواند برای جمعه صبح وقت بگیرد",
+     "بگو لطفاً",
+     "Can I make an appointment for Friday morning, please?",
+     "Is ten o'clock free?",
+     [],
+     [
+      [
+       "Can I make appointment for Friday morning, please?",
+       "قبل از «appointment» باید «an» بیاید."
+      ]
+     ]
+    ],
+    [
+     "مؤدبانه بگو می‌خواهی برای جمعه وقت بگیری و بپرس ممکن است",
+     "بگو اگر نشد، پنجشنبه",
+     "I'd like to make an appointment for Friday. Is that possible?",
+     "If not, Thursday is fine.",
+     [],
+     [
+      [
+       "I'd like make an appointment for Friday.",
+       "بعد از «I'd like» باید «to» بیاید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله حتماً",
+     "بپرس چه ساعتی",
+     "Yes, of course.",
+     "What time?",
+     [],
+     [
+      [
+       "Yes, sure of course.",
+       "ساده بگو: Yes, of course."
+      ]
+     ]
+    ],
+    [
+     "بگو بله، چه ساعتی برایتان خوب است",
+     "بگو ساعت ده خالی است",
+     "Yes, of course. What time is good for you?",
+     "Ten o'clock is free.",
+     [],
+     [
+      [
+       "Yes, of course. What time good for you?",
+       "بعد از «What time» باید «is» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو متأسفم جمعه پر است ولی پنجشنبه صبح می‌توانم وقت بدهم",
+     "بگو ساعت نه",
+     "I'm sorry, we're full on Friday, but I can offer you Thursday morning.",
+     "Nine o'clock is free.",
+     [],
+     [
+      [
+       "I'm sorry, we are full in Friday.",
+       "برای روز هفته: on Friday."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "k": "s",
+   "s": "attend-meeting",
+   "c": null,
+   "q": [
+    [
+     "بپرس در جلسه شرکت می‌کند",
+     "بپرس چه ساعتی",
+     "Are you going to attend the meeting?",
+     "What time is it?",
+     [
+      "Are you going to go to the meeting?"
+     ],
+     [
+      [
+       "Do you going to attend the meeting?",
+       "«going to» با «Are» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس در جلسه شرکت می‌کند و چه کسانی هستند",
+     "بپرس مدیر هم می‌آید",
+     "Are you going to attend the meeting, and who else is coming?",
+     "Is the manager coming too?",
+     [],
+     [
+      [
+       "Are you going to attend the meeting and who else coming?",
+       "بخش دوم هم فعل لازم دارد: is coming."
+      ]
+     ]
+    ],
+    [
+     "بپرس در جلسه شرکت می‌کند یا خیلی شلوغ است",
+     "بپرس می‌تواند بعداً بگوید",
+     "Are you going to attend the meeting, or will you be too busy?",
+     "Can you tell me later?",
+     [],
+     [
+      [
+       "Are you going to attend the meeting or you will be too busy?",
+       "بخش دوم هم سؤال است: or will you be."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو ساعت ده شروع می‌شود",
+     "Yes, I am.",
+     "It starts at ten.",
+     [],
+     [
+      [
+       "Yes, I go.",
+       "جواب «Are you going to…؟» با «Yes, I am» است."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و ساعت ده شروع می‌شود",
+     "بگو در اتاق دو",
+     "Yes, I am. It starts at ten.",
+     "It's in room two.",
+     [],
+     [
+      [
+       "Yes, I am. It start at ten.",
+       "با «it» فعل s می‌گیرد: starts."
+      ]
+     ]
+    ],
+    [
+     "بگو مطمئن نیستم چون مشتری دارم ولی سعی می‌کنم",
+     "بگو بهت خبر می‌دهم",
+     "I'm not sure, because I have a client at ten, but I'll try.",
+     "I'll tell you later.",
+     [],
+     [
+      [
+       "I'm not sure because I have a client in ten.",
+       "برای ساعت از «at» استفاده کن: at ten."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "k": "s",
+   "s": "paperwork",
+   "c": null,
+   "q": [
+    [
+     "بپرس امروز کاغذبازی زیادی دارد",
+     "بپرس تمام می‌شود",
+     "Do you have a lot of paperwork today?",
+     "Will you finish it?",
+     [],
+     [
+      [
+       "Do you have a lot of paperworks today?",
+       "«paperwork» شمارش‌ناپذیر است؛ s نمی‌گیرد."
+      ],
+      [
+       "Have you a lot of paperwork today?",
+       "با «have» به معنی داشتن از «Do you have» استفاده کن."
+      ]
+     ]
+    ],
+    [
+     "بپرس امروز کاغذبازی زیادی دارد و کی باید تمام کند",
+     "بپرس فردا",
+     "Do you have a lot of paperwork today, and when do you need to finish it?",
+     "Is it for tomorrow?",
+     [],
+     [
+      [
+       "Do you have a lot of paperwork today and when you need to finish it?",
+       "بعد از «when»، «do you» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس کاغذبازی‌اش از هفته‌ی پیش بیشتر است و چه می‌کند",
+     "بپرس کمک لازم دارد",
+     "Do you have more paperwork than last week, and what are you going to do about it?",
+     "Do you need help?",
+     [],
+     [
+      [
+       "Do you have more paperwork that last week?",
+       "برای مقایسه «than» می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو خیلی",
+     "Yes, I do.",
+     "A lot.",
+     [],
+     [
+      [
+       "Yes, I have.",
+       "جواب «Do you have…؟»: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و باید همه را تمام کنم",
+     "بگو تا ساعت پنج",
+     "Yes, I do. I have a lot to finish.",
+     "I need to finish by five.",
+     [],
+     [
+      [
+       "Yes, I do. I have a lot for finish.",
+       "بعد از «a lot» از «to finish» استفاده کن."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و دیر می‌مانم چون باید قبل از فردا تمامش کنم",
+     "بگو کمکی لازم نیست",
+     "Yes, I do, and I'm going to stay late because I need to finish it before tomorrow.",
+     "I don't need help.",
+     [],
+     [
+      [
+       "Yes I do and I stay late because I need finish it.",
+       "بعد از «need» باید «to» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "k": "s",
+   "s": "printer",
+   "c": null,
+   "q": [
+    [
+     "بپرس چاپگر کار می‌کند",
+     "بپرس دیگری هست",
+     "Is the printer working?",
+     "Do we have another one?",
+     [
+      "Does the printer work?"
+     ],
+     [
+      [
+       "Do the printer work?",
+       "برای «printer» (سوم شخص) «Does» یا «Is … working»."
+      ],
+      [
+       "The printer is working?",
+       "در سؤال، «Is» اول جمله می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چاپگر کار می‌کند و دیگری داریم",
+     "بپرس کی خراب شد",
+     "Is the printer working, and do we have another one?",
+     "When did it break down?",
+     [],
+     [
+      [
+       "Is the printer working and we have another one?",
+       "بخش دوم هم سؤال است: do we have."
+      ]
+     ]
+    ],
+    [
+     "بپرس چاپگر کار می‌کند یا کسی امروز درستش می‌کند",
+     "بپرس به مدیر گفتی",
+     "Is the printer working, or will somebody fix it today?",
+     "Did you tell the manager?",
+     [],
+     [
+      [
+       "Is the printer working or somebody will fix it today?",
+       "بخش دوم هم سؤال است: or will somebody fix."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو نه",
+     "بگو خراب است",
+     "No, it isn't.",
+     "It's broken.",
+     [],
+     [
+      [
+       "No, it doesn't.",
+       "جواب «Is…؟» با «isn't» است: No, it isn't."
+      ]
+     ]
+    ],
+    [
+     "بگو نه، امروز صبح خراب شد",
+     "بگو ساعت ده",
+     "No, it isn't. It broke down this morning.",
+     "It stopped at ten.",
+     [],
+     [
+      [
+       "No, it isn't. It breaked down this morning.",
+       "گذشته‌ی «break» می‌شود broke."
+      ]
+     ]
+    ],
+    [
+     "بگو صبح خراب شد برای همین به مدیر زنگ می‌زنی",
+     "بگو یک نفر می‌آید",
+     "It broke down this morning, so I'm going to call the manager.",
+     "Someone is coming at noon.",
+     [],
+     [
+      [
+       "It broke down this morning, so I call the manager.",
+       "برای برنامه «I'm going to call» بگو."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "k": "f",
+   "s": "ran-out",
+   "c": "دوستت گفت: «کاغذ تمام شده.»",
+   "q": [
+    [
+     "بپرس در کمد بیشتر هست",
+     "بپرس کجا",
+     "Is there more in the cupboard?",
+     "Where?",
+     [],
+     [
+      [
+       "Is there have more in the cupboard?",
+       "بعد از «Is there» فعل «have» نمی‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس در کمد بیشتر هست یا می‌خواهند بخرند",
+     "بپرس کی",
+     "Is there more in the cupboard, or are we going to buy some?",
+     "When?",
+     [],
+     [
+      [
+       "Is there more in the cupboard or we go to buy some?",
+       "بخش دوم هم سؤال است: or are we going to buy some."
+      ]
+     ]
+    ],
+    [
+     "بپرس برای فردا کافی دارند یا او سفارش می‌دهد",
+     "بپرس چقدر لازم است",
+     "Will we have enough for tomorrow, or are you going to order some?",
+     "How much do we need?",
+     [],
+     [
+      [
+       "Will we have enough for tomorrow or you will order?",
+       "بخش دوم هم سؤال است: or are you going to order some."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو نه",
+     "بگو تمام شد",
+     "No, there isn't.",
+     "We've run out.",
+     [],
+     [
+      [
+       "No, it isn't.",
+       "جواب «Is there…؟» با «there isn't» است."
+      ]
+     ]
+    ],
+    [
+     "بگو کاغذمان تمام شده",
+     "بگو دیروز",
+     "We've run out of paper.",
+     "It finished yesterday.",
+     [],
+     [
+      [
+       "We have run out paper.",
+       "بعد از «run out» حرف اضافه‌ی «of» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بگو کاغذ تمام شده برای همین امروز سفارش می‌دهی",
+     "بگو فردا می‌رسد",
+     "We've run out of paper, so I'm going to order some today.",
+     "It will arrive tomorrow.",
+     [],
+     [
+      [
+       "We've run out of paper so I order some today.",
+       "برای برنامه «I'm going to order» بگو."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "k": "f",
+   "s": "meeting-time",
+   "c": "دوستت گفت: «فردا در یک جلسه شرکت می‌کنم.»",
+   "q": [
+    [
+     "بپرس چه ساعتی شروع می‌شود",
+     "بپرس کجا",
+     "What time does it start?",
+     "Where is it?",
+     [
+      "What time is it?"
+     ],
+     [
+      [
+       "What time it starts?",
+       "بعد از «What time»، «does it» می‌آید."
+      ],
+      [
+       "What time does it starts?",
+       "بعد از «does» فعل بدون s می‌آید: start."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه ساعتی شروع می‌شود و کجاست",
+     "بپرس چند نفرند",
+     "What time does it start, and where is it?",
+     "How many people are coming?",
+     [],
+     [
+      [
+       "What time does it start and where it is?",
+       "ترتیب سؤال: where is it."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه ساعتی شروع می‌شود و چقدر طول می‌کشد",
+     "بپرس ناهار دارند",
+     "What time does it start, and how long is it going to be?",
+     "Is there lunch?",
+     [],
+     [
+      [
+       "What time does it start and how long it is going to be?",
+       "ترتیب سؤال: how long is it going to be."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو ساعت ده",
+     "بگو در اتاق دو",
+     "At ten.",
+     "In room two.",
+     [
+      "It starts at ten."
+     ],
+     [
+      [
+       "In ten.",
+       "برای ساعت از «at» استفاده کن."
+      ]
+     ]
+    ],
+    [
+     "بگو ساعت ده شروع می‌شود و ساعت دوازده تمام می‌شود",
+     "بگو ناهار هم هست",
+     "It starts at ten and finishes at twelve.",
+     "There's lunch too.",
+     [],
+     [
+      [
+       "It starts at ten and finish at twelve.",
+       "با «it» فعل s می‌گیرد: finishes."
+      ]
+     ]
+    ],
+    [
+     "بگو ساعت ده ولی زودتر می‌روم چون می‌خواهم آماده شوم",
+     "بگو ساعت نه می‌رسم",
+     "It starts at ten, but I'm going to arrive early because I want to prepare.",
+     "I'll be there at nine.",
+     [],
+     [
+      [
+       "It starts at ten but I arrive early because I want prepare.",
+       "بعد از «want» باید «to» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "k": "f",
+   "s": "appointment-day",
+   "c": "دوستت گفت: «برای جمعه وقت گرفتم.»",
+   "q": [
+    [
+     "بپرس ساعتش چند است",
+     "بپرس کجا",
+     "What time is it?",
+     "Where?",
+     [],
+     [
+      [
+       "What time it is?",
+       "ترتیب سؤال: What time is it."
+      ]
+     ]
+    ],
+    [
+     "بپرس ساعتش چند است و کجاست",
+     "بپرس دور است",
+     "What time is it, and where is it?",
+     "Is it far?",
+     [],
+     [
+      [
+       "What time is it and where it is?",
+       "ترتیب سؤال: where is it."
+      ]
+     ]
+    ],
+    [
+     "بپرس ساعتش چند است و زودتر از سر کار می‌رود",
+     "بپرس مدیر می‌داند",
+     "What time is it, and are you going to leave work early?",
+     "Does your manager know?",
+     [],
+     [
+      [
+       "What time is it and you are going to leave work early?",
+       "بخش دوم هم سؤال است: are you going to leave."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو ساعت سه",
+     "بگو بعدازظهر",
+     "At three.",
+     "In the afternoon.",
+     [
+      "It's at three."
+     ],
+     [
+      [
+       "In three.",
+       "برای ساعت از «at» استفاده کن."
+      ]
+     ]
+    ],
+    [
+     "بگو ساعت سه بعدازظهر",
+     "بگو نزدیک است",
+     "It's at three in the afternoon.",
+     "It's near my office.",
+     [],
+     [
+      [
+       "It's at three on the afternoon.",
+       "بعدازظهر: in the afternoon."
+      ]
+     ]
+    ],
+    [
+     "بگو ساعت سه ولی ممکن است دیر برسم چون ساعت دو کارم تمام می‌شود",
+     "بگو به مدیر گفتم",
+     "It's at three, but I may be late because I finish work at two.",
+     "I told my manager.",
+     [],
+     [
+      [
+       "It's at three but I can be late because I finish work at two.",
+       "احتمال را با «may» بگو."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "k": "f",
+   "s": "help-paperwork",
+   "c": "دوستت گفت: «کاغذبازی‌ام خیلی زیاد است.»",
+   "q": [
+    [
+     "بپرس می‌تواند کمک کند",
+     "بپرس با چه",
+     "Can I help?",
+     "With what?",
+     [
+      "Can I help you?"
+     ],
+     [
+      [
+       "Can I to help?",
+       "بعد از «Can» «to» نمی‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس می‌تواند کمک کند یا می‌خواهد تنها انجامش بدهد",
+     "بپرس کدام فرم",
+     "Can I help, or do you want to do it alone?",
+     "Which form?",
+     [],
+     [
+      [
+       "Can I help or you want to do it alone?",
+       "بخش دوم هم سؤال است: or do you want."
+      ]
+     ]
+    ],
+    [
+     "بپرس می‌تواند در این کار کمک کند و چقدر طول می‌کشد",
+     "بپرس فردا تمام می‌شود",
+     "Can I help you with it, and how long will it take?",
+     "Will it be ready tomorrow?",
+     [],
+     [
+      [
+       "Can I help you with it and how long it will take?",
+       "ترتیب سؤال: how long will it take."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله لطفاً",
+     "بگو ممنون",
+     "Yes, please.",
+     "Thank you.",
+     [],
+     [
+      [
+       "Yes, I help.",
+       "برای پذیرفتن کمک بگو: Yes, please."
+      ]
+     ]
+    ],
+    [
+     "بگو لطفاً کمکم کن و این فرم را چک کن",
+     "بگو آسان است",
+     "Please help me. Can you check this form?",
+     "It's easy.",
+     [],
+     [
+      [
+       "Please help me. Can you checking this form?",
+       "بعد از «Can you» فعل ساده می‌آید: check."
+      ]
+     ]
+    ],
+    [
+     "بگو بله، عالی می‌شود چون باید قبل از پنج تمامش کنم",
+     "بگو یک ساعت طول می‌کشد",
+     "Yes, please. That would be great, because I need to finish it before five.",
+     "It'll take an hour.",
+     [],
+     [
+      [
+       "Yes please that would be great because I need finish it before five.",
+       "بعد از «need» باید «to» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "k": "f",
+   "s": "speak-meeting",
+   "c": "دوستت گفت: «همه به جلسه می‌آیند.»",
+   "q": [
+    [
+     "بپرس سخنرانی می‌کند",
+     "بپرس اول",
+     "Are you going to speak?",
+     "First?",
+     [],
+     [
+      [
+       "Do you going to speak?",
+       "«going to» با «Are» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس سخنرانی می‌کند و چند دقیقه",
+     "بپرس اسلاید دارد",
+     "Are you going to speak, and how long will you talk?",
+     "Do you have slides?",
+     [],
+     [
+      [
+       "Are you going to speak and how long you will talk?",
+       "ترتیب سؤال: how long will you talk."
+      ]
+     ]
+    ],
+    [
+     "بپرس سخنرانی می‌کند یا مدیرش این کار را می‌کند",
+     "بپرس آماده است",
+     "Are you going to speak, or will your manager do it?",
+     "Are you ready?",
+     [],
+     [
+      [
+       "Are you going to speak or your manager will do it?",
+       "بخش دوم هم سؤال است: or will your manager do it."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو پنج دقیقه",
+     "Yes, I am.",
+     "Five minutes.",
+     [],
+     [
+      [
+       "Yes, I speak.",
+       "جواب «Are you going to…؟» با «Yes, I am» است."
+      ]
+     ]
+    ],
+    [
+     "بگو بله، پنج دقیقه صحبت می‌کنم",
+     "بگو درباره‌ی برنامه",
+     "Yes, I am. I'm going to talk for five minutes.",
+     "About our plan.",
+     [],
+     [
+      [
+       "Yes, I am. I'm going to talk since five minutes.",
+       "برای مدت: for five minutes."
+      ]
+     ]
+    ],
+    [
+     "بگو پنج دقیقه درباره‌ی برنامه‌مان صحبت می‌کنی چون مدیر خواست",
+     "بگو کمی استرس دارم",
+     "I'm going to talk for five minutes about our plan, because the manager asked me.",
+     "I'm a bit stressed.",
+     [],
+     [
+      [
+       "I'm going to talk for five minutes about our plan because the manager asked.",
+       "«asked me» کامل‌تر است."
+      ]
+     ]
+    ]
+   ]
+  }
+ ]
+}

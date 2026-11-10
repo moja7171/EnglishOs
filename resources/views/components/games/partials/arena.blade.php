@@ -170,7 +170,7 @@
                         <button type="button" wire:click="startTurn" wire:loading.attr="disabled" wire:target="startTurn" class="w-full max-w-xs cursor-pointer rounded-2xl bg-accent dark:bg-accent-dark px-6 py-4 text-xl font-extrabold text-white shadow-sm disabled:opacity-50">Start</button>
                     @endif
                     <div class="w-full max-w-sm">
-                        @include('components.games.partials.ask-levels', ['levels' => $pairGame->askLevels($me), 'action' => 'setAskLevel'])
+                        @include('components.games.partials.ask-levels', ['levels' => $pairGame->askLevels($me), 'action' => 'setAskLevel', 'sides' => ['q']])
                     </div>
                 @elseif ($pairGame->isRolePlay())
                     <div>

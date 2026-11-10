@@ -11,7 +11,8 @@ use Illuminate\Support\Str;
  * file per mission day (m11_d1.json) or one per mission whose items each name
  * their day (m01.json, "d": 1-4). Safe to run again: an
  * item is found by its slug (mission, day, subject) and updated in place,
- * so edits to the files reach the table without duplicating rows.
+ * so edits to the files reach the table without duplicating rows, and a
+ * situation removed from its mission's files is removed from the table.
  *
  * A level in a file is [fa, fa_extra, en, en_extra, [other accepted],
  * [[wrong sentence, Persian reason], …]]; an item is {k: s|f, s: subject,
@@ -21,12 +22,16 @@ class AskAnswerSeeder extends Seeder
 {
     public function run(): void
     {
+        $kept = [];
+
         foreach (glob(database_path('seeders/data/ask_answer/*.json')) ?: [] as $file) {
             $data = json_decode((string) file_get_contents($file), true);
 
             foreach ($data['items'] ?? [] as $item) {
                 $day = (int) ($item['d'] ?? $data['day'] ?? 0);
                 $slug = self::slugFor((int) $data['mission'], $day, $item['s']);
+
+                $kept[(int) $data['mission']][] = $slug;
 
                 AskAnswerItem::updateOrCreate(['slug' => $slug], [
                     'mission_number' => (int) $data['mission'],
@@ -38,6 +43,11 @@ class AskAnswerSeeder extends Seeder
                     'answers' => self::levels($item['a']),
                 ]);
             }
+        }
+
+        // A situation taken out of a file leaves the bank too.
+        foreach ($kept as $mission => $slugs) {
+            AskAnswerItem::where('mission_number', $mission)->whereNotIn('slug', $slugs)->delete();
         }
     }
 

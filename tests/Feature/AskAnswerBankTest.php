@@ -57,7 +57,11 @@ class AskAnswerBankTest extends TestCase
                     $this->assertNotSame('', trim($data['en']), "$where English");
                     $this->assertNotEmpty($data['fa_extra'], "$where optional Persian");
                     $this->assertNotEmpty($data['en_extra'], "$where optional English");
-                    $this->assertNotEmpty($data['wrong'], "$where known wrong version");
+
+                    if (str_word_count($data['en']) > 3) {
+                        $this->assertNotEmpty($data['wrong'], "$where known wrong version");
+                    }
+
                     $this->assertSame($level, array_search($data, $item->{$side}, true), "$where is stored at its level");
 
                     foreach ($data['wrong'] as $wrong) {
@@ -113,5 +117,41 @@ class AskAnswerBankTest extends TestCase
         }
 
         $this->assertSame(AskAnswerItem::count(), AskAnswerItem::pluck('slug')->unique()->count());
+    }
+
+    public function test_an_answer_fits_the_question_of_its_level(): void
+    {
+        $this->seed(AskAnswerSeeder::class);
+
+        foreach (AskAnswerItem::all() as $item) {
+            foreach (AskAnswerItem::LEVELS as $level) {
+                $question = $item->level(AskAnswerItem::SIDE_QUESTION, $level)['en'];
+                $answer = $item->level(AskAnswerItem::SIDE_ANSWER, $level)['en'];
+                $where = "{$item->slug} L{$level}: \"$question\" / \"$answer\"";
+                $startsYesNo = preg_match('/^(yes|no)\b/i', $answer) === 1;
+                $asksYesNo = preg_match('/^(do|does|did|is|are|can|have|has|will|would|could)\b/i', $question) === 1;
+
+                // A question with "or" is answered with the choice, never with yes or no; a wh-question never starts with yes or no.
+                if ($asksYesNo && preg_match('/\bor\b/i', explode('?', $question)[0]) === 1) {
+                    $this->assertFalse($startsYesNo, "$where: a choice is answered with the choice");
+                }
+
+                if (! $asksYesNo && preg_match('/^(what|where|when|why|who|which|how)\b/i', $question) === 1) {
+                    $this->assertFalse($startsYesNo, "$where: a wh-question is not answered with yes or no");
+                }
+            }
+        }
+    }
+
+    public function test_seeding_again_removes_a_situation_that_left_the_files(): void
+    {
+        $this->seed(AskAnswerSeeder::class);
+
+        $old = AskAnswerItem::factory()->create(['mission_number' => 4, 'day' => 1, 'slug' => 'm04-d1-no-longer-written']);
+
+        $this->seed(AskAnswerSeeder::class);
+
+        $this->assertModelMissing($old);
+        $this->assertSame(40, AskAnswerItem::where('mission_number', 4)->count());
     }
 }

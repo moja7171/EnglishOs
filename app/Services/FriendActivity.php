@@ -144,7 +144,7 @@ class FriendActivity
 
         $labels = [
             'listening' => ['Listening', 'A daily listening'],
-            'pi' => ['Daily talk', 'A talk with Pi'],
+            'pi' => ['Daily talk', 'A speaking talk'],
             'review' => ['Review', 'Words and sentences'],
             'pair' => ['Pair practice', '12 minutes with a friend'],
             'ai-practice' => ['Practice with Teddy', 'Your AI classmate'],

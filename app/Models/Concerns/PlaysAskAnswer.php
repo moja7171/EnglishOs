@@ -80,7 +80,19 @@ trait PlaysAskAnswer
     }
 
     /**
-     * What the speaker is asked to say now, at the speaker's own level:
+     * The level (1-3) of the sentence said now. A question is at the level
+     * the asker picked, and the answer is the answer written for that very
+     * question, so it follows the question's level, never a level of its own.
+     */
+    public function askLevelNow(): int
+    {
+        $asker = $this->explainer();
+
+        return $asker === null ? 1 : $this->askLevels($asker)['q'];
+    }
+
+    /**
+     * What the speaker is asked to say now, at the level of the question:
      * the Persian lines and the English target (their partner sees the
      * English).
      *
@@ -97,7 +109,7 @@ trait PlaysAskAnswer
 
         $isQuestion = $this->phase() === self::PHASE_QUESTION;
         $side = $isQuestion ? 'questions' : 'answers';
-        $level = $this->askLevels($speaker)[$isQuestion ? 'q' : 'a'];
+        $level = $this->askLevelNow();
         $levels = $card[$side] ?? [];
 
         for ($try = $level; $try >= 1; $try--) {
@@ -155,7 +167,7 @@ trait PlaysAskAnswer
             return;
         }
 
-        $this->storeAskStep(AskAnswerStep::apply($step, $heard, $result, $this->askLevels($user)[$this->phase() === self::PHASE_QUESTION ? 'q' : 'a']));
+        $this->storeAskStep(AskAnswerStep::apply($step, $heard, $result, $this->askLevelNow()));
     }
 
     /**
@@ -171,7 +183,7 @@ trait PlaysAskAnswer
             return;
         }
 
-        $this->storeAskStep(AskAnswerStep::pass($step, $this->askLevels($user)[$this->phase() === self::PHASE_QUESTION ? 'q' : 'a'], $this->askLevel()['en'] ?? null));
+        $this->storeAskStep(AskAnswerStep::pass($step, $this->askLevelNow(), $this->askLevel()['en'] ?? null));
     }
 
     /**

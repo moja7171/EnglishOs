@@ -1,81 +1,936 @@
-{"mission": 11, "day": 4, "items": [
-{"k":"s","s":"tonight","c":null,
- "q":[["بپرس امشب چه می‌کند","بپرس با کی","What are you doing tonight?","Who with?",["What are you up to tonight?"],[["What you are doing tonight?","ترتیب سؤال: What are you doing."],["What do you doing tonight?","با «-ing» فعل کمکی «are» می‌آید."]]],
-      ["بپرس امشب چه می‌کند و با کی","بپرس کجا","What are you doing tonight, and who with?","Where?",[],[["What are you doing tonight and who you are with?","کوتاه بپرس: and who with?"]]],
-      ["بپرس امشب چه می‌کند و فردا چه برنامه‌ای دارد","بپرس فردا کار می‌کند","What are you doing tonight, and what are you going to do tomorrow?","Are you working?",[],[["What are you doing tonight and what you will do tomorrow?","ترتیب سؤال: what are you going to do."]]]],
- "a":[["بگو در خانه می‌مانم","بگو فیلم می‌بینم","I'm staying at home.","I'm watching a film.",[],[["I stay at home tonight.","برای برنامه‌ی امشب «am staying» بگو."]]],
-      ["بگو در خانه می‌مانم و فیلم می‌بینم","بگو با خواهرم","I'm staying at home and watching a film.","With my sister.",[],[["I'm staying at home and watch a film.","هر دو فعل -ing: staying and watching."]]],
-      ["بگو در خانه می‌مانم چون خسته‌ام ولی چیز خوبی می‌پزم","بگو فردا می‌روم کوه","I'm staying at home because I'm tired, but I'm going to cook something nice.","Tomorrow I'm going to the mountains.",[],[["I'm staying at home because I tired.","بعد از «because I» باید «am» بیاید."]]]]},
-
-{"k":"s","s":"summer-travel","c":null,
- "q":[["بپرس تابستان سفر می‌کند","بپرس کجا","Are you going to travel this summer?","Where?",["Are you going away this summer?"],[["Do you going to travel this summer?","«going to» با «Are» می‌آید."],["Are you going to traveling this summer?","بعد از «going to» فعل ساده: travel."]]],
-      ["بپرس تابستان سفر می‌کند و کجا","بپرس با کی","Are you going to travel this summer, and where?","Who with?",[],[["Are you going to travel this summer and where you go?","کوتاه بپرس: and where?"]]],
-      ["بپرس تابستان سفر می‌کند یا در خانه می‌ماند","بپرس پول دارد","Are you going to travel this summer, or will you stay at home?","Do you have enough money?",[],[["Are you going to travel this summer or you stay at home?","بخش دوم هم سؤال است: or will you stay."]]]],
- "a":[["بگو بله","بگو شمال","Yes, I am.","To the north.",[],[["Yes, I travel.","جواب «Are you going to…؟» با «Yes, I am» است."]]],
-      ["بگو بله، به دیدن خانواده‌ام می‌روم","بگو ده روز","Yes, I am. I'm going to visit my family.","For ten days.",[],[["Yes, I am. I'm going to visiting my family.","بعد از «going to» فعل ساده: visit."]]],
-      ["بگو هنوز مطمئن نیستم چون باید پول جمع کنم ولی دوست دارم به کنار دریا بروم","بگو دو هفته","I'm not sure yet, because I have to save money, but I'd like to go to the sea.","Maybe two weeks.",[],[["I'm not sure yet because I must to save money.","«have to save» بگو."]]]]},
-
-{"k":"s","s":"five-years","c":null,
- "q":[["بپرس پنج سال دیگر کجا می‌خواهد باشد","بپرس چه کاری","Where do you want to be in five years?","Doing what?",["Where do you want to live in five years?"],[["Where you want to be in five years?","بعد از «Where»، «do» می‌آید."],["Where do you want be in five years?","بعد از «want» باید «to» بیاید."]]],
-      ["بپرس پنج سال دیگر کجا می‌خواهد باشد و چه کار کند","بپرس با چه کسی","Where do you want to be in five years, and what do you want to do?","With whom?",[],[["Where do you want to be in five years and what you want to do?","برای بخش دوم هم «do» لازم است."]]],
-      ["بپرس فکر می‌کند پنج سال دیگر کجا خواهد بود و چه می‌کند","بپرس راضی است","Where do you think you will be in five years, and what will you do?","Will you be happy?",[],[["Where you think you will be in five years?","بعد از «Where»، «do you think» می‌آید."]]]],
- "a":[["بگو در یک شهر جدید","بگو شاید خارج","In a new city.","Maybe abroad.",[],[["On a new city.","برای شهر از «in» استفاده کن."]]],
-      ["بگو می‌خواهم در یک شهر جدید زندگی کنم و کار بهتری داشته باشم","بگو در شرکتی بزرگ‌تر","I want to live in a new city and have a better job.","In a bigger company.",[],[["I want to live in a new city and to have better job.","قبل از «better job» باید «a» بیاید."]]],
-      ["بگو می‌خواهم شهر جدید ولی فکر می‌کنم فعلاً می‌مانم چون خانواده‌ام اینجاست","بگو شاید بعداً","I want to live in a new city, but I think I'll stay here for now because my family is here.","Maybe later.",[],[["I think I stay here because of my family is here.","بعد از «because» جمله‌ی کامل بیاید."]]]]},
-
-{"k":"s","s":"rain-tomorrow","c":null,
- "q":[["بپرس فکر می‌کند فردا باران می‌آید","بپرس مطمئن است","Do you think it will rain tomorrow?","Are you sure?",["Do you think it's going to rain tomorrow?"],[["Do you think it rains tomorrow?","برای پیش‌بینی بعد از «think»: it will rain."],["Do you think will it rain tomorrow?","بعد از «think» ترتیب جمله خبری است: it will rain."]]],
-      ["بپرس فکر می‌کند فردا باران می‌آید و چه می‌کند","بپرس چتر دارد","Do you think it will rain tomorrow, and what will you do?","Do you have an umbrella?",[],[["Do you think it will rain tomorrow and what you will do?","ترتیب سؤال: what will you do."]]],
-      ["بپرس باران می‌آید یا هوا آفتابی می‌شود","بپرس خبر هوا را دیده","Do you think it will rain tomorrow, or will it be sunny?","Did you see the weather news?",[],[["Do you think it will rain tomorrow or it will be sunny?","بخش دوم سؤال است: or will it be sunny."]]]],
- "a":[["بگو فکر نمی‌کنم","بگو آفتابی می‌شود","I don't think so.","It will be sunny.",["I don't think it will."],[["I think not.","طبیعی‌تر: I don't think so."]]],
-      ["بگو فکر نمی‌کنم، امروز آفتابی است","بگو هوا گرم است","I don't think so. It's sunny today.","It's warm too.",[],[["I don't think so. It sunny today.","فراموش نکن: It's sunny."]]],
-      ["بگو فکر می‌کنم باران بیاید چون آسمان خاکستری است برای همین چتر می‌برم","بگو لباس گرم هم","I think it will, because the sky is grey, so I'll take an umbrella.","I'll wear a coat too.",[],[["I think it will rain because the sky grey.","بعد از «because» باید فعل بیاید: the sky is grey."]]]]},
-
-{"k":"s","s":"work-tomorrow","c":null,
- "q":[["بپرس فردا سر کار هست","بپرس صبح","Will you be at work tomorrow?","In the morning?",["Are you going to be at work tomorrow?"],[["Will you at work tomorrow?","بین «will» و «at work» باید «be» بیاید."],["Do you will be at work tomorrow?","«will» خودش فعل کمکی است."]]],
-      ["بپرس فردا سر کار هست و چه ساعتی تمام می‌کند","بپرس زود","Will you be at work tomorrow, and what time will you finish?","Early?",[],[["Will you be at work tomorrow and what time you will finish?","ترتیب سؤال: what time will you finish."]]],
-      ["بپرس فردا سر کار هست یا مرخصی می‌گیرد","بپرس چرا","Will you be at work tomorrow, or are you taking a day off?","Why?",[],[["Will you be at work tomorrow or you take a day off?","بخش دوم هم سؤال است: or are you taking."]]]],
- "a":[["بگو بله","بگو ساعت نه","Yes, I will.","At nine.",[],[["Yes, I do.","جواب «Will you…؟» با «will» است: Yes, I will."]]],
-      ["بگو بله، ساعت نه آنجا هستم","بگو تا پنج","Yes, I will. I'll be there at nine.","Until five.",[],[["Yes, I will. I be there at nine.","بگو: I'll be there."]]],
-      ["بگو بله ولی زود می‌روم چون وقت دکتر دارم","بگو ساعت سه","Yes, I will, but I'll leave early because I have an appointment.","At three.",[],[["Yes I will but I leave early because I have appointment.","قبل از «appointment» باید «an» بیاید."]]]]},
-
-{"k":"f","s":"who-with","c":"دوستت گفت: «آخر هفته می‌روم کوه.»",
- "q":[["بپرس با کی می‌رود","بپرس چطور می‌روند","Who are you going with?","How are you getting there?",["Who are you going with?"],[["Who you are going with?","ترتیب سؤال: Who are you going with."],["With who are you going?","طبیعی‌تر: Who are you going with."]]],
-      ["بپرس با کی می‌رود و چطور می‌رسند","بپرس ساعت حرکت","Who are you going with, and how are you getting there?","What time are you leaving?",[],[["Who are you going with and how you are getting there?","ترتیب سؤال: how are you getting there."]]],
-      ["بپرس با کی می‌رود و آنجا چه می‌کنند","بپرس غذا می‌برند","Who are you going with, and what are you going to do there?","Are you taking food?",[],[["Who are you going with and what you are going to do there?","ترتیب سؤال: what are you going to do."]]]],
- "a":[["بگو با چند دوست","بگو از سر کار","With some friends.","From work.",[],[["With some my friends.","بگو: with some friends."]]],
-      ["بگو با چند دوست از سر کار","بگو چهار نفر","With some friends from work.","There are four of us.",[],[["With some friends of work.","«from work» بگو."]]],
-      ["بگو با چند دوست از سر کار و زود می‌رویم چون کوه دور است","بگو ساعت شش","With some friends from work, and we're going to leave early because the mountain is far.","At six.",[],[["With some friends from work and we leave early because the mountain far.","فراموش نکن: the mountain is far."]]]]},
-
-{"k":"f","s":"how-long-trip","c":"دوستت گفت: «تابستان به ترکیه می‌روم.»",
- "q":[["بپرس چند روز می‌رود","بپرس کی","How long are you going for?","When?",["How long are you going for?"],[["How long you are going for?","ترتیب سؤال: How long are you going."],["How many time are you going?","برای مدت: How long."]]],
-      ["بپرس چند روز می‌رود و کی حرکت می‌کند","بپرس با هواپیما","How long are you going for, and when are you leaving?","By plane?",[],[["How long are you going for and when you leave?","ترتیب سؤال: when are you leaving."]]],
-      ["بپرس چند روز می‌رود و چه چیزهایی می‌بیند","بپرس هتل رزرو کرده","How long are you going for, and what are you going to see?","Have you booked a hotel?",[],[["How long are you going for and what you will see?","ترتیب سؤال: what are you going to see."]]]],
- "a":[["بگو ده روز","بگو در ژوئیه","For ten days.","In July.",["Ten days."],[["Since ten days.","برای مدت: for ten days."]]],
-      ["بگو ده روز می‌روم","بگو با هواپیما","I'm going for ten days.","By plane.",[],[["I go for ten days.","برای برنامه‌ی نزدیک: I'm going."]]],
-      ["بگو ده روز ولی درباره‌ی هتل هنوز مطمئن نیستم","بگو دنبال یک جای ارزان می‌گردم","I'm going for ten days, but I'm not sure about the hotel yet.","I'm looking for a cheap one.",[],[["I'm going for ten days but I not sure about the hotel.","فراموش نکن: I'm not sure."]]]]},
-
-{"k":"f","s":"improve-english","c":"دوستت گفت: «سال دیگر می‌خواهم انگلیسی‌ام را بهتر کنم.»",
- "q":[["بپرس چطور این کار را می‌کند","بپرس هر روز","How are you going to do it?","Every day?",[],[["How you are going to do it?","ترتیب سؤال: How are you going to do it."]]],
-      ["بپرس چطور این کار را می‌کند و روزی چقدر وقت می‌گذارد","بپرس صبح یا شب","How are you going to do it, and how much time will you study?","In the morning or at night?",[],[["How are you going to do it and how much time you will study?","ترتیب سؤال: how much time will you study."]]],
-      ["بپرس چطور این کار را می‌کند و سخت‌ترین بخش چیست","بپرس تنها","How are you going to do it, and what's the hardest part?","Alone?",[],[["How are you going to do it and what is the most hard part?","«hard» می‌شود «the hardest»."]]]],
- "a":[["بگو هر روز تمرین می‌کنم","بگو با فیلم","I'll practise every day.","With films.",["I will practise every day."],[["I practise every day.","برای تصمیم آینده «I'll» بگو."]]],
-      ["بگو هر روز تمرین می‌کنم و فیلم می‌بینم","بگو بدون زیرنویس","I'll practise every day and watch films.","Without subtitles.",[],[["I'll practise every day and watching films.","هر دو فعل ساده: practise and watch."]]],
-      ["بگو هر روز تمرین می‌کنم و فیلم انگلیسی می‌بینم چون می‌خواهم بدون ترس حرف بزنم","بگو یک دوست پیدا می‌کنم","I'll practise every day and watch films in English, because I want to speak without fear.","I'll find a partner.",[],[["I'll practise every day because I want speak without fear.","بعد از «want» باید «to» بیاید."]]]]},
-
-{"k":"f","s":"day-off","c":"دوستت گفت: «فردا مرخصی‌ام.»",
- "q":[["بپرس چه کار می‌کند","بپرس صبح","What will you do?","In the morning?",["What are you going to do?"],[["What you will do?","ترتیب سؤال: What will you do."],["What will you to do?","بعد از «will» «to» نمی‌آید."]]],
-      ["بپرس چه کار می‌کند و کجا می‌رود","بپرس تنها","What will you do, and where will you go?","Alone?",[],[["What will you do and where you will go?","ترتیب سؤال: where will you go."]]],
-      ["بپرس فردا چه برنامه‌ای دارد و چرا مرخصی گرفته","بپرس خسته است","What are you going to do, and why did you take the day off?","Are you tired?",[],[["What are you going to do and why you took the day off?","ترتیب سؤال: why did you take."]]]],
- "a":[["بگو استراحت می‌کنم","بگو در خانه","I'll rest.","At home.",["I will rest."],[["I rest.","برای تصمیم آینده «I'll rest» بگو."]]],
-      ["بگو استراحت می‌کنم و دوستانم را می‌بینم","بگو بعدازظهر","I'll rest and see my friends.","In the afternoon.",[],[["I'll rest and seeing my friends.","هر دو فعل ساده: rest and see."]]],
-      ["بگو صبح استراحت می‌کنم و بعد دوستانم را می‌بینم چون خیلی وقت است ندیدمشان","بگو یک کافه","I'll rest in the morning, and then I'll see my friends, because I haven't seen them for a long time.","A new café.",[],[["I haven't seen them since a long time.","برای مدت: for a long time."]]]]},
-
-{"k":"f","s":"free-weekend","c":"دوستت گفت: «برای آخر هفته هیچ برنامه‌ای ندارم.»",
- "q":[["بپرس می‌خواهد کاری بکند","بپرس شنبه","Do you want to do something?","On Saturday?",["Do you want to do something at the weekend?"],[["Do you want do something?","بعد از «want» باید «to» بیاید."]]],
-      ["بپرس می‌خواهد کاری بکند و کجا بروند","بپرس سینما","Do you want to do something, and where shall we go?","How about the cinema?",[],[["Do you want to do something and where we go?","ترتیب سؤال: where shall we go."]]],
-      ["دعوتش کن شنبه همدیگر را ببینند یا یکشنبه بهتر است","بپرس چه ساعتی","Would you like to meet on Saturday, or is Sunday better?","What time?",[],[["Would you like meet on Saturday?","بعد از «Would you like» باید «to» بیاید."]]]],
- "a":[["بگو حتماً","بگو چرا که نه","Sure, why not?","Sounds good.",["Yes, I'd love to."],[["Yes, I want.","طبیعی‌تر: Sure, why not?"]]],
-      ["بگو حتماً و بپرس چه کار کنیم","بگو شاید سینما","Sure. What do you want to do?","Maybe the cinema.",[],[["Sure. What you want to do?","بعد از «What»، «do you» می‌آید."]]],
-      ["بگو حتماً ولی دیر نمی‌توانم بمانم چون یکشنبه باید کار کنم","بگو شنبه بهتر است","Sure, but I can't stay late because I have to work on Sunday.","Saturday is better.",[],[["Sure but I can't stay late because I must work in Sunday.","برای روز هفته: on Sunday."]]]]}
-]}
+{
+ "mission": 11,
+ "day": 4,
+ "items": [
+  {
+   "k": "s",
+   "s": "tonight",
+   "c": null,
+   "q": [
+    [
+     "بپرس امشب چه می‌کند",
+     "بپرس با کی",
+     "What are you doing tonight?",
+     "Who with?",
+     [
+      "What are you up to tonight?"
+     ],
+     [
+      [
+       "What you are doing tonight?",
+       "ترتیب سؤال: What are you doing."
+      ],
+      [
+       "What do you doing tonight?",
+       "با «-ing» فعل کمکی «are» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس امشب چه می‌کند و با کی",
+     "بپرس کجا",
+     "What are you doing tonight, and who with?",
+     "Where?",
+     [],
+     [
+      [
+       "What are you doing tonight and who you are with?",
+       "کوتاه بپرس: and who with?"
+      ]
+     ]
+    ],
+    [
+     "بپرس امشب چه می‌کند و فردا چه برنامه‌ای دارد",
+     "بپرس فردا کار می‌کند",
+     "What are you doing tonight, and what are you going to do tomorrow?",
+     "Are you working?",
+     [],
+     [
+      [
+       "What are you doing tonight and what you will do tomorrow?",
+       "ترتیب سؤال: what are you going to do."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو در خانه می‌مانم",
+     "بگو فیلم می‌بینم",
+     "I'm staying at home.",
+     "I'm watching a film.",
+     [],
+     [
+      [
+       "I stay at home tonight.",
+       "برای برنامه‌ی امشب «am staying» بگو."
+      ]
+     ]
+    ],
+    [
+     "بگو در خانه می‌مانم و فیلم می‌بینم",
+     "بگو با خواهرم",
+     "I'm staying at home and watching a film.",
+     "With my sister.",
+     [],
+     [
+      [
+       "I'm staying at home and watch a film.",
+       "هر دو فعل -ing: staying and watching."
+      ]
+     ]
+    ],
+    [
+     "بگو در خانه می‌مانم چون خسته‌ام ولی چیز خوبی می‌پزم",
+     "بگو فردا می‌روم کوه",
+     "I'm staying at home because I'm tired, but I'm going to cook something nice.",
+     "Tomorrow I'm going to the mountains.",
+     [],
+     [
+      [
+       "I'm staying at home because I tired.",
+       "بعد از «because I» باید «am» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "k": "s",
+   "s": "summer-travel",
+   "c": null,
+   "q": [
+    [
+     "بپرس تابستان سفر می‌کند",
+     "بپرس کجا",
+     "Are you going to travel this summer?",
+     "Where?",
+     [
+      "Are you going away this summer?"
+     ],
+     [
+      [
+       "Do you going to travel this summer?",
+       "«going to» با «Are» می‌آید."
+      ],
+      [
+       "Are you going to traveling this summer?",
+       "بعد از «going to» فعل ساده: travel."
+      ]
+     ]
+    ],
+    [
+     "بپرس تابستان سفر می‌کند و کجا",
+     "بپرس با کی",
+     "Are you going to travel this summer, and where?",
+     "Who with?",
+     [],
+     [
+      [
+       "Are you going to travel this summer and where you go?",
+       "کوتاه بپرس: and where?"
+      ]
+     ]
+    ],
+    [
+     "بپرس تابستان سفر می‌کند یا در خانه می‌ماند",
+     "بپرس پول دارد",
+     "Are you going to travel this summer, or will you stay at home?",
+     "Do you have enough money?",
+     [],
+     [
+      [
+       "Are you going to travel this summer or you stay at home?",
+       "بخش دوم هم سؤال است: or will you stay."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو شمال",
+     "Yes, I am.",
+     "To the north.",
+     [],
+     [
+      [
+       "Yes, I travel.",
+       "جواب «Are you going to…؟» با «Yes, I am» است."
+      ]
+     ]
+    ],
+    [
+     "بگو بله، به دیدن خانواده‌ام می‌روم",
+     "بگو ده روز",
+     "Yes, I am. I'm going to visit my family.",
+     "For ten days.",
+     [],
+     [
+      [
+       "Yes, I am. I'm going to visiting my family.",
+       "بعد از «going to» فعل ساده: visit."
+      ]
+     ]
+    ],
+    [
+     "بگو هنوز مطمئن نیستم چون باید پول جمع کنم ولی دوست دارم به کنار دریا بروم",
+     "بگو دو هفته",
+     "I'm not sure yet, because I have to save money, but I'd like to go to the sea.",
+     "Maybe two weeks.",
+     [],
+     [
+      [
+       "I'm not sure yet because I must to save money.",
+       "«have to save» بگو."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "k": "s",
+   "s": "five-years",
+   "c": null,
+   "q": [
+    [
+     "بپرس پنج سال دیگر کجا می‌خواهد باشد",
+     "بپرس چه کاری",
+     "Where do you want to be in five years?",
+     "Doing what?",
+     [
+      "Where do you want to live in five years?"
+     ],
+     [
+      [
+       "Where you want to be in five years?",
+       "بعد از «Where»، «do» می‌آید."
+      ],
+      [
+       "Where do you want be in five years?",
+       "بعد از «want» باید «to» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بپرس پنج سال دیگر کجا می‌خواهد باشد و چه کار کند",
+     "بپرس با چه کسی",
+     "Where do you want to be in five years, and what do you want to do?",
+     "With whom?",
+     [],
+     [
+      [
+       "Where do you want to be in five years and what you want to do?",
+       "برای بخش دوم هم «do» لازم است."
+      ]
+     ]
+    ],
+    [
+     "بپرس فکر می‌کند پنج سال دیگر کجا خواهد بود و چه می‌کند",
+     "بپرس راضی است",
+     "Where do you think you will be in five years, and what will you do?",
+     "Will you be happy?",
+     [],
+     [
+      [
+       "Where you think you will be in five years?",
+       "بعد از «Where»، «do you think» می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو در یک شهر جدید",
+     "بگو شاید خارج",
+     "In a new city.",
+     "Maybe abroad.",
+     [],
+     [
+      [
+       "On a new city.",
+       "برای شهر از «in» استفاده کن."
+      ]
+     ]
+    ],
+    [
+     "بگو می‌خواهم در یک شهر جدید زندگی کنم و کار بهتری داشته باشم",
+     "بگو در شرکتی بزرگ‌تر",
+     "I want to live in a new city and have a better job.",
+     "In a bigger company.",
+     [],
+     [
+      [
+       "I want to live in a new city and to have better job.",
+       "قبل از «better job» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو می‌خواهم شهر جدید ولی فکر می‌کنم فعلاً می‌مانم چون خانواده‌ام اینجاست",
+     "بگو شاید بعداً",
+     "I want to live in a new city, but I think I'll stay here for now because my family is here.",
+     "Maybe later.",
+     [],
+     [
+      [
+       "I think I stay here because of my family is here.",
+       "بعد از «because» جمله‌ی کامل بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "k": "s",
+   "s": "rain-tomorrow",
+   "c": null,
+   "q": [
+    [
+     "بپرس فکر می‌کند فردا باران می‌آید",
+     "بپرس مطمئن است",
+     "Do you think it will rain tomorrow?",
+     "Are you sure?",
+     [
+      "Do you think it's going to rain tomorrow?"
+     ],
+     [
+      [
+       "Do you think it rains tomorrow?",
+       "برای پیش‌بینی بعد از «think»: it will rain."
+      ],
+      [
+       "Do you think will it rain tomorrow?",
+       "بعد از «think» ترتیب جمله خبری است: it will rain."
+      ]
+     ]
+    ],
+    [
+     "بپرس فکر می‌کند فردا باران می‌آید و چه می‌کند",
+     "بپرس چتر دارد",
+     "Do you think it will rain tomorrow, and what will you do?",
+     "Do you have an umbrella?",
+     [],
+     [
+      [
+       "Do you think it will rain tomorrow and what you will do?",
+       "ترتیب سؤال: what will you do."
+      ]
+     ]
+    ],
+    [
+     "بپرس باران می‌آید یا هوا آفتابی می‌شود",
+     "بپرس خبر هوا را دیده",
+     "Do you think it will rain tomorrow, or will it be sunny?",
+     "Did you see the weather news?",
+     [],
+     [
+      [
+       "Do you think it will rain tomorrow or it will be sunny?",
+       "بخش دوم سؤال است: or will it be sunny."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو فکر نمی‌کنم",
+     "بگو آفتابی می‌شود",
+     "I don't think so.",
+     "It will be sunny.",
+     [
+      "I don't think it will."
+     ],
+     [
+      [
+       "I think not.",
+       "طبیعی‌تر: I don't think so."
+      ]
+     ]
+    ],
+    [
+     "بگو فکر نمی‌کنم، امروز آفتابی است",
+     "بگو هوا گرم است",
+     "I don't think so. It's sunny today.",
+     "It's warm too.",
+     [],
+     [
+      [
+       "I don't think so. It sunny today.",
+       "فراموش نکن: It's sunny."
+      ]
+     ]
+    ],
+    [
+     "بگو فکر می‌کنم باران بیاید چون آسمان خاکستری است برای همین چتر می‌برم",
+     "بگو لباس گرم هم",
+     "I think it will, because the sky is grey, so I'll take an umbrella.",
+     "I'll wear a coat too.",
+     [],
+     [
+      [
+       "I think it will rain because the sky grey.",
+       "بعد از «because» باید فعل بیاید: the sky is grey."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "k": "s",
+   "s": "work-tomorrow",
+   "c": null,
+   "q": [
+    [
+     "بپرس فردا سر کار هست",
+     "بپرس صبح",
+     "Will you be at work tomorrow?",
+     "In the morning?",
+     [
+      "Are you going to be at work tomorrow?"
+     ],
+     [
+      [
+       "Will you at work tomorrow?",
+       "بین «will» و «at work» باید «be» بیاید."
+      ],
+      [
+       "Do you will be at work tomorrow?",
+       "«will» خودش فعل کمکی است."
+      ]
+     ]
+    ],
+    [
+     "بپرس فردا سر کار هست و چه ساعتی تمام می‌کند",
+     "بپرس زود",
+     "Will you be at work tomorrow, and what time will you finish?",
+     "Early?",
+     [],
+     [
+      [
+       "Will you be at work tomorrow and what time you will finish?",
+       "ترتیب سؤال: what time will you finish."
+      ]
+     ]
+    ],
+    [
+     "بپرس فردا سر کار هست یا مرخصی می‌گیرد",
+     "بپرس چرا",
+     "Will you be at work tomorrow, or are you taking a day off?",
+     "Why?",
+     [],
+     [
+      [
+       "Will you be at work tomorrow or you take a day off?",
+       "بخش دوم هم سؤال است: or are you taking."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو ساعت نه",
+     "Yes, I will.",
+     "At nine.",
+     [],
+     [
+      [
+       "Yes, I do.",
+       "جواب «Will you…؟» با «will» است: Yes, I will."
+      ]
+     ]
+    ],
+    [
+     "بگو بله، ساعت نه آنجا هستم",
+     "بگو تا پنج",
+     "Yes, I will. I'll be there at nine.",
+     "Until five.",
+     [],
+     [
+      [
+       "Yes, I will. I be there at nine.",
+       "بگو: I'll be there."
+      ]
+     ]
+    ],
+    [
+     "بگو سر کار هستی ولی زود می‌روی چون وقت دکتر داری",
+     "بگو ساعت سه",
+     "I'll be at work, but I'll leave early, because I have an appointment.",
+     "At three.",
+     [],
+     [
+      [
+       "I'll be at work but I leave early because I have appointment.",
+       "قبل از «appointment» باید «an» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "k": "f",
+   "s": "who-with",
+   "c": "دوستت گفت: «آخر هفته می‌روم کوه.»",
+   "q": [
+    [
+     "بپرس با کی می‌رود",
+     "بپرس چطور می‌روند",
+     "Who are you going with?",
+     "How are you getting there?",
+     [
+      "Who are you going with?"
+     ],
+     [
+      [
+       "Who you are going with?",
+       "ترتیب سؤال: Who are you going with."
+      ],
+      [
+       "With who are you going?",
+       "طبیعی‌تر: Who are you going with."
+      ]
+     ]
+    ],
+    [
+     "بپرس با کی می‌رود و چطور می‌رسند",
+     "بپرس ساعت حرکت",
+     "Who are you going with, and how are you getting there?",
+     "What time are you leaving?",
+     [],
+     [
+      [
+       "Who are you going with and how you are getting there?",
+       "ترتیب سؤال: how are you getting there."
+      ]
+     ]
+    ],
+    [
+     "بپرس با کی می‌رود و آنجا چه می‌کنند",
+     "بپرس غذا می‌برند",
+     "Who are you going with, and what are you going to do there?",
+     "Are you taking food?",
+     [],
+     [
+      [
+       "Who are you going with and what you are going to do there?",
+       "ترتیب سؤال: what are you going to do."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو با چند دوست",
+     "بگو از سر کار",
+     "With some friends.",
+     "From work.",
+     [],
+     [
+      [
+       "With some my friends.",
+       "بگو: with some friends."
+      ]
+     ]
+    ],
+    [
+     "بگو با چند دوست از سر کار",
+     "بگو چهار نفر",
+     "With some friends from work.",
+     "There are four of us.",
+     [],
+     [
+      [
+       "With some friends of work.",
+       "«from work» بگو."
+      ]
+     ]
+    ],
+    [
+     "بگو با چند دوست از سر کار و زود می‌رویم چون کوه دور است",
+     "بگو ساعت شش",
+     "With some friends from work, and we're going to leave early because the mountain is far.",
+     "At six.",
+     [],
+     [
+      [
+       "With some friends from work and we leave early because the mountain far.",
+       "فراموش نکن: the mountain is far."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "k": "f",
+   "s": "how-long-trip",
+   "c": "دوستت گفت: «تابستان به ترکیه می‌روم.»",
+   "q": [
+    [
+     "بپرس چند روز می‌رود",
+     "بپرس کی",
+     "How long are you going for?",
+     "When?",
+     [
+      "How long are you going for?"
+     ],
+     [
+      [
+       "How long you are going for?",
+       "ترتیب سؤال: How long are you going."
+      ],
+      [
+       "How many time are you going?",
+       "برای مدت: How long."
+      ]
+     ]
+    ],
+    [
+     "بپرس چند روز می‌رود و کی حرکت می‌کند",
+     "بپرس با هواپیما",
+     "How long are you going for, and when are you leaving?",
+     "By plane?",
+     [],
+     [
+      [
+       "How long are you going for and when you leave?",
+       "ترتیب سؤال: when are you leaving."
+      ]
+     ]
+    ],
+    [
+     "بپرس چند روز می‌رود و چه چیزهایی می‌بیند",
+     "بپرس هتل رزرو کرده",
+     "How long are you going for, and what are you going to see?",
+     "Have you booked a hotel?",
+     [],
+     [
+      [
+       "How long are you going for and what you will see?",
+       "ترتیب سؤال: what are you going to see."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو ده روز",
+     "بگو در ژوئیه",
+     "For ten days.",
+     "In July.",
+     [
+      "Ten days."
+     ],
+     [
+      [
+       "Since ten days.",
+       "برای مدت: for ten days."
+      ]
+     ]
+    ],
+    [
+     "بگو ده روز می‌روم",
+     "بگو با هواپیما",
+     "I'm going for ten days.",
+     "By plane.",
+     [],
+     [
+      [
+       "I go for ten days.",
+       "برای برنامه‌ی نزدیک: I'm going."
+      ]
+     ]
+    ],
+    [
+     "بگو ده روز ولی درباره‌ی هتل هنوز مطمئن نیستم",
+     "بگو دنبال یک جای ارزان می‌گردم",
+     "I'm going for ten days, but I'm not sure about the hotel yet.",
+     "I'm looking for a cheap one.",
+     [],
+     [
+      [
+       "I'm going for ten days but I not sure about the hotel.",
+       "فراموش نکن: I'm not sure."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "k": "f",
+   "s": "improve-english",
+   "c": "دوستت گفت: «سال دیگر می‌خواهم انگلیسی‌ام را بهتر کنم.»",
+   "q": [
+    [
+     "بپرس چطور این کار را می‌کند",
+     "بپرس هر روز",
+     "How are you going to do it?",
+     "Every day?",
+     [],
+     [
+      [
+       "How you are going to do it?",
+       "ترتیب سؤال: How are you going to do it."
+      ]
+     ]
+    ],
+    [
+     "بپرس چطور این کار را می‌کند و روزی چقدر وقت می‌گذارد",
+     "بپرس صبح یا شب",
+     "How are you going to do it, and how much time will you study?",
+     "In the morning or at night?",
+     [],
+     [
+      [
+       "How are you going to do it and how much time you will study?",
+       "ترتیب سؤال: how much time will you study."
+      ]
+     ]
+    ],
+    [
+     "بپرس چطور این کار را می‌کند و سخت‌ترین بخش چیست",
+     "بپرس تنها",
+     "How are you going to do it, and what's the hardest part?",
+     "Alone?",
+     [],
+     [
+      [
+       "How are you going to do it and what is the most hard part?",
+       "«hard» می‌شود «the hardest»."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو هر روز تمرین می‌کنم",
+     "بگو با فیلم",
+     "I'll practise every day.",
+     "With films.",
+     [
+      "I will practise every day."
+     ],
+     [
+      [
+       "I practise every day.",
+       "برای تصمیم آینده «I'll» بگو."
+      ]
+     ]
+    ],
+    [
+     "بگو هر روز تمرین می‌کنم و فیلم می‌بینم",
+     "بگو بدون زیرنویس",
+     "I'll practise every day and watch films.",
+     "Without subtitles.",
+     [],
+     [
+      [
+       "I'll practise every day and watching films.",
+       "هر دو فعل ساده: practise and watch."
+      ]
+     ]
+    ],
+    [
+     "بگو هر روز تمرین می‌کنم و فیلم انگلیسی می‌بینم چون می‌خواهم بدون ترس حرف بزنم",
+     "بگو یک دوست پیدا می‌کنم",
+     "I'll practise every day and watch films in English, because I want to speak without fear.",
+     "I'll find a partner.",
+     [],
+     [
+      [
+       "I'll practise every day because I want speak without fear.",
+       "بعد از «want» باید «to» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "k": "f",
+   "s": "day-off",
+   "c": "دوستت گفت: «فردا مرخصی‌ام.»",
+   "q": [
+    [
+     "بپرس چه کار می‌کند",
+     "بپرس صبح",
+     "What will you do?",
+     "In the morning?",
+     [
+      "What are you going to do?"
+     ],
+     [
+      [
+       "What you will do?",
+       "ترتیب سؤال: What will you do."
+      ],
+      [
+       "What will you to do?",
+       "بعد از «will» «to» نمی‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه کار می‌کند و کجا می‌رود",
+     "بپرس تنها",
+     "What will you do, and where will you go?",
+     "Alone?",
+     [],
+     [
+      [
+       "What will you do and where you will go?",
+       "ترتیب سؤال: where will you go."
+      ]
+     ]
+    ],
+    [
+     "بپرس فردا چه برنامه‌ای دارد و چرا مرخصی گرفته",
+     "بپرس خسته است",
+     "What are you going to do, and why did you take the day off?",
+     "Are you tired?",
+     [],
+     [
+      [
+       "What are you going to do and why you took the day off?",
+       "ترتیب سؤال: why did you take."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو استراحت می‌کنم",
+     "بگو در خانه",
+     "I'll rest.",
+     "At home.",
+     [
+      "I will rest."
+     ],
+     [
+      [
+       "I rest.",
+       "برای تصمیم آینده «I'll rest» بگو."
+      ]
+     ]
+    ],
+    [
+     "بگو استراحت می‌کنم و دوستانم را می‌بینم",
+     "بگو بعدازظهر",
+     "I'll rest and see my friends.",
+     "In the afternoon.",
+     [],
+     [
+      [
+       "I'll rest and seeing my friends.",
+       "هر دو فعل ساده: rest and see."
+      ]
+     ]
+    ],
+    [
+     "بگو صبح استراحت می‌کنم و بعد دوستانم را می‌بینم چون خیلی وقت است ندیدمشان",
+     "بگو یک کافه",
+     "I'll rest in the morning, and then I'll see my friends, because I haven't seen them for a long time.",
+     "A new café.",
+     [],
+     [
+      [
+       "I haven't seen them since a long time.",
+       "برای مدت: for a long time."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "k": "f",
+   "s": "free-weekend",
+   "c": "دوستت گفت: «برای آخر هفته هیچ برنامه‌ای ندارم.»",
+   "q": [
+    [
+     "بپرس می‌خواهد کاری بکند",
+     "بپرس شنبه",
+     "Do you want to do something?",
+     "On Saturday?",
+     [
+      "Do you want to do something at the weekend?"
+     ],
+     [
+      [
+       "Do you want do something?",
+       "بعد از «want» باید «to» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بپرس می‌خواهد کاری بکند و کجا بروند",
+     "بپرس سینما",
+     "Do you want to do something, and where shall we go?",
+     "How about the cinema?",
+     [],
+     [
+      [
+       "Do you want to do something and where we go?",
+       "ترتیب سؤال: where shall we go."
+      ]
+     ]
+    ],
+    [
+     "دعوتش کن شنبه همدیگر را ببینند یا یکشنبه بهتر است",
+     "بپرس چه ساعتی",
+     "Would you like to meet on Saturday, or is Sunday better?",
+     "What time?",
+     [],
+     [
+      [
+       "Would you like meet on Saturday?",
+       "بعد از «Would you like» باید «to» بیاید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو حتماً",
+     "بگو چرا که نه",
+     "Sure, why not?",
+     "Sounds good.",
+     [
+      "Yes, I'd love to."
+     ],
+     [
+      [
+       "Yes, I want.",
+       "طبیعی‌تر: Sure, why not?"
+      ]
+     ]
+    ],
+    [
+     "بگو حتماً و بپرس چه کار کنیم",
+     "بگو شاید سینما",
+     "Sure. What do you want to do?",
+     "Maybe the cinema.",
+     [],
+     [
+      [
+       "Sure. What you want to do?",
+       "بعد از «What»، «do you» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بگو حتماً ولی دیر نمی‌توانم بمانم چون یکشنبه باید کار کنم",
+     "بگو شنبه بهتر است",
+     "Sure, but I can't stay late because I have to work on Sunday.",
+     "Saturday is better.",
+     [],
+     [
+      [
+       "Sure but I can't stay late because I must work in Sunday.",
+       "برای روز هفته: on Sunday."
+      ]
+     ]
+    ]
+   ]
+  }
+ ]
+}
