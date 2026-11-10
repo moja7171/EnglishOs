@@ -523,6 +523,19 @@ class DailyReviewTest extends TestCase
         $this->assertNotNull($prompt->fresh()->last_recording_url);
     }
 
+    public function test_a_speaking_question_is_heard_first_and_its_text_stays_blurred_until_tapped(): void
+    {
+        $learner = User::factory()->create();
+        $this->makeDuePrompt($learner);
+        $this->actingAs($learner);
+
+        Livewire::test('review.index', ['track' => 'talk'])
+            ->assertSee('What time do you usually wake up?')
+            ->assertSeeHtml('heardText(')
+            ->assertSee('Tap to read the text')
+            ->assertSee('Hear “What time do you usually wake up?”', false);
+    }
+
     public function test_a_speaking_recording_gets_one_line_of_ai_feedback_that_goes_away_with_the_card(): void
     {
         Storage::fake('public');

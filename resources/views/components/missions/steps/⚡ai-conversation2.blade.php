@@ -617,10 +617,9 @@ new class extends Component
                 <div wire:key="round-{{ $roundIndex }}" x-data="{ revealed: false }" class="flex flex-col">
                     <div
                         x-show="! noPrep || revealed"
-                        x-effect="if (screen === 1 && (! noPrep || revealed)) $nextTick(() => window.eosVoice?.speak(@js($this->currentRoundPrompt)))"
-                        class="flex max-w-[85%] items-start gap-1.5 self-start rounded-2xl rounded-bl-md bg-surface px-3.5 py-2.5 text-base font-semibold text-ink dark:bg-surface-dark dark:text-ink-dark"
+                        class="max-w-[85%] self-start rounded-2xl rounded-bl-md bg-surface px-3.5 py-2.5 text-base font-semibold text-ink dark:bg-surface-dark dark:text-ink-dark"
                     >
-                        <x-speak-word :word="$this->currentRoundPrompt" top />
+                        <x-heard-text :text="$this->currentRoundPrompt" auto-when="screen === 1 && (! noPrep || revealed)" />
                     </div>
                     <button type="button" x-show="noPrep && ! revealed" x-on:click="revealed = true" class="max-w-[85%] cursor-pointer self-start rounded-2xl rounded-bl-md border-2 border-dashed border-line px-3.5 py-2.5 text-sm font-bold text-ink-soft dark:border-line-dark dark:text-ink-soft-dark">Ready? Tap to see the question</button>
                 </div>
@@ -628,11 +627,8 @@ new class extends Component
                 <span class="self-center rounded-full bg-accent-soft px-3 py-1 text-xs font-extrabold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">Your turn — ask me something</span>
                 @if ($learnerQuestion)
                     <p class="max-w-[85%] self-end rounded-2xl rounded-br-md bg-accent-soft px-3.5 py-2.5 text-base text-ink dark:bg-accent-soft-dark dark:text-ink-dark">{{ $learnerQuestion }}</p>
-                    <div
-                        x-effect="if (screen === 1) $nextTick(() => window.eosVoice?.speak(@js($aiAnswerToLearner)))"
-                        class="flex max-w-[85%] items-start gap-1.5 self-start rounded-2xl rounded-bl-md bg-surface px-3.5 py-2.5 text-base font-semibold text-ink dark:bg-surface-dark dark:text-ink-dark"
-                    >
-                        <x-speak-word :word="(string) $aiAnswerToLearner" top />
+                    <div class="max-w-[85%] self-start rounded-2xl rounded-bl-md bg-surface px-3.5 py-2.5 text-base font-semibold text-ink dark:bg-surface-dark dark:text-ink-dark">
+                        <x-heard-text :text="(string) $aiAnswerToLearner" auto-when="screen === 1" />
                     </div>
                 @else
                     <p class="self-center text-center text-xs font-bold text-ink-faint dark:text-ink-faint-dark">About {{ $this->roleReversalTopic }}</p>

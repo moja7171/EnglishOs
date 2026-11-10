@@ -213,6 +213,7 @@ class AiConversation1StepTest extends TestCase
 
         Livewire::test('missions.steps.ai-conversation1', ['run' => $run])
             ->assertSee('What time do you usually wake up?')
+            ->assertSeeHtml('heardText(')
             ->assertSee('Hear the questions again');
     }
 
@@ -470,9 +471,11 @@ class AiConversation1StepTest extends TestCase
         $this->completeWarmUp($component);
 
         $component
-            ->assertSeeHtml('data-text="What time do you usually wake up?"')
-            // Lesson design 8: the question reads itself out, like a chat.
-            ->assertSeeHtml('eosVoice?.speak');
+            ->assertSee('What time do you usually wake up?')
+            // The question is heard first: it reads itself out and its text stays blurred until tapped.
+            ->assertSeeHtml('heardText(')
+            ->assertSeeHtml('screen === 2')
+            ->assertSee('Tap to read the text');
     }
 
     public function test_no_friend_card_sits_beside_the_question(): void

@@ -2368,3 +2368,85 @@ Alpine.data('dictionarySheet', (urls) => ({
     document.addEventListener('visibilitychange', sync);
     document.addEventListener('livewire:navigated', sync);
 })();
+
+/**
+ * Audio first, text second: a question or an answer is heard, and its text
+ * stays blurred until the learner taps it (see <x-heard-text>, <x-teddy-says
+ * blur> and <x-show-text-toggle>). "Always show text" is the learner's own
+ * choice, kept in this browser. A phone with no English voice has nothing to
+ * hear, so its texts open by themselves.
+ */
+document.addEventListener('alpine:init', () => {
+    const englishVoices = () => (window.speechSynthesis?.getVoices() ?? []).filter((voice) => /^en/i.test(voice.lang));
+
+    Alpine.store('heardText', {
+        always: (() => {
+            try {
+                return localStorage.getItem('eos-show-text') === '1';
+            } catch (e) {
+                return false;
+            }
+        })(),
+        noVoice: !('speechSynthesis' in window),
+
+        init() {
+            if (this.noVoice) return;
+
+            const check = () => {
+                if (englishVoices().length > 0) this.noVoice = false;
+            };
+
+            window.speechSynthesis.addEventListener?.('voiceschanged', check);
+            check();
+            // Some phones list their voices late, some never: after a moment, none means none.
+            setTimeout(() => {
+                if (englishVoices().length === 0) this.noVoice = true;
+            }, 2500);
+        },
+
+        set(on) {
+            this.always = on;
+
+            try {
+                localStorage.setItem('eos-show-text', on ? '1' : '0');
+            } catch (e) {}
+        },
+    });
+
+    /** The blurred-until-tapped state of one text. */
+    Alpine.data('heardReveal', () => ({
+        revealed: false,
+
+        get visible() {
+            const store = Alpine.store('heardText');
+
+            return this.revealed || store.always || store.noVoice;
+        },
+
+        reveal() {
+            this.revealed = true;
+        },
+    }));
+
+    /** One text that is read aloud (say) and blurred until tapped. */
+    Alpine.data('heardText', (text) => ({
+        text,
+        revealed: false,
+
+        get visible() {
+            const store = Alpine.store('heardText');
+
+            return this.revealed || store.always || store.noVoice;
+        },
+
+        reveal() {
+            this.revealed = true;
+        },
+
+        say(rate) {
+            // A page that reads several texts in a row stops its own reading when one is played by hand.
+            window.dispatchEvent(new CustomEvent('eos-heard-text-played'));
+            window.eosVoice?.speak(this.text, rate ? { rate } : {});
+        },
+    }));
+});
