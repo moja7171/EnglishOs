@@ -493,6 +493,8 @@ window.eosConnectionNotice = {
 window.eosVoice = {
     // options.rate: slower for the dictation card's 🐢 (default 0.95).
     // options.onEnd: called once the whole text has been read (or stopped).
+    // options.onSentence: called with the piece's number as each one starts
+    // (the reading passage lights the sentence being read).
     // A long text (a reading passage, a story) is queued sentence by
     // sentence — some browsers cut one long utterance off after ~15 s.
     speak(text, options = {}) {
@@ -502,7 +504,7 @@ window.eosVoice = {
                 return;
             }
             window.speechSynthesis.cancel();
-            const pieces = text.length > 180 ? text.match(/[^.!?]+[.!?]+["”’)]*\s*|[^.!?]+$/g) ?? [text] : [text];
+            const pieces = text.length > 180 || options.onSentence ? text.match(/[^.!?]+[.!?]+["”’)]*\s*|[^.!?]+$/g) ?? [text] : [text];
             pieces.forEach((piece, i) => {
                 const utterance = new SpeechSynthesisUtterance(piece.trim());
                 utterance.lang = 'en-US';
@@ -513,6 +515,9 @@ window.eosVoice = {
                 }
                 if (options.pitch) {
                     utterance.pitch = options.pitch;
+                }
+                if (options.onSentence) {
+                    utterance.onstart = () => options.onSentence(i);
                 }
                 if (i === pieces.length - 1 && options.onEnd) {
                     utterance.onend = () => options.onEnd();
