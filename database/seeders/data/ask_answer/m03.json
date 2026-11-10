@@ -1,3525 +1,3490 @@
 {
-"mission": 3,
-"items": [
-{
-"d": 1,
-"k": "s",
-"s": "job-now",
-"c": null,
-"q": [
-[
-"بپرس شغلش چیست",
-"بپرس کجا",
-"What do you do?",
-"And where?",
-[],
-[
-[
-"What you do?",
-"بعد از «What»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس شغلش چیست و از آن راضی است",
-"بپرس چرا",
-"What do you do, and do you like it?",
-"Why?",
-[],
-[
-[
-"What do you do and you like it?",
-"بخش دوم هم سؤال است."
-]
-]
-],
-[
-"بپرس شغلش چیست و تمام‌وقت یا پاره‌وقت کار می‌کند",
-"بپرس چند ساعت",
-"What do you do, and is it full-time or part-time?",
-"How many hours?",
-[],
-[
-[
-"What do you do and it is full-time?",
-"بخش دوم سؤال است: is it full-time."
-]
-]
-]
-],
-"a": [
-[
-"بگو معلمم",
-"بگو در مدرسه",
-"I'm a teacher.",
-"At a school.",
-[],
-[
-[
-"I am teacher.",
-"قبل از شغل «a» می‌آید."
-]
-]
-],
-[
-"بگو معلمم و در یک مدرسه کار می‌کنم",
-"بگو دوستش دارم",
-"I'm a teacher, and I work at a school.",
-"I like it.",
-[],
-[
-[
-"I'm a teacher and I working at a school.",
-"بعد از «I» فعل ساده: work."
-]
-]
-],
-[
-"بگو معلمم و تمام‌وقت کار می‌کنم چون دوستش دارم ولی کار خسته‌کننده‌ای است",
-"بگو ساعت‌ها طولانی",
-"I'm a teacher, and I work full-time, because I love it, but it's tiring.",
-"The days are long.",
-[],
-[
-[
-"I'm a teacher and I work full-time because I love it but tiring.",
-"فعل را فراموش نکن: it's tiring."
-]
-]
-]
-]
-},
-{
-"d": 1,
-"k": "s",
-"s": "own-business",
-"c": null,
-"q": [
-[
-"بپرس می‌خواهد کسب‌وکار خودش را داشته باشد",
-"بپرس چه",
-"Do you want to run your own business?",
-"What kind?",
-[],
-[
-[
-"Do you want run your own business?",
-"بعد از «want» باید «to» بیاید."
-]
-]
-],
-[
-"بپرس می‌خواهد کسب‌وکار خودش را داشته باشد و چرا",
-"بپرس سخت",
-"Do you want to run your own business? Why?",
-"Is it hard?",
-[],
-[
-[
-"Do you want to run your own business you why?",
-"«Why?» را جدا و درست بپرس: Why do you want it?"
-]
-]
-],
-[
-"بپرس فکر می‌کند کار برای خودش بهتر است یا برای یک شرکت",
-"بپرس چرا",
-"Do you want to work for yourself, or for a company? Why?",
-"Which one?",
-[],
-[
-[
-"Do you want work for yourself or for a company?",
-"بعد از «want» باید «to» بیاید."
-]
-]
-]
-],
-"a": [
-[
-"بگو بله",
-"بگو یک مغازه",
-"Yes, I do.",
-"A small shop.",
-[],
-[
-[
-"Yes, I want.",
-"جواب «Do you…؟» با «do» است."
-]
-]
-],
-[
-"بگو بله، یک مغازه‌ی کوچک",
-"بگو در شهرم",
-"Yes, I do. I want a small shop.",
-"In my city.",
-[],
-[
-[
-"Yes, I do. I want a small shop in my city's.",
-"بگو: in my city."
-]
-]
-],
-[
-"بگو برای خودم چون می‌خواهم خودم تصمیم بگیرم ولی می‌دانم ریسک دارد",
-"بگو سخت",
-"For myself, because I want to decide, but I know it's risky.",
-"It's hard.",
-[],
-[
-[
-"For myself because I want decide.",
-"بعد از «want» باید «to» بیاید."
-]
-]
-]
-]
-},
-{
-"d": 1,
-"k": "s",
-"s": "working-now",
-"c": null,
-"q": [
-[
-"بپرس الان کار می‌کند",
-"بپرس کجا",
-"Are you working now?",
-"Where?",
-[],
-[
-[
-"Do you working now?",
-"با -ing از «Are» استفاده کن."
-]
-]
-],
-[
-"بپرس الان کار می‌کند یا بین دو کار است",
-"بپرس چه مدت",
-"Are you working now, or are you between jobs?",
-"For how long?",
-[],
-[
-[
-"Are you working now or you are between jobs?",
-"بخش دوم هم سؤال است."
-]
-]
-],
-[
-"بپرس الان کار می‌کند و دنبال کار دیگری می‌گردد",
-"بپرس چه کاری",
-"Are you working now? Are you looking for another job?",
-"What kind?",
-[],
-[
-[
-"Are you working now? You are looking for another job?",
-"سؤال دوم: Are you looking for another job?"
-]
-]
-]
-],
-"a": [
-[
-"بگو بله",
-"بگو در یک بانک",
-"Yes, I am.",
-"In a bank.",
-[],
-[
-[
-"Yes, I do.",
-"جواب «Are you…؟» با «am» است."
-]
-]
-],
-[
-"بگو بله، در یک بانک",
-"بگو چهار ماه",
-"Yes, I am. I'm working in a bank.",
-"For four months.",
-[],
-[
-[
-"Yes, I am. I working in a bank.",
-"فعل را فراموش نکن: I'm working."
-]
-]
-],
-[
-"بگو نه، الان بین دو کار هستم چون کارم تمام شد و دنبال کار می‌گردم",
-"بگو هر روز",
-"No, I'm between jobs, because my job ended, and I'm looking for work.",
-"Every day.",
-[],
-[
-[
-"No, I between jobs because my job ending.",
-"فعل را فراموش نکن: I'm between jobs."
-]
-]
-]
-]
-},
-{
-"d": 1,
-"k": "s",
-"s": "look-after",
-"c": null,
-"q": [
-[
-"بپرس از کسی مراقبت می‌کند",
-"بپرس از کی",
-"Do you look after anyone?",
-"Who?",
-[],
-[
-[
-"Are you look after anyone?",
-"«look after» فعل است؛ با «Do» بپرس."
-]
-]
-],
-[
-"بپرس از کسی مراقبت می‌کند و این سخت است",
-"بپرس چقدر",
-"Do you look after anyone, and is it hard?",
-"How much?",
-[],
-[
-[
-"Do you look after anyone and it is hard?",
-"بخش دوم هم سؤال است: is it hard."
-]
-]
-],
-[
-"بپرس از چه کسی مراقبت می‌کند و چه ساعت‌هایی",
-"بپرس تنها",
-"Who do you look after, and at what time?",
-"Alone?",
-[],
-[
-[
-"Who you look after?",
-"بعد از «Who»، «do you» می‌آید."
-]
-]
-]
-],
-"a": [
-[
-"بگو بله",
-"بگو مادرم",
-"Yes, I do.",
-"My mum.",
-[],
-[
-[
-"Yes, I look.",
-"جواب «Do you…؟» با «do» است."
-]
-]
-],
-[
-"بگو بله، از مادرم",
-"بگو هر روز",
-"Yes, I do. I look after my mum.",
-"Every day.",
-[],
-[
-[
-"Yes, I do. I look after to my mum.",
-"«look after» + مفعول، بدون to."
-]
-]
-],
-[
-"بگو از دو بچه‌ی کوچک مراقبت می‌کنم چون مادرشان سر کار است ولی سخت است",
-"بگو بعد از ظهر",
-"I look after two small children, because their mum works, but it's hard.",
-"In the afternoon.",
-[],
-[
-[
-"I look after two small children because their mum work.",
-"با «mum» فعل s می‌گیرد: works."
-]
-]
-]
-]
-},
-{
-"d": 1,
-"k": "s",
-"s": "challenging",
-"c": null,
-"q": [
-[
-"بپرس شغلش چالش‌برانگیز است",
-"بپرس چرا",
-"Is your job challenging?",
-"Why?",
-[],
-[
-[
-"Does your job challenging?",
-"با صفت از «Is» استفاده کن."
-]
-]
-],
-[
-"بپرس شغلش چالش‌برانگیز است و آن را دوست دارد",
-"بپرس خیلی",
-"Is your job challenging, and do you like that?",
-"A lot?",
-[],
-[
-[
-"Is your job challenging and you like that?",
-"بخش دوم هم سؤال است."
-]
-]
-],
-[
-"بپرس چه بخشی از شغلش چالش‌برانگیز است",
-"بپرس راه حل",
-"What part of your job is challenging? Do you have help?",
-"A solution?",
-[],
-[
-[
-"What part of your job challenging is?",
-"ترتیب: What part of your job is challenging."
-]
-]
-]
-],
-"a": [
-[
-"بگو بله",
-"بگو گاهی",
-"Yes, it is.",
-"Sometimes.",
-[],
-[
-[
-"Yes, it does.",
-"جواب «Is…؟» با «it is» است."
-]
-]
-],
-[
-"بگو بله و دوستش دارم",
-"بگو یاد می‌گیرم",
-"Yes, it is, and I like that.",
-"I learn a lot.",
-[],
-[
-[
-"Yes, it is and I liking that.",
-"بعد از «I» فعل ساده: like."
-]
-]
-],
-[
-"بگو صحبت با مشتری چالش‌برانگیز است چون همیشه راضی نیستند ولی همکارانم کمک می‌کنند",
-"بگو خوب است",
-"Talking to customers is challenging, because they aren't always happy, but my colleagues help me.",
-"It's good.",
-[],
-[
-[
-"Talking to customers challenging because they not always happy.",
-"فعل را فراموش نکن: is challenging / aren't."
-]
-]
-]
-]
-},
-{
-"d": 1,
-"k": "f",
-"s": "self-employed-like",
-"c": "دوستت گفت: «من کار آزاد دارم.»",
-"q": [
-[
-"بپرس از آن راضی است",
-"بپرس چرا",
-"Do you like it?",
-"Why?",
-[],
-[
-[
-"Are you like it?",
-"«like» فعل است؛ با «Do» بپرس."
-]
-]
-],
-[
-"بپرس راضی است و ساعت‌هایش را خودش انتخاب می‌کند",
-"بپرس همیشه",
-"Do you like it, and do you choose your hours?",
-"Always?",
-[],
-[
-[
-"Do you like it and you choose your hours?",
-"بخش دوم هم سؤال است."
-]
-]
-],
-[
-"بپرس کار آزاد از کار برای شرکت آسان‌تر است یا سخت‌تر",
-"بپرس چرا",
-"Is it easy or hard to work for yourself? Why?",
-"Which?",
-[],
-[
-[
-"Is it easy or hard work for yourself?",
-"بگو: to work for yourself."
-]
-]
-]
-],
-"a": [
-[
-"بگو بله",
-"بگو خیلی",
-"Yes, I do.",
-"A lot.",
-[],
-[
-[
-"Yes, I like.",
-"جواب «Do you…؟» با «do» است."
-]
-]
-],
-[
-"بگو بله و ساعت‌هایم را خودم انتخاب می‌کنم",
-"بگو آزادم",
-"Yes, I do, and I choose my hours.",
-"I'm free.",
-[],
-[
-[
-"Yes, I do and I choosing my hours.",
-"بعد از «I» فعل ساده: choose."
-]
-]
-],
-[
-"بگو هم آسان است هم سخت چون آزادم ولی گاهی کار پیدا نمی‌کنم",
-"بگو نگران",
-"It's both, because I'm free, but sometimes I can't find work.",
-"I worry.",
-[],
-[
-[
-"It both because I free.",
-"فعل را فراموش نکن: It's both / I'm free."
-]
-]
-]
-]
-},
-{
-"d": 1,
-"k": "f",
-"s": "between-doing",
-"c": "دوستت گفت: «الان بین دو کار هستم.»",
-"q": [
-[
-"بپرس الان چه می‌کند",
-"بپرس دنبال کار",
-"What are you doing now?",
-"Looking for work?",
-[],
-[
-[
-"What you are doing now?",
-"ترتیب سؤال: What are you doing."
-]
-]
-],
-[
-"بپرس الان چه می‌کند و از کجا دنبال کار می‌گردد",
-"بپرس اینترنت",
-"What are you doing now, and where do you look for work?",
-"Online?",
-[],
-[
-[
-"What are you doing now and where you look for work?",
-"بعد از «where»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس نگران است یا نه و کسی کمکش می‌کند",
-"بپرس چه کسی",
-"Are you worried? Does anyone help you?",
-"Who?",
-[],
-[
-[
-"Do you worried? Anyone helps you?",
-"با صفت از «Are»؛ و «Does anyone help»."
-]
-]
-]
-],
-"a": [
-[
-"بگو دنبال کار می‌گردم",
-"بگو هر روز",
-"I'm looking for work.",
-"Every day.",
-[],
-[
-[
-"I looking for work.",
-"فعل را فراموش نکن: I'm looking."
-]
-]
-],
-[
-"بگو دنبال کار می‌گردم و درس می‌خوانم",
-"بگو انگلیسی",
-"I'm looking for work and studying English.",
-"At home.",
-[],
-[
-[
-"I'm looking for work and study English.",
-"هر دو -ing."
-]
-]
-],
-[
-"بگو کمی نگرانم چون می‌خواهم زود کار پیدا کنم ولی دوستانم کمک می‌کنند",
-"بگو خوب است",
-"I'm a bit worried, because I want to find work soon, but my friends help me.",
-"It's good.",
-[],
-[
-[
-"I'm a bit worried because I want find work soon.",
-"بعد از «want» باید «to» بیاید."
-]
-]
-]
-]
-},
-{
-"d": 1,
-"k": "f",
-"s": "how-many-kids",
-"c": "دوستت گفت: «از بچه‌ها مراقبت می‌کنم.»",
-"q": [
-[
-"بپرس چند تا",
-"بپرس چند ساله",
-"How many?",
-"How old?",
-[],
-[
-[
-"How many children?",
-"فقط «How many?» کافی است."
-]
-]
-],
-[
-"بپرس چند تا بچه و چه ساعت‌هایی",
-"بپرس صبح",
-"How many children are there, and at what time?",
-"In the morning?",
-[],
-[
-[
-"How many children there are?",
-"ترتیب: How many children are there."
-]
-]
-],
-[
-"بپرس مراقبت از بچه‌ها خسته‌کننده است و دوستشان دارد",
-"بپرس چرا",
-"Is looking after children tiring? Do you love it?",
-"Why?",
-[],
-[
-[
-"Looking after children is tiring? You love it?",
-"سؤال: Is looking after children tiring?"
-]
-]
-]
-],
-"a": [
-[
-"بگو دو تا",
-"بگو کوچک",
-"Two.",
-"Small ones.",
-[],
-[
-[
-"Two child.",
-"جمع: children."
-]
-]
-],
-[
-"بگو دو تا، پنج ساله",
-"بگو بعد از مدرسه",
-"Two, five years old.",
-"After school.",
-[],
-[
-[
-"Two, five year old.",
-"جمع: years."
-]
-]
-],
-[
-"بگو بله خسته‌کننده است چون خیلی انرژی دارند ولی دوستشان دارم",
-"بگو می‌خندند",
-"Yes, it is tiring, because they have a lot of energy, but I love them.",
-"They laugh.",
-[],
-[
-[
-"Yes it tiring because they have much energy.",
-"در جمله‌ی مثبت «a lot of energy»."
-]
-]
-]
-]
-},
-{
-"d": 1,
-"k": "f",
-"s": "what-difficult",
-"c": "دوستت گفت: «کارم خیلی چالش‌برانگیز است.»",
-"q": [
-[
-"بپرس چه چیزی سخت است",
-"بپرس همیشه",
-"What is difficult?",
-"Always?",
-[],
-[
-[
-"What difficult is?",
-"ترتیب: What is difficult."
-]
-]
-],
-[
-"بپرس چه چیزی سخت است و چه کمکی لازم دارد",
-"بپرس از کی",
-"What is difficult, and what help do you need?",
-"From who?",
-[],
-[
-[
-"What is difficult and what help you need?",
-"بعد از «what help»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس سخت‌ترین قسمت چیست و چطور حلش می‌کند",
-"بپرس با کمک",
-"What is the hardest part? How do you deal with it?",
-"With help?",
-[],
-[
-[
-"What is hardest part? How you deal with it?",
-"«the hardest part»؛ و «How do you deal»."
-]
-]
-]
-],
-"a": [
-[
-"بگو ساعت‌ها",
-"بگو و مشتری",
-"The hours.",
-"And customers.",
-[],
-[
-[
-"The hour.",
-"جمع: hours."
-]
-]
-],
-[
-"بگو ساعت‌های طولانی و مشتری‌ها",
-"بگو و استرس",
-"The long hours and the customers.",
-"And stress.",
-[],
-[
-[
-"Long hours and customer.",
-"جمع: customers."
-]
-]
-],
-[
-"بگو صحبت با مشتری‌های ناراضی را سخت می‌دانم و با نفس عمیق و کمک همکارم حلش می‌کنم",
-"بگو صبور",
-"I find talking to unhappy customers hard, and I deal with it with a deep breath and my colleague's help.",
-"Patient.",
-[],
-[
-[
-"I find talk to unhappy customers hard.",
-"بگو: talking."
-]
-]
-]
-]
-},
-{
-"d": 1,
-"k": "f",
-"s": "business-kind",
-"c": "دوستت گفت: «می‌خواهم کسب‌وکار خودم را داشته باشم.»",
-"q": [
-[
-"بپرس چه نوع کسب‌وکاری",
-"بپرس کوچک",
-"What kind of business?",
-"A small one?",
-[],
-[
-[
-"What kind business?",
-"بگو: What kind of business."
-]
-]
-],
-[
-"بپرس چه نوع کسب‌وکاری و کجا",
-"بپرس شهر",
-"What kind of business, and where?",
-"In which city?",
-[],
-[
-[
-"What kind of business and where you want?",
-"کوتاه بپرس: and where?"
-]
-]
-],
-[
-"بپرس چرا می‌خواهد و پول لازم دارد",
-"بپرس چقدر",
-"Why do you want it? Do you need money?",
-"How much?",
-[],
-[
-[
-"Why you want it? You need money?",
-"بعد از «Why»، «do you» می‌آید."
-]
-]
-]
-],
-"a": [
-[
-"بگو یک کافه",
-"بگو کوچک",
-"A café.",
-"A small one.",
-[],
-[
-[
-"A cafe small.",
-"صفت قبل از اسم: a small café."
-]
-]
-],
-[
-"بگو یک کافه‌ی کوچک نزدیک خانه",
-"بگو چای و کیک",
-"A small café near my home.",
-"Tea and cake.",
-[],
-[
-[
-"A small café near of my home.",
-"«near my home» بدون of."
-]
-]
-],
-[
-"بگو چون عاشق قهوه‌ام و می‌خواهم خودم تصمیم بگیرم ولی پول زیادی لازم دارم",
-"بگو پس‌انداز",
-"Because I love coffee and I want to decide, but I need a lot of money.",
-"I'm saving.",
-[],
-[
-[
-"Because I love coffee and I want decide, but I need much money.",
-"بعد از «want» باید «to»؛ و «a lot of money»."
-]
-]
-]
-]
-},
-{
-"d": 2,
-"k": "s",
-"s": "dream-career",
-"c": null,
-"q": [
-[
-"بپرس شغل رؤیایی‌اش چیست",
-"بپرس چرا",
-"What is your dream career?",
-"Why?",
-[],
-[
-[
-"What your dream career is?",
-"ترتیب: What is your dream career."
-]
-]
-],
-[
-"بپرس شغل رؤیایی‌اش چیست و برای آن چه می‌کند",
-"بپرس درس",
-"What is your dream career, and what do you do for it?",
-"Study?",
-[],
-[
-[
-"What is your dream career and what you do for it?",
-"بعد از «what»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس شغل رؤیایی‌اش را دارد یا هنوز دنبالش است و چرا",
-"بپرس مشکل",
-"Do you have your dream career, or are you still looking? Why?",
-"A problem?",
-[],
-[
-[
-"Do you have your dream career or you still look?",
-"بخش دوم هم سؤال است: or are you still looking."
-]
-]
-]
-],
-"a": [
-[
-"بگو دکتر",
-"بگو از بچگی",
-"A doctor.",
-"Since I was small.",
-[],
-[
-[
-"Doctor.",
-"قبل از شغل «a» می‌آید."
-]
-]
-],
-[
-"بگو دکتر و درس می‌خوانم",
-"بگو شب‌ها",
-"A doctor, and I'm studying.",
-"At night.",
-[],
-[
-[
-"A doctor and I study now.",
-"برای الان: I'm studying."
-]
-]
-],
-[
-"بگو هنوز دنبالش هستم چون درس سخت است ولی تسلیم نمی‌شوم",
-"بگو هر روز",
-"I'm still looking, because studying is hard, but I don't give up.",
-"Every day.",
-[],
-[
-[
-"I still looking because study is hard.",
-"فعل را فراموش نکن: I'm still looking."
-]
-]
-]
-]
-},
-{
-"d": 2,
-"k": "s",
-"s": "full-time",
-"c": null,
-"q": [
-[
-"بپرس تمام‌وقت کار می‌کند",
-"بپرس چند ساعت",
-"Do you work full-time?",
-"How many hours?",
-[],
-[
-[
-"Are you work full-time?",
-"«work» فعل است؛ با «Do» بپرس."
-]
-]
-],
-[
-"بپرس تمام‌وقت کار می‌کند و چند روز در هفته",
-"بپرس شنبه",
-"Do you work full-time, and how many days a week?",
-"Saturday?",
-[],
-[
-[
-"Do you work full-time and how many days you work?",
-"بعد از «how many days»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس تمام‌وقت یا پاره‌وقت را دوست دارد و چرا",
-"بپرس کدام",
-"Do you prefer to work full-time or part-time? Why?",
-"Which?",
-[],
-[
-[
-"Do you prefer work full-time or part-time?",
-"بعد از «prefer» باید «to» بیاید."
-]
-]
-]
-],
-"a": [
-[
-"بگو بله",
-"بگو هشت ساعت",
-"Yes, I do.",
-"Eight hours.",
-[],
-[
-[
-"Yes, I work.",
-"جواب «Do you…؟» با «do» است."
-]
-]
-],
-[
-"بگو بله، پنج روز در هفته",
-"بگو شنبه تا چهارشنبه",
-"Yes, I do, five days a week.",
-"Saturday to Wednesday.",
-[],
-[
-[
-"Yes, I do, five day a week.",
-"جمع: five days."
-]
-]
-],
-[
-"بگو تمام‌وقت چون پول بیشتری می‌گیرم ولی وقت آزاد کمی دارم",
-"بگو خسته",
-"Full-time, because I get more money, but I have little free time.",
-"I'm tired.",
-[],
-[
-[
-"Full-time because I get more money but I have few free time.",
-"با «time» شمارش‌ناپذیر: little free time."
-]
-]
-]
-]
-},
-{
-"d": 2,
-"k": "s",
-"s": "part-time",
-"c": null,
-"q": [
-[
-"بپرس می‌خواهد کار پاره‌وقت داشته باشد",
-"بپرس چرا",
-"Do you want a part-time job?",
-"Why?",
-[],
-[
-[
-"Are you want a part-time job?",
-"«want» فعل است؛ با «Do» بپرس."
-]
-]
-],
-[
-"بپرس می‌خواهد کار پاره‌وقت داشته باشد و چه کاری",
-"بپرس کافه",
-"Do you want a part-time job, and what kind?",
-"In a café?",
-[],
-[
-[
-"Do you want a part-time job and what kind of?",
-"بگو: and what kind?"
-]
-]
-],
-[
-"بپرس کار پاره‌وقت برای دانشجو خوب است و چرا",
-"بپرس مشکل",
-"Is a part-time job good for a student? Why?",
-"A problem?",
-[],
-[
-[
-"Does a part-time job good for a student?",
-"با صفت (good) از «Is» استفاده کن."
-]
-]
-]
-],
-"a": [
-[
-"بگو بله",
-"بگو برای پول",
-"Yes, I do.",
-"For money.",
-[],
-[
-[
-"Yes, I want.",
-"جواب «Do you…؟» با «do» است."
-]
-]
-],
-[
-"بگو بله، در یک کافه",
-"بگو آخر هفته",
-"Yes, I do, in a café.",
-"At the weekend.",
-[],
-[
-[
-"Yes, I do, at a café on weekend.",
-"«at the weekend» بگو."
-]
-]
-],
-[
-"بگو بله خوب است چون پول می‌گیرم و وقت درس هم دارم ولی خسته می‌شوم",
-"بگو گاهی",
-"Yes, it is, because I get money and I have time to study, but I get tired.",
-"Sometimes.",
-[],
-[
-[
-"Yes, it is because I get money and I have time for study.",
-"بگو: time to study."
-]
-]
-]
-]
-},
-{
-"d": 2,
-"k": "s",
-"s": "workplace",
-"c": null,
-"q": [
-[
-"بپرس محل کارش نزدیک خانه‌اش است",
-"بپرس چقدر",
-"Is your workplace near your home?",
-"How far?",
-[],
-[
-[
-"Does your workplace near your home?",
-"با صفت/قید مکان از «Is» استفاده کن."
-]
-]
-],
-[
-"بپرس محل کارش نزدیک است و چطور می‌رود",
-"بپرس اتوبوس",
-"Is your workplace near your home, and how do you get there?",
-"By bus?",
-[],
-[
-[
-"Is your workplace near your home and how you go?",
-"بعد از «how»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس از محل کارش راضی است و چه چیزی را عوض می‌کند",
-"بپرس اتاق",
-"Are you happy at your workplace? What do you change?",
-"The room?",
-[],
-[
-[
-"Do you happy at your workplace?",
-"با صفت از «Are» استفاده کن."
-]
-]
-]
-],
-"a": [
-[
-"بگو بله",
-"بگو ده دقیقه",
-"Yes, it is.",
-"Ten minutes.",
-[],
-[
-[
-"Yes, it does.",
-"جواب «Is…؟» با «it is» است."
-]
-]
-],
-[
-"بگو بله، ده دقیقه پیاده",
-"بگو پیاده",
-"Yes, it is, ten minutes on foot.",
-"I walk.",
-[],
-[
-[
-"Yes, it is, ten minutes with foot.",
-"«on foot» بگو."
-]
-]
-],
-[
-"بگو نه، دور است چون در شهر دیگری است ولی راضی‌ام چون محیط خوبی دارد",
-"بگو و همکاران",
-"No, it's far, because it's in another city, but I'm happy, because it's a good place.",
-"And good colleagues.",
-[],
-[
-[
-"No it far because it in another city.",
-"فعل را فراموش نکن: it's far / it's in."
-]
-]
-]
-]
-},
-{
-"d": 2,
-"k": "s",
-"s": "colleagues",
-"c": null,
-"q": [
-[
-"بپرس با همکارانش خوب کنار می‌آید",
-"بپرس همه",
-"Do you get on well with your colleagues?",
-"All of them?",
-[],
-[
-[
-"Are you get on well with your colleagues?",
-"«get on» فعل است؛ با «Do» بپرس."
-]
-]
-],
-[
-"بپرس با همکارانش خوب کنار می‌آید و با هم ناهار می‌خورند",
-"بپرس هر روز",
-"Do you get on well with your colleagues, and do you have lunch together?",
-"Every day?",
-[],
-[
-[
-"Do you get on well with your colleagues and you have lunch together?",
-"بخش دوم هم سؤال است."
-]
-]
-],
-[
-"بپرس همکاران خوب چه ویژگی‌ای دارند و همکارانش چطورند",
-"بپرس مهربان",
-"What are good colleagues like? What are yours like?",
-"Kind?",
-[],
-[
-[
-"What good colleagues are like?",
-"ترتیب: What are good colleagues like."
-]
-]
-]
-],
-"a": [
-[
-"بگو بله",
-"بگو خیلی",
-"Yes, I do.",
-"Very well.",
-[],
-[
-[
-"Yes, I get.",
-"جواب «Do you…؟» با «do» است."
-]
-]
-],
-[
-"بگو بله و هر روز با هم ناهار می‌خوریم",
-"بگو و چای",
-"Yes, I do, and we have lunch together every day.",
-"And tea.",
-[],
-[
-[
-"Yes, I do and we having lunch together.",
-"بعد از «we» فعل ساده: have."
-]
-]
-],
-[
-"بگو همکاران خوب کمک می‌کنند و صادق‌اند و همکارانم همین‌طورند ولی یکی کمی ساکت است",
-"بگو خجالتی",
-"Good colleagues help you and are honest, and mine are like that, but one is a bit quiet.",
-"Shy.",
-[],
-[
-[
-"Good colleagues helps you and honest.",
-"با جمع فعل بدون s: help؛ و «are honest»."
-]
-]
-]
-]
-},
-{
-"d": 2,
-"k": "f",
-"s": "hours-how-many",
-"c": "دوستت گفت: «من تمام‌وقت کار می‌کنم.»",
-"q": [
-[
-"بپرس چند ساعت کار می‌کند",
-"بپرس هر روز",
-"How many hours do you work?",
-"Every day?",
-[],
-[
-[
-"How many hours you work?",
-"بعد از «How many hours»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس چند ساعت کار می‌کند و چه ساعتی شروع می‌کند",
-"بپرس هشت",
-"How many hours do you work, and what time do you start?",
-"At eight?",
-[],
-[
-[
-"How many hours do you work and what time you start?",
-"بعد از «what time»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس ساعت کارش طولانی است و وقت آزاد دارد",
-"بپرس چه می‌کند",
-"Are your hours long? Do you have free time?",
-"What do you do?",
-[],
-[
-[
-"Your hours are long? Do you have free time?",
-"سؤال اول: Are your hours long?"
-]
-]
-]
-],
-"a": [
-[
-"بگو هشت ساعت",
-"بگو پنج روز",
-"Eight hours.",
-"Five days.",
-[],
-[
-[
-"Eight hour.",
-"جمع: eight hours."
-]
-]
-],
-[
-"بگو هشت ساعت و ساعت هشت شروع می‌کنم",
-"بگو تا چهار",
-"Eight hours, and I start at eight.",
-"Until four.",
-[],
-[
-[
-"Eight hours and I start in eight.",
-"برای ساعت از «at» استفاده کن."
-]
-]
-],
-[
-"بگو بله طولانی است ولی عصرها وقت دارم چون ساعت پنج تمام می‌شود",
-"بگو ورزش",
-"Yes, they are long, but I have time in the evening, because I finish at five.",
-"I exercise.",
-[],
-[
-[
-"Yes they long but I have time at evening.",
-"«in the evening» بگو."
-]
-]
-]
-]
-},
-{
-"d": 2,
-"k": "f",
-"s": "why-part-time",
-"c": "دوستت گفت: «من پاره‌وقت کار می‌کنم.»",
-"q": [
-[
-"بپرس چرا پاره‌وقت",
-"بپرس درس",
-"Why part-time?",
-"Do you study?",
-[],
-[
-[
-"Why you part-time?",
-"کوتاه بپرس: Why part-time?"
-]
-]
-],
-[
-"بپرس چرا پاره‌وقت و چه ساعت‌هایی",
-"بپرس صبح",
-"Why do you work part-time, and what hours?",
-"In the morning?",
-[],
-[
-[
-"Why you work part-time and what hours?",
-"بعد از «Why»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس پاره‌وقت کافی است و می‌خواهد تمام‌وقت شود",
-"بپرس چرا",
-"Is part-time enough for you? Do you want to work full-time?",
-"Why?",
-[],
-[
-[
-"Is part-time enough for you? You want full-time?",
-"سؤال دوم: Do you want to work full-time?"
-]
-]
-]
-],
-"a": [
-[
-"بگو چون درس می‌خوانم",
-"بگو دانشگاه",
-"Because I study.",
-"At university.",
-[],
-[
-[
-"Because I am study.",
-"بعد از «I» فعل ساده: study."
-]
-]
-],
-[
-"بگو چون درس می‌خوانم و صبح‌ها کار می‌کنم",
-"بگو چهار ساعت",
-"Because I study, and I work in the morning.",
-"Four hours.",
-[],
-[
-[
-"Because I study and I working in the morning.",
-"بعد از «I» فعل ساده: work."
-]
-]
-],
-[
-"بگو فعلاً کافی است چون درس دارم ولی بعد از دانشگاه تمام‌وقت می‌خواهم",
-"بگو بله",
-"For now it is, because I study, but after university I want to work full-time.",
-"Yes.",
-[],
-[
-[
-"For now is enough because I study.",
-"بگو: For now it is."
-]
-]
-]
-]
-},
-{
-"d": 2,
-"k": "f",
-"s": "lunch-where",
-"c": "دوستت گفت: «من با همکارانم ناهار می‌خورم.»",
-"q": [
-[
-"بپرس کجا غذا می‌خورند",
-"بپرس بیرون",
-"Where do you eat?",
-"Outside?",
-[],
-[
-[
-"Where you eat?",
-"بعد از «Where»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس کجا غذا می‌خورند و چه می‌خورند",
-"بپرس برنج",
-"Where do you eat, and what do you eat?",
-"Rice?",
-[],
-[
-[
-"Where do you eat and what you eat?",
-"بعد از «what»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس همیشه با همکارانش غذا می‌خورد یا گاهی تنها",
-"بپرس چرا",
-"Do you always eat with colleagues, or sometimes alone? Why?",
-"Why?",
-[],
-[
-[
-"Do you eat always with colleagues?",
-"«always» قبل از فعل: always eat."
-]
-]
-]
-],
-"a": [
-[
-"بگو در اتاق استراحت",
-"بگو غذای خانگی",
-"In the break room.",
-"Home food.",
-[],
-[
-[
-"At the break room.",
-"«in the break room» بگو."
-]
-]
-],
-[
-"بگو در اتاق استراحت و غذای خانگی می‌خورم",
-"بگو و میوه",
-"In the break room, and I eat home food.",
-"And fruit.",
-[],
-[
-[
-"In the break room and I eating home food.",
-"بعد از «I» فعل ساده: eat."
-]
-]
-],
-[
-"بگو معمولاً با آن‌ها چون حرف زدن خوب است ولی گاهی تنها می‌خورم چون کار دارم",
-"بگو و کار",
-"Usually with them, because talking is good, but sometimes I eat alone, because I have work.",
-"And work.",
-[],
-[
-[
-"Usually with them because talk is good.",
-"بگو: talking is good."
-]
-]
-]
-]
-},
-{
-"d": 2,
-"k": "f",
-"s": "go-there",
-"c": "دوستت گفت: «محل کارم دور است.»",
-"q": [
-[
-"بپرس چطور می‌رود",
-"بپرس اتوبوس",
-"How do you go there?",
-"By bus?",
-[],
-[
-[
-"How you go there?",
-"بعد از «How»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس چطور می‌رود و چقدر طول می‌کشد",
-"بپرس یک ساعت",
-"How do you go there, and how long does it take?",
-"An hour?",
-[],
-[
-[
-"How do you go there and how long it takes?",
-"بعد از «how long»، «does it take» می‌آید."
-]
-]
-],
-[
-"بپرس رفتن سخت است و می‌خواهد نزدیک‌تر باشد",
-"بپرس چرا",
-"Is it hard to go there? Do you want a job near your home?",
-"Why?",
-[],
-[
-[
-"Is hard go there?",
-"بعد از «Is» باید «it» بیاید؛ و «to go»."
-]
-]
-]
-],
-"a": [
-[
-"بگو با اتوبوس",
-"بگو و مترو",
-"By bus.",
-"And metro.",
-[],
-[
-[
-"With bus.",
-"برای وسیله از «by» استفاده کن."
-]
-]
-],
-[
-"بگو با اتوبوس و مترو و یک ساعت طول می‌کشد",
-"بگو هر روز",
-"By bus and metro, and it takes an hour.",
-"Every day.",
-[],
-[
-[
-"By bus and metro and it take an hour.",
-"با «it» فعل s می‌گیرد: takes."
-]
-]
-],
-[
-"بگو بله سخت است چون خسته می‌شوم و می‌خواهم کاری نزدیک خانه داشته باشم",
-"بگو بله",
-"Yes, it is, because I get tired, and I want a job near my home.",
-"Yes.",
-[],
-[
-[
-"Yes it is because I tired.",
-"فعل را فراموش نکن: I get tired."
-]
-]
-]
-]
-},
-{
-"d": 2,
-"k": "f",
-"s": "change-job",
-"c": "دوستت گفت: «می‌خواهم شغلم را عوض کنم.»",
-"q": [
-[
-"بپرس چه شغلی می‌خواهد",
-"بپرس اداری",
-"What job do you want?",
-"An office job?",
-[],
-[
-[
-"What job you want?",
-"بعد از «What job»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس چه شغلی می‌خواهد و چرا",
-"بپرس پول",
-"What job do you want, and why?",
-"Money?",
-[],
-[
-[
-"What job do you want and why you want it?",
-"کوتاه بپرس: and why?"
-]
-]
-],
-[
-"بپرس برای شغل جدید چه باید یاد بگیرد",
-"بپرس درس",
-"What do you have to learn for the new job?",
-"A course?",
-[],
-[
-[
-"What you have to learn?",
-"بعد از «What»، «do you» می‌آید."
-]
-]
-]
-],
-"a": [
-[
-"بگو یک شغل اداری",
-"بگو نزدیک خانه",
-"An office job.",
-"Near my home.",
-[],
-[
-[
-"A office job.",
-"قبل از مصوت «an» می‌آید."
-]
-]
-],
-[
-"بگو یک شغل اداری چون خسته نمی‌شوم",
-"بگو ساعت ثابت",
-"An office job, because I don't get tired.",
-"Fixed hours.",
-[],
-[
-[
-"An office job because I not get tired.",
-"منفی: I don't get tired."
-]
-]
-],
-[
-"بگو باید انگلیسی و کامپیوتر یاد بگیرم چون در شغل جدید لازم است",
-"بگو یک دوره",
-"I have to learn English and computers, because they are needed in the new job.",
-"A course.",
-[],
-[
-[
-"I have learn English because it need.",
-"بعد از «have» باید «to» بیاید."
-]
-]
-]
-]
-},
-{
-"d": 3,
-"k": "s",
-"s": "responsibilities",
-"c": null,
-"q": [
-[
-"بپرس مسئولیت‌هایش چیست",
-"بپرس مهم",
-"What are your responsibilities?",
-"Important?",
-[],
-[
-[
-"What your responsibilities are?",
-"ترتیب: What are your responsibilities."
-]
-]
-],
-[
-"بپرس مسئولیت‌هایش چیست و کدام سخت‌ترین است",
-"بپرس چرا",
-"What are your responsibilities, and which one is the hardest?",
-"Why?",
-[],
-[
-[
-"What are your responsibilities and which is hardest?",
-"«the hardest» بگو."
-]
-]
-],
-[
-"بپرس مسئولیت‌هایش را دوست دارد و به کمک نیاز دارد",
-"بپرس از کی",
-"Do you like your responsibilities? Do you need help with them?",
-"From who?",
-[],
-[
-[
-"Do you like your responsibilities? You need help?",
-"سؤال دوم: Do you need help?"
-]
-]
-]
-],
-"a": [
-[
-"بگو جواب دادن به مشتری",
-"بگو و تلفن",
-"Answering customers.",
-"And the phone.",
-[],
-[
-[
-"Answer customers.",
-"شکل -ing: answering."
-]
-]
-],
-[
-"بگو جواب دادن به مشتری‌ها و نوشتن گزارش",
-"بگو هر روز",
-"Answering customers and writing reports.",
-"Every day.",
-[],
-[
-[
-"Answering customers and write reports.",
-"هر دو -ing."
-]
-]
-],
-[
-"بگو بله دوستشان دارم چون مفیدند ولی گاهی به کمک نیاز دارم",
-"بگو از همکارم",
-"Yes, I do, because they are useful, but sometimes I need help.",
-"From my colleague.",
-[],
-[
-[
-"Yes I do because they useful.",
-"فعل را فراموش نکن: they are useful."
-]
-]
-]
-]
-},
-{
-"d": 3,
-"k": "s",
-"s": "in-charge",
-"c": null,
-"q": [
-[
-"بپرس مسئول چیزی هست",
-"بپرس چه",
-"Are you in charge of anything?",
-"What?",
-[],
-[
-[
-"Do you in charge of anything?",
-"با «in charge» از «Are» استفاده کن."
-]
-]
-],
-[
-"بپرس مسئول چیزی هست و چند نفر با او کار می‌کنند",
-"بپرس تیم",
-"Are you in charge of anything, and how many people work with you?",
-"A team?",
-[],
-[
-[
-"Are you in charge of anything and how many people works with you?",
-"با «people» فعل بدون s: work."
-]
-]
-],
-[
-"بپرس مسئول بودن را دوست دارد و سخت است",
-"بپرس چرا",
-"Do you like being in charge? Is it hard?",
-"Why?",
-[],
-[
-[
-"Do you like be in charge?",
-"بعد از «like» شکل -ing: being."
-]
-]
-]
-],
-"a": [
-[
-"بگو بله",
-"بگو از یک تیم",
-"Yes, I am.",
-"Of a team.",
-[],
-[
-[
-"Yes, I do.",
-"جواب «Are you…؟» با «am» است."
-]
-]
-],
-[
-"بگو بله، مسئول یک تیم کوچک",
-"بگو پنج نفر",
-"Yes, I am. I'm in charge of a small team.",
-"Five people.",
-[],
-[
-[
-"Yes, I am. I in charge of a small team.",
-"فعل را فراموش نکن: I'm in charge."
-]
-]
-],
-[
-"بگو بله دوست دارم چون یاد می‌گیرم ولی گاهی استرس دارم چون مسئولیتش زیاد است",
-"بگو قبول",
-"Yes, I do, because I learn, but sometimes I'm stressed, because there is a lot of responsibility.",
-"I accept it.",
-[],
-[
-[
-"Yes I do because I learn but sometimes stressed.",
-"فعل را فراموش نکن: I'm stressed."
-]
-]
-]
-]
-},
-{
-"d": 3,
-"k": "s",
-"s": "working-hours",
-"c": null,
-"q": [
-[
-"بپرس ساعت کارش چیست",
-"بپرس از کی تا کی",
-"What are your working hours?",
-"From when?",
-[],
-[
-[
-"What your working hours are?",
-"ترتیب: What are your working hours."
-]
-]
-],
-[
-"بپرس ساعت کارش چیست و استراحت دارد",
-"بپرس ناهار",
-"What are your working hours, and do you have a break?",
-"For lunch?",
-[],
-[
-[
-"What are your working hours and you have a break?",
-"بخش دوم هم سؤال است."
-]
-]
-],
-[
-"بپرس ساعت کارش ثابت است یا تغییر می‌کند و چرا",
-"بپرس شیفت",
-"Are your hours always the same, or do they change? Why?",
-"Shifts?",
-[],
-[
-[
-"Your hours are always the same or they change?",
-"سؤال: Are your hours always the same."
-]
-]
-]
-],
-"a": [
-[
-"بگو نه تا پنج",
-"بگو و جمعه تعطیل",
-"From nine to five.",
-"Friday off.",
-[],
-[
-[
-"From nine until to five.",
-"فقط «from nine to five»."
-]
-]
-],
-[
-"بگو از نه تا پنج و یک ساعت استراحت دارم",
-"بگو برای ناهار",
-"From nine to five, and I have an hour's break.",
-"For lunch.",
-[],
-[
-[
-"From nine to five and I have one hour break.",
-"بگو: an hour's break."
-]
-]
-],
-[
-"بگو معمولاً همان‌اند ولی گاهی تغییر می‌کنند چون مشتری‌ها زیاد می‌شوند",
-"بگو شیفت",
-"Usually the same, but sometimes they change, because there are more customers.",
-"Shifts.",
-[],
-[
-[
-"Usually same but sometimes they changes.",
-"با «they» فعل بدون s: change."
-]
-]
-]
-]
-},
-{
-"d": 3,
-"k": "s",
-"s": "overtime",
-"c": null,
-"q": [
-[
-"بپرس اضافه‌کاری می‌کند",
-"بپرس اغلب",
-"Do you work overtime?",
-"Often?",
-[],
-[
-[
-"Are you work overtime?",
-"«work» فعل است؛ با «Do» بپرس."
-]
-]
-],
-[
-"بپرس اضافه‌کاری می‌کند و چند ساعت",
-"بپرس در هفته",
-"Do you work overtime, and how many hours?",
-"A week?",
-[],
-[
-[
-"Do you work overtime and how many hours you work?",
-"کوتاه بپرس: and how many hours?"
-]
-]
-],
-[
-"بپرس اضافه‌کاری را دوست دارد یا مجبور است",
-"بپرس چرا",
-"Do you like working overtime, or do you have to? Why?",
-"Why?",
-[],
-[
-[
-"Do you like work overtime or you have to?",
-"بعد از «like» شکل -ing: working."
-]
-]
-]
-],
-"a": [
-[
-"بگو گاهی",
-"بگو در پایان ماه",
-"Sometimes.",
-"At the end of the month.",
-[],
-[
-[
-"Some time.",
-"بگو: sometimes."
-]
-]
-],
-[
-"بگو گاهی دو سه ساعت",
-"بگو در هفته",
-"Sometimes, two or three hours.",
-"A week.",
-[],
-[
-[
-"Sometimes two three hours.",
-"بگو: two or three."
-]
-]
-],
-[
-"بگو مجبورم چون کار زیاد است و دوست ندارم ولی پول بیشتری می‌گیرم",
-"بگو خسته",
-"I have to, because there is a lot of work, and I don't like it, but I get more money.",
-"I'm tired.",
-[],
-[
-[
-"I have to because there is much work and I not like it.",
-"منفی: I don't like it؛ «a lot of work»."
-]
-]
-]
-]
-},
-{
-"d": 3,
-"k": "s",
-"s": "salary-enough",
-"c": null,
-"q": [
-[
-"بپرس حقوقش کافی است",
-"بپرس برای زندگی",
-"Is your salary enough?",
-"For life?",
-[],
-[
-[
-"Does your salary enough?",
-"با صفت از «Is» استفاده کن."
-]
-]
-],
-[
-"بپرس حقوقش کافی است و پس‌انداز می‌کند",
-"بپرس هر ماه",
-"Is your salary enough, and do you save money?",
-"Every month?",
-[],
-[
-[
-"Is your salary enough and you save money?",
-"بخش دوم هم سؤال است."
-]
-]
-],
-[
-"بپرس حقوق خوب برای کار مهم‌تر است یا کار خوب",
-"بپرس چرا",
-"What is important for you, a good salary or a good job? Why?",
-"Why?",
-[],
-[
-[
-"What important is for you?",
-"ترتیب: What is important for you."
-]
-]
-]
-],
-"a": [
-[
-"بگو نه",
-"بگو کم",
-"No, it isn't.",
-"A little.",
-[],
-[
-[
-"No, it doesn't.",
-"جواب «Is…؟» با «it isn't» است."
-]
-]
-],
-[
-"بگو نه، کافی نیست",
-"بگو برای اجاره",
-"No, it isn't enough.",
-"For the rent.",
-[],
-[
-[
-"No, it isn't enough for the rents.",
-"«the rent» مفرد."
-]
-]
-],
-[
-"بگو کار خوب برایم مهم است چون دوستش دارم ولی حقوق هم باید کافی باشد",
-"بگو هر دو",
-"A good job is important for me, because I love it, but the salary has to be enough too.",
-"Both.",
-[],
-[
-[
-"A good job important for me because I love.",
-"فعل را فراموش نکن: is important."
-]
-]
-]
-]
-},
-{
-"d": 3,
-"k": "f",
-"s": "extra-money",
-"c": "دوستت گفت: «من اضافه‌کاری می‌کنم.»",
-"q": [
-[
-"بپرس پول اضافه می‌گیرد",
-"بپرس چقدر",
-"Do you get extra money?",
-"How much?",
-[],
-[
-[
-"Are you get extra money?",
-"«get» فعل است؛ با «Do» بپرس."
-]
-]
-],
-[
-"بپرس پول اضافه می‌گیرد و کافی است",
-"بپرس چرا",
-"Do you get extra money, and is it enough?",
-"Why?",
-[],
-[
-[
-"Do you get extra money and it is enough?",
-"بخش دوم هم سؤال است."
-]
-]
-],
-[
-"بپرس اگر اضافه‌کاری نکند چه می‌شود",
-"بپرس مدیر",
-"What happens if you don't work overtime?",
-"The boss?",
-[],
-[
-[
-"What happen if you don't work overtime?",
-"با «What» فعل s می‌گیرد: happens."
-]
-]
-]
-],
-"a": [
-[
-"بگو بله",
-"بگو کم",
-"Yes, I do.",
-"A little.",
-[],
-[
-[
-"Yes, I get.",
-"جواب «Do you…؟» با «do» است."
-]
-]
-],
-[
-"بگو بله ولی زیاد نیست",
-"بگو کافی نیست",
-"Yes, I do, but not much.",
-"It isn't enough.",
-[],
-[
-[
-"Yes, I do but not many.",
-"«money» شمارش‌ناپذیر: not much."
-]
-]
-],
-[
-"بگو اتفاق بدی نمی‌افتد ولی مدیر ناراحت می‌شود چون کار می‌ماند",
-"بگو و همکارانم",
-"Nothing bad happens, but my boss is unhappy, because the work stays.",
-"And my colleagues.",
-[],
-[
-[
-"Nothing bad happen but my boss unhappy.",
-"فعل s می‌گیرد: happens؛ و «is unhappy»."
-]
-]
-]
-]
-},
-{
-"d": 3,
-"k": "f",
-"s": "team-size",
-"c": "دوستت گفت: «من مسئول یک تیم هستم.»",
-"q": [
-[
-"بپرس چند نفر در تیم‌اش هستند",
-"بپرس کار",
-"How many people are in your team?",
-"Who?",
-[],
-[
-[
-"How many people in your team are?",
-"ترتیب: How many people are in your team."
-]
-]
-],
-[
-"بپرس چند نفر در تیم هستند و چه می‌کنند",
-"بپرس فروش",
-"How many people are in your team, and what do they do?",
-"Sales?",
-[],
-[
-[
-"How many people are in your team and what they do?",
-"بعد از «what»، «do they» می‌آید."
-]
-]
-],
-[
-"بپرس تیم‌اش خوب کار می‌کند و دوستش دارند",
-"بپرس چرا",
-"Does your team work well? Do they like you?",
-"Why?",
-[],
-[
-[
-"Do your team work well?",
-"با «team» (مفرد) «Does» می‌آید."
-]
-]
-]
-],
-"a": [
-[
-"بگو شش نفر",
-"بگو و من",
-"Six people.",
-"And me.",
-[],
-[
-[
-"Six person.",
-"جمع: six people."
-]
-]
-],
-[
-"بگو شش نفر که در فروش کار می‌کنند",
-"بگو در یک اتاق",
-"Six people who work in sales.",
-"In one room.",
-[],
-[
-[
-"Six people who works in sales.",
-"با «people» فعل بدون s."
-]
-]
-],
-[
-"بگو بله خوب کار می‌کند چون همه دوست دارند کمک کنند و فکر می‌کنم دوستم دارند",
-"بگو و من هم",
-"Yes, it works well, because everyone likes to help, and I think they like me.",
-"And I like them.",
-[],
-[
-[
-"Yes it work well because everyone like to help.",
-"فعل s می‌گیرد: works / likes."
-]
-]
-]
-]
-},
-{
-"d": 3,
-"k": "f",
-"s": "finish-time",
-"c": "دوستت گفت: «ساعت کاری‌ام خیلی طولانی است.»",
-"q": [
-[
-"بپرس چه ساعتی تمام می‌کند",
-"بپرس هر روز",
-"What time do you finish?",
-"Every day?",
-[],
-[
-[
-"What time you finish?",
-"بعد از «What time»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس چه ساعتی شروع و تمام می‌کند",
-"بپرس استراحت",
-"What time do you start and finish?",
-"Any break?",
-[],
-[
-[
-"What time you start and finish?",
-"بعد از «What time»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس ساعت کاری طولانی برای زندگی‌اش مشکل است و چه می‌کند",
-"بپرس خانواده",
-"Is a long day a problem for your life? What do you do?",
-"Family?",
-[],
-[
-[
-"Does a long day a problem?",
-"با اسم (problem) از «Is» استفاده کن."
-]
-]
-]
-],
-"a": [
-[
-"بگو ساعت هفت",
-"بگو شب",
-"At seven.",
-"In the evening.",
-[],
-[
-[
-"In seven.",
-"برای ساعت از «at» استفاده کن."
-]
-]
-],
-[
-"بگو ساعت هشت شروع و ساعت هفت تمام می‌کنم",
-"بگو یک ساعت ناهار",
-"I start at eight and finish at seven.",
-"One hour for lunch.",
-[],
-[
-[
-"I start at eight and I finish in seven.",
-"برای ساعت از «at» استفاده کن."
-]
-]
-],
-[
-"بگو بله مشکل است چون خانواده‌ام را کم می‌بینم ولی آخر هفته‌ها وقت می‌گذارم",
-"بگو با هم",
-"Yes, it is, because I see my family little, but I spend the weekend with them.",
-"Together.",
-[],
-[
-[
-"Yes it is because I see my family few.",
-"با فعل: I see my family a little."
-]
-]
-]
-]
-},
-{
-"d": 3,
-"k": "f",
-"s": "tired-responsible",
-"c": "دوستت گفت: «مسئولیت زیادی دارم.»",
-"q": [
-[
-"بپرس خسته است",
-"بپرس خیلی",
-"Are you tired?",
-"Very?",
-[],
-[
-[
-"Do you tired?",
-"با صفت از «Are» استفاده کن."
-]
-]
-],
-[
-"بپرس خسته است و استراحت می‌کند",
-"بپرس کی",
-"Are you tired, and do you rest?",
-"When?",
-[],
-[
-[
-"Are you tired and you rest?",
-"بخش دوم هم سؤال است."
-]
-]
-],
-[
-"بپرس مسئولیت زیاد را دوست دارد یا می‌ترسد",
-"بپرس چرا",
-"Do you like a lot of responsibility, or are you afraid? Why?",
-"Why?",
-[],
-[
-[
-"Do you like a lot of responsibility or you are afraid?",
-"بخش دوم هم سؤال است."
-]
-]
-]
-],
-"a": [
-[
-"بگو بله",
-"بگو گاهی",
-"Yes, I am.",
-"Sometimes.",
-[],
-[
-[
-"Yes, I do.",
-"جواب «Are you…؟» با «am» است."
-]
-]
-],
-[
-"بگو بله و آخر هفته استراحت می‌کنم",
-"بگو می‌خوابم",
-"Yes, I am, and I rest at the weekend.",
-"I sleep.",
-[],
-[
-[
-"Yes, I am and I resting.",
-"بعد از «I» فعل ساده: rest."
-]
-]
-],
-[
-"بگو دوستش دارم چون یاد می‌گیرم ولی گاهی می‌ترسم اشتباه کنم",
-"بگو کمک می‌خواهم",
-"I like it, because I learn, but sometimes I'm afraid to make a mistake.",
-"I need help.",
-[],
-[
-[
-"I like it because I learn but sometimes afraid.",
-"فعل را فراموش نکن: I'm afraid."
-]
-]
-]
-]
-},
-{
-"d": 3,
-"k": "f",
-"s": "another-job",
-"c": "دوستت گفت: «حقوقم کافی نیست.»",
-"q": [
-[
-"بپرس شغل دیگری می‌خواهد",
-"بپرس چه",
-"Do you want another job?",
-"What kind?",
-[],
-[
-[
-"Are you want another job?",
-"«want» فعل است؛ با «Do» بپرس."
-]
-]
-],
-[
-"بپرس شغل دیگری می‌خواهد و دنبالش می‌گردد",
-"بپرس کجا",
-"Do you want another job, and are you looking?",
-"Where?",
-[],
-[
-[
-"Do you want another job and you are looking?",
-"بخش دوم هم سؤال است."
-]
-]
-],
-[
-"بپرس شغل دوم هم دارد یا فکر می‌کند و چرا",
-"بپرس وقت",
-"Do you have a second job, or do you think about it? Why?",
-"Time?",
-[],
-[
-[
-"Do you have a second job or you think about it?",
-"بخش دوم هم سؤال است."
-]
-]
-]
-],
-"a": [
-[
-"بگو بله",
-"بگو با حقوق بیشتر",
-"Yes, I do.",
-"With more money.",
-[],
-[
-[
-"Yes, I want.",
-"جواب «Do you…؟» با «do» است."
-]
-]
-],
-[
-"بگو بله و دنبالش می‌گردم",
-"بگو در اینترنت",
-"Yes, I do, and I'm looking.",
-"Online.",
-[],
-[
-[
-"Yes, I do and I looking.",
-"فعل را فراموش نکن: I'm looking."
-]
-]
-],
-[
-"بگو بله به آن فکر می‌کنم چون حقوقم کافی نیست ولی وقت ندارم",
-"بگو سخت است",
-"Yes, I think about it, because my salary isn't enough, but I have no time.",
-"It's hard.",
-[],
-[
-[
-"Yes I think about it because my salary not enough.",
-"منفی: isn't enough."
-]
-]
-]
-]
-},
-{
-"d": 4,
-"k": "s",
-"s": "have-to-do",
-"c": null,
-"q": [
-[
-"بپرس سر کار چه کارهایی باید انجام دهد",
-"بپرس هر روز",
-"What do you have to do at work?",
-"Every day?",
-[],
-[
-[
-"What you have to do at work?",
-"بعد از «What»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس سر کار چه باید بکند و چه ساعتی",
-"بپرس صبح",
-"What do you have to do at work, and when?",
-"In the morning?",
-[],
-[
-[
-"What do you have to do at work and when you do it?",
-"کوتاه بپرس: and when?"
-]
-]
-],
-[
-"بپرس کدام کار را باید زود انجام دهد و کدام را نه",
-"بپرس چرا",
-"Which things do you have to do quickly, and which ones can wait?",
-"Why?",
-[],
-[
-[
-"Which things you have to do quickly?",
-"بعد از «Which things»، «do you» می‌آید."
-]
-]
-]
-],
-"a": [
-[
-"بگو باید ایمیل جواب بدهم",
-"بگو و تلفن",
-"I have to answer emails.",
-"And the phone.",
-[],
-[
-[
-"I have answer emails.",
-"بعد از «have» باید «to» بیاید."
-]
-]
-],
-[
-"بگو باید ایمیل جواب بدهم و گزارش بنویسم",
-"بگو هر روز",
-"I have to answer emails and write reports.",
-"Every day.",
-[],
-[
-[
-"I have to answer emails and to writing reports.",
-"هر دو فعل ساده."
-]
-]
-],
-[
-"بگو باید ایمیل‌های مشتری را زود جواب بدهم ولی گزارش می‌تواند صبر کند",
-"بگو تا فردا",
-"I have to answer customer emails quickly, but reports can wait.",
-"Until tomorrow.",
-[],
-[
-[
-"I must to answer customer emails quickly.",
-"بعد از «must» «to» نمی‌آید؛ یا بگو have to."
-]
-]
-]
-]
-},
-{
-"d": 4,
-"k": "s",
-"s": "working-on",
-"c": null,
-"q": [
-[
-"بپرس الان روی چه کاری کار می‌کند",
-"بپرس مهم",
-"What are you working on now?",
-"Important?",
-[],
-[
-[
-"What you are working on now?",
-"ترتیب سؤال: What are you working on."
-]
-]
-],
-[
-"بپرس الان روی چه کاری کار می‌کند و تا کی",
-"بپرس این هفته",
-"What are you working on now, and until when?",
-"This week?",
-[],
-[
-[
-"What are you working on now and until when you work?",
-"کوتاه بپرس: and until when?"
-]
-]
-],
-[
-"بپرس روی چه کاری کار می‌کند و چرا برای او مهم است",
-"بپرس سخت",
-"What are you working on, and why is it important to you?",
-"Is it hard?",
-[],
-[
-[
-"What are you working on and why it is important?",
-"ترتیب: why is it important."
-]
-]
-]
-],
-"a": [
-[
-"بگو یک گزارش",
-"بگو برای مدیر",
-"I'm working on a report.",
-"For my manager.",
-[],
-[
-[
-"I working on a report.",
-"فعل را فراموش نکن: I'm working."
-]
-]
-],
-[
-"بگو یک گزارش تا جمعه",
-"بگو و جلسه",
-"I'm working on a report until Friday.",
-"And a meeting.",
-[],
-[
-[
-"I'm work on a report until Friday.",
-"بعد از «am» فعل -ing: working."
-]
-]
-],
-[
-"بگو روی گزارش مهمی کار می‌کنم چون مدیر آن را می‌خواهد ولی هنوز تمام نشده",
-"بگو سخت",
-"I'm working on an important report, because my manager wants it, but it isn't ready yet.",
-"It's hard.",
-[],
-[
-[
-"I'm working on important report because my manager want it.",
-"قبل از «important report» «an» می‌آید؛ و «wants»."
-]
-]
-]
-]
-},
-{
-"d": 4,
-"k": "s",
-"s": "get-up-early-have-to",
-"c": null,
-"q": [
-[
-"بپرس باید زود بلند شود",
-"بپرس چرا",
-"Do you have to get up early?",
-"Why?",
-[],
-[
-[
-"Are you have to get up early?",
-"«have to» فعل است؛ با «Do» بپرس."
-]
-]
-],
-[
-"بپرس باید زود بلند شود و چه ساعتی",
-"بپرس شش",
-"Do you have to get up early, and what time?",
-"At six?",
-[],
-[
-[
-"Do you have to get up early and what time you get up?",
-"کوتاه بپرس: and what time?"
-]
-]
-],
-[
-"بپرس باید زود بلند شود یا می‌تواند بخوابد و چه می‌کند",
-"بپرس آخر هفته",
-"Do you have to get up early, or can you sleep in? What do you do?",
-"At the weekend?",
-[],
-[
-[
-"Do you have get up early or you can sleep in?",
-"بعد از «have» باید «to» بیاید."
-]
-]
-]
-],
-"a": [
-[
-"بگو بله",
-"بگو ساعت شش",
-"Yes, I do.",
-"At six.",
-[],
-[
-[
-"Yes, I have.",
-"جواب «Do you…؟» با «do» است."
-]
-]
-],
-[
-"بگو بله، ساعت شش چون محل کارم دور است",
-"بگو هر روز",
-"Yes, I do, at six, because my workplace is far.",
-"Every day.",
-[],
-[
-[
-"Yes, I do, in six because my workplace far.",
-"برای ساعت «at»؛ و «is far»."
-]
-]
-],
-[
-"بگو در هفته باید ولی آخر هفته می‌توانم بخوابم و دیر بلند می‌شوم",
-"بگو ساعت ده",
-"I have to during the week, but at the weekend I can sleep in.",
-"I get up at ten.",
-[],
-[
-[
-"I have to in the week but at weekend I can sleep.",
-"«during the week»؛ و «at the weekend»."
-]
-]
-]
-]
-},
-{
-"d": 4,
-"k": "s",
-"s": "work-or-study",
-"c": null,
-"q": [
-[
-"بپرس کار می‌کند یا درس می‌خواند",
-"بپرس هر دو",
-"Do you work or study?",
-"Both?",
-[],
-[
-[
-"Are you work or study?",
-"«work» فعل است؛ با «Do» بپرس."
-]
-]
-],
-[
-"بپرس کار می‌کند یا درس می‌خواند و چه",
-"بپرس رشته",
-"Do you work or study, and what?",
-"What subject?",
-[],
-[
-[
-"Do you work or study and what you do?",
-"کوتاه بپرس: and what?"
-]
-]
-],
-[
-"بپرس بیشتر وقتش را به کار می‌دهد یا درس و از آن راضی است",
-"بپرس چرا",
-"Do you spend more time on work or study? Are you happy with it?",
-"Why?",
-[],
-[
-[
-"Do you spend time more on work or study?",
-"ترتیب: spend more time."
-]
-]
-]
-],
-"a": [
-[
-"بگو هر دو",
-"بگو و دوستش دارم",
-"Both.",
-"I like both.",
-[],
-[
-[
-"Both of.",
-"ساده: Both."
-]
-]
-],
-[
-"بگو صبح درس می‌خوانم و عصر کار می‌کنم",
-"بگو هر روز",
-"I study in the morning and work in the evening.",
-"Every day.",
-[],
-[
-[
-"I study at the morning and work at the evening.",
-"«in the morning» و «in the evening»."
-]
-]
-],
-[
-"بگو بیشتر کار می‌کنم چون پول لازم دارم ولی راضی نیستم چون وقت درس کم است",
-"بگو سعی می‌کنم",
-"I spend more time on work, because I need money, but I'm not happy, because I have little time to study.",
-"I try.",
-[],
-[
-[
-"I spend more time on work because I need money but I not happy.",
-"منفی: I'm not happy."
-]
-]
-]
-]
-},
-{
-"d": 4,
-"k": "s",
-"s": "week-work",
-"c": null,
-"q": [
-[
-"بپرس این هفته روی چه کاری کار می‌کند",
-"بپرس مهم",
-"What are you working on this week?",
-"Important?",
-[],
-[
-[
-"What you working on this week?",
-"ترتیب سؤال: What are you working on."
-]
-]
-],
-[
-"بپرس این هفته چه می‌کند و چند ساعت",
-"بپرس زیاد",
-"What are you doing this week, and how many hours?",
-"A lot?",
-[],
-[
-[
-"What are you doing this week and how many hours you work?",
-"کوتاه بپرس: and how many hours?"
-]
-]
-],
-[
-"بپرس این هفته مشغول است و چرا",
-"بپرس مهمان",
-"Are you busy this week, and why?",
-"Guests?",
-[],
-[
-[
-"Do you busy this week and why?",
-"با صفت از «Are» استفاده کن."
-]
-]
-]
-],
-"a": [
-[
-"بگو یک پروژه",
-"بگو برای مشتری",
-"I'm working on a project.",
-"For a customer.",
-[],
-[
-[
-"I working on a project.",
-"فعل را فراموش نکن: I'm working."
-]
-]
-],
-[
-"بگو یک پروژه و چهل ساعت",
-"بگو در هفته",
-"I'm working on a project, about forty hours.",
-"This week.",
-[],
-[
-[
-"I'm working on a project, about forty hour.",
-"جمع: forty hours."
-]
-]
-],
-[
-"بگو بله خیلی مشغولم چون مهلت پروژه نزدیک است ولی بعدش استراحت می‌کنم",
-"بگو آخر هفته",
-"Yes, I'm very busy, because the project is due soon, but I'll rest after that.",
-"At the weekend.",
-[],
-[
-[
-"Yes I very busy because the project due soon.",
-"فعل را فراموش نکن: I'm very busy / is due."
-]
-]
-]
-]
-},
-{
-"d": 4,
-"k": "f",
-"s": "leave-time",
-"c": "دوستت گفت: «من باید زود بلند شوم.»",
-"q": [
-[
-"بپرس چه ساعتی از خانه می‌رود",
-"بپرس صبح",
-"What time do you have to leave?",
-"In the morning?",
-[],
-[
-[
-"What time you have to leave?",
-"بعد از «What time»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس چه ساعتی می‌رود و چطور",
-"بپرس اتوبوس",
-"What time do you have to leave, and how do you go?",
-"By bus?",
-[],
-[
-[
-"What time do you have to leave and how you go?",
-"بعد از «how»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس اگر دیر کند چه می‌شود و کسی ناراحت می‌شود",
-"بپرس مدیر",
-"What happens if you are late? Is anyone angry?",
-"The boss?",
-[],
-[
-[
-"What happen if you are late?",
-"با «What» فعل s می‌گیرد: happens."
-]
-]
-]
-],
-"a": [
-[
-"بگو ساعت هفت",
-"بگو و نیم",
-"At seven.",
-"Half past.",
-[],
-[
-[
-"In seven.",
-"برای ساعت از «at» استفاده کن."
-]
-]
-],
-[
-"بگو ساعت هفت و با اتوبوس می‌روم",
-"بگو و مترو",
-"At seven, and I go by bus.",
-"And metro.",
-[],
-[
-[
-"At seven and I go with bus.",
-"برای وسیله از «by» استفاده کن."
-]
-]
-],
-[
-"بگو مدیر ناراحت می‌شود چون مشتری منتظر است برای همین سعی می‌کنم دیر نکنم",
-"بگو معمولاً",
-"My boss gets angry, because a customer waits, so I try not to be late.",
-"Usually.",
-[],
-[
-[
-"My boss get angry because customer waits.",
-"با «boss» فعل s می‌گیرد: gets."
-]
-]
-]
-]
-},
-{
-"d": 4,
-"k": "f",
-"s": "project-difficult",
-"c": "دوستت گفت: «روی یک پروژه کار می‌کنم.»",
-"q": [
-[
-"بپرس سخت است",
-"بپرس چرا",
-"Is it difficult?",
-"Why?",
-[],
-[
-[
-"Does it difficult?",
-"با صفت از «Is» استفاده کن."
-]
-]
-],
-[
-"بپرس سخت است و کسی کمک می‌کند",
-"بپرس چه کسی",
-"Is it difficult, and does anyone help you?",
-"Who?",
-[],
-[
-[
-"Is it difficult and anyone helps you?",
-"بخش دوم هم سؤال است."
-]
-]
-],
-[
-"بپرس مهلت پروژه کی است و فکر می‌کند به موقع تمام می‌شود",
-"بپرس چرا",
-"When is the project due? Do you think it will be ready?",
-"Why?",
-[],
-[
-[
-"When the project is due? You think it will be ready?",
-"ترتیب: When is the project due."
-]
-]
-]
-],
-"a": [
-[
-"بگو کمی",
-"بگو ولی خوب",
-"A bit.",
-"But good.",
-[],
-[
-[
-"Little difficult.",
-"بگو: a bit."
-]
-]
-],
-[
-"بگو کمی و همکارم کمک می‌کند",
-"بگو او خوب است",
-"A bit, and my colleague helps me.",
-"He or she is good.",
-[],
-[
-[
-"A bit, and my colleague help me.",
-"با «colleague» فعل s می‌گیرد: helps."
-]
-]
-],
-[
-"بگو مهلتش هفته‌ی بعد است و فکر می‌کنم تمام می‌شود چون سخت کار می‌کنیم",
-"بگو مطمئنم",
-"It's due next week, and I think it will be ready, because we work hard.",
-"I'm sure.",
-[],
-[
-[
-"It due next week and I think is ready.",
-"فعل را فراموش نکن: It's due / it will be ready."
-]
-]
-]
-]
-},
-{
-"d": 4,
-"k": "f",
-"s": "study-what",
-"c": "دوستت گفت: «درس می‌خوانم.»",
-"q": [
-[
-"بپرس چه می‌خواند",
-"بپرس دانشگاه",
-"What are you studying?",
-"At university?",
-[],
-[
-[
-"What you are studying?",
-"ترتیب سؤال: What are you studying."
-]
-]
-],
-[
-"بپرس چه می‌خواند و چرا",
-"بپرس دوست دارد",
-"What are you studying, and why?",
-"Do you like it?",
-[],
-[
-[
-"What are you studying and why you study it?",
-"کوتاه بپرس: and why?"
-]
-]
-],
-[
-"بپرس چه می‌خواند و بعد از آن می‌خواهد چه کار کند",
-"بپرس کار",
-"What are you studying? What do you want to do after that?",
-"A job?",
-[],
-[
-[
-"What you are studying? What you want to do after?",
-"بعد از «What»، «do you» می‌آید."
-]
-]
-]
-],
-"a": [
-[
-"بگو انگلیسی",
-"بگو و کامپیوتر",
-"English.",
-"And computers.",
-[],
-[
-[
-"The English.",
-"ساده: English."
-]
-]
-],
-[
-"بگو انگلیسی چون برای کارم لازم است",
-"بگو دوستش دارم",
-"English, because I need it for work.",
-"I love it.",
-[],
-[
-[
-"English because I need it for the work.",
-"«for work» بدون the."
-]
-]
-],
-[
-"بگو کامپیوتر می‌خوانم و بعد می‌خواهم در یک شرکت کار کنم چون دوستش دارم",
-"بگو بزرگ",
-"I'm studying computers, and after that I want to work in a company, because I love them.",
-"A big one.",
-[],
-[
-[
-"I studying computers and after I want work in a company.",
-"فعل را فراموش نکن: I'm studying؛ و «want to work»."
-]
-]
-]
-]
-},
-{
-"d": 4,
-"k": "f",
-"s": "anyone-help",
-"c": "دوستت گفت: «کارم خیلی زیاد است.»",
-"q": [
-[
-"بپرس کسی کمک می‌کند",
-"بپرس چه کسی",
-"Does anyone help you?",
-"Who?",
-[],
-[
-[
-"Do anyone help you?",
-"با «anyone» «Does» می‌آید."
-]
-]
-],
-[
-"بپرس کسی کمک می‌کند و چه کمکی لازم دارد",
-"بپرس بیشتر",
-"Does anyone help you, and what help do you need?",
-"More?",
-[],
-[
-[
-"Does anyone help you and what help you need?",
-"بعد از «what help»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس باید کمک بخواهد یا خودش می‌تواند و چرا",
-"بپرس از مدیر",
-"Do you have to ask for help, or can you do it alone? Why?",
-"The boss?",
-[],
-[
-[
-"Do you have ask for help or you can do alone?",
-"بعد از «have» باید «to» بیاید."
-]
-]
-]
-],
-"a": [
-[
-"بگو بله",
-"بگو همکارم",
-"Yes, my colleague.",
-"Sometimes.",
-[],
-[
-[
-"Yes, my colleague help.",
-"با «colleague» فعل s می‌گیرد."
-]
-]
-],
-[
-"بگو بله، همکارم کمک می‌کند و گاهی مدیرم",
-"بگو هر روز",
-"Yes, my colleague helps me, and sometimes my boss.",
-"Every day.",
-[],
-[
-[
-"Yes, my colleague help me.",
-"فعل s می‌گیرد: helps."
-]
-]
-],
-[
-"بگو باید کمک بخواهم چون تنها نمی‌توانم همه را انجام دهم ولی سعی می‌کنم کم بخواهم",
-"بگو از مدیر",
-"I have to ask for help, because I can't do everything alone, but I try not to ask a lot.",
-"From my boss.",
-[],
-[
-[
-"I have ask for help because I can't do everything.",
-"بعد از «have» باید «to» بیاید."
-]
-]
-]
-]
-},
-{
-"d": 4,
-"k": "f",
-"s": "mind-weekend",
-"c": "دوستت گفت: «آخر هفته هم باید کار کنم.»",
-"q": [
-[
-"بپرس ناراحت است",
-"بپرس خیلی",
-"Do you mind?",
-"Very much?",
-[],
-[
-[
-"Are you mind?",
-"«mind» فعل است؛ با «Do» بپرس."
-]
-]
-],
-[
-"بپرس ناراحت است و چند ساعت کار می‌کند",
-"بپرس شنبه",
-"Do you mind, and how many hours do you work?",
-"On Saturday?",
-[],
-[
-[
-"Do you mind and how many hours you work?",
-"بعد از «how many hours»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس هر هفته باید یا فقط گاهی و چه می‌کند",
-"بپرس استراحت",
-"Do you have to work every weekend, or only sometimes? What do you do?",
-"Rest?",
-[],
-[
-[
-"Do you have work every weekend?",
-"بعد از «have» باید «to» بیاید."
-]
-]
-]
-],
-"a": [
-[
-"بگو بله کمی",
-"بگو ولی لازم است",
-"Yes, a bit.",
-"But it's necessary.",
-[],
-[
-[
-"Yes, I mind a bit.",
-"کوتاه: Yes, a bit."
-]
-]
-],
-[
-"بگو بله کمی و پنج ساعت کار می‌کنم",
-"بگو شنبه",
-"Yes, a bit, and I work five hours.",
-"On Saturday.",
-[],
-[
-[
-"Yes a bit and I working five hours.",
-"بعد از «I» فعل ساده: work."
-]
-]
-],
-[
-"بگو فقط گاهی چون مشتری زیاد می‌شود و بعد روز دیگر استراحت می‌کنم",
-"بگو یکشنبه",
-"Only sometimes, because we have more customers, and then I rest on another day.",
-"On Sunday.",
-[],
-[
-[
-"Only sometimes because we have more customers and I rest in another day.",
-"برای روز: on another day."
-]
-]
-]
-]
-}
-]
+ "mission": 3,
+ "items": [
+  {
+   "d": 1,
+   "k": "s",
+   "s": "job-now",
+   "c": null,
+   "q": [
+    [
+     "بپرس شغلش چیست",
+     "بپرس کجا",
+     "What do you do?",
+     "And where?",
+     [],
+     [
+      [
+       "What you do?",
+       "بعد از «What»، «do you» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس شغلش چیست و از آن راضی است",
+     "بپرس چرا",
+     "What do you do, and do you like it?",
+     "Why?",
+     [],
+     [
+      [
+       "What do you do and you like it?",
+       "بخش دوم هم سؤال است."
+      ]
+     ]
+    ],
+    [
+     "بپرس شغلش چیست و تمام‌وقت یا پاره‌وقت کار می‌کند",
+     "بپرس چند ساعت",
+     "What do you do, and is it full-time or part-time?",
+     "How many hours?",
+     [],
+     [
+      [
+       "What do you do and it is full-time?",
+       "بخش دوم سؤال است: is it full-time."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو معلمم",
+     "بگو در مدرسه",
+     "I'm a teacher.",
+     "At a school.",
+     [],
+     [
+      [
+       "I am teacher.",
+       "قبل از شغل «a» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بگو معلمم و در یک مدرسه کار می‌کنم",
+     "بگو دوستش دارم",
+     "I'm a teacher, and I work at a school.",
+     "I like it.",
+     [],
+     [
+      [
+       "I'm a teacher and I working at a school.",
+       "بعد از «I» فعل ساده: work."
+      ]
+     ]
+    ],
+    [
+     "بگو معلمم و تمام‌وقت کار می‌کنم چون دوستش دارم ولی کار خسته‌کننده‌ای است",
+     "بگو ساعت‌ها طولانی",
+     "I'm a teacher, and I work full-time, because I love it, but it's tiring.",
+     "The days are long.",
+     [],
+     [
+      [
+       "I'm a teacher and I work full-time because I love it but tiring.",
+       "فعل را فراموش نکن: it's tiring."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "s",
+   "s": "own-business",
+   "c": null,
+   "q": [
+    [
+     "بپرس می‌خواهد کسب‌وکار خودش را داشته باشد",
+     "بپرس چه نوع",
+     "Do you want to run your own business?",
+     "What kind?",
+     [],
+     [
+      [
+       "You want to run your own business?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس می‌خواهد کسب‌وکار خودش را داشته باشد و چرا",
+     "بپرس سخت است",
+     "Do you want to run your own business? Why?",
+     "Is it hard?",
+     [],
+     [
+      [
+       "You want to run your own business? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس برای خودش کار کند یا برای یک شرکت و چرا",
+     "بپرس کدام",
+     "Do you want to work for yourself, or for a company? Why?",
+     "Which one?",
+     [],
+     [
+      [
+       "You want to work for yourself, or for a company? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو یک مغازه‌ی کوچک",
+     "Yes, I do.",
+     "A small shop.",
+     [],
+     [
+      [
+       "Yes, I am.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو بله چون می‌خواهم خودم تصمیم بگیرم",
+     "بگو در شهرم",
+     "Yes, I do, because I want to decide myself.",
+     "In my city.",
+     [],
+     [
+      [
+       "Yes, I do, because I want decide myself.",
+       "بعد از «want» باید «to» بیاید: want to decide."
+      ]
+     ]
+    ],
+    [
+     "بگو برای خودم چون می‌خواهم خودم تصمیم بگیرم ولی می‌دانم سخت است",
+     "بگو پول زیادی لازم است",
+     "For myself, because I want to decide, but I know it's hard.",
+     "I need a lot of money.",
+     [],
+     [
+      [
+       "For myself, because I want decide, but I know it's hard.",
+       "بعد از «want» باید «to» بیاید: want to decide."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "s",
+   "s": "working-now",
+   "c": null,
+   "q": [
+    [
+     "بپرس الان کار می‌کند",
+     "بپرس کجا",
+     "Are you working now?",
+     "Where?",
+     [],
+     [
+      [
+       "You are working now?",
+       "سؤال با «Are» شروع می‌شود: Are you…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس الان کار می‌کند یا بین دو کار است",
+     "بپرس چه مدت",
+     "Are you working now, or are you between jobs?",
+     "For how long?",
+     [],
+     [
+      [
+       "You are working now, or are you between jobs?",
+       "سؤال با «Are» شروع می‌شود: Are you…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس الان کار می‌کند و دنبال کار دیگری می‌گردد",
+     "بپرس چه کاری",
+     "Are you working now? Are you looking for another job?",
+     "What kind?",
+     [],
+     [
+      [
+       "You are working now? Are you looking for another job?",
+       "سؤال با «Are» شروع می‌شود: Are you…؟"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو در یک بانک",
+     "Yes, I am.",
+     "In a bank.",
+     [],
+     [
+      [
+       "Yes, I do.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I am."
+      ]
+     ]
+    ],
+    [
+     "بگو الان کار می‌کنم در یک بانک",
+     "بگو چهار ماه",
+     "I'm working now, in a bank.",
+     "For four months.",
+     [],
+     [
+      [
+       "I'm working now, in bank.",
+       "قبل از «bank» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو نه، الان بین دو کار هستم چون کارم تمام شد و دنبال کار می‌گردم",
+     "بگو هر روز",
+     "No, I'm between jobs, because my job ended, and I'm looking for work.",
+     "Every day.",
+     [],
+     [
+      [
+       "No, I'm between jobs, because my job ended, and I looking for work.",
+       "برای کار در حال انجام «am/is/are» لازم است: I'm looking."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "s",
+   "s": "look-after",
+   "c": null,
+   "q": [
+    [
+     "بپرس از کسی مراقبت می‌کند",
+     "بپرس از کی",
+     "Do you look after anyone?",
+     "Who?",
+     [],
+     [
+      [
+       "You look after anyone?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس از کسی مراقبت می‌کند و این سخت است",
+     "بپرس چند وقت یک بار",
+     "Do you look after anyone, and is it hard?",
+     "How often?",
+     [],
+     [
+      [
+       "You look after anyone, and is it hard?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس از چه کسی مراقبت می‌کند و در چه ساعت‌هایی",
+     "بپرس تنها",
+     "Who do you look after, and at what time?",
+     "Alone?",
+     [],
+     [
+      [
+       "Who you look after, and at what time?",
+       "بعد از «who»، «do» می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو مادرم",
+     "Yes, I do.",
+     "My mum.",
+     [],
+     [
+      [
+       "Yes, I am.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو بله از مادرم و گاهی سخت است",
+     "بگو هر روز",
+     "Yes, I do. I look after my mum, and it's sometimes hard.",
+     "Every day.",
+     [],
+     [
+      [
+       "Yes, I am. I look after my mum, and it's sometimes hard.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو از دو بچه‌ی کوچک بعد از ظهر چون مادرشان سر کار است ولی سخت است",
+     "بگو با خواهرم",
+     "I look after two small children in the afternoon, because their mum works, but it's hard.",
+     "With my sister.",
+     [],
+     [
+      [
+       "I look after two small children at the afternoon, because their mum works, but it's hard.",
+       "«in the afternoon» می‌گوییم."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "s",
+   "s": "challenging",
+   "c": null,
+   "q": [
+    [
+     "بپرس شغلش چالش‌برانگیز است",
+     "بپرس چرا",
+     "Is your job challenging?",
+     "Why?",
+     [],
+     [
+      [
+       "Does your job challenging?",
+       "با صفت از «Is» استفاده کن."
+      ]
+     ]
+    ],
+    [
+     "بپرس شغلش چالش‌برانگیز است و آن را دوست دارد",
+     "بپرس خیلی",
+     "Is your job challenging, and do you like that?",
+     "A lot?",
+     [],
+     [
+      [
+       "Is your job challenging and you like that?",
+       "بخش دوم هم سؤال است."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه بخشی از شغلش چالش‌برانگیز است",
+     "بپرس راه حل",
+     "What part of your job is challenging? Do you have help?",
+     "A solution?",
+     [],
+     [
+      [
+       "What part of your job challenging is?",
+       "ترتیب: What part of your job is challenging."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو گاهی",
+     "Yes, it is.",
+     "Sometimes.",
+     [],
+     [
+      [
+       "Yes, it does.",
+       "جواب «Is…؟» با «it is» است."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و دوستش دارم",
+     "بگو یاد می‌گیرم",
+     "Yes, it is, and I like that.",
+     "I learn a lot.",
+     [],
+     [
+      [
+       "Yes, it is and I liking that.",
+       "بعد از «I» فعل ساده: like."
+      ]
+     ]
+    ],
+    [
+     "بگو صحبت با مشتری چالش‌برانگیز است چون همیشه راضی نیستند ولی همکارانم کمک می‌کنند",
+     "بگو خوب است",
+     "Talking to customers is challenging, because they aren't always happy, but my colleagues help me.",
+     "It's good.",
+     [],
+     [
+      [
+       "Talking to customers challenging because they not always happy.",
+       "فعل را فراموش نکن: is challenging / aren't."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "self-employed-like",
+   "c": "دوستت گفت: «من کار آزاد دارم.»",
+   "q": [
+    [
+     "بپرس از آن راضی است",
+     "بپرس چرا",
+     "Do you like it?",
+     "Why?",
+     [],
+     [
+      [
+       "Are you like it?",
+       "«like» فعل است؛ با «Do» بپرس."
+      ]
+     ]
+    ],
+    [
+     "بپرس راضی است و ساعت‌هایش را خودش انتخاب می‌کند",
+     "بپرس همیشه",
+     "Do you like it, and do you choose your hours?",
+     "Always?",
+     [],
+     [
+      [
+       "Do you like it and you choose your hours?",
+       "بخش دوم هم سؤال است."
+      ]
+     ]
+    ],
+    [
+     "بپرس کار آزاد از کار برای شرکت آسان‌تر است یا سخت‌تر",
+     "بپرس چرا",
+     "Is it easy or hard to work for yourself? Why?",
+     "Which?",
+     [],
+     [
+      [
+       "Is it easy or hard work for yourself?",
+       "بگو: to work for yourself."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو خیلی",
+     "Yes, I do.",
+     "A lot.",
+     [],
+     [
+      [
+       "Yes, I like.",
+       "جواب «Do you…؟» با «do» است."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و ساعت‌هایم را خودم انتخاب می‌کنم",
+     "بگو آزادم",
+     "Yes, I do, and I choose my hours.",
+     "I'm free.",
+     [],
+     [
+      [
+       "Yes, I do and I choosing my hours.",
+       "بعد از «I» فعل ساده: choose."
+      ]
+     ]
+    ],
+    [
+     "بگو هم آسان است هم سخت چون آزادم ولی گاهی کار پیدا نمی‌کنم",
+     "بگو نگران",
+     "It's both, because I'm free, but sometimes I can't find work.",
+     "I worry.",
+     [],
+     [
+      [
+       "It both because I free.",
+       "فعل را فراموش نکن: It's both / I'm free."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "between-doing",
+   "c": "دوستت گفت: «الان بین دو کار هستم.»",
+   "q": [
+    [
+     "بپرس الان چه می‌کند",
+     "بپرس دنبال کار می‌گردد",
+     "What are you doing now?",
+     "Are you looking for work?",
+     [],
+     [
+      [
+       "What you doing now?",
+       "بعد از «what»، «are» می‌آید و بعد فاعل."
+      ]
+     ]
+    ],
+    [
+     "بپرس الان چه می‌کند و کجا دنبال کار می‌گردد",
+     "بپرس اینترنت",
+     "What are you doing now, and where do you look for work?",
+     "Online?",
+     [],
+     [
+      [
+       "What you doing now, and where do you look for work?",
+       "بعد از «what»، «are» می‌آید و بعد فاعل."
+      ]
+     ]
+    ],
+    [
+     "بپرس نگران است و کسی کمکش می‌کند",
+     "بپرس چه کسی",
+     "Are you worried? Does anyone help you?",
+     "Who?",
+     [],
+     [
+      [
+       "You are worried? Does anyone help you?",
+       "سؤال با «Are» شروع می‌شود: Are you…؟"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو دنبال کار می‌گردم",
+     "بگو هر روز",
+     "I'm looking for work.",
+     "Every day.",
+     [],
+     [
+      [
+       "I looking for work.",
+       "برای کار در حال انجام «am/is/are» لازم است: I'm looking."
+      ]
+     ]
+    ],
+    [
+     "بگو دنبال کار می‌گردم و در اینترنت جست‌وجو می‌کنم",
+     "بگو در خانه",
+     "I'm looking for work, and I look online.",
+     "At home.",
+     [],
+     [
+      [
+       "I looking for work, and I look online.",
+       "برای کار در حال انجام «am/is/are» لازم است: I'm looking."
+      ]
+     ]
+    ],
+    [
+     "بگو کمی نگرانم چون می‌خواهم زود کار پیدا کنم ولی دوستانم کمک می‌کنند",
+     "بگو خوب است",
+     "I'm a bit worried, because I want to find work soon, but my friends help me.",
+     "It's good.",
+     [],
+     [
+      [
+       "I'm a bit worried, because I want find work soon, but my friends help me.",
+       "بعد از «want» باید «to» بیاید: want to find."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "how-many-kids",
+   "c": "دوستت گفت: «از بچه‌ها مراقبت می‌کنم.»",
+   "q": [
+    [
+     "بپرس چند تا",
+     "بپرس چند ساله",
+     "How many?",
+     "How old?",
+     [],
+     []
+    ],
+    [
+     "بپرس چند تا بچه و چه ساعتی",
+     "بپرس صبح",
+     "How many children, and what time?",
+     "In the morning?",
+     [],
+     [
+      [
+       "How much children, and what time?",
+       "«children» شمارشی است: How many."
+      ]
+     ]
+    ],
+    [
+     "بپرس مراقبت از بچه‌ها خسته‌کننده است و دوستشان دارد",
+     "بپرس چرا",
+     "Is looking after children tiring? Do you love it?",
+     "Why?",
+     [],
+     [
+      [
+       "Is tiring to look after children? Do you love it?",
+       "ترتیب جمله: Is looking after children tiring?"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو دو تا",
+     "بگو پنج ساله",
+     "Two.",
+     "Five years old.",
+     [],
+     []
+    ],
+    [
+     "بگو دو تا و بعد از مدرسه",
+     "بگو تا شب",
+     "Two, and after school.",
+     "Until the evening.",
+     [],
+     [
+      [
+       "Two, and after the school.",
+       "می‌گوییم «after school» بدون «the»."
+      ]
+     ]
+    ],
+    [
+     "بگو بله خسته‌کننده است چون خیلی انرژی دارند ولی دوستشان دارم",
+     "بگو می‌خندند",
+     "Yes, it is tiring, because they have a lot of energy, but I love them.",
+     "They laugh.",
+     [],
+     [
+      [
+       "Yes, it is tiring, because they have lot of energy, but I love them.",
+       "قبل از «lot» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "what-difficult",
+   "c": "دوستت گفت: «کارم خیلی چالش‌برانگیز است.»",
+   "q": [
+    [
+     "بپرس چه چیزی سخت است",
+     "بپرس همیشه",
+     "What is difficult?",
+     "Always?",
+     [],
+     []
+    ],
+    [
+     "بپرس چه چیزی سخت است و چه کمکی لازم دارد",
+     "بپرس از کی",
+     "What is difficult, and what help do you need?",
+     "From who?",
+     [],
+     [
+      [
+       "What is difficult, and what help you need?",
+       "بعد از «what» و اسم، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس کدام قسمت سخت است و چطور حلش می‌کند",
+     "بپرس با کمک",
+     "Which part is difficult? How do you deal with it?",
+     "With help?",
+     [],
+     [
+      [
+       "Which part is difficult? How you deal with it?",
+       "بعد از «How» اول «do» می‌آید: How do you deal with it?"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو ساعت‌ها",
+     "بگو و مشتری‌ها",
+     "The hours.",
+     "And customers.",
+     [],
+     []
+    ],
+    [
+     "بگو ساعت‌های طولانی و به یک همکار نیاز دارم",
+     "بگو و استرس",
+     "The long hours, and I need a colleague.",
+     "And stress.",
+     [],
+     [
+      [
+       "The long hours, and I need colleague.",
+       "قبل از «colleague» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو صحبت با مشتری‌های ناراضی سخت است و با نفس عمیق و کمک همکارم حلش می‌کنم",
+     "بگو صبور هستم",
+     "Talking to unhappy customers is difficult, and I deal with it with a deep breath and my colleague's help.",
+     "I'm patient.",
+     [],
+     [
+      [
+       "Talking to unhappy customers is difficult, and I deal with it with deep breath and my colleague's help.",
+       "قبل از «deep» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "business-kind",
+   "c": "دوستت گفت: «می‌خواهم کسب‌وکار خودم را داشته باشم.»",
+   "q": [
+    [
+     "بپرس چه نوع کسب‌وکاری",
+     "بپرس کوچک",
+     "What kind of business?",
+     "A small one?",
+     [],
+     [
+      [
+       "What kind business?",
+       "بگو: What kind of business."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه نوع کسب‌وکاری و کجا",
+     "بپرس شهر",
+     "What kind of business, and where?",
+     "In which city?",
+     [],
+     [
+      [
+       "What kind of business and where you want?",
+       "کوتاه بپرس: and where?"
+      ]
+     ]
+    ],
+    [
+     "بپرس چرا می‌خواهد و پول لازم دارد",
+     "بپرس چقدر",
+     "Why do you want it? Do you need money?",
+     "How much?",
+     [],
+     [
+      [
+       "Why you want it? You need money?",
+       "بعد از «Why»، «do you» می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو یک کافه",
+     "بگو کوچک",
+     "A café.",
+     "A small one.",
+     [],
+     [
+      [
+       "A cafe small.",
+       "صفت قبل از اسم: a small café."
+      ]
+     ]
+    ],
+    [
+     "بگو یک کافه‌ی کوچک نزدیک خانه",
+     "بگو چای و کیک",
+     "A small café near my home.",
+     "Tea and cake.",
+     [],
+     [
+      [
+       "A small café near of my home.",
+       "«near my home» بدون of."
+      ]
+     ]
+    ],
+    [
+     "بگو چون عاشق قهوه‌ام و می‌خواهم خودم تصمیم بگیرم ولی پول زیادی لازم دارم",
+     "بگو پس‌انداز",
+     "Because I love coffee and I want to decide, but I need a lot of money.",
+     "I'm saving.",
+     [],
+     [
+      [
+       "Because I love coffee and I want decide, but I need much money.",
+       "بعد از «want» باید «to»؛ و «a lot of money»."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "dream-career",
+   "c": null,
+   "q": [
+    [
+     "بپرس شغل رؤیایی‌اش چیست",
+     "بپرس چرا",
+     "What is your dream career?",
+     "Why?",
+     [],
+     [
+      [
+       "What your dream career is?",
+       "ترتیب: What is your dream career."
+      ]
+     ]
+    ],
+    [
+     "بپرس شغل رؤیایی‌اش چیست و برای آن چه می‌کند",
+     "بپرس درس",
+     "What is your dream career, and what do you do for it?",
+     "Study?",
+     [],
+     [
+      [
+       "What is your dream career and what you do for it?",
+       "بعد از «what»، «do you» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس شغل رؤیایی‌اش را دارد یا هنوز دنبالش است و چرا",
+     "بپرس مشکل",
+     "Do you have your dream career, or are you still looking? Why?",
+     "A problem?",
+     [],
+     [
+      [
+       "Do you have your dream career or you still look?",
+       "بخش دوم هم سؤال است: or are you still looking."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو دکتر",
+     "بگو از بچگی",
+     "A doctor.",
+     "Since I was small.",
+     [],
+     [
+      [
+       "Doctor.",
+       "قبل از شغل «a» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بگو دکتر و درس می‌خوانم",
+     "بگو شب‌ها",
+     "A doctor, and I'm studying.",
+     "At night.",
+     [],
+     [
+      [
+       "A doctor and I study now.",
+       "برای الان: I'm studying."
+      ]
+     ]
+    ],
+    [
+     "بگو هنوز دنبالش هستم چون درس سخت است ولی تسلیم نمی‌شوم",
+     "بگو هر روز",
+     "I'm still looking, because studying is hard, but I don't give up.",
+     "Every day.",
+     [],
+     [
+      [
+       "I still looking because study is hard.",
+       "فعل را فراموش نکن: I'm still looking."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "full-time",
+   "c": null,
+   "q": [
+    [
+     "بپرس تمام‌وقت کار می‌کند",
+     "بپرس چند ساعت",
+     "Do you work full-time?",
+     "How many hours?",
+     [],
+     [
+      [
+       "Are you work full-time?",
+       "«work» فعل است؛ با «Do» بپرس."
+      ]
+     ]
+    ],
+    [
+     "بپرس تمام‌وقت کار می‌کند و چند روز در هفته",
+     "بپرس شنبه",
+     "Do you work full-time, and how many days a week?",
+     "Saturday?",
+     [],
+     [
+      [
+       "Do you work full-time and how many days you work?",
+       "بعد از «how many days»، «do you» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس تمام‌وقت یا پاره‌وقت را دوست دارد و چرا",
+     "بپرس کدام",
+     "Do you prefer to work full-time or part-time? Why?",
+     "Which?",
+     [],
+     [
+      [
+       "Do you prefer work full-time or part-time?",
+       "بعد از «prefer» باید «to» بیاید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو هشت ساعت",
+     "Yes, I do.",
+     "Eight hours.",
+     [],
+     [
+      [
+       "Yes, I work.",
+       "جواب «Do you…؟» با «do» است."
+      ]
+     ]
+    ],
+    [
+     "بگو بله، پنج روز در هفته",
+     "بگو شنبه تا چهارشنبه",
+     "Yes, I do, five days a week.",
+     "Saturday to Wednesday.",
+     [],
+     [
+      [
+       "Yes, I do, five day a week.",
+       "جمع: five days."
+      ]
+     ]
+    ],
+    [
+     "بگو تمام‌وقت چون پول بیشتری می‌گیرم ولی وقت آزاد کمی دارم",
+     "بگو خسته",
+     "Full-time, because I get more money, but I have little free time.",
+     "I'm tired.",
+     [],
+     [
+      [
+       "Full-time because I get more money but I have few free time.",
+       "با «time» شمارش‌ناپذیر: little free time."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "part-time",
+   "c": null,
+   "q": [
+    [
+     "بپرس می‌خواهد کار پاره‌وقت داشته باشد",
+     "بپرس چرا",
+     "Do you want a part-time job?",
+     "Why?",
+     [],
+     [
+      [
+       "Are you want a part-time job?",
+       "«want» فعل است؛ با «Do» بپرس."
+      ]
+     ]
+    ],
+    [
+     "بپرس می‌خواهد کار پاره‌وقت داشته باشد و چه کاری",
+     "بپرس کافه",
+     "Do you want a part-time job, and what kind?",
+     "In a café?",
+     [],
+     [
+      [
+       "Do you want a part-time job and what kind of?",
+       "بگو: and what kind?"
+      ]
+     ]
+    ],
+    [
+     "بپرس کار پاره‌وقت برای دانشجو خوب است و چرا",
+     "بپرس مشکل",
+     "Is a part-time job good for a student? Why?",
+     "A problem?",
+     [],
+     [
+      [
+       "Does a part-time job good for a student?",
+       "با صفت (good) از «Is» استفاده کن."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو برای پول",
+     "Yes, I do.",
+     "For money.",
+     [],
+     [
+      [
+       "Yes, I want.",
+       "جواب «Do you…؟» با «do» است."
+      ]
+     ]
+    ],
+    [
+     "بگو بله، در یک کافه",
+     "بگو آخر هفته",
+     "Yes, I do, in a café.",
+     "At the weekend.",
+     [],
+     [
+      [
+       "Yes, I do, at a café on weekend.",
+       "«at the weekend» بگو."
+      ]
+     ]
+    ],
+    [
+     "بگو بله خوب است چون پول می‌گیرم و وقت درس هم دارم ولی خسته می‌شوم",
+     "بگو گاهی",
+     "Yes, it is, because I get money and I have time to study, but I get tired.",
+     "Sometimes.",
+     [],
+     [
+      [
+       "Yes, it is because I get money and I have time for study.",
+       "بگو: time to study."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "workplace",
+   "c": null,
+   "q": [
+    [
+     "بپرس محل کارش نزدیک خانه‌اش است",
+     "بپرس چقدر",
+     "Is your workplace near your home?",
+     "How far?",
+     [],
+     [
+      [
+       "Your is workplace near your home?",
+       "سؤال با «Is» شروع می‌شود: Is your…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس محل کارش نزدیک است و چطور می‌رود",
+     "بپرس اتوبوس",
+     "Is your workplace near your home, and how do you get there?",
+     "By bus?",
+     [],
+     [
+      [
+       "Your is workplace near your home, and how do you get there?",
+       "سؤال با «Is» شروع می‌شود: Is your…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس از محل کارش راضی است و چه چیزی را دوست ندارد",
+     "بپرس اتاق",
+     "Are you happy at your workplace? What don't you like?",
+     "The room?",
+     [],
+     [
+      [
+       "Are you happy at your workplace? What you don't like?",
+       "بعد از «What» اول «don't» می‌آید: What don't you…؟"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو ده دقیقه",
+     "Yes, it is.",
+     "Ten minutes.",
+     [],
+     [
+      [
+       "Yes, it does.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, it is."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و ده دقیقه پیاده می‌روم",
+     "بگو هر روز",
+     "Yes, it is, and I walk for ten minutes.",
+     "Every day.",
+     [],
+     [
+      [
+       "Yes, it does, and I walk for ten minutes.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, it is."
+      ]
+     ]
+    ],
+    [
+     "بگو بله راضی‌ام چون همکاران خوبی دارم ولی راهش دور است",
+     "بگو و ترافیک",
+     "Yes, I'm happy, because I have good colleagues, but it's far.",
+     "And the traffic.",
+     [],
+     [
+      [
+       "Yes, I'm happy, because have good colleagues, but it's far.",
+       "بعد از «because» فاعل لازم است: because I have."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "colleagues",
+   "c": null,
+   "q": [
+    [
+     "بپرس با همکارانش خوب کنار می‌آید",
+     "بپرس همه",
+     "Do you get on well with your colleagues?",
+     "All of them?",
+     [],
+     [
+      [
+       "Are you get on well with your colleagues?",
+       "«get on» فعل است؛ با «Do» بپرس."
+      ]
+     ]
+    ],
+    [
+     "بپرس با همکارانش خوب کنار می‌آید و با هم ناهار می‌خورند",
+     "بپرس هر روز",
+     "Do you get on well with your colleagues, and do you have lunch together?",
+     "Every day?",
+     [],
+     [
+      [
+       "Do you get on well with your colleagues and you have lunch together?",
+       "بخش دوم هم سؤال است."
+      ]
+     ]
+    ],
+    [
+     "بپرس همکاران خوب چه ویژگی‌ای دارند و همکارانش چطورند",
+     "بپرس مهربان",
+     "What are good colleagues like? What are yours like?",
+     "Kind?",
+     [],
+     [
+      [
+       "What good colleagues are like?",
+       "ترتیب: What are good colleagues like."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو خیلی",
+     "Yes, I do.",
+     "Very well.",
+     [],
+     [
+      [
+       "Yes, I get.",
+       "جواب «Do you…؟» با «do» است."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و هر روز با هم ناهار می‌خوریم",
+     "بگو و چای",
+     "Yes, I do, and we have lunch together every day.",
+     "And tea.",
+     [],
+     [
+      [
+       "Yes, I do and we having lunch together.",
+       "بعد از «we» فعل ساده: have."
+      ]
+     ]
+    ],
+    [
+     "بگو همکاران خوب کمک می‌کنند و صادق‌اند و همکارانم همین‌طورند ولی یکی کمی ساکت است",
+     "بگو خجالتی",
+     "Good colleagues help you and are honest, and mine are like that, but one is a bit quiet.",
+     "Shy.",
+     [],
+     [
+      [
+       "Good colleagues helps you and honest.",
+       "با جمع فعل بدون s: help؛ و «are honest»."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "hours-how-many",
+   "c": "دوستت گفت: «من تمام‌وقت کار می‌کنم.»",
+   "q": [
+    [
+     "بپرس چند ساعت کار می‌کند",
+     "بپرس هر روز",
+     "How many hours do you work?",
+     "Every day?",
+     [],
+     [
+      [
+       "How many hours you work?",
+       "بعد از «How many hours»، «do you» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چند ساعت کار می‌کند و چه ساعتی شروع می‌کند",
+     "بپرس هشت",
+     "How many hours do you work, and what time do you start?",
+     "At eight?",
+     [],
+     [
+      [
+       "How many hours do you work and what time you start?",
+       "بعد از «what time»، «do you» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس ساعت کارش طولانی است و وقت آزاد دارد",
+     "بپرس چه می‌کند",
+     "Are your hours long? Do you have free time?",
+     "What do you do?",
+     [],
+     [
+      [
+       "Your hours are long? Do you have free time?",
+       "سؤال اول: Are your hours long?"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو هشت ساعت",
+     "بگو پنج روز",
+     "Eight hours.",
+     "Five days.",
+     [],
+     [
+      [
+       "Eight hour.",
+       "جمع: eight hours."
+      ]
+     ]
+    ],
+    [
+     "بگو هشت ساعت و ساعت هشت شروع می‌کنم",
+     "بگو تا چهار",
+     "Eight hours, and I start at eight.",
+     "Until four.",
+     [],
+     [
+      [
+       "Eight hours and I start in eight.",
+       "برای ساعت از «at» استفاده کن."
+      ]
+     ]
+    ],
+    [
+     "بگو بله طولانی است ولی عصرها وقت دارم چون ساعت پنج تمام می‌شود",
+     "بگو ورزش",
+     "Yes, they are long, but I have time in the evening, because I finish at five.",
+     "I exercise.",
+     [],
+     [
+      [
+       "Yes they long but I have time at evening.",
+       "«in the evening» بگو."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "why-part-time",
+   "c": "دوستت گفت: «من پاره‌وقت کار می‌کنم.»",
+   "q": [
+    [
+     "بپرس چرا پاره‌وقت",
+     "بپرس درس",
+     "Why part-time?",
+     "Do you study?",
+     [],
+     [
+      [
+       "Why you part-time?",
+       "کوتاه بپرس: Why part-time?"
+      ]
+     ]
+    ],
+    [
+     "بپرس چرا پاره‌وقت و چه ساعت‌هایی",
+     "بپرس صبح",
+     "Why do you work part-time, and what hours?",
+     "In the morning?",
+     [],
+     [
+      [
+       "Why you work part-time and what hours?",
+       "بعد از «Why»، «do you» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس پاره‌وقت کافی است و می‌خواهد تمام‌وقت شود",
+     "بپرس چرا",
+     "Is part-time enough for you? Do you want to work full-time?",
+     "Why?",
+     [],
+     [
+      [
+       "Is part-time enough for you? You want full-time?",
+       "سؤال دوم: Do you want to work full-time?"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو چون درس می‌خوانم",
+     "بگو دانشگاه",
+     "Because I study.",
+     "At university.",
+     [],
+     [
+      [
+       "Because I am study.",
+       "بعد از «I» فعل ساده: study."
+      ]
+     ]
+    ],
+    [
+     "بگو چون درس می‌خوانم و صبح‌ها کار می‌کنم",
+     "بگو چهار ساعت",
+     "Because I study, and I work in the morning.",
+     "Four hours.",
+     [],
+     [
+      [
+       "Because I study and I working in the morning.",
+       "بعد از «I» فعل ساده: work."
+      ]
+     ]
+    ],
+    [
+     "بگو فعلاً کافی است چون درس دارم ولی بعد از دانشگاه تمام‌وقت می‌خواهم",
+     "بگو بله",
+     "For now it is, because I study, but after university I want to work full-time.",
+     "Yes.",
+     [],
+     [
+      [
+       "For now is enough because I study.",
+       "بگو: For now it is."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "lunch-where",
+   "c": "دوستت گفت: «من با همکارانم ناهار می‌خورم.»",
+   "q": [
+    [
+     "بپرس کجا غذا می‌خورند",
+     "بپرس بیرون",
+     "Where do you eat?",
+     "Outside?",
+     [],
+     [
+      [
+       "Where you eat?",
+       "بعد از «Where»، «do you» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس کجا غذا می‌خورند و چه می‌خورند",
+     "بپرس برنج",
+     "Where do you eat, and what do you eat?",
+     "Rice?",
+     [],
+     [
+      [
+       "Where do you eat and what you eat?",
+       "بعد از «what»، «do you» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس همیشه با همکارانش غذا می‌خورد یا گاهی تنها",
+     "بپرس چرا",
+     "Do you always eat with colleagues, or sometimes alone? Why?",
+     "Why?",
+     [],
+     [
+      [
+       "Do you eat always with colleagues?",
+       "«always» قبل از فعل: always eat."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو در اتاق استراحت",
+     "بگو غذای خانگی",
+     "In the break room.",
+     "Home food.",
+     [],
+     [
+      [
+       "At the break room.",
+       "«in the break room» بگو."
+      ]
+     ]
+    ],
+    [
+     "بگو در اتاق استراحت و غذای خانگی می‌خورم",
+     "بگو و میوه",
+     "In the break room, and I eat home food.",
+     "And fruit.",
+     [],
+     [
+      [
+       "In the break room and I eating home food.",
+       "بعد از «I» فعل ساده: eat."
+      ]
+     ]
+    ],
+    [
+     "بگو معمولاً با آن‌ها چون حرف زدن خوب است ولی گاهی تنها می‌خورم چون کار دارم",
+     "بگو و کار",
+     "Usually with them, because talking is good, but sometimes I eat alone, because I have work.",
+     "And work.",
+     [],
+     [
+      [
+       "Usually with them because talk is good.",
+       "بگو: talking is good."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "go-there",
+   "c": "دوستت گفت: «محل کارم دور است.»",
+   "q": [
+    [
+     "بپرس چطور می‌رود",
+     "بپرس اتوبوس",
+     "How do you go there?",
+     "By bus?",
+     [],
+     [
+      [
+       "How you go there?",
+       "بعد از «How»، «do you» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چطور می‌رود و چقدر طول می‌کشد",
+     "بپرس یک ساعت",
+     "How do you go there, and how long does it take?",
+     "An hour?",
+     [],
+     [
+      [
+       "How do you go there and how long it takes?",
+       "بعد از «how long»، «does it take» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس رفتن سخت است و می‌خواهد نزدیک‌تر باشد",
+     "بپرس چرا",
+     "Is it hard to go there? Do you want a job near your home?",
+     "Why?",
+     [],
+     [
+      [
+       "Is hard go there?",
+       "بعد از «Is» باید «it» بیاید؛ و «to go»."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو با اتوبوس",
+     "بگو و مترو",
+     "By bus.",
+     "And metro.",
+     [],
+     [
+      [
+       "With bus.",
+       "برای وسیله از «by» استفاده کن."
+      ]
+     ]
+    ],
+    [
+     "بگو با اتوبوس و مترو و یک ساعت طول می‌کشد",
+     "بگو هر روز",
+     "By bus and metro, and it takes an hour.",
+     "Every day.",
+     [],
+     [
+      [
+       "By bus and metro and it take an hour.",
+       "با «it» فعل s می‌گیرد: takes."
+      ]
+     ]
+    ],
+    [
+     "بگو بله سخت است چون خسته می‌شوم و می‌خواهم کاری نزدیک خانه داشته باشم",
+     "بگو بله",
+     "Yes, it is, because I get tired, and I want a job near my home.",
+     "Yes.",
+     [],
+     [
+      [
+       "Yes it is because I tired.",
+       "فعل را فراموش نکن: I get tired."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "change-job",
+   "c": "دوستت گفت: «می‌خواهم شغلم را عوض کنم.»",
+   "q": [
+    [
+     "بپرس چه شغلی می‌خواهد",
+     "بپرس اداری",
+     "What job do you want?",
+     "An office job?",
+     [],
+     [
+      [
+       "What job you want?",
+       "بعد از «What job»، «do you» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه شغلی می‌خواهد و چرا",
+     "بپرس پول",
+     "What job do you want, and why?",
+     "Money?",
+     [],
+     [
+      [
+       "What job do you want and why you want it?",
+       "کوتاه بپرس: and why?"
+      ]
+     ]
+    ],
+    [
+     "بپرس برای شغل جدید چه باید یاد بگیرد",
+     "بپرس درس",
+     "What do you have to learn for the new job?",
+     "A course?",
+     [],
+     [
+      [
+       "What you have to learn?",
+       "بعد از «What»، «do you» می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو یک شغل اداری",
+     "بگو نزدیک خانه",
+     "An office job.",
+     "Near my home.",
+     [],
+     [
+      [
+       "A office job.",
+       "قبل از مصوت «an» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بگو یک شغل اداری چون خسته نمی‌شوم",
+     "بگو ساعت ثابت",
+     "An office job, because I don't get tired.",
+     "Fixed hours.",
+     [],
+     [
+      [
+       "An office job because I not get tired.",
+       "منفی: I don't get tired."
+      ]
+     ]
+    ],
+    [
+     "بگو باید انگلیسی و کامپیوتر یاد بگیرم چون در شغل جدید لازم است",
+     "بگو یک دوره",
+     "I have to learn English and computers, because they are needed in the new job.",
+     "A course.",
+     [],
+     [
+      [
+       "I have learn English because it need.",
+       "بعد از «have» باید «to» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "responsibilities",
+   "c": null,
+   "q": [
+    [
+     "بپرس مسئولیت‌هایش چیست",
+     "بپرس مهم",
+     "What are your responsibilities?",
+     "Important?",
+     [],
+     [
+      [
+       "What your responsibilities?",
+       "بعد از «what»، «are» می‌آید و بعد فاعل."
+      ]
+     ]
+    ],
+    [
+     "بپرس مسئولیت‌هایش چیست و کدام را دوست دارد",
+     "بپرس چرا",
+     "What are your responsibilities, and which one do you like?",
+     "Why?",
+     [],
+     [
+      [
+       "What your responsibilities, and which one do you like?",
+       "بعد از «what»، «are» می‌آید و بعد فاعل."
+      ]
+     ]
+    ],
+    [
+     "بپرس مسئولیت‌هایش را دوست دارد و به کمک نیاز دارد",
+     "بپرس از کی",
+     "Do you like your responsibilities? Do you need help with them?",
+     "From who?",
+     [],
+     [
+      [
+       "You like your responsibilities? Do you need help with them?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو جواب دادن به مشتری",
+     "بگو و تلفن",
+     "Answering customers.",
+     "And the phone.",
+     [],
+     []
+    ],
+    [
+     "بگو جواب دادن به مشتری‌ها و نوشتن گزارش و گزارش را دوست دارم",
+     "بگو آرام است",
+     "Answering customers and writing reports, and I like the reports.",
+     "They are quiet.",
+     [],
+     [
+      [
+       "Answering customers and writing reports, and I am like the reports.",
+       "بعد از «I» فعل ساده می‌آید: I like."
+      ]
+     ]
+    ],
+    [
+     "بگو بله دوستشان دارم چون مفیدند ولی گاهی به کمک نیاز دارم",
+     "بگو از همکارم",
+     "Yes, I do, because they are useful, but sometimes I need help.",
+     "From my colleague.",
+     [],
+     [
+      [
+       "Yes, I am, because they are useful, but sometimes I need help.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "in-charge",
+   "c": null,
+   "q": [
+    [
+     "بپرس مسئول چیزی هست",
+     "بپرس چه",
+     "Are you in charge of anything?",
+     "What?",
+     [],
+     [
+      [
+       "Do you in charge of anything?",
+       "با «in charge» از «Are» استفاده کن."
+      ]
+     ]
+    ],
+    [
+     "بپرس مسئول چیزی هست و چند نفر با او کار می‌کنند",
+     "بپرس تیم",
+     "Are you in charge of anything, and how many people work with you?",
+     "A team?",
+     [],
+     [
+      [
+       "Are you in charge of anything and how many people works with you?",
+       "با «people» فعل بدون s: work."
+      ]
+     ]
+    ],
+    [
+     "بپرس مسئول بودن را دوست دارد و سخت است",
+     "بپرس چرا",
+     "Do you like being in charge? Is it hard?",
+     "Why?",
+     [],
+     [
+      [
+       "Do you like be in charge?",
+       "بعد از «like» شکل -ing: being."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو از یک تیم",
+     "Yes, I am.",
+     "Of a team.",
+     [],
+     [
+      [
+       "Yes, I do.",
+       "جواب «Are you…؟» با «am» است."
+      ]
+     ]
+    ],
+    [
+     "بگو بله، مسئول یک تیم کوچک",
+     "بگو پنج نفر",
+     "Yes, I am. I'm in charge of a small team.",
+     "Five people.",
+     [],
+     [
+      [
+       "Yes, I am. I in charge of a small team.",
+       "فعل را فراموش نکن: I'm in charge."
+      ]
+     ]
+    ],
+    [
+     "بگو بله دوست دارم چون یاد می‌گیرم ولی گاهی استرس دارم چون مسئولیتش زیاد است",
+     "بگو قبول",
+     "Yes, I do, because I learn, but sometimes I'm stressed, because there is a lot of responsibility.",
+     "I accept it.",
+     [],
+     [
+      [
+       "Yes I do because I learn but sometimes stressed.",
+       "فعل را فراموش نکن: I'm stressed."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "working-hours",
+   "c": null,
+   "q": [
+    [
+     "بپرس ساعت کارش چیست",
+     "بپرس از کی تا کی",
+     "What are your working hours?",
+     "From when?",
+     [],
+     [
+      [
+       "What your working hours are?",
+       "ترتیب: What are your working hours."
+      ]
+     ]
+    ],
+    [
+     "بپرس ساعت کارش چیست و استراحت دارد",
+     "بپرس ناهار",
+     "What are your working hours, and do you have a break?",
+     "For lunch?",
+     [],
+     [
+      [
+       "What are your working hours and you have a break?",
+       "بخش دوم هم سؤال است."
+      ]
+     ]
+    ],
+    [
+     "بپرس ساعت کارش ثابت است یا تغییر می‌کند و چرا",
+     "بپرس شیفت",
+     "Are your hours always the same, or do they change? Why?",
+     "Shifts?",
+     [],
+     [
+      [
+       "Your hours are always the same or they change?",
+       "سؤال: Are your hours always the same."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو نه تا پنج",
+     "بگو و جمعه تعطیل",
+     "From nine to five.",
+     "Friday off.",
+     [],
+     [
+      [
+       "From nine until to five.",
+       "فقط «from nine to five»."
+      ]
+     ]
+    ],
+    [
+     "بگو از نه تا پنج و یک ساعت استراحت دارم",
+     "بگو برای ناهار",
+     "From nine to five, and I have an hour's break.",
+     "For lunch.",
+     [],
+     [
+      [
+       "From nine to five and I have one hour break.",
+       "بگو: an hour's break."
+      ]
+     ]
+    ],
+    [
+     "بگو معمولاً همان‌اند ولی گاهی تغییر می‌کنند چون مشتری‌ها زیاد می‌شوند",
+     "بگو شیفت",
+     "Usually the same, but sometimes they change, because there are more customers.",
+     "Shifts.",
+     [],
+     [
+      [
+       "Usually same but sometimes they changes.",
+       "با «they» فعل بدون s: change."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "overtime",
+   "c": null,
+   "q": [
+    [
+     "بپرس اضافه‌کاری می‌کند",
+     "بپرس اغلب",
+     "Do you work overtime?",
+     "Often?",
+     [],
+     [
+      [
+       "Are you work overtime?",
+       "«work» فعل است؛ با «Do» بپرس."
+      ]
+     ]
+    ],
+    [
+     "بپرس اضافه‌کاری می‌کند و چند ساعت",
+     "بپرس در هفته",
+     "Do you work overtime, and how many hours?",
+     "A week?",
+     [],
+     [
+      [
+       "Do you work overtime and how many hours you work?",
+       "کوتاه بپرس: and how many hours?"
+      ]
+     ]
+    ],
+    [
+     "بپرس اضافه‌کاری را دوست دارد یا مجبور است",
+     "بپرس چرا",
+     "Do you like working overtime, or do you have to? Why?",
+     "Why?",
+     [],
+     [
+      [
+       "Do you like work overtime or you have to?",
+       "بعد از «like» شکل -ing: working."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو گاهی",
+     "بگو در پایان ماه",
+     "Sometimes.",
+     "At the end of the month.",
+     [],
+     [
+      [
+       "Some time.",
+       "بگو: sometimes."
+      ]
+     ]
+    ],
+    [
+     "بگو گاهی دو سه ساعت",
+     "بگو در هفته",
+     "Sometimes, two or three hours.",
+     "A week.",
+     [],
+     [
+      [
+       "Sometimes two three hours.",
+       "بگو: two or three."
+      ]
+     ]
+    ],
+    [
+     "بگو مجبورم چون کار زیاد است و دوست ندارم ولی پول بیشتری می‌گیرم",
+     "بگو خسته",
+     "I have to, because there is a lot of work, and I don't like it, but I get more money.",
+     "I'm tired.",
+     [],
+     [
+      [
+       "I have to because there is much work and I not like it.",
+       "منفی: I don't like it؛ «a lot of work»."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "salary-enough",
+   "c": null,
+   "q": [
+    [
+     "بپرس حقوقش کافی است",
+     "بپرس برای زندگی",
+     "Is your salary enough?",
+     "For life?",
+     [],
+     [
+      [
+       "Does your salary enough?",
+       "با صفت از «Is» استفاده کن."
+      ]
+     ]
+    ],
+    [
+     "بپرس حقوقش کافی است و پس‌انداز می‌کند",
+     "بپرس هر ماه",
+     "Is your salary enough, and do you save money?",
+     "Every month?",
+     [],
+     [
+      [
+       "Is your salary enough and you save money?",
+       "بخش دوم هم سؤال است."
+      ]
+     ]
+    ],
+    [
+     "بپرس حقوق خوب برای کار مهم‌تر است یا کار خوب",
+     "بپرس چرا",
+     "What is important for you, a good salary or a good job? Why?",
+     "Why?",
+     [],
+     [
+      [
+       "What important is for you?",
+       "ترتیب: What is important for you."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو نه",
+     "بگو کم",
+     "No, it isn't.",
+     "A little.",
+     [],
+     [
+      [
+       "No, it doesn't.",
+       "جواب «Is…؟» با «it isn't» است."
+      ]
+     ]
+    ],
+    [
+     "بگو نه، کافی نیست",
+     "بگو برای اجاره",
+     "No, it isn't enough.",
+     "For the rent.",
+     [],
+     [
+      [
+       "No, it isn't enough for the rents.",
+       "«the rent» مفرد."
+      ]
+     ]
+    ],
+    [
+     "بگو کار خوب برایم مهم است چون دوستش دارم ولی حقوق هم باید کافی باشد",
+     "بگو هر دو",
+     "A good job is important for me, because I love it, but the salary has to be enough too.",
+     "Both.",
+     [],
+     [
+      [
+       "A good job important for me because I love.",
+       "فعل را فراموش نکن: is important."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "extra-money",
+   "c": "دوستت گفت: «من اضافه‌کاری می‌کنم.»",
+   "q": [
+    [
+     "بپرس پول اضافه می‌گیرد",
+     "بپرس چقدر",
+     "Do you get extra money?",
+     "How much?",
+     [],
+     [
+      [
+       "You get extra money?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس پول اضافه می‌گیرد و کافی است",
+     "بپرس چرا",
+     "Do you get extra money, and is it enough?",
+     "Why?",
+     [],
+     [
+      [
+       "You get extra money, and is it enough?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس اگر اضافه‌کاری نکند چه می‌شود",
+     "بپرس مدیر",
+     "What happens if you don't work overtime?",
+     "The boss?",
+     [],
+     [
+      [
+       "What happens if you not work overtime?",
+       "منفی با «don't» ساخته می‌شود: if you don't work."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو کم",
+     "Yes, I do.",
+     "A little.",
+     [],
+     [
+      [
+       "Yes, I am.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو بله ولی کافی نیست",
+     "بگو چون کم است",
+     "Yes, I do, but it isn't enough.",
+     "Because it's small.",
+     [],
+     [
+      [
+       "Yes, I am, but it isn't enough.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو اتفاق بدی نمی‌افتد ولی مدیر ناراحت می‌شود چون کار می‌ماند",
+     "بگو و همکارانم",
+     "Nothing bad happens, but my boss is unhappy, because the work stays.",
+     "And my colleagues.",
+     [],
+     [
+      [
+       "Nothing bad happens, but my boss is unhappy, because the work stay.",
+       "با «the work» فعل «s» می‌گیرد: stays."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "team-size",
+   "c": "دوستت گفت: «من مسئول یک تیم هستم.»",
+   "q": [
+    [
+     "بپرس چند نفر در تیم‌اش هستند",
+     "بپرس چه کسانی",
+     "How many people are in your team?",
+     "Who?",
+     [],
+     [
+      [
+       "How many people there are in your team?",
+       "بعد از «How many people» فعل «are» می‌آید، «there» لازم نیست."
+      ]
+     ]
+    ],
+    [
+     "بپرس چند نفر در تیم هستند و چه کار می‌کنند",
+     "بپرس فروش",
+     "How many people are in your team, and what do they do?",
+     "Sales?",
+     [],
+     [
+      [
+       "How many people are in your team, and what they do?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس تیم‌اش خوب کار می‌کند و او را دوست دارند",
+     "بپرس چرا",
+     "Does your team work well? Do they like you?",
+     "Why?",
+     [],
+     [
+      [
+       "Your team work well? Do they like you?",
+       "سؤال با «Does» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو شش نفر",
+     "بگو و من",
+     "Six people.",
+     "And me.",
+     [],
+     []
+    ],
+    [
+     "بگو شش نفر که در فروش کار می‌کنند",
+     "بگو در یک اتاق",
+     "Six people who work in sales.",
+     "In one room.",
+     [],
+     [
+      [
+       "Six people who works in sales.",
+       "با «people» فعل «s» نمی‌گیرد: work."
+      ]
+     ]
+    ],
+    [
+     "بگو بله خوب کار می‌کند چون همه دوست دارند کمک کنند و فکر می‌کنم دوستم دارند",
+     "بگو من هم دوستشان دارم",
+     "Yes, it works well, because everyone likes to help, and I think they like me.",
+     "I like them too.",
+     [],
+     [
+      [
+       "Yes, it work well, because everyone likes to help, and I think they like me.",
+       "با «it» فعل «s» می‌گیرد: works."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "finish-time",
+   "c": "دوستت گفت: «ساعت کاری‌ام خیلی طولانی است.»",
+   "q": [
+    [
+     "بپرس چه ساعتی تمام می‌کند",
+     "بپرس هر روز",
+     "What time do you finish?",
+     "Every day?",
+     [],
+     [
+      [
+       "What time you finish?",
+       "بعد از «What time»، «do you» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه ساعتی شروع و تمام می‌کند",
+     "بپرس استراحت",
+     "What time do you start and finish?",
+     "Any break?",
+     [],
+     [
+      [
+       "What time you start and finish?",
+       "بعد از «What time»، «do you» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس ساعت کاری طولانی برای زندگی‌اش مشکل است و چه می‌کند",
+     "بپرس خانواده",
+     "Is a long day a problem for your life? What do you do?",
+     "Family?",
+     [],
+     [
+      [
+       "Does a long day a problem?",
+       "با اسم (problem) از «Is» استفاده کن."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو ساعت هفت",
+     "بگو شب",
+     "At seven.",
+     "In the evening.",
+     [],
+     [
+      [
+       "In seven.",
+       "برای ساعت از «at» استفاده کن."
+      ]
+     ]
+    ],
+    [
+     "بگو ساعت هشت شروع و ساعت هفت تمام می‌کنم",
+     "بگو یک ساعت ناهار",
+     "I start at eight and finish at seven.",
+     "One hour for lunch.",
+     [],
+     [
+      [
+       "I start at eight and I finish in seven.",
+       "برای ساعت از «at» استفاده کن."
+      ]
+     ]
+    ],
+    [
+     "بگو بله مشکل است چون خانواده‌ام را کم می‌بینم ولی آخر هفته‌ها وقت می‌گذارم",
+     "بگو با هم",
+     "Yes, it is, because I see my family little, but I spend the weekend with them.",
+     "Together.",
+     [],
+     [
+      [
+       "Yes it is because I see my family few.",
+       "با فعل: I see my family a little."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "tired-responsible",
+   "c": "دوستت گفت: «مسئولیت زیادی دارم.»",
+   "q": [
+    [
+     "بپرس خسته است",
+     "بپرس خیلی",
+     "Are you tired?",
+     "Very?",
+     [],
+     [
+      [
+       "Do you tired?",
+       "با صفت از «Are» استفاده کن."
+      ]
+     ]
+    ],
+    [
+     "بپرس خسته است و استراحت می‌کند",
+     "بپرس کی",
+     "Are you tired, and do you rest?",
+     "When?",
+     [],
+     [
+      [
+       "Are you tired and you rest?",
+       "بخش دوم هم سؤال است."
+      ]
+     ]
+    ],
+    [
+     "بپرس مسئولیت زیاد را دوست دارد یا می‌ترسد",
+     "بپرس چرا",
+     "Do you like a lot of responsibility, or are you afraid? Why?",
+     "Why?",
+     [],
+     [
+      [
+       "Do you like a lot of responsibility or you are afraid?",
+       "بخش دوم هم سؤال است."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو گاهی",
+     "Yes, I am.",
+     "Sometimes.",
+     [],
+     [
+      [
+       "Yes, I do.",
+       "جواب «Are you…؟» با «am» است."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و آخر هفته استراحت می‌کنم",
+     "بگو می‌خوابم",
+     "Yes, I am, and I rest at the weekend.",
+     "I sleep.",
+     [],
+     [
+      [
+       "Yes, I am and I resting.",
+       "بعد از «I» فعل ساده: rest."
+      ]
+     ]
+    ],
+    [
+     "بگو دوستش دارم چون یاد می‌گیرم ولی گاهی می‌ترسم اشتباه کنم",
+     "بگو کمک می‌خواهم",
+     "I like it, because I learn, but sometimes I'm afraid to make a mistake.",
+     "I need help.",
+     [],
+     [
+      [
+       "I like it because I learn but sometimes afraid.",
+       "فعل را فراموش نکن: I'm afraid."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "another-job",
+   "c": "دوستت گفت: «حقوقم کافی نیست.»",
+   "q": [
+    [
+     "بپرس شغل دیگری می‌خواهد",
+     "بپرس چه",
+     "Do you want another job?",
+     "What kind?",
+     [],
+     [
+      [
+       "You want another job?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس شغل دیگری می‌خواهد و دنبالش می‌گردد",
+     "بپرس کجا",
+     "Do you want another job, and are you looking?",
+     "Where?",
+     [],
+     [
+      [
+       "You want another job, and are you looking?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس شغل دوم هم دارد یا به آن فکر می‌کند و چرا",
+     "بپرس وقت",
+     "Do you have a second job, or do you think about it? Why?",
+     "Time?",
+     [],
+     [
+      [
+       "You have a second job, or do you think about it? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو با حقوق بهتر",
+     "Yes, I do.",
+     "With more money.",
+     [],
+     [
+      [
+       "Yes, I am.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و دنبالش می‌گردم",
+     "بگو در اینترنت",
+     "Yes, I do, and I'm looking.",
+     "Online.",
+     [],
+     [
+      [
+       "Yes, I do, and I looking.",
+       "برای کار در حال انجام «am/is/are» لازم است: I'm looking."
+      ]
+     ]
+    ],
+    [
+     "بگو به آن فکر می‌کنم چون حقوقم کافی نیست ولی وقت ندارم",
+     "بگو سخت است",
+     "I think about it, because my salary isn't enough, but I have no time.",
+     "It's hard.",
+     [],
+     [
+      [
+       "I think about it, because my salary no enough, but I have no time.",
+       "منفی با «isn't» ساخته می‌شود: salary isn't enough."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "have-to-do",
+   "c": null,
+   "q": [
+    [
+     "بپرس سر کار چه کارهایی باید انجام دهد",
+     "بپرس هر روز",
+     "What do you have to do at work?",
+     "Every day?",
+     [],
+     [
+      [
+       "What you have to do at work?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس سر کار چه باید بکند و چه ساعتی",
+     "بپرس صبح",
+     "What do you have to do at work, and when?",
+     "In the morning?",
+     [],
+     [
+      [
+       "What you have to do at work, and when?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس کدام کار را باید زود انجام دهد و کدام را نه",
+     "بپرس چرا",
+     "Which things do you have to do quickly, and which ones can wait?",
+     "Why?",
+     [],
+     [
+      [
+       "Which things you have to do quickly, and which ones can wait?",
+       "بعد از «which» و اسم، «do» می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو باید ایمیل جواب بدهم",
+     "بگو و تلفن",
+     "I have to answer emails.",
+     "And the phone.",
+     [],
+     [
+      [
+       "I have answer emails.",
+       "بعد از «have» برای اجبار «to» لازم است: have to answer."
+      ]
+     ]
+    ],
+    [
+     "بگو باید ایمیل جواب بدهم و گزارش بنویسم و صبح‌ها",
+     "بگو هر روز",
+     "I have to answer emails and write reports, in the morning.",
+     "Every day.",
+     [],
+     [
+      [
+       "I have to answer emails and write reports, at the morning.",
+       "«in the morning» می‌گوییم."
+      ]
+     ]
+    ],
+    [
+     "بگو باید ایمیل‌های مشتری را زود جواب بدهم ولی گزارش می‌تواند صبر کند چون مهلتش دور است",
+     "بگو تا فردا",
+     "I have to answer customer emails quickly, but reports can wait, because the date is far.",
+     "Until tomorrow.",
+     [],
+     [
+      [
+       "I have answer customer emails quickly, but reports can wait, because the date is far.",
+       "بعد از «have» برای اجبار «to» لازم است: have to answer."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "working-on",
+   "c": null,
+   "q": [
+    [
+     "بپرس الان روی چه کاری کار می‌کند",
+     "بپرس مهم",
+     "What are you working on now?",
+     "Important?",
+     [],
+     [
+      [
+       "What you are working on now?",
+       "ترتیب سؤال: What are you working on."
+      ]
+     ]
+    ],
+    [
+     "بپرس الان روی چه کاری کار می‌کند و تا کی",
+     "بپرس این هفته",
+     "What are you working on now, and until when?",
+     "This week?",
+     [],
+     [
+      [
+       "What are you working on now and until when you work?",
+       "کوتاه بپرس: and until when?"
+      ]
+     ]
+    ],
+    [
+     "بپرس روی چه کاری کار می‌کند و چرا برای او مهم است",
+     "بپرس سخت",
+     "What are you working on, and why is it important to you?",
+     "Is it hard?",
+     [],
+     [
+      [
+       "What are you working on and why it is important?",
+       "ترتیب: why is it important."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو یک گزارش",
+     "بگو برای مدیر",
+     "I'm working on a report.",
+     "For my manager.",
+     [],
+     [
+      [
+       "I working on a report.",
+       "فعل را فراموش نکن: I'm working."
+      ]
+     ]
+    ],
+    [
+     "بگو یک گزارش تا جمعه",
+     "بگو و جلسه",
+     "I'm working on a report until Friday.",
+     "And a meeting.",
+     [],
+     [
+      [
+       "I'm work on a report until Friday.",
+       "بعد از «am» فعل -ing: working."
+      ]
+     ]
+    ],
+    [
+     "بگو روی گزارش مهمی کار می‌کنم چون مدیر آن را می‌خواهد ولی هنوز تمام نشده",
+     "بگو سخت",
+     "I'm working on an important report, because my manager wants it, but it isn't ready yet.",
+     "It's hard.",
+     [],
+     [
+      [
+       "I'm working on important report because my manager want it.",
+       "قبل از «important report» «an» می‌آید؛ و «wants»."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "get-up-early-have-to",
+   "c": null,
+   "q": [
+    [
+     "بپرس باید زود بلند شود",
+     "بپرس چرا",
+     "Do you have to get up early?",
+     "Why?",
+     [],
+     [
+      [
+       "Are you have to get up early?",
+       "«have to» فعل است؛ با «Do» بپرس."
+      ]
+     ]
+    ],
+    [
+     "بپرس باید زود بلند شود و چه ساعتی",
+     "بپرس شش",
+     "Do you have to get up early, and what time?",
+     "At six?",
+     [],
+     [
+      [
+       "Do you have to get up early and what time you get up?",
+       "کوتاه بپرس: and what time?"
+      ]
+     ]
+    ],
+    [
+     "بپرس باید زود بلند شود یا می‌تواند بخوابد و چه می‌کند",
+     "بپرس آخر هفته",
+     "Do you have to get up early, or can you sleep in? What do you do?",
+     "At the weekend?",
+     [],
+     [
+      [
+       "Do you have get up early or you can sleep in?",
+       "بعد از «have» باید «to» بیاید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو ساعت شش",
+     "Yes, I do.",
+     "At six.",
+     [],
+     [
+      [
+       "Yes, I have.",
+       "جواب «Do you…؟» با «do» است."
+      ]
+     ]
+    ],
+    [
+     "بگو بله، ساعت شش چون محل کارم دور است",
+     "بگو هر روز",
+     "Yes, I do, at six, because my workplace is far.",
+     "Every day.",
+     [],
+     [
+      [
+       "Yes, I do, in six because my workplace far.",
+       "برای ساعت «at»؛ و «is far»."
+      ]
+     ]
+    ],
+    [
+     "بگو در هفته باید زود بلند شوم ولی آخر هفته می‌توانم بخوابم و ساعت ده بلند می‌شوم",
+     "بگو ساعت ده",
+     "I have to during the week, but at the weekend I can sleep in and get up at ten.",
+     "I get up at ten.",
+     [],
+     [
+      [
+       "I have to during the week, but at the weekend I can sleeping in and get up at ten.",
+       "بعد از «can» فعل ساده می‌آید: can sleep."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "work-or-study",
+   "c": null,
+   "q": [
+    [
+     "بپرس کار می‌کند یا درس می‌خواند",
+     "بپرس هر دو",
+     "Do you work or study?",
+     "Both?",
+     [],
+     [
+      [
+       "You work or study?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس کار می‌کند یا درس می‌خواند و چه ساعتی",
+     "بپرس هر روز",
+     "Do you work or study, and when?",
+     "Every day?",
+     [],
+     [
+      [
+       "You work or study, and when?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس به کار وقت بیشتری می‌دهد یا به درس و از آن راضی است",
+     "بپرس چرا",
+     "Do you spend your time on work or on study? Are you happy with it?",
+     "Why?",
+     [],
+     [
+      [
+       "You spend your time on work or on study? Are you happy with it?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو هر دو",
+     "بگو و دوستشان دارم",
+     "Both.",
+     "I like both.",
+     [],
+     []
+    ],
+    [
+     "بگو صبح درس می‌خوانم و عصر کار می‌کنم",
+     "بگو هر روز",
+     "I study in the morning and work in the evening.",
+     "Every day.",
+     [],
+     [
+      [
+       "I study at the morning and work in the evening.",
+       "«in the morning» می‌گوییم."
+      ]
+     ]
+    ],
+    [
+     "بگو بیشتر کار می‌کنم چون پول لازم دارم ولی راضی نیستم چون برای درس وقت کمی دارم",
+     "بگو سعی می‌کنم",
+     "I mostly work, because I need money, but I'm not happy, because I have little time to study.",
+     "I try.",
+     [],
+     [
+      [
+       "I mostly work, because need money, but I'm not happy, because I have little time to study.",
+       "بعد از «because» فاعل لازم است: because I need."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "week-work",
+   "c": null,
+   "q": [
+    [
+     "بپرس این هفته روی چه کاری کار می‌کند",
+     "بپرس مهم",
+     "What are you working on this week?",
+     "Important?",
+     [],
+     [
+      [
+       "What you working on this week?",
+       "بعد از «what»، «are» می‌آید و بعد فاعل."
+      ]
+     ]
+    ],
+    [
+     "بپرس این هفته چه می‌کند و چند ساعت",
+     "بپرس زیاد",
+     "What are you doing this week, and how many hours?",
+     "A lot?",
+     [],
+     [
+      [
+       "What you doing this week, and how many hours?",
+       "بعد از «what»، «are» می‌آید و بعد فاعل."
+      ]
+     ]
+    ],
+    [
+     "بپرس این هفته مشغول است و چرا",
+     "بپرس مهلت",
+     "Are you busy this week, and why?",
+     "A date?",
+     [],
+     [
+      [
+       "You are busy this week, and why?",
+       "سؤال با «Are» شروع می‌شود: Are you…؟"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو یک پروژه",
+     "بگو برای مشتری",
+     "I'm working on a project.",
+     "For a customer.",
+     [],
+     [
+      [
+       "I'm working on project.",
+       "قبل از «project» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو روی یک پروژه کار می‌کنم و حدود چهل ساعت",
+     "بگو در هفته",
+     "I'm working on a project, about forty hours.",
+     "This week.",
+     [],
+     [
+      [
+       "I'm working on project, about forty hours.",
+       "قبل از «project» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو بله خیلی مشغولم چون مهلت پروژه نزدیک است ولی بعدش استراحت می‌کنم",
+     "بگو آخر هفته",
+     "Yes, I'm very busy, because the project is due soon, but I rest after that.",
+     "At the weekend.",
+     [],
+     [
+      [
+       "Yes, I'm very busy, because the project due soon, but I rest after that.",
+       "بعد از «because» باید «is» بیاید: the project is due."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "leave-time",
+   "c": "دوستت گفت: «من باید زود بلند شوم.»",
+   "q": [
+    [
+     "بپرس چه ساعتی از خانه می‌رود",
+     "بپرس صبح",
+     "What time do you have to leave?",
+     "In the morning?",
+     [],
+     [
+      [
+       "What time you have to leave?",
+       "بعد از «What time»، «do you» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه ساعتی می‌رود و چطور",
+     "بپرس اتوبوس",
+     "What time do you have to leave, and how do you go?",
+     "By bus?",
+     [],
+     [
+      [
+       "What time do you have to leave and how you go?",
+       "بعد از «how»، «do you» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس اگر دیر کند چه می‌شود و کسی ناراحت می‌شود",
+     "بپرس مدیر",
+     "What happens if you are late? Is anyone angry?",
+     "The boss?",
+     [],
+     [
+      [
+       "What happen if you are late?",
+       "با «What» فعل s می‌گیرد: happens."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو ساعت هفت",
+     "بگو و نیم",
+     "At seven.",
+     "Half past.",
+     [],
+     [
+      [
+       "In seven.",
+       "برای ساعت از «at» استفاده کن."
+      ]
+     ]
+    ],
+    [
+     "بگو ساعت هفت و با اتوبوس می‌روم",
+     "بگو و مترو",
+     "At seven, and I go by bus.",
+     "And metro.",
+     [],
+     [
+      [
+       "At seven and I go with bus.",
+       "برای وسیله از «by» استفاده کن."
+      ]
+     ]
+    ],
+    [
+     "بگو مدیر ناراحت می‌شود چون مشتری منتظر است برای همین سعی می‌کنم دیر نکنم",
+     "بگو معمولاً",
+     "My boss gets angry, because a customer waits, so I try not to be late.",
+     "Usually.",
+     [],
+     [
+      [
+       "My boss get angry because customer waits.",
+       "با «boss» فعل s می‌گیرد: gets."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "project-difficult",
+   "c": "دوستت گفت: «روی یک پروژه کار می‌کنم.»",
+   "q": [
+    [
+     "بپرس سخت است",
+     "بپرس چرا",
+     "Is it difficult?",
+     "Why?",
+     [],
+     [
+      [
+       "Does it difficult?",
+       "با صفت از «Is» استفاده کن."
+      ]
+     ]
+    ],
+    [
+     "بپرس سخت است و کسی کمک می‌کند",
+     "بپرس چه کسی",
+     "Is it difficult, and does anyone help you?",
+     "Who?",
+     [],
+     [
+      [
+       "Is it difficult and anyone helps you?",
+       "بخش دوم هم سؤال است."
+      ]
+     ]
+    ],
+    [
+     "بپرس مهلت پروژه کی است و فکر می‌کند به موقع تمام می‌شود",
+     "بپرس چرا",
+     "When is the project due? Do you think it will be ready?",
+     "Why?",
+     [],
+     [
+      [
+       "When the project is due? You think it will be ready?",
+       "ترتیب: When is the project due."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو کمی",
+     "بگو ولی خوب",
+     "A bit.",
+     "But good.",
+     [],
+     [
+      [
+       "Little difficult.",
+       "بگو: a bit."
+      ]
+     ]
+    ],
+    [
+     "بگو کمی و همکارم کمک می‌کند",
+     "بگو او خوب است",
+     "A bit, and my colleague helps me.",
+     "He or she is good.",
+     [],
+     [
+      [
+       "A bit, and my colleague help me.",
+       "با «colleague» فعل s می‌گیرد: helps."
+      ]
+     ]
+    ],
+    [
+     "بگو مهلتش هفته‌ی بعد است و فکر می‌کنم تمام می‌شود چون سخت کار می‌کنیم",
+     "بگو مطمئنم",
+     "It's due next week, and I think it will be ready, because we work hard.",
+     "I'm sure.",
+     [],
+     [
+      [
+       "It due next week and I think is ready.",
+       "فعل را فراموش نکن: It's due / it will be ready."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "study-what",
+   "c": "دوستت گفت: «درس می‌خوانم.»",
+   "q": [
+    [
+     "بپرس چه می‌خواند",
+     "بپرس دانشگاه",
+     "What are you studying?",
+     "At university?",
+     [],
+     [
+      [
+       "What you are studying?",
+       "ترتیب سؤال: What are you studying."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه می‌خواند و چرا",
+     "بپرس دوست دارد",
+     "What are you studying, and why?",
+     "Do you like it?",
+     [],
+     [
+      [
+       "What are you studying and why you study it?",
+       "کوتاه بپرس: and why?"
+      ]
+     ]
+    ],
+    [
+     "بپرس چه می‌خواند و بعد از آن می‌خواهد چه کار کند",
+     "بپرس کار",
+     "What are you studying? What do you want to do after that?",
+     "A job?",
+     [],
+     [
+      [
+       "What you are studying? What you want to do after?",
+       "بعد از «What»، «do you» می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو انگلیسی",
+     "بگو و کامپیوتر",
+     "English.",
+     "And computers.",
+     [],
+     [
+      [
+       "The English.",
+       "ساده: English."
+      ]
+     ]
+    ],
+    [
+     "بگو انگلیسی چون برای کارم لازم است",
+     "بگو دوستش دارم",
+     "English, because I need it for work.",
+     "I love it.",
+     [],
+     [
+      [
+       "English because I need it for the work.",
+       "«for work» بدون the."
+      ]
+     ]
+    ],
+    [
+     "بگو کامپیوتر می‌خوانم و بعد می‌خواهم در یک شرکت کار کنم چون دوستش دارم",
+     "بگو بزرگ",
+     "I'm studying computers, and after that I want to work in a company, because I love them.",
+     "A big one.",
+     [],
+     [
+      [
+       "I studying computers and after I want work in a company.",
+       "فعل را فراموش نکن: I'm studying؛ و «want to work»."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "anyone-help",
+   "c": "دوستت گفت: «کارم خیلی زیاد است.»",
+   "q": [
+    [
+     "بپرس کسی کمک می‌کند",
+     "بپرس چه کسی",
+     "Does anyone help you?",
+     "Who?",
+     [],
+     [
+      [
+       "Do anyone help you?",
+       "با «anyone» «Does» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس کسی کمک می‌کند و چه کمکی لازم دارد",
+     "بپرس بیشتر",
+     "Does anyone help you, and what help do you need?",
+     "More?",
+     [],
+     [
+      [
+       "Does anyone help you and what help you need?",
+       "بعد از «what help»، «do you» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس باید کمک بخواهد یا خودش می‌تواند و چرا",
+     "بپرس از مدیر",
+     "Do you have to ask for help, or can you do it alone? Why?",
+     "The boss?",
+     [],
+     [
+      [
+       "Do you have ask for help or you can do alone?",
+       "بعد از «have» باید «to» بیاید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو همکارم",
+     "Yes, my colleague.",
+     "Sometimes.",
+     [],
+     [
+      [
+       "Yes, my colleague help.",
+       "با «colleague» فعل s می‌گیرد."
+      ]
+     ]
+    ],
+    [
+     "بگو بله، همکارم کمک می‌کند و گاهی مدیرم",
+     "بگو هر روز",
+     "Yes, my colleague helps me, and sometimes my boss.",
+     "Every day.",
+     [],
+     [
+      [
+       "Yes, my colleague help me.",
+       "فعل s می‌گیرد: helps."
+      ]
+     ]
+    ],
+    [
+     "بگو باید کمک بخواهم چون تنها نمی‌توانم همه را انجام دهم ولی سعی می‌کنم کم بخواهم",
+     "بگو از مدیر",
+     "I have to ask for help, because I can't do everything alone, but I try not to ask a lot.",
+     "From my boss.",
+     [],
+     [
+      [
+       "I have ask for help because I can't do everything.",
+       "بعد از «have» باید «to» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "mind-weekend",
+   "c": "دوستت گفت: «آخر هفته هم باید کار کنم.»",
+   "q": [
+    [
+     "بپرس ناراحت است",
+     "بپرس خیلی",
+     "Do you mind?",
+     "Very much?",
+     [],
+     [
+      [
+       "Are you mind?",
+       "«mind» فعل است؛ با «Do» بپرس."
+      ]
+     ]
+    ],
+    [
+     "بپرس ناراحت است و چند ساعت کار می‌کند",
+     "بپرس شنبه",
+     "Do you mind, and how many hours do you work?",
+     "On Saturday?",
+     [],
+     [
+      [
+       "Do you mind and how many hours you work?",
+       "بعد از «how many hours»، «do you» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس هر هفته باید یا فقط گاهی و چه می‌کند",
+     "بپرس استراحت",
+     "Do you have to work every weekend, or only sometimes? What do you do?",
+     "Rest?",
+     [],
+     [
+      [
+       "Do you have work every weekend?",
+       "بعد از «have» باید «to» بیاید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله کمی",
+     "بگو ولی لازم است",
+     "Yes, a bit.",
+     "But it's necessary.",
+     [],
+     [
+      [
+       "Yes, I mind a bit.",
+       "کوتاه: Yes, a bit."
+      ]
+     ]
+    ],
+    [
+     "بگو بله کمی و پنج ساعت کار می‌کنم",
+     "بگو شنبه",
+     "Yes, a bit, and I work five hours.",
+     "On Saturday.",
+     [],
+     [
+      [
+       "Yes a bit and I working five hours.",
+       "بعد از «I» فعل ساده: work."
+      ]
+     ]
+    ],
+    [
+     "بگو فقط گاهی چون مشتری زیاد می‌شود و بعد روز دیگر استراحت می‌کنم",
+     "بگو یکشنبه",
+     "Only sometimes, because we have more customers, and then I rest on another day.",
+     "On Sunday.",
+     [],
+     [
+      [
+       "Only sometimes because we have more customers and I rest in another day.",
+       "برای روز: on another day."
+      ]
+     ]
+    ]
+   ]
+  }
+ ]
 }

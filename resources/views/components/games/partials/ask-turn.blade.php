@@ -15,7 +15,6 @@
     $isQuestion = $phase === App\Models\PairGame::PHASE_QUESTION;
     $missed = $step && $step['tries'] >= 1 && $step['status'] === null;
     $questionStep = $turn['current']['qa'][App\Models\PairGame::PHASE_QUESTION] ?? null;
-    $levelKey = $isQuestion ? 'q' : 'a';
     $myLevels = $pairGame->askLevels($me);
 @endphp
 
@@ -68,11 +67,15 @@
                 <p class="rounded-xl bg-warning-soft px-3 py-2 text-center text-sm font-semibold text-warning-ink">{{ $askError }}</p>
             @endif
 
-            <div class="grid grid-cols-3 items-center gap-2 text-sm font-bold">
-                <button type="button" wire:click="setAskLevel('{{ $levelKey }}', {{ max(1, $myLevels[$levelKey] - 1) }})" @disabled($myLevels[$levelKey] <= 1) class="h-11 cursor-pointer rounded-xl text-ink-soft disabled:cursor-default disabled:opacity-40 dark:text-ink-soft-dark">− Easier</button>
-                <span class="text-center text-xs font-extrabold text-ink-faint dark:text-ink-faint-dark">Level {{ $myLevels[$levelKey] }}</span>
-                <button type="button" wire:click="setAskLevel('{{ $levelKey }}', {{ min(3, $myLevels[$levelKey] + 1) }})" @disabled($myLevels[$levelKey] >= 3) class="h-11 cursor-pointer rounded-xl text-accent-ink disabled:cursor-default disabled:opacity-40 dark:text-accent-ink-dark">Harder +</button>
-            </div>
+            @if ($isQuestion)
+                <div class="grid grid-cols-3 items-center gap-2 text-sm font-bold">
+                    <button type="button" wire:click="setAskLevel('q', {{ max(1, $myLevels['q'] - 1) }})" @disabled($myLevels['q'] <= 1) class="h-11 cursor-pointer rounded-xl text-ink-soft disabled:cursor-default disabled:opacity-40 dark:text-ink-soft-dark">− Easier</button>
+                    <span class="text-center text-xs font-extrabold text-ink-faint dark:text-ink-faint-dark">Level {{ $myLevels['q'] }}</span>
+                    <button type="button" wire:click="setAskLevel('q', {{ min(3, $myLevels['q'] + 1) }})" @disabled($myLevels['q'] >= 3) class="h-11 cursor-pointer rounded-xl text-accent-ink disabled:cursor-default disabled:opacity-40 dark:text-accent-ink-dark">Harder +</button>
+                </div>
+            @else
+                <p class="text-center text-xs font-extrabold text-ink-faint dark:text-ink-faint-dark">Level {{ $pairGame->askLevelNow() }}</p>
+            @endif
             <button type="button" wire:click="passAsk" wire:loading.attr="disabled" wire:target="passAsk,submitAskAnswer" class="mx-auto block h-11 cursor-pointer text-sm font-bold text-ink-faint dark:text-ink-faint-dark">Skip</button>
         </div>
     @else

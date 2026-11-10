@@ -1,0 +1,3425 @@
+{
+ "mission": 6,
+ "items": [
+  {
+   "d": 1,
+   "k": "s",
+   "s": "start-english",
+   "c": null,
+   "q": [
+    [
+     "بپرس کی انگلیسی را شروع کرد",
+     "بپرس در مدرسه",
+     "When did you start English?",
+     "At school?",
+     [],
+     [
+      [
+       "When you start English?",
+       "بعد از «when»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس کی یادگیری انگلیسی را شروع کرد و چرا",
+     "بپرس سخت بود",
+     "When did you start learning English, and why?",
+     "Was it hard?",
+     [],
+     [
+      [
+       "When you start learning English, and why?",
+       "بعد از «when»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس کی یادگیری انگلیسی را شروع کرد و چه کسی کمکش کرد",
+     "بپرس دوستش داشت",
+     "When did you start learning English, and who helped you?",
+     "Did you like it?",
+     [],
+     [
+      [
+       "When you start learning English, and who helped you?",
+       "بعد از «when»، «did» می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو در مدرسه شروع کردم",
+     "بگو ده ساله بودم",
+     "I started at school.",
+     "I was ten.",
+     [],
+     [
+      [
+       "I am started at school.",
+       "بعد از «I» فعل ساده می‌آید، نه «am»: I started."
+      ]
+     ]
+    ],
+    [
+     "بگو در مدرسه شروع کردم چون مجبور بودم",
+     "بگو کمی سخت بود",
+     "I started at school, because I had to.",
+     "It was a bit hard.",
+     [],
+     [
+      [
+       "I started at school, because I have to.",
+       "گذشته‌ی «have» می‌شود «had»."
+      ]
+     ]
+    ],
+    [
+     "بگو در مدرسه شروع کردم و معلمم کمکم کرد چون مهربان بود",
+     "بگو دوستش داشتم",
+     "I started at school, and my teacher helped me, because she was kind.",
+     "I liked it.",
+     [],
+     [
+      [
+       "I am started at school, and my teacher helped me, because she was kind.",
+       "بعد از «I» فعل ساده می‌آید، نه «am»: I started."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "s",
+   "s": "first-teacher",
+   "c": null,
+   "q": [
+    [
+     "بپرس معلم خوبی داشت",
+     "بپرس چرا",
+     "Did you have a good teacher?",
+     "Why?",
+     [],
+     [
+      [
+       "You have a good teacher?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس معلم خوبی داشت و چه یاد گرفت",
+     "بپرس آهنگ",
+     "Did you have a good teacher, and what did you learn?",
+     "Songs?",
+     [],
+     [
+      [
+       "Did you have a good teacher, and what you learn?",
+       "بعد از «what»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس معلم اولش را دوست داشت یا معلم دیگری می‌خواست و چرا",
+     "بپرس چه جور آدمی بود",
+     "Did you like your first teacher, or did you want another one? Why?",
+     "What was she like?",
+     [],
+     [
+      [
+       "You like your first teacher, or did you want another one? Why?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو مهربان بود",
+     "Yes, I did.",
+     "She was kind.",
+     [],
+     [
+      [
+       "Yes, I do.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I did."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و کلمه یاد گرفتم",
+     "بگو و آهنگ",
+     "Yes, I did, and I learned words.",
+     "And songs.",
+     [],
+     [
+      [
+       "Yes, I do, and I learned words.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I did."
+      ]
+     ]
+    ],
+    [
+     "بگو دوستش داشتم چون صبور بود ولی کلاس‌هایش کوتاه بودند",
+     "بگو مهربان بود",
+     "I liked her, because she was patient, but her classes were short.",
+     "She was kind.",
+     [],
+     [
+      [
+       "I am liked her, because she was patient, but her classes were short.",
+       "بعد از «I» فعل ساده می‌آید، نه «am»: I liked."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "s",
+   "s": "one-on-one",
+   "c": null,
+   "q": [
+    [
+     "بپرس کلاس خصوصی داشت",
+     "بپرس آنلاین",
+     "Did you have one-on-one classes?",
+     "Online?",
+     [],
+     [
+      [
+       "You have one-on-one classes?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس کلاس خصوصی داشت یا کلاس گروهی",
+     "بپرس کدام را دوست داشت",
+     "Did you have one-on-one classes, or a group class?",
+     "Which did you like?",
+     [],
+     [
+      [
+       "You have one-on-one classes, or a group class?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس کلاس خصوصی را دوست داشت یا گروهی را و چرا",
+     "بپرس گران بود",
+     "Did you like one-on-one classes, or a group class? Why?",
+     "Was it expensive?",
+     [],
+     [
+      [
+       "You like one-on-one classes, or a group class? Why?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو نه",
+     "بگو فقط کلاس گروهی",
+     "No, I didn't.",
+     "Only a group class.",
+     [],
+     [
+      [
+       "No, I don't.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: No, I didn't."
+      ]
+     ]
+    ],
+    [
+     "بگو کلاس گروهی داشتم",
+     "بگو بزرگ بود",
+     "I had a group class.",
+     "It was big.",
+     [],
+     [
+      [
+       "I had group class.",
+       "قبل از «group» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو خصوصی را دوست داشتم چون معلم به من گوش می‌داد ولی گران بود",
+     "بگو خیلی",
+     "I liked one-on-one, because the teacher listened to me, but it was expensive.",
+     "Very.",
+     [],
+     [
+      [
+       "I am liked one-on-one, because the teacher listened to me, but it was expensive.",
+       "بعد از «I» فعل ساده می‌آید، نه «am»: I liked."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "s",
+   "s": "quit-class",
+   "c": null,
+   "q": [
+    [
+     "بپرس هیچ‌وقت کلاسی را رها کرد",
+     "بپرس چرا",
+     "Did you ever quit a class?",
+     "Why?",
+     [],
+     [
+      [
+       "You ever quit a class?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس کلاسی را رها کرد و چرا",
+     "بپرس خسته‌کننده بود",
+     "Did you ever quit a class, and why?",
+     "Was it boring?",
+     [],
+     [
+      [
+       "You ever quit a class, and why?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس کلاس را رها کرد یا تمامش کرد و چرا",
+     "بپرس چقدر",
+     "Did you quit the class, or did you finish it? Why?",
+     "How long?",
+     [],
+     [
+      [
+       "You quit the class, or did you finish it? Why?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو یک بار",
+     "Yes, I did.",
+     "Once.",
+     [],
+     [
+      [
+       "Yes, I do.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I did."
+      ]
+     ]
+    ],
+    [
+     "بگو بله چون خسته‌کننده بود",
+     "بگو و سخت",
+     "Yes, I did, because it was boring.",
+     "And hard.",
+     [],
+     [
+      [
+       "Yes, I do, because it was boring.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I did."
+      ]
+     ]
+    ],
+    [
+     "بگو رها کردم چون وقت نداشتم ولی دوباره شروع کردم",
+     "بگو بعد از یک ماه",
+     "I quit, because I had no time, but I started again.",
+     "After a month.",
+     [],
+     [
+      [
+       "I quit, because I have no time, but I started again.",
+       "گذشته‌ی «have» می‌شود «had»."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "s",
+   "s": "gain-confidence",
+   "c": null,
+   "q": [
+    [
+     "بپرس اعتمادبه‌نفس پیدا کرد",
+     "بپرس چطور",
+     "Did you gain confidence?",
+     "How?",
+     [],
+     [
+      [
+       "You gain confidence?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس اعتمادبه‌نفس پیدا کرد و کی",
+     "بپرس در مدرسه",
+     "Did you gain confidence, and when?",
+     "At school?",
+     [],
+     [
+      [
+       "You gain confidence, and when?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس اعتمادبه‌نفس پیدا کرد یا خجالتی بود و چرا",
+     "بپرس چه چیزی کمک کرد",
+     "Did you gain confidence, or were you shy? Why?",
+     "What helped?",
+     [],
+     [
+      [
+       "You gain confidence, or were you shy? Why?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو کمی",
+     "Yes, I did.",
+     "A bit.",
+     [],
+     [
+      [
+       "Yes, I do.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I did."
+      ]
+     ]
+    ],
+    [
+     "بگو بله در سال آخر",
+     "بگو در مدرسه",
+     "Yes, I did, in my last year.",
+     "At school.",
+     [],
+     [
+      [
+       "Yes, I do, in my last year.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I did."
+      ]
+     ]
+    ],
+    [
+     "بگو اول خجالتی بودم چون اشتباه می‌کردم ولی وقتی بیشتر حرف زدم اعتمادبه‌نفس پیدا کردم",
+     "بگو دوستم کمک کرد",
+     "I was shy at first, because I made mistakes, but I gained confidence when I spoke a lot.",
+     "My friend helped.",
+     [],
+     [
+      [
+       "I was shy at first, because I made mistakes, but I gained confidence when I spoke lot.",
+       "قبل از «lot» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "hard-start",
+   "c": "دوستت گفت: «اولش خیلی سخت بود.»",
+   "q": [
+    [
+     "بپرس چه چیزی سخت بود",
+     "بپرس صحبت کردن",
+     "What was hard?",
+     "Speaking?",
+     [],
+     []
+    ],
+    [
+     "بپرس چه چیزی سخت بود و چه کار کرد",
+     "بپرس تمرین کرد",
+     "What was hard, and what did you do?",
+     "Did you practise?",
+     [],
+     [
+      [
+       "What was hard, and what you do?",
+       "بعد از «what»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس اولش سخت بود و کی آسان شد و چرا",
+     "بپرس چقدر طول کشید",
+     "Was it hard at first, and when did it get easy? Why?",
+     "How long?",
+     [],
+     [
+      [
+       "Was it hard at first, and when it get easy? Why?",
+       "بعد از «when»، «did» می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو صحبت کردن",
+     "بگو و گوش دادن",
+     "Speaking.",
+     "And listening.",
+     [],
+     []
+    ],
+    [
+     "بگو صحبت کردن و با یک دوست تمرین کردم",
+     "بگو هر روز",
+     "Speaking, and I practised with a friend.",
+     "Every day.",
+     [],
+     [
+      [
+       "Speaking, and I practised with friend.",
+       "قبل از «friend» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو اولش سخت بود ولی بعد از یک سال آسان شد چون هر روز تمرین کردم",
+     "بگو حدود یک سال",
+     "It was hard at first, but it got easy after a year, because I practised every day.",
+     "About a year.",
+     [],
+     [
+      [
+       "It was hard at first, but it got easy after year, because I practised every day.",
+       "قبل از «year» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "quit-why",
+   "c": "دوستت گفت: «کلاسم را رها کردم.»",
+   "q": [
+    [
+     "بپرس چرا رها کرد",
+     "بپرس وقت نداشت",
+     "Why did you quit?",
+     "No time?",
+     [],
+     [
+      [
+       "Why you quit?",
+       "بعد از «why»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چرا رها کرد و کی",
+     "بپرس پارسال",
+     "Why did you quit, and when?",
+     "Last year?",
+     [],
+     [
+      [
+       "Why you quit, and when?",
+       "بعد از «why»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس به خاطر معلم رها کرد یا به خاطر وقت",
+     "بپرس چرا",
+     "Did you quit because of the teacher, or because of time?",
+     "Why?",
+     [],
+     [
+      [
+       "You quit because of the teacher, or because of time?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو وقت نداشتم",
+     "بگو و پول",
+     "I had no time.",
+     "And money.",
+     [],
+     [
+      [
+       "I have no time.",
+       "گذشته‌ی «have» می‌شود «had»."
+      ]
+     ]
+    ],
+    [
+     "بگو وقت نداشتم و پارسال بود",
+     "بگو در زمستان",
+     "I had no time, and it was last year.",
+     "In winter.",
+     [],
+     [
+      [
+       "I have no time, and it was last year.",
+       "گذشته‌ی «have» می‌شود «had»."
+      ]
+     ]
+    ],
+    [
+     "بگو به خاطر وقت چون کارم شلوغ بود ولی معلم خوب بود",
+     "بگو دوستش داشتم",
+     "Because of time, because my work was busy, but the teacher was good.",
+     "I liked her.",
+     [],
+     [
+      [
+       "Because of time, because my work was busy, but the teacher were good.",
+       "با «the teacher» فعل «was» می‌آید، نه «were»."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "good-fit",
+   "c": "دوستت گفت: «آن کلاس برای من مناسب نبود.»",
+   "q": [
+    [
+     "بپرس چرا نبود",
+     "بپرس سخت بود",
+     "Why not?",
+     "Was it hard?",
+     [],
+     []
+    ],
+    [
+     "بپرس چرا نبود و چه کار کرد",
+     "بپرس رفت",
+     "Why not, and what did you do?",
+     "Did you leave?",
+     [],
+     [
+      [
+       "Why not, and what you do?",
+       "بعد از «what»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس مشکل معلم بود یا کلاس و چرا",
+     "بپرس چه کلاسی مناسب است",
+     "Was the teacher a problem, or was it the class? Why?",
+     "What is a good fit?",
+     [],
+     [
+      [
+       "Was the teacher problem, or was it the class? Why?",
+       "قبل از «problem» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو خیلی سریع بود",
+     "بگو و بزرگ",
+     "It was too fast.",
+     "And big.",
+     [],
+     [
+      [
+       "It was too fastly.",
+       "«fast» هم صفت است هم قید؛ «fastly» نداریم: It was too fast."
+      ]
+     ]
+    ],
+    [
+     "بگو خیلی سریع بود برای همین رفتم",
+     "بگو بعد از دو هفته",
+     "It was too fast, so I left.",
+     "After two weeks.",
+     [],
+     [
+      [
+       "It was too fast, so I leave.",
+       "گذشته‌ی «leave» می‌شود «left»."
+      ]
+     ]
+    ],
+    [
+     "بگو کلاس بود چون خیلی بزرگ بود ولی معلم خوب بود",
+     "بگو یک کلاس کوچک",
+     "It was the class, because it was too big, but the teacher was good.",
+     "A small class.",
+     [],
+     [
+      [
+       "It was the class, because it was too big, but the teacher is good.",
+       "داستان گذشته است: the teacher was good."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "confidence-how",
+   "c": "دوستت گفت: «اعتمادبه‌نفسم بالا رفت.»",
+   "q": [
+    [
+     "بپرس چطور",
+     "بپرس با دوست",
+     "How did you do it?",
+     "With a friend?",
+     [],
+     [
+      [
+       "How you do it?",
+       "بعد از «how»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چطور و کی شروع کرد",
+     "بپرس پارسال",
+     "How did you do it, and when did you start?",
+     "Last year?",
+     [],
+     [
+      [
+       "How you do it, and when did you start?",
+       "بعد از «how»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس کسی کمکش کرد یا تنها این کار را کرد و چرا",
+     "بپرس چه کسی",
+     "Did a person help you, or did you do it alone? Why?",
+     "Who?",
+     [],
+     [
+      [
+       "A person help you, or did you do it alone? Why?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو هر روز حرف زدم",
+     "بگو با دوستم",
+     "I spoke every day.",
+     "With my friend.",
+     [],
+     [
+      [
+       "I am spoke every day.",
+       "بعد از «I» فعل ساده می‌آید، نه «am»: I spoke."
+      ]
+     ]
+    ],
+    [
+     "بگو هر روز حرف زدم و پارسال شروع کردم",
+     "بگو در تابستان",
+     "I spoke every day, and I started last year.",
+     "In summer.",
+     [],
+     [
+      [
+       "I am spoke every day, and I started last year.",
+       "بعد از «I» فعل ساده می‌آید، نه «am»: I spoke."
+      ]
+     ]
+    ],
+    [
+     "بگو یک نفر کمکم کرد چون صبور بود ولی خودم هم تمرین کردم",
+     "بگو معلمم",
+     "A person helped me, because he was patient, but I also practised alone.",
+     "My teacher.",
+     [],
+     [
+      [
+       "person helped me, because he was patient, but I also practised alone.",
+       "قبل از «person» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "teacher-opened",
+   "c": "دوستت گفت: «آن معلم چشم‌هایم را باز کرد.»",
+   "q": [
+    [
+     "بپرس معلمش چه کار کرد",
+     "بپرس مهم بود",
+     "What did your teacher do?",
+     "Was it special?",
+     [],
+     [
+      [
+       "What your teacher do?",
+       "بعد از «what»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس معلمش چه کار کرد و چه حسی داشت",
+     "بپرس عصبی بود",
+     "What did your teacher do, and how did you feel?",
+     "Nervous?",
+     [],
+     [
+      [
+       "What your teacher do, and how did you feel?",
+       "بعد از «what»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس معلمش کمکش کرد یا خودش یاد گرفت و چرا",
+     "بپرس چه چیزی عوض شد",
+     "Did your teacher help you, or did you learn alone? Why?",
+     "What changed?",
+     [],
+     [
+      [
+       "Your teacher help you, or did you learn alone? Why?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو مرا مجبور کرد حرف بزنم",
+     "بگو هر روز",
+     "My teacher made me speak.",
+     "Every day.",
+     [],
+     [
+      [
+       "My teacher maked me speak.",
+       "گذشته‌ی «make» می‌شود «made»."
+      ]
+     ]
+    ],
+    [
+     "بگو مرا مجبور کرد حرف بزنم و عصبی بودم",
+     "بگو اولش",
+     "My teacher made me speak, and I felt nervous.",
+     "At first.",
+     [],
+     [
+      [
+       "My teacher made me speak, and I feel nervous.",
+       "داستان گذشته است: I felt nervous."
+      ]
+     ]
+    ],
+    [
+     "بگو معلمم کمکم کرد چون نمی‌دانستم چطور شروع کنم ولی بعد خودم یاد گرفتم",
+     "بگو زیاد حرف زدم",
+     "My teacher helped me, because I didn't know how to start, but then I learned alone.",
+     "I spoke a lot.",
+     [],
+     [
+      [
+       "My teacher helped me, because didn't know how to start, but then I learned alone.",
+       "بعد از «because» فاعل لازم است: because I didn."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "speak-fluent",
+   "c": null,
+   "q": [
+    [
+     "بپرس روان صحبت می‌کند",
+     "بپرس هنوز نه",
+     "Are you fluent?",
+     "Not yet?",
+     [],
+     [
+      [
+       "You are fluent?",
+       "سؤال با «Are» شروع می‌شود: Are you…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس روان صحبت می‌کند و چه چیزی سخت است",
+     "بپرس صحبت کردن",
+     "Are you fluent, and what is hard?",
+     "Speaking?",
+     [],
+     [
+      [
+       "You are fluent, and what is hard?",
+       "سؤال با «Are» شروع می‌شود: Are you…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس روان صحبت می‌کند یا اشتباه می‌کند و چرا",
+     "بپرس چند تا",
+     "Are you fluent, or do you make mistakes? Why?",
+     "How many?",
+     [],
+     [
+      [
+       "You are fluent, or do you make mistakes? Why?",
+       "سؤال با «Are» شروع می‌شود: Are you…؟"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو هنوز نه",
+     "بگو پیشرفت می‌کنم",
+     "Not yet.",
+     "I'm improving.",
+     [],
+     []
+    ],
+    [
+     "بگو هنوز نه و صحبت کردن سخت است",
+     "بگو و گوش دادن",
+     "Not yet, and speaking is hard.",
+     "And listening.",
+     [],
+     [
+      [
+       "Not yet, and speaking it is hard.",
+       "می‌گوییم «speaking is hard» بدون «it»."
+      ]
+     ]
+    ],
+    [
+     "بگو روان نیستم چون اشتباه می‌کنم ولی مردم مرا می‌فهمند",
+     "بگو چند تا",
+     "I'm not fluent, because I make mistakes, but people understand me.",
+     "A few.",
+     [],
+     [
+      [
+       "I'm not fluent, because make mistakes, but people understand me.",
+       "بعد از «because» فاعل لازم است: because I make."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "accent",
+   "c": null,
+   "q": [
+    [
+     "بپرس لهجه دارد",
+     "بپرس قوی",
+     "Do you have an accent?",
+     "A strong one?",
+     [],
+     [
+      [
+       "You have an accent?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس لهجه دارد و مردم او را می‌فهمند",
+     "بپرس همیشه",
+     "Do you have an accent, and do people understand you?",
+     "Always?",
+     [],
+     [
+      [
+       "You have an accent, and do people understand you?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس لهجه‌اش را دوست دارد یا می‌خواهد عوضش کند و چرا",
+     "بپرس روی آن کار می‌کند",
+     "Do you like your accent, or do you want to change it? Why?",
+     "Do you work on it?",
+     [],
+     [
+      [
+       "You like your accent, or do you want to change it? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو کمی",
+     "Yes, I do.",
+     "A little.",
+     [],
+     [
+      [
+       "Yes, I am.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و مردم مرا می‌فهمند",
+     "بگو معمولاً",
+     "Yes, I do, and people understand me.",
+     "Mostly.",
+     [],
+     [
+      [
+       "Yes, I am, and people understand me.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو دوستش دارم چون مال من است ولی می‌خواهم واضح حرف بزنم",
+     "بگو هر روز",
+     "I like it, because it's mine, but I want to speak clearly.",
+     "Every day.",
+     [],
+     [
+      [
+       "I like it, because it mine, but I want to speak clearly.",
+       "بعد از «because» باید «it's» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "pick-up-films",
+   "c": null,
+   "q": [
+    [
+     "بپرس انگلیسی را از فیلم یاد گرفته",
+     "بپرس کدام فیلم‌ها",
+     "Did you pick up English from films?",
+     "Which films?",
+     [],
+     [
+      [
+       "You pick up English from films?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس انگلیسی را از فیلم یاد گرفته و چه یاد گرفت",
+     "بپرس کلمه",
+     "Did you pick up English from films, and what did you learn?",
+     "Words?",
+     [],
+     [
+      [
+       "Did you pick up English from films, and what you learn?",
+       "بعد از «what»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس انگلیسی را در مدرسه یاد گرفت یا از فیلم و چرا",
+     "بپرس هر دو",
+     "Did you learn English at school, or from films? Why?",
+     "Both?",
+     [],
+     [
+      [
+       "You learn English at school, or from films? Why?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو چند تا",
+     "Yes, I did.",
+     "A few.",
+     [],
+     [
+      [
+       "Yes, I do.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I did."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و کلمه یاد گرفتم",
+     "بگو و عبارت",
+     "Yes, I did, and I learned words.",
+     "And phrases.",
+     [],
+     [
+      [
+       "Yes, I do, and I learned words.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I did."
+      ]
+     ]
+    ],
+    [
+     "بگو در مدرسه یاد گرفتم ولی از فیلم هم خیلی یاد گرفتم چون جالب بودند",
+     "بگو هر دو",
+     "I learned at school, but I picked up a lot from films too, because they were fun.",
+     "Both.",
+     [],
+     [
+      [
+       "I learned at school, but I picked up lot from films too, because they were fun.",
+       "قبل از «lot» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "understood",
+   "c": null,
+   "q": [
+    [
+     "بپرس می‌تواند منظورش را برساند",
+     "بپرس همیشه",
+     "Can you make yourself understood?",
+     "Always?",
+     [],
+     [
+      [
+       "Can you to make yourself understood?",
+       "بعد از «can» بدون «to» فعل ساده می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس می‌تواند منظورش را برساند و کجا",
+     "بپرس سر کار",
+     "Can you make yourself understood, and where?",
+     "At work?",
+     [],
+     [
+      [
+       "Can you to make yourself understood, and where?",
+       "بعد از «can» بدون «to» فعل ساده می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس در رساندن منظورش مشکل داشت یا آسان بود و چرا",
+     "بپرس کی",
+     "Did you have problems making yourself understood, or was it easy? Why?",
+     "When?",
+     [],
+     [
+      [
+       "You have problems making yourself understood, or was it easy? Why?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو معمولاً",
+     "Yes, I can.",
+     "Mostly.",
+     [],
+     [
+      [
+       "Yes, I do.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I can."
+      ]
+     ]
+    ],
+    [
+     "بگو بله سر کار",
+     "بگو و در مغازه",
+     "Yes, I can, at work.",
+     "And in shops.",
+     [],
+     [
+      [
+       "Yes, I do, at work.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I can."
+      ]
+     ]
+    ],
+    [
+     "بگو مشکل داشتم چون کلمه کم بلد بودم ولی حالا خوب است",
+     "بگو اولش",
+     "I had problems, because I didn't know many words, but now it's fine.",
+     "At first.",
+     [],
+     [
+      [
+       "I have problems, because I didn't know many words, but now it's fine.",
+       "گذشته‌ی «have» می‌شود «had»."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "progress",
+   "c": null,
+   "q": [
+    [
+     "بپرس پیشرفت کرد",
+     "بپرس چقدر",
+     "Did you make progress?",
+     "How much?",
+     [],
+     [
+      [
+       "You make progress?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس پیشرفت کرد و چطور",
+     "بپرس با معلم",
+     "Did you make progress, and how?",
+     "With a teacher?",
+     [],
+     [
+      [
+       "You make progress, and how?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس پارسال پیشرفت کرد یا همان‌طور ماند و چرا",
+     "بپرس در چه",
+     "Did you make progress last year, or did you stay the same? Why?",
+     "In what?",
+     [],
+     [
+      [
+       "You make progress last year, or did you stay the same? Why?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو خیلی",
+     "Yes, I did.",
+     "A lot.",
+     [],
+     [
+      [
+       "Yes, I do.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I did."
+      ]
+     ]
+    ],
+    [
+     "بگو بله با تمرین",
+     "بگو هر روز",
+     "Yes, I did, with practice.",
+     "Every day.",
+     [],
+     [
+      [
+       "Yes, I do, with practice.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I did."
+      ]
+     ]
+    ],
+    [
+     "بگو پیشرفت کردم چون هر روز تمرین کردم ولی نوشتن هنوز سخت بود",
+     "بگو نوشتن",
+     "I made progress, because I practised every day, but writing was still hard.",
+     "Writing.",
+     [],
+     [
+      [
+       "I make progress, because I practised every day, but writing was still hard.",
+       "گذشته‌ی «make» می‌شود «made»."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "accent-people",
+   "c": "دوستت گفت: «لهجه‌ی من قوی است.»",
+   "q": [
+    [
+     "بپرس مردم او را می‌فهمند",
+     "بپرس همیشه",
+     "Do people understand you?",
+     "Always?",
+     [],
+     [
+      [
+       "People understand you?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس مردم او را می‌فهمند و چه کار می‌کند",
+     "بپرس تکرار می‌کند",
+     "Do people understand you, and what do you do?",
+     "Do you repeat?",
+     [],
+     [
+      [
+       "Do people understand you, and what you do?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس اولش مردم او را می‌فهمیدند یا مشکل بود و چرا",
+     "بپرس کجا",
+     "Did people understand you at first, or was it a problem? Why?",
+     "Where?",
+     [],
+     [
+      [
+       "People understand you at first, or was it a problem? Why?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو معمولاً",
+     "Yes, they do.",
+     "Mostly.",
+     [],
+     [
+      [
+       "Yes, they are.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, they do."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و آهسته حرف می‌زنم",
+     "بگو تکرار می‌کنم",
+     "Yes, they do, and I speak slowly.",
+     "I repeat.",
+     [],
+     [
+      [
+       "Yes, they are, and I speak slowly.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, they do."
+      ]
+     ]
+    ],
+    [
+     "بگو مشکل بود چون تند حرف می‌زدم ولی حالا آهسته حرف می‌زنم",
+     "بگو در مغازه‌ها",
+     "It was a problem, because I spoke fast, but now I speak slowly.",
+     "In shops.",
+     [],
+     [
+      [
+       "It was problem, because I spoke fast, but now I speak slowly.",
+       "قبل از «problem» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "accurate-why",
+   "c": "دوستت گفت: «من می‌خواهم دقیق حرف بزنم.»",
+   "q": [
+    [
+     "بپرس چرا",
+     "بپرس برای کار",
+     "Why?",
+     "For work?",
+     [],
+     []
+    ],
+    [
+     "بپرس چرا و چطور تمرین می‌کند",
+     "بپرس با معلم",
+     "Why, and how do you practise?",
+     "With a teacher?",
+     [],
+     [
+      [
+       "Why, and how you practise?",
+       "بعد از «how» اول «do» می‌آید: how do you practise."
+      ]
+     ]
+    ],
+    [
+     "بپرس دقیق حرف زدن مهم است یا فهمیده شدن کافی است و چرا",
+     "بپرس کدام",
+     "Is it important to speak accurately, or is it enough to be understood? Why?",
+     "Which one?",
+     [],
+     [
+      [
+       "It is important to speak accurately, or is it enough to be understood? Why?",
+       "سؤال با «Is» شروع می‌شود: Is it…؟"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو برای کارم",
+     "بگو و امتحان",
+     "For my job.",
+     "And exams.",
+     [],
+     []
+    ],
+    [
+     "بگو برای کارم و با معلم تمرین می‌کنم",
+     "بگو دو بار در هفته",
+     "For my job, and I practise with a teacher.",
+     "Twice a week.",
+     [],
+     [
+      [
+       "For my job, and I practise with teacher.",
+       "قبل از «teacher» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو سر کار مهم است چون ایمیل می‌نویسم ولی در زندگی روزمره فهمیده شدن کافی است",
+     "بگو هر دو",
+     "It's important at work, because I write emails, but in daily life being understood is enough.",
+     "Both.",
+     [],
+     [
+      [
+       "It's important at work, because write emails, but in daily life being understood is enough.",
+       "بعد از «because» فاعل لازم است: because I write."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "words-how",
+   "c": "دوستت گفت: «من کلمه‌ی زیادی یاد گرفتم.»",
+   "q": [
+    [
+     "بپرس چطور یاد گرفت",
+     "بپرس از فیلم",
+     "How did you learn them?",
+     "From films?",
+     [],
+     [
+      [
+       "How you learn them?",
+       "بعد از «how»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چطور یاد گرفت و روزی چند تا",
+     "بپرس ده تا",
+     "How did you learn them, and how many a day?",
+     "Ten?",
+     [],
+     [
+      [
+       "How you learn them, and how many a day?",
+       "بعد از «how»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس کلمه‌ها را نوشت یا فقط گوش داد و چرا",
+     "بپرس در دفتر",
+     "Did you write the words, or did you only listen? Why?",
+     "In a notebook?",
+     [],
+     [
+      [
+       "You write the words, or did you only listen? Why?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو از فیلم",
+     "بگو و آهنگ",
+     "From films.",
+     "And songs.",
+     [],
+     []
+    ],
+    [
+     "بگو از فیلم و روزی حدود پنج تا",
+     "بگو و آهنگ",
+     "From films, about five a day.",
+     "And songs.",
+     [],
+     [
+      [
+       "From films, about five day.",
+       "قبل از «day» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو نوشتم چون زود فراموش می‌کنم ولی به آهنگ هم گوش دادم",
+     "بگو در یک دفتر",
+     "I wrote them, because I forget fast, but I listened to songs too.",
+     "In a notebook.",
+     [],
+     [
+      [
+       "I write them, because I forget fast, but I listened to songs too.",
+       "گذشته‌ی «write» می‌شود «wrote»."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "fluent-when",
+   "c": "دوستت گفت: «من هنوز روان نیستم.»",
+   "q": [
+    [
+     "بپرس کی شروع کرد",
+     "بپرس پارسال",
+     "When did you start?",
+     "Last year?",
+     [],
+     [
+      [
+       "When you start?",
+       "بعد از «when»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس کی شروع کرد و هر چند وقت درس می‌خواند",
+     "بپرس هر روز",
+     "When did you start, and how often do you study?",
+     "Every day?",
+     [],
+     [
+      [
+       "When you start, and how often do you study?",
+       "بعد از «when»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس می‌خواهد روان شود یا فهمیده شدن برایش کافی است و چرا",
+     "بپرس برای چه",
+     "Do you want to be fluent, or is it enough for you to be understood? Why?",
+     "For what?",
+     [],
+     [
+      [
+       "You want to be fluent, or is it enough for you to be understood? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو دو سال پیش",
+     "بگو سر کار",
+     "Two years ago.",
+     "At work.",
+     [],
+     []
+    ],
+    [
+     "بگو دو سال پیش و هر روز درس می‌خوانم",
+     "بگو یک ساعت",
+     "Two years ago, and I study every day.",
+     "An hour.",
+     [],
+     [
+      [
+       "Two years ago, and I am study every day.",
+       "بعد از «I» فعل ساده می‌آید: I study."
+      ]
+     ]
+    ],
+    [
+     "بگو می‌خواهم روان شوم چون می‌خواهم در خارج کار کنم ولی فعلاً فهمیده شدن کافی است",
+     "بگو برای کارم",
+     "I want to be fluent, because I want to work abroad, but for now being understood is enough.",
+     "For my job.",
+     [],
+     [
+      [
+       "I want be fluent, because I want to work abroad, but for now being understood is enough.",
+       "بعد از «want» باید «to» بیاید: want to be."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "progress-check",
+   "c": "دوستت گفت: «من پیشرفت کردم.»",
+   "q": [
+    [
+     "بپرس در چه چیزی",
+     "بپرس صحبت کردن",
+     "In what?",
+     "Speaking?",
+     [],
+     []
+    ],
+    [
+     "بپرس در چه چیزی و از کجا می‌داند",
+     "بپرس امتحان",
+     "In what, and how do you know?",
+     "A test?",
+     [],
+     [
+      [
+       "In what, and how you know?",
+       "بعد از «how» اول «do» می‌آید: how do you know."
+      ]
+     ]
+    ],
+    [
+     "بپرس پیشرفتش سریع بود یا طول کشید و چرا",
+     "بپرس چقدر",
+     "Did you make progress fast, or did it take a long time? Why?",
+     "How long?",
+     [],
+     [
+      [
+       "You make progress fast, or did it take a long time? Why?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو در صحبت کردن",
+     "بگو و گوش دادن",
+     "In speaking.",
+     "And listening.",
+     [],
+     []
+    ],
+    [
+     "بگو در صحبت کردن و فیلم را می‌فهمم",
+     "بگو بدون زیرنویس",
+     "In speaking, and I understand films.",
+     "Without subtitles.",
+     [],
+     [
+      [
+       "In speaking, and I am understand films.",
+       "بعد از «I» فعل ساده می‌آید: I understand."
+      ]
+     ]
+    ],
+    [
+     "بگو طول کشید چون دیر شروع کردم ولی هیچ‌وقت ول نکردم",
+     "بگو دو سال",
+     "It took a long time, because I started late, but I never stopped.",
+     "Two years.",
+     [],
+     [
+      [
+       "It took a long time, because I started late, but I stopped never.",
+       "«never» قبل از فعل می‌آید: I never stopped."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "take-exam",
+   "c": null,
+   "q": [
+    [
+     "بپرس امتحان انگلیسی داد",
+     "بپرس کی",
+     "Did you take an English exam?",
+     "When?",
+     [],
+     [
+      [
+       "You take an English exam?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس امتحان انگلیسی داد و کجا",
+     "بپرس آنلاین",
+     "Did you take an English exam, and where?",
+     "Online?",
+     [],
+     [
+      [
+       "You take an English exam, and where?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس امتحان داد یا فقط درس خواند و چرا",
+     "بپرس کدام امتحان",
+     "Did you take an exam, or did you only study? Why?",
+     "Which exam?",
+     [],
+     [
+      [
+       "You take an exam, or did you only study? Why?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو پارسال",
+     "Yes, I did.",
+     "Last year.",
+     [],
+     [
+      [
+       "Yes, I do.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I did."
+      ]
+     ]
+    ],
+    [
+     "بگو بله در یک مدرسه",
+     "بگو در خرداد",
+     "Yes, I did, at a school.",
+     "In June.",
+     [],
+     [
+      [
+       "Yes, I did, at school.",
+       "قبل از «school» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو امتحان دادم چون کارم لازم داشت ولی عصبی بودم",
+     "بگو امتحان صحبت کردن",
+     "I took an exam, because my job needed it, but I was nervous.",
+     "A speaking one.",
+     [],
+     [
+      [
+       "I took exam, because my job needed it, but I was nervous.",
+       "قبل از «exam» باید «an» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "pass-it",
+   "c": null,
+   "q": [
+    [
+     "بپرس قبول شد",
+     "بپرس بار اول",
+     "Did you pass?",
+     "First time?",
+     [],
+     [
+      [
+       "You pass?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس قبول شد و نمره‌اش چه بود",
+     "بپرس خوب",
+     "Did you pass, and what was your grade?",
+     "A good one?",
+     [],
+     [
+      [
+       "You pass, and what was your grade?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس راحت قبول شد یا سخت بود و چرا",
+     "بپرس چقدر درس خواند",
+     "Did you pass easily, or was it hard? Why?",
+     "How long did you study?",
+     [],
+     [
+      [
+       "You pass easily, or was it hard? Why?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو بار اول",
+     "Yes, I did.",
+     "First time.",
+     [],
+     [
+      [
+       "Yes, I do.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I did."
+      ]
+     ]
+    ],
+    [
+     "بگو بله با نمره‌ی خوب",
+     "بگو هجده از بیست",
+     "Yes, I did, with a good grade.",
+     "Eighteen out of twenty.",
+     [],
+     [
+      [
+       "Yes, I did, with good grade.",
+       "قبل از «good» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو سخت بود چون سؤال زیاد بود ولی قبول شدم",
+     "بگو دو ماه",
+     "It was hard, because there were many questions, but I passed.",
+     "Two months.",
+     [],
+     [
+      [
+       "It was hard, because there was many questions, but I passed.",
+       "با «many questions» فعل «were» می‌آید: there were."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "fail-exam",
+   "c": null,
+   "q": [
+    [
+     "بپرس هیچ‌وقت در امتحانی رد شد",
+     "بپرس کدام",
+     "Did you ever fail an exam?",
+     "Which one?",
+     [],
+     [
+      [
+       "You ever fail an exam?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس در امتحانی رد شد و چرا",
+     "بپرس خیلی عصبی بود",
+     "Did you ever fail an exam, and why?",
+     "Too nervous?",
+     [],
+     [
+      [
+       "You ever fail an exam, and why?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس رد شد یا دوباره امتحان داد و چه شد",
+     "بپرس چقدر بعد",
+     "Did you fail, or did you try again? What happened?",
+     "How long after?",
+     [],
+     [
+      [
+       "You fail, or did you try again? What happened?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو یک بار",
+     "Yes, I did.",
+     "Once.",
+     [],
+     [
+      [
+       "Yes, I do.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I did."
+      ]
+     ]
+    ],
+    [
+     "بگو بله چون عصبی بودم",
+     "بگو و خسته",
+     "Yes, I did, because I was nervous.",
+     "And tired.",
+     [],
+     [
+      [
+       "Yes, I do, because I was nervous.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I did."
+      ]
+     ]
+    ],
+    [
+     "بگو یک بار رد شدم ولی دوباره امتحان دادم و قبول شدم چون هر روز درس خواندم",
+     "بگو بعد از یک ماه",
+     "I failed once, but I tried again and passed, because I studied every day.",
+     "After a month.",
+     [],
+     [
+      [
+       "I failed once, but I tried again and passed, because studied every day.",
+       "بعد از «because» فاعل لازم است: because I studied."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "revise-for",
+   "c": null,
+   "q": [
+    [
+     "بپرس برای امتحان چطور مرور کرد",
+     "بپرس تنها",
+     "How did you revise for the exam?",
+     "Alone?",
+     [],
+     [
+      [
+       "How you revise for the exam?",
+       "بعد از «how»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چطور مرور کرد و چقدر",
+     "بپرس یک ماه",
+     "How did you revise, and for how long?",
+     "A month?",
+     [],
+     [
+      [
+       "How you revise, and for how long?",
+       "بعد از «how»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس تنها مرور کرد یا با دوست و چرا",
+     "بپرس کجا",
+     "Did you revise alone, or with a friend? Why?",
+     "Where?",
+     [],
+     [
+      [
+       "You revise alone, or with a friend? Why?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو با کتاب",
+     "بگو هر روز",
+     "With a book.",
+     "Every day.",
+     [],
+     [
+      [
+       "With book.",
+       "قبل از «book» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو با کتاب و یک ماه",
+     "بگو هر شب",
+     "With a book, for one month.",
+     "Every night.",
+     [],
+     [
+      [
+       "With book, for one month.",
+       "قبل از «book» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو با یک دوست چون به هم کمک کردیم ولی تنها هم درس خواندم",
+     "بگو در کتابخانه",
+     "With a friend, because we helped each other, but I also studied alone.",
+     "At the library.",
+     [],
+     [
+      [
+       "With friend, because we helped each other, but I also studied alone.",
+       "قبل از «friend» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "do-your-best",
+   "c": null,
+   "q": [
+    [
+     "بپرس نهایت تلاشش را کرد",
+     "بپرس همیشه",
+     "Did you do your best?",
+     "Always?",
+     [],
+     [
+      [
+       "You do your best?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس نهایت تلاشش را کرد و چه حسی داشت",
+     "بپرس خوشحال",
+     "Did you do your best, and how did you feel?",
+     "Happy?",
+     [],
+     [
+      [
+       "You do your best, and how did you feel?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس نهایت تلاشش را کرد یا نمره‌ی خوب می‌خواست و چرا",
+     "بپرس چرا",
+     "Did you do your best, or did you want a good grade? Why?",
+     "Why?",
+     [],
+     [
+      [
+       "You do your best, or did you want a good grade? Why?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو تلاش کردم",
+     "Yes, I did.",
+     "I tried.",
+     [],
+     [
+      [
+       "Yes, I do.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I did."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و حالم خوب بود",
+     "بگو کمی خسته",
+     "Yes, I did, and I felt good.",
+     "A little tired.",
+     [],
+     [
+      [
+       "Yes, I do, and I felt good.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I did."
+      ]
+     ]
+    ],
+    [
+     "بگو نهایت تلاشم را کردم چون نمره‌ی خوب می‌خواستم ولی یک اشتباه کردم",
+     "بگو یک اشتباه کوچک",
+     "I did my best, because I wanted a good grade, but I made one mistake.",
+     "A small one.",
+     [],
+     [
+      [
+       "I did my best, because I wanted good grade, but I made one mistake.",
+       "قبل از «good» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "exam-nervous",
+   "c": "دوستت گفت: «از امتحان می‌ترسیدم.»",
+   "q": [
+    [
+     "بپرس چرا ترسید",
+     "بپرس سخت بود",
+     "Why were you afraid?",
+     "Was it hard?",
+     [],
+     [
+      [
+       "Why you afraid?",
+       "بعد از «why»، «were» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چرا ترسید و چه کار کرد",
+     "بپرس تمرین کرد",
+     "Why were you afraid, and what did you do?",
+     "Did you practise?",
+     [],
+     [
+      [
+       "Why you afraid, and what did you do?",
+       "بعد از «why»، «were» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس از سؤال‌ها ترسید یا از رد شدن و چرا",
+     "بپرس چه شد",
+     "Were you afraid of the questions, or of failing? Why?",
+     "What happened?",
+     [],
+     [
+      [
+       "Were you afraid the questions, or of failing? Why?",
+       "بعد از «afraid» حرف «of» می‌آید: afraid of the questions."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو سخت بود",
+     "بگو و طولانی",
+     "It was hard.",
+     "And long.",
+     [],
+     []
+    ],
+    [
+     "بگو سخت بود و خیلی تمرین کردم",
+     "بگو هر شب",
+     "It was hard, and I practised a lot.",
+     "Every night.",
+     [],
+     [
+      [
+       "It was hard, and I practised lot.",
+       "قبل از «lot» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو از رد شدن ترسیدم چون نمره‌ی خوب می‌خواستم ولی آرام ماندم",
+     "بگو قبول شدم",
+     "I was afraid of failing, because I wanted a good grade, but I stayed calm.",
+     "I passed.",
+     [],
+     [
+      [
+       "I was afraid of failing, because I wanted good grade, but I stayed calm.",
+       "قبل از «good» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "grade-what",
+   "c": "دوستت گفت: «نمره‌ی خوبی گرفتم.»",
+   "q": [
+    [
+     "بپرس نمره‌اش چه بود",
+     "بپرس بالا",
+     "What was your grade?",
+     "High?",
+     [],
+     [
+      [
+       "What your grade?",
+       "بعد از «what»، «was» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس نمره‌اش چه بود و خوشحال بود",
+     "بپرس خیلی",
+     "What was your grade, and were you happy?",
+     "Very?",
+     [],
+     [
+      [
+       "What your grade, and were you happy?",
+       "بعد از «what»، «was» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس نمره‌ی خوب انتظار داشت یا غافلگیر شد و چرا",
+     "بپرس چه کسی گفت",
+     "Did you expect a good grade, or was it a surprise? Why?",
+     "Who told you?",
+     [],
+     [
+      [
+       "You expect a good grade, or was it a surprise? Why?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو هجده",
+     "بگو از بیست",
+     "Eighteen.",
+     "Out of twenty.",
+     [],
+     []
+    ],
+    [
+     "بگو هجده و خوشحال بودم",
+     "بگو خیلی",
+     "Eighteen, and I was happy.",
+     "Very.",
+     [],
+     [
+      [
+       "Eighteen, and I am happy.",
+       "داستان گذشته است: I was happy."
+      ]
+     ]
+    ],
+    [
+     "بگو غافلگیر شدم چون امتحان سخت بود ولی خیلی درس خوانده بودم",
+     "بگو معلمم",
+     "It was a surprise, because the exam was hard, but I studied a lot.",
+     "My teacher.",
+     [],
+     [
+      [
+       "It was surprise, because the exam was hard, but I studied a lot.",
+       "قبل از «surprise» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "revise-how",
+   "c": "دوستت گفت: «من برای امتحان درس می‌خواندم.»",
+   "q": [
+    [
+     "بپرس چقدر",
+     "بپرس یک ماه",
+     "How long?",
+     "A month?",
+     [],
+     []
+    ],
+    [
+     "بپرس چقدر و کجا درس می‌خواند",
+     "بپرس در خانه",
+     "How long, and where did you study?",
+     "At home?",
+     [],
+     [
+      [
+       "How long, and where you study?",
+       "بعد از «where»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس هر روز درس می‌خواند یا فقط قبل از امتحان و چرا",
+     "بپرس چند ساعت",
+     "Did you study every day, or only before the exam? Why?",
+     "How many hours?",
+     [],
+     [
+      [
+       "You study every day, or only before the exam? Why?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو یک ماه",
+     "بگو هر شب",
+     "One month.",
+     "Every night.",
+     [],
+     []
+    ],
+    [
+     "بگو یک ماه در خانه",
+     "بگو در اتاقم",
+     "One month, at home.",
+     "In my room.",
+     [],
+     [
+      [
+       "One month, in home.",
+       "می‌گوییم «at home»."
+      ]
+     ]
+    ],
+    [
+     "بگو هر روز چون زود فراموش می‌کنم ولی قبل از امتحان خیلی خواندم",
+     "بگو دو ساعت",
+     "Every day, because I forget fast, but before the exam I studied a lot.",
+     "Two hours.",
+     [],
+     [
+      [
+       "Every day, because I forget fast, but before the exam I studied lot.",
+       "قبل از «lot» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "fail-again",
+   "c": "دوستت گفت: «در امتحان رد شدم.»",
+   "q": [
+    [
+     "بپرس چه کار کرد",
+     "بپرس دوباره امتحان داد",
+     "What did you do?",
+     "Did you try again?",
+     [],
+     [
+      [
+       "What you do?",
+       "بعد از «what»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه کار کرد و چه حسی داشت",
+     "بپرس غمگین",
+     "What did you do, and how did you feel?",
+     "Sad?",
+     [],
+     [
+      [
+       "What you do, and how did you feel?",
+       "بعد از «what»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس ول کرد یا دوباره امتحان داد و چرا",
+     "بپرس چه کسی کمک کرد",
+     "Did you stop, or did you try again? Why?",
+     "Who helped you?",
+     [],
+     [
+      [
+       "You stop, or did you try again? Why?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو دوباره امتحان دادم",
+     "بگو بعد از یک ماه",
+     "I tried again.",
+     "After a month.",
+     [],
+     [
+      [
+       "I am tried again.",
+       "بعد از «I» فعل ساده می‌آید، نه «am»: I tried."
+      ]
+     ]
+    ],
+    [
+     "بگو دوباره امتحان دادم و غمگین بودم",
+     "بگو اولش",
+     "I tried again, and I felt sad.",
+     "At first.",
+     [],
+     [
+      [
+       "I am tried again, and I felt sad.",
+       "بعد از «I» فعل ساده می‌آید، نه «am»: I tried."
+      ]
+     ]
+    ],
+    [
+     "بگو دوباره امتحان دادم چون می‌خواستم قبول شوم ولی سخت بود",
+     "بگو معلمم",
+     "I tried again, because I wanted to pass, but it was hard.",
+     "My teacher.",
+     [],
+     [
+      [
+       "I tried again, because wanted to pass, but it was hard.",
+       "بعد از «because» فاعل لازم است: because I wanted."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "pass-celebrate",
+   "c": "دوستت گفت: «در امتحان قبول شدم.»",
+   "q": [
+    [
+     "بپرس بعد چه کار کرد",
+     "بپرس جشن گرفت",
+     "What did you do then?",
+     "Did you celebrate?",
+     [],
+     [
+      [
+       "What you do then?",
+       "بعد از «what»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه کار کرد و چه کسی خوشحال شد",
+     "بپرس مادرش",
+     "What did you do, and who was happy?",
+     "Your mum?",
+     [],
+     [
+      [
+       "What you do, and who was happy?",
+       "بعد از «what»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس جشن گرفت یا دوباره درس خواند و چرا",
+     "بپرس کجا",
+     "Did you celebrate, or did you start studying again? Why?",
+     "Where?",
+     [],
+     [
+      [
+       "You celebrate, or did you start studying again? Why?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو به خانواده‌ام گفتم",
+     "بگو و دوستانم",
+     "I told my family.",
+     "And friends.",
+     [],
+     [
+      [
+       "I tell my family.",
+       "گذشته‌ی «tell» می‌شود «told»."
+      ]
+     ]
+    ],
+    [
+     "بگو به خانواده‌ام گفتم و مادرم خوشحال شد",
+     "بگو گریه کرد",
+     "I told my family, and my mum was happy.",
+     "She cried.",
+     [],
+     [
+      [
+       "I tell my family, and my mum was happy.",
+       "گذشته‌ی «tell» می‌شود «told»."
+      ]
+     ]
+    ],
+    [
+     "بگو با دوستانم جشن گرفتم چون سخت کار کرده بودم ولی فردا دوباره درس خواندم",
+     "بگو در یک کافه",
+     "I celebrated with friends, because I worked hard, but the next day I studied again.",
+     "In a café.",
+     [],
+     [
+      [
+       "I celebrated with friends, because worked hard, but the next day I studied again.",
+       "بعد از «because» فاعل لازم است: because I worked."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "yesterday",
+   "c": null,
+   "q": [
+    [
+     "بپرس دیروز چه کار کرد",
+     "بپرس سر کار",
+     "What did you do yesterday?",
+     "At work?",
+     [],
+     [
+      [
+       "What you do yesterday?",
+       "بعد از «what»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس دیروز چه کار کرد و چه کسی را دید",
+     "بپرس دوستان",
+     "What did you do yesterday, and who did you see?",
+     "Friends?",
+     [],
+     [
+      [
+       "What you do yesterday, and who did you see?",
+       "بعد از «what»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس دیروز روز شلوغی داشت یا آرام و چرا",
+     "بپرس چه ساعتی تمام کرد",
+     "Did you have a busy day yesterday, or a calm day? Why?",
+     "What time did you finish?",
+     [],
+     [
+      [
+       "You have a busy day yesterday, or a calm day? Why?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو کار کردم",
+     "بگو و درس خواندم",
+     "I worked.",
+     "And studied.",
+     [],
+     []
+    ],
+    [
+     "بگو کار کردم و دوستم را دیدم",
+     "بگو عصر",
+     "I worked, and I saw my friend.",
+     "In the evening.",
+     [],
+     [
+      [
+       "I worked, and I see my friend.",
+       "گذشته‌ی «see» می‌شود «saw»."
+      ]
+     ]
+    ],
+    [
+     "بگو شلوغ بود چون کار زیاد داشتم ولی ساعت شش تمام کردم",
+     "بگو بعد استراحت کردم",
+     "It was a busy day, because I had a lot of work, but I finished at six.",
+     "Then I rested.",
+     [],
+     [
+      [
+       "It was a busy day, because I had a lot of work, but I finished in six.",
+       "ساعت با «at» می‌آید: at six."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "last-weekend",
+   "c": null,
+   "q": [
+    [
+     "بپرس آخر هفته کجا رفت",
+     "بپرس با دوستان",
+     "Where did you go at the weekend?",
+     "With friends?",
+     [],
+     [
+      [
+       "Where you go at the weekend?",
+       "بعد از «where»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس آخر هفته کجا رفت و چه کار کرد",
+     "بپرس قدم زد",
+     "Where did you go at the weekend, and what did you do?",
+     "Did you walk?",
+     [],
+     [
+      [
+       "Where you go at the weekend, and what did you do?",
+       "بعد از «where»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس آخر هفته در خانه ماند یا بیرون رفت و چرا",
+     "بپرس چه خورد",
+     "Did you stay home at the weekend, or did you go out? Why?",
+     "What did you eat?",
+     [],
+     [
+      [
+       "You stay home at the weekend, or did you go out? Why?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو به پارک",
+     "بگو با خانواده",
+     "To the park.",
+     "With my family.",
+     [],
+     []
+    ],
+    [
+     "بگو به پارک رفتم و قدم زدم",
+     "بگو زیاد",
+     "I went to the park, and I walked.",
+     "A lot.",
+     [],
+     [
+      [
+       "I go to the park, and I walked.",
+       "گذشته‌ی «go» می‌شود «went»."
+      ]
+     ]
+    ],
+    [
+     "بگو در خانه ماندم چون خسته بودم ولی یکشنبه بیرون رفتم",
+     "بگو پیتزا",
+     "I stayed home, because I was tired, but on Sunday I went out.",
+     "Pizza.",
+     [],
+     [
+      [
+       "I stayed home, because I was tired, but in Sunday I went out.",
+       "روز هفته با «on» می‌آید: on Sunday."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "as-a-child",
+   "c": null,
+   "q": [
+    [
+     "بپرس در بچگی کجا زندگی می‌کرد",
+     "بپرس در شهر",
+     "Where did you live as a child?",
+     "In a city?",
+     [],
+     [
+      [
+       "Where you live as a child?",
+       "بعد از «where»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس در بچگی کجا زندگی می‌کرد و چه کسی با او بود",
+     "بپرس خانواده",
+     "Where did you live as a child, and who lived with you?",
+     "Your family?",
+     [],
+     [
+      [
+       "Where you live as a child, and who lived with you?",
+       "بعد از «where»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس شهرش را دوست داشت یا می‌خواست برود و چرا",
+     "بپرس آنجا چه می‌کرد",
+     "Did you like your town, or did you want to leave? Why?",
+     "What did you do there?",
+     [],
+     [
+      [
+       "You like your town, or did you want to leave? Why?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو در یک شهر کوچک",
+     "بگو نزدیک دریا",
+     "In a small town.",
+     "Near the sea.",
+     [],
+     [
+      [
+       "In small town.",
+       "قبل از «small» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو در یک شهر کوچک با خانواده‌ام",
+     "بگو و مادربزرگم",
+     "In a small town, with my family.",
+     "And my grandma.",
+     [],
+     [
+      [
+       "In small town, with my family.",
+       "قبل از «small» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو دوستش داشتم چون آرام بود ولی می‌خواستم در یک شهر بزرگ درس بخوانم",
+     "بگو فوتبال بازی می‌کردم",
+     "I liked it, because it was calm, but I wanted to study in a big city.",
+     "I played football.",
+     [],
+     [
+      [
+       "I liked it, because it was calm, but I wanted to study in big city.",
+       "قبل از «big» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "first-job",
+   "c": null,
+   "q": [
+    [
+     "بپرس اولین کارش چه بود",
+     "بپرس سخت بود",
+     "What was your first job?",
+     "Was it hard?",
+     [],
+     [
+      [
+       "What your first job?",
+       "بعد از «what»، «was» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس اولین کارش چه بود و چقدر آنجا کار کرد",
+     "بپرس یک سال",
+     "What was your first job, and how long did you work there?",
+     "A year?",
+     [],
+     [
+      [
+       "What your first job, and how long did you work there?",
+       "بعد از «what»، «was» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس اولین کارش را دوست داشت یا ترکش کرد و چرا",
+     "بپرس کی",
+     "Did you like your first job, or did you leave it? Why?",
+     "When?",
+     [],
+     [
+      [
+       "You like your first job, or did you leave it? Why?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو در یک مغازه کار می‌کردم",
+     "بگو آسان بود",
+     "I worked in a shop.",
+     "It was easy.",
+     [],
+     [
+      [
+       "I worked in shop.",
+       "قبل از «shop» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو در یک مغازه یک سال کار کردم",
+     "بگو نزدیک خانه",
+     "I worked in a shop, for a year.",
+     "Near my home.",
+     [],
+     [
+      [
+       "I worked in shop, for a year.",
+       "قبل از «shop» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو دوستش داشتم چون رئیسم مهربان بود ولی رفتم چون پول می‌خواستم",
+     "بگو بعد از یک سال",
+     "I liked it, because the boss was kind, but I left, because I wanted money.",
+     "After a year.",
+     [],
+     [
+      [
+       "I liked it, because the boss was kind, but I leave, because I wanted money.",
+       "گذشته‌ی «leave» می‌شود «left»."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "last-holiday",
+   "c": null,
+   "q": [
+    [
+     "بپرس به مسافرت کجا رفت",
+     "بپرس پارسال",
+     "Where did you go on holiday?",
+     "Last year?",
+     [],
+     [
+      [
+       "Where you go on holiday?",
+       "بعد از «where»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس به مسافرت کجا رفت و چه کار کرد",
+     "بپرس قدم زد",
+     "Where did you go on holiday, and what did you do?",
+     "Did you walk?",
+     [],
+     [
+      [
+       "Where you go on holiday, and what did you do?",
+       "بعد از «where»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس از مسافرتش لذت برد یا خیلی کوتاه بود و چرا",
+     "بپرس چقدر بود",
+     "Did you enjoy your holiday, or was it too short? Why?",
+     "How long was it?",
+     [],
+     [
+      [
+       "You enjoy your holiday, or was it too short? Why?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو کنار دریا",
+     "بگو با خانواده",
+     "To the sea.",
+     "With my family.",
+     [],
+     []
+    ],
+    [
+     "بگو کنار دریا رفتم و قدم زدم",
+     "بگو هر روز",
+     "I went to the sea, and I walked.",
+     "Every day.",
+     [],
+     [
+      [
+       "I go to the sea, and I walked.",
+       "گذشته‌ی «go» می‌شود «went»."
+      ]
+     ]
+    ],
+    [
+     "بگو لذت بردم چون هوا خوب بود ولی خیلی کوتاه بود",
+     "بگو یک هفته",
+     "I enjoyed it, because the weather was nice, but it was too short.",
+     "A week.",
+     [],
+     [
+      [
+       "I am enjoyed it, because the weather was nice, but it was too short.",
+       "بعد از «I» فعل ساده می‌آید، نه «am»: I enjoyed."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "yesterday-friend",
+   "c": "دوستت گفت: «دیروز با دوستم بودم.»",
+   "q": [
+    [
+     "بپرس با هم چه کار کردند",
+     "بپرس در شهر",
+     "What did you do together?",
+     "In the city?",
+     [],
+     [
+      [
+       "What you do together?",
+       "بعد از «what»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه کار کردند و کجا رفتند",
+     "بپرس پارک",
+     "What did you do, and where did you go?",
+     "The park?",
+     [],
+     [
+      [
+       "What you do, and where did you go?",
+       "بعد از «what»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس خوش گذشت یا روز خسته‌کننده‌ای بود و چرا",
+     "بپرس چه ساعتی به خانه آمد",
+     "Did you have fun, or was it a boring day? Why?",
+     "What time did you come home?",
+     [],
+     [
+      [
+       "You have fun, or was it a boring day? Why?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو ناهار خوردیم",
+     "بگو در یک کافه",
+     "We had lunch.",
+     "In a café.",
+     [],
+     [
+      [
+       "We are had lunch.",
+       "بعد از «We» فعل ساده می‌آید، نه «are»: We had."
+      ]
+     ]
+    ],
+    [
+     "بگو ناهار خوردیم و به پارک رفتیم",
+     "بگو بعد از ناهار",
+     "We had lunch, and we went to the park.",
+     "After lunch.",
+     [],
+     [
+      [
+       "We had lunch, and we go to the park.",
+       "گذشته‌ی «go» می‌شود «went»."
+      ]
+     ]
+    ],
+    [
+     "بگو خوش گذشت چون خیلی حرف زدیم ولی دیر به خانه آمدم",
+     "بگو ساعت ده",
+     "We had fun, because we talked a lot, but I came home late.",
+     "At ten.",
+     [],
+     [
+      [
+       "We had fun, because we talked lot, but I came home late.",
+       "قبل از «lot» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "trip-other-city",
+   "c": "دوستت گفت: «آخر هفته به شهر دیگری رفتم.»",
+   "q": [
+    [
+     "بپرس چطور رفت",
+     "بپرس با قطار",
+     "How did you go?",
+     "By train?",
+     [],
+     [
+      [
+       "How you go?",
+       "بعد از «how»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چطور رفت و چقدر طول کشید",
+     "بپرس سه ساعت",
+     "How did you go, and how long did it take?",
+     "Three hours?",
+     [],
+     [
+      [
+       "How you go, and how long did it take?",
+       "بعد از «how»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس تنها رفت یا با کسی و چرا",
+     "بپرس چه کسی",
+     "Did you go alone, or with someone? Why?",
+     "Who?",
+     [],
+     [
+      [
+       "You go alone, or with someone? Why?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو با قطار",
+     "بگو سریع بود",
+     "By train.",
+     "It was fast.",
+     [],
+     []
+    ],
+    [
+     "بگو با قطار و سه ساعت طول کشید",
+     "بگو خوابیدم",
+     "By train, and it took three hours.",
+     "I slept.",
+     [],
+     [
+      [
+       "By train, and it take three hours.",
+       "با «it» فعل گذشته «took» می‌شود: it took three hours."
+      ]
+     ]
+    ],
+    [
+     "بگو با خواهرم رفتم چون نمی‌خواستم تنها بروم ولی او دیر کرد",
+     "بگو ده دقیقه",
+     "I went with my sister, because I didn't want to go alone, but she was late.",
+     "Ten minutes.",
+     [],
+     [
+      [
+       "I went with my sister, because I didn't want go alone, but she was late.",
+       "بعد از «want» باید «to» بیاید: want to go."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "child-play",
+   "c": "دوستت گفت: «در بچگی خیلی بازی می‌کردم.»",
+   "q": [
+    [
+     "بپرس چه بازی می‌کرد",
+     "بپرس فوتبال",
+     "What did you play?",
+     "Football?",
+     [],
+     [
+      [
+       "What you play?",
+       "بعد از «what»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه بازی می‌کرد و کجا",
+     "بپرس در خیابان",
+     "What did you play, and where?",
+     "In the street?",
+     [],
+     [
+      [
+       "What you play, and where?",
+       "بعد از «what»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس تنها بازی می‌کرد یا با دوستان و چرا",
+     "بپرس چه کسی برنده می‌شد",
+     "Did you play alone, or with friends? Why?",
+     "Who won?",
+     [],
+     [
+      [
+       "You play alone, or with friends? Why?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو فوتبال",
+     "بگو با برادرم",
+     "Football.",
+     "With my brother.",
+     [],
+     []
+    ],
+    [
+     "بگو فوتبال در خیابان",
+     "بگو هر روز",
+     "Football, in the street.",
+     "Every day.",
+     [],
+     [
+      [
+       "Football, on the street.",
+       "می‌گوییم «in the street»."
+      ]
+     ]
+    ],
+    [
+     "بگو با دوستانم بازی می‌کردم چون خوش می‌گذشت ولی گاهی تنها بازی می‌کردم",
+     "بگو برادرم",
+     "I played with friends, because it was fun, but sometimes I played alone.",
+     "My brother.",
+     [],
+     [
+      [
+       "I am played with friends, because it was fun, but sometimes I played alone.",
+       "بعد از «I» فعل ساده می‌آید، نه «am»: I played."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "left-job",
+   "c": "دوستت گفت: «کارم را عوض کردم.»",
+   "q": [
+    [
+     "بپرس چرا ترک کرد",
+     "بپرس پول",
+     "Why did you leave?",
+     "Money?",
+     [],
+     [
+      [
+       "Why you leave?",
+       "بعد از «why»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چرا ترک کرد و کجا رفت",
+     "بپرس به یک بانک",
+     "Why did you leave, and where did you go?",
+     "A bank?",
+     [],
+     [
+      [
+       "Why you leave, and where did you go?",
+       "بعد از «why»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس تصمیمش سخت بود یا آسان و چرا",
+     "بپرس چقدر فکر کرد",
+     "Was it a hard decision, or was it easy? Why?",
+     "How long did you think?",
+     [],
+     [
+      [
+       "Was it hard decision, or was it easy? Why?",
+       "قبل از «hard» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو پول می‌خواستم",
+     "بگو و وقت",
+     "I wanted money.",
+     "And time.",
+     [],
+     [
+      [
+       "I am wanted money.",
+       "بعد از «I» فعل ساده می‌آید، نه «am»: I wanted."
+      ]
+     ]
+    ],
+    [
+     "بگو پول می‌خواستم و به یک بانک رفتم",
+     "بگو نزدیک خانه",
+     "I wanted money, and I went to a bank.",
+     "Near my home.",
+     [],
+     [
+      [
+       "I wanted money, and I went to bank.",
+       "قبل از «bank» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو سخت بود چون همکارانم را دوست داشتم ولی کار تازه می‌خواستم",
+     "بگو یک ماه",
+     "It was hard, because I liked my colleagues, but I wanted a new job.",
+     "One month.",
+     [],
+     [
+      [
+       "It was hard, because I liked my colleagues, but I wanted new job.",
+       "قبل از «new» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "trip-memory",
+   "c": "دوستت گفت: «در سفر خیلی خوش گذشت.»",
+   "q": [
+    [
+     "بپرس چه چیزی را دوست داشت",
+     "بپرس غذا",
+     "What did you like?",
+     "Food?",
+     [],
+     [
+      [
+       "What you like?",
+       "بعد از «what»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه چیزی را دوست داشت و چه کسی همراهش بود",
+     "بپرس خانواده",
+     "What did you like, and who went with you?",
+     "Your family?",
+     [],
+     [
+      [
+       "What you like, and who went with you?",
+       "بعد از «what»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس عکس گرفت یا فقط لذت برد و چرا",
+     "بپرس چند تا",
+     "Did you take photos, or did you only enjoy it? Why?",
+     "How many?",
+     [],
+     [
+      [
+       "You take photos, or did you only enjoy it? Why?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو غذا",
+     "بگو و دریا",
+     "The food.",
+     "And the sea.",
+     [],
+     []
+    ],
+    [
+     "بگو غذا و خانواده‌ام با من بود",
+     "بگو و دوستان",
+     "The food, and my family went with me.",
+     "And friends.",
+     [],
+     [
+      [
+       "The food, and my family goed with me.",
+       "گذشته‌ی «go» می‌شود «went»."
+      ]
+     ]
+    ],
+    [
+     "بگو عکس گرفتم چون می‌خواستم یادم بماند ولی لذت هم بردم",
+     "بگو خیلی",
+     "I took photos, because I wanted to remember, but I also enjoyed it.",
+     "Many.",
+     [],
+     [
+      [
+       "I take photos, because I wanted to remember, but I also enjoyed it.",
+       "گذشته‌ی «take» می‌شود «took»."
+      ]
+     ]
+    ]
+   ]
+  }
+ ]
+}

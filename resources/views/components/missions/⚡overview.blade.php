@@ -472,7 +472,7 @@ new class extends Component
             return ['label' => 'Find your level · 8 min', 'url' => route('placement'), 'icon' => 'heroicon-o-academic-cap'];
         }
 
-        if ($this->needsPiGuide) {
+        if ($this->needsPiGuide && ! ($this->piPractice['game'] ?? false)) {
             return ['label' => 'How Daily talk works · 2 min', 'url' => route('pi.setup'), 'icon' => 'heroicon-o-microphone'];
         }
 
@@ -624,7 +624,7 @@ new class extends Component
                 <div class="rounded-2xl bg-success-soft px-3.5 py-2.5 dark:bg-success-soft-dark">
                     <p class="flex items-center gap-2 text-sm font-semibold text-success dark:text-success-dark">
                         @svg('heroicon-s-check-circle', 'h-4 w-4 shrink-0')
-                        {{ $this->piLeft ? 'Steps done — one more: Pi' : 'Day '.$today['dayNumber'].' done — nice work.' }}
+                        {{ $this->piLeft ? 'Steps done — one more: '.(($this->piPractice['game'] ?? false) ? 'Ask & Answer' : 'Pi') : 'Day '.$today['dayNumber'].' done — nice work.' }}
                     </p>
                     @if ($tomorrow = $this->tomorrow)
                         <a href="{{ $tomorrow['url'] }}" wire:navigate class="mt-1 ms-6 inline-flex items-center gap-1 text-xs font-semibold text-ink-soft underline-offset-2 hover:underline dark:text-ink-soft-dark">{{ $tomorrow['label'] }} @svg('heroicon-o-chevron-right', 'h-3 w-3')</a>
@@ -654,12 +654,12 @@ new class extends Component
 
             @if ($today['dayCompletedToday'])
                 {{-- Finished earlier today: stay on this day (the date flips
-                     the box to the next one tomorrow). "Done" only once Pi
-                     is done too. --}}
+                     the box to the next one tomorrow). "Done" only once the Daily talk
+                     (Ask & Answer, or Pi) is done too. --}}
                 <div class="mt-3 rounded-xl bg-success-soft px-3 py-2.5 dark:bg-success-soft-dark">
                     <p class="flex items-center gap-2 text-sm font-semibold text-success dark:text-success-dark">
                         @svg('heroicon-s-check-circle', 'h-4 w-4 shrink-0')
-                        {{ $this->piLeft ? 'Steps done — one more: Pi' : 'Day '.$today['dayNumber'].' done — nice work.' }}
+                        {{ $this->piLeft ? 'Steps done — one more: '.(($this->piPractice['game'] ?? false) ? 'Ask & Answer' : 'Pi') : 'Day '.$today['dayNumber'].' done — nice work.' }}
                     </p>
                     @if ($tomorrow = $this->tomorrow)
                         <a href="{{ $tomorrow['url'] }}" wire:navigate class="mt-1 ms-6 inline-flex items-center gap-1 text-xs font-semibold text-ink-soft underline-offset-2 hover:underline dark:text-ink-soft-dark">{{ $tomorrow['label'] }} @svg('heroicon-o-chevron-right', 'h-3 w-3')</a>

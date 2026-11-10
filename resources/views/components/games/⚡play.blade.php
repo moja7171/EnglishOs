@@ -513,7 +513,7 @@ new class extends Component
                 </div>
                 @include('components.games.partials.role-guide')
                 @if ($pairGame->isAskAnswer())
-                    @include('components.games.partials.ask-levels', ['levels' => $pairGame->askLevels($me), 'action' => 'setAskLevel'])
+                    @include('components.games.partials.ask-levels', ['levels' => $pairGame->askLevels($me), 'action' => 'setAskLevel', 'sides' => ['q']])
                 @else
                     @include('components.games.partials.voice-switch')
                 @endif

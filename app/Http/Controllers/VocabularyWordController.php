@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreVocabularyWordRequest;
 use App\Models\DictionaryEntry;
 use App\Models\VocabularyWord;
+use App\Services\WordDetails;
 use App\Services\WordLookup;
 use App\Services\WordMissions;
 use App\Services\WordSentences;
@@ -49,13 +50,22 @@ class VocabularyWordController extends Controller
                 if ($inContext !== null) {
                     $word->update(['meaning_fa' => $inContext, 'meaning_fa_checked_at' => now()]);
                 }
+
+                app(WordDetails::class)->fill($word->fresh());
             })->afterResponse();
         }
 
         if ($word->wasRecentlyCreated && (blank($word->example) || ! VocabularyWord::isSimple($word->example))) {
             $learner = $request->user();
 
-            dispatch(fn () => app(WordSentences::class)->makeOne($word, $learner))->afterResponse();
+            dispatch(function () use ($word, $learner) {
+                $word = $word->fresh('sentences');
+                $best = $word?->displaySentence();
+
+                if ($word !== null && ($best === null || ! VocabularyWord::isSimple($best))) {
+                    app(WordSentences::class)->makeOne($word, $learner);
+                }
+            })->afterResponse();
         }
 
         return response()->json(['saved' => true, 'already_had' => ! $word->wasRecentlyCreated], $word->wasRecentlyCreated ? 201 : 200);

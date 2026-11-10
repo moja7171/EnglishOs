@@ -217,8 +217,10 @@ class AiPractice extends Model
     }
 
     /**
-     * What Teddy says in the round, at the learner's levels: his answer to
-     * their question, or the question he asks them.
+     * What Teddy says in the round: his answer to the question the learner
+     * asked (the answer of the question's level), or the question he asks
+     * (the question of the level the learner answers at), so what is asked
+     * and what is answered always belong together.
      */
     public function askTeddyLine(): ?string
     {
@@ -228,9 +230,11 @@ class AiPractice extends Model
             return null;
         }
 
+        $levels = $this->askLevels();
+
         $line = $this->isLearnersGameTurn()
-            ? $this->askLevelOf($card, 'answers', $this->askLevels()['a'])
-            : $this->askLevelOf($card, 'questions', $this->askLevels()['q']);
+            ? $this->askLevelOf($card, 'answers', $levels['q'])
+            : $this->askLevelOf($card, 'questions', $levels['a']);
 
         return $line['en'] ?? null;
     }

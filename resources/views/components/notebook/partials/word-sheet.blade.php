@@ -4,11 +4,11 @@
     with the word picked out, "Another sentence", a place to write one of
     their own that the AI checks, and how far along the word is.
 
-    The data of every word rides on this element (data-words, see
-    VocabularyWord::sheetData()), and the Alpine component notebookWordSheet
-    (resources/js/app.js) shows the tapped one at once — no round trip to
-    the server. Only "Another sentence", "Check my sentence" and "Remove"
-    call it.
+    The data of the words most likely tapped rides on this element
+    (data-words, see VocabularyWord::sheetData()), and the Alpine component
+    notebookWordSheet (resources/js/app.js) shows the tapped one at once. Any
+    other word's data is asked for when it is tapped. "Another sentence",
+    "Check my sentence" and "Remove" call the server too.
 
     Needs $sheets (word id => data) and $removeSheetButton.
 --}}
@@ -16,10 +16,11 @@
     x-data="notebookWordSheet"
     x-effect="open(sheet)"
     data-words="{{ json_encode($sheets, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) }}"
-    x-show="active && word"
+    x-show="active"
     x-cloak
     class="flex flex-col gap-3"
 >
+    <p x-show="! word && loading" class="py-6 text-center text-sm font-bold text-ink-faint dark:text-ink-faint-dark">…</p>
     <template x-if="word">
         <div class="flex flex-col gap-3">
             <div class="flex items-start justify-between gap-3">

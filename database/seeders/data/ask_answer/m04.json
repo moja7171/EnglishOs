@@ -1,3525 +1,3405 @@
 {
-"mission": 4,
-"items": [
-{
-"d": 1,
-"k": "s",
-"s": "packed-lunch",
-"c": null,
-"q": [
-[
-"بپرس ناهار با خودش می‌برد",
-"بپرس هر روز",
-"Do you take a packed lunch?",
-"Every day?",
-[],
-[
-[
-"Do you take packed lunch?",
-"قبل از «packed lunch» باید «a» بیاید."
-]
-]
-],
-[
-"بپرس ناهار می‌برد یا بیرون می‌خورد",
-"بپرس کدام ارزان‌تر",
-"Do you take a packed lunch, or do you eat out?",
-"Which is cheaper?",
-[],
-[
-[
-"Do you take a packed lunch or you eat out?",
-"بخش دوم هم سؤال است: or do you eat out."
-]
-]
-],
-[
-"بپرس معمولاً در ناهارش چه می‌برد و گاهی بیرون می‌خورد",
-"بپرس چرا",
-"What do you usually take in your packed lunch, and do you ever eat out?",
-"Why?",
-[],
-[
-[
-"What you usually take in your packed lunch?",
-"بعد از «What»، «do you» می‌آید."
-]
-]
-]
-],
-"a": [
-[
-"بگو بله",
-"بگو هر روز",
-"Yes, I do.",
-"Every day.",
-[],
-[
-[
-"Yes, I take.",
-"جواب «Do you…؟» با «do» است."
-]
-]
-],
-[
-"بگو بله، نان و پنیر و میوه",
-"بگو در جعبه",
-"Yes, I do. I take bread, cheese and fruit.",
-"In a small box.",
-[],
-[
-[
-"Yes, I do. I take a bread, a cheese and fruits.",
-"«bread» و «cheese» شمارش‌ناپذیرند."
-]
-]
-],
-[
-"بگو معمولاً نان و پنیر ولی گاهی بیرون می‌خورم چون ارزان‌تر است",
-"بگو با همکارانم",
-"I usually take bread and cheese, but sometimes I eat out, because it's cheaper at home.",
-"With my colleagues.",
-[],
-[
-[
-"I usually take bread and cheese but sometimes I eat out because it cheaper.",
-"بعد از «because» باید «it's» بیاید."
-]
-]
-]
-]
-},
-{
-"d": 1,
-"k": "s",
-"s": "favourite-dish",
-"c": null,
-"q": [
-[
-"بپرس غذای مورد علاقه‌اش چیست",
-"بپرس چرا",
-"What is your favourite dish?",
-"Why?",
-[],
-[
-[
-"What your favourite dish is?",
-"ترتیب سؤال: What is your favourite dish."
-]
-]
-],
-[
-"بپرس غذای مورد علاقه‌اش چیست و کی درست می‌کند",
-"بپرس چه کسی",
-"What is your favourite dish, and who cooks it?",
-"Is it easy?",
-[],
-[
-[
-"What is your favourite dish and who cook it?",
-"با «who» فعل s می‌گیرد: cooks."
-]
-]
-],
-[
-"بپرس غذای مورد علاقه‌اش چیست و چند بار در هفته می‌خورد",
-"بپرس خسته نمی‌شود",
-"What is your favourite dish, and how often do you eat it?",
-"Do you get tired of it?",
-[],
-[
-[
-"What is your favourite dish and how often you eat it?",
-"بعد از «how often»، «do you» می‌آید."
-]
-]
-]
-],
-"a": [
-[
-"بگو برنج و مرغ",
-"بگو خیلی دوستش دارم",
-"Rice and chicken.",
-"I love it.",
-[],
-[
-[
-"The rice and the chicken.",
-"ساده بگو: Rice and chicken."
-]
-]
-],
-[
-"بگو برنج و مرغ و مادرم درست می‌کند",
-"بگو آسان نیست",
-"It's rice and chicken, and my mum cooks it.",
-"It isn't easy.",
-[],
-[
-[
-"It is rice and chicken and my mum cook it.",
-"با «mum» فعل s می‌گیرد: cooks."
-]
-]
-],
-[
-"بگو برنج و مرغ، هفته‌ای یک بار چون مادرم آخر هفته‌ها درست می‌کند",
-"بگو هیچ‌وقت خسته نمی‌شوم",
-"It's rice and chicken, once a week, because my mum cooks it at the weekend.",
-"I never get tired of it.",
-[],
-[
-[
-"It's rice and chicken, one time in a week.",
-"بگو: once a week."
-]
-]
-]
-]
-},
-{
-"d": 1,
-"k": "s",
-"s": "cuisine",
-"c": null,
-"q": [
-[
-"بپرس چه نوع غذایی دوست دارد",
-"بپرس همیشه",
-"What cuisine do you like?",
-"Always?",
-[],
-[
-[
-"What cuisine you like?",
-"بعد از «What cuisine»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس چه نوع غذایی دوست دارد و کدام را خودش درست می‌کند",
-"بپرس سخت است",
-"What cuisine do you like, and which one do you cook?",
-"Is it hard?",
-[],
-[
-[
-"What cuisine do you like and which one you cook?",
-"بعد از «which one»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس غذای کشور خودش را دوست دارد یا غذای کشورهای دیگر",
-"بپرس چرا",
-"Do you like the food of your country, or the food of other countries?",
-"Why?",
-[],
-[
-[
-"Do you like the food of your country or you like other countries?",
-"بخش دوم هم جمله‌ی کامل می‌خواهد."
-]
-]
-]
-],
-"a": [
-[
-"بگو پاستا و پیتزا",
-"بگو پیتزا و پاستا",
-"Pasta and pizza.",
-"Cheese and bread.",
-[],
-[
-[
-"Italian foods.",
-"«food» اینجا شمارش‌ناپذیر است."
-]
-]
-],
-[
-"بگو پاستا دوست دارم و خودم می‌پزم",
-"بگو آسان است",
-"I like pasta, and I cook it.",
-"It's easy.",
-[],
-[
-[
-"I like Italian food and I cooking pasta.",
-"بعد از «I» فعل ساده: cook."
-]
-]
-],
-[
-"بگو غذای کشور خودم را بیشتر چون عادت دارم ولی غذای دیگران را هم دوست دارم",
-"بگو برای تنوع",
-"I like the food of my country more, because I know it, but I like other food too.",
-"For a change.",
-[],
-[
-[
-"I like my country food more because I know.",
-"«I know it» را کامل بگو."
-]
-]
-]
-]
-},
-{
-"d": 1,
-"k": "s",
-"s": "bland",
-"c": null,
-"q": [
-[
-"بپرس غذای ساده و بی‌مزه دوست دارد",
-"بپرس چرا",
-"Do you like bland food?",
-"Why?",
-[],
-[
-[
-"Are you like bland food?",
-"«like» فعل است؛ با «Do» بپرس."
-]
-]
-],
-[
-"بپرس غذایش را با ادویه می‌خورد یا ساده",
-"بپرس نمک",
-"Do you like your food with spices, or bland?",
-"What about salt?",
-[],
-[
-[
-"Do you like your food with spices or bland you like?",
-"جمله‌ی دوم کوتاه بماند: or bland?"
-]
-]
-],
-[
-"بپرس غذا بی‌مزه باشد چه می‌کند",
-"بپرس نمک اضافه می‌کند",
-"What do you do when your food is bland?",
-"Do you add salt?",
-[],
-[
-[
-"What you do when your food is bland?",
-"بعد از «What»، «do you» می‌آید."
-]
-]
-]
-],
-"a": [
-[
-"بگو نه",
-"بگو بی‌مزه خوب نیست",
-"No, I don't.",
-"Bland food isn't good.",
-[],
-[
-[
-"No, I'm not.",
-"جواب «Do you…؟» با «don't» است."
-]
-]
-],
-[
-"بگو نه چون مزه ندارد",
-"بگو کمی نمک لازم است",
-"No, I don't, because it has no taste.",
-"I need a bit of salt.",
-[],
-[
-[
-"No, I don't because it has not taste.",
-"بگو: it has no taste."
-]
-]
-],
-[
-"بگو یک کم نمک و فلفل اضافه می‌کنم چون غذا بی‌مزه خوب نیست",
-"بگو ولی زیاد نه",
-"I add a bit of salt and pepper, because bland food isn't good, but not too much.",
-"Not too much.",
-[],
-[
-[
-"I add a bit salt and pepper.",
-"بعد از «a bit» باید «of» بیاید."
-]
-]
-]
-]
-},
-{
-"d": 1,
-"k": "s",
-"s": "bit-of-salt",
-"c": null,
-"q": [
-[
-"بپرس کمی نمک روی غذایش می‌ریزد",
-"بپرس همیشه",
-"Do you put a bit of salt on your food?",
-"Always?",
-[],
-[
-[
-"Do you put a bit salt on your food?",
-"بعد از «a bit» باید «of» بیاید."
-]
-]
-],
-[
-"بپرس چقدر شکر در چایش می‌ریزد",
-"بپرس هر روز",
-"How much sugar do you put in your tea?",
-"Every day?",
-[],
-[
-[
-"How many sugar do you put in your tea?",
-"«sugar» شمارش‌ناپذیر است: How much."
-]
-]
-],
-[
-"بپرس چقدر نمک و شکر می‌خورد و فکر می‌کند زیاد است",
-"بپرس سالم است",
-"How much salt and sugar do you eat, and is it too much?",
-"Is it healthy?",
-[],
-[
-[
-"How much salt and sugar do you eat and is too much?",
-"بعد از «is» باید «it» بیاید: is it too much."
-]
-]
-]
-],
-"a": [
-[
-"بگو بله",
-"بگو کم",
-"Yes, I do.",
-"Not much.",
-[],
-[
-[
-"Yes, I put.",
-"جواب «Do you…؟» با «do» است."
-]
-]
-],
-[
-"بگو یک قاشق کوچک",
-"بگو فقط صبح",
-"A small spoon.",
-"Only in the morning.",
-[],
-[
-[
-"One small spoon sugar.",
-"بگو: a small spoon of sugar."
-]
-]
-],
-[
-"بگو زیاد نه، یک کم نمک و دو قاشق شکر ولی فکر می‌کنم کمی زیاد است",
-"بگو می‌خواهم کم کنم",
-"Not much, a bit of salt and two spoons of sugar, but I think it's a little too much.",
-"I want to cut down.",
-[],
-[
-[
-"Not much, a bit salt.",
-"بعد از «a bit» باید «of» بیاید."
-]
-]
-]
-]
-},
-{
-"d": 1,
-"k": "f",
-"s": "packed-what",
-"c": "دوستت گفت: «من هر روز ناهار می‌برم.»",
-"q": [
-[
-"بپرس چه می‌برد",
-"بپرس همیشه همان",
-"What do you take?",
-"Always the same?",
-[],
-[
-[
-"What you take?",
-"بعد از «What»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس چه می‌برد و کجا می‌خورد",
-"بپرس تنها",
-"What do you take, and where do you eat it?",
-"Alone?",
-[],
-[
-[
-"What do you take and where you eat it?",
-"بعد از «where»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس همیشه همان را می‌برد یا هر روز فرق می‌کند",
-"بپرس چرا",
-"Do you always take the same, or is it different every day?",
-"Why?",
-[],
-[
-[
-"Do you take always the same?",
-"«always» قبل از فعل: always take."
-]
-]
-]
-],
-"a": [
-[
-"بگو ساندویچ",
-"بگو و میوه",
-"A sandwich.",
-"And fruit.",
-[],
-[
-[
-"A sandwiches.",
-"مفرد: a sandwich."
-]
-]
-],
-[
-"بگو ساندویچ و میوه و در اتاق استراحت می‌خورم",
-"بگو با همکارانم",
-"I take a sandwich and fruit, and I eat it in the break room.",
-"With my colleagues.",
-[],
-[
-[
-"I take a sandwich and a fruit.",
-"«fruit» شمارش‌ناپذیر است."
-]
-]
-],
-[
-"بگو معمولاً همان چون سریع است ولی گاهی برنج می‌برم",
-"بگو برای تنوع",
-"Usually the same, because it's quick, but sometimes I take rice.",
-"For a change.",
-[],
-[
-[
-"Usually same because it quick.",
-"«the same» و «it's quick» بگو."
-]
-]
-]
-]
-},
-{
-"d": 1,
-"k": "f",
-"s": "cook-cuisine",
-"c": "دوستت گفت: «من غذای ایتالیایی دوست دارم.»",
-"q": [
-[
-"بپرس در خانه هم می‌پزد",
-"بپرس هر هفته",
-"Do you cook it at home?",
-"Every week?",
-[],
-[
-[
-"Are you cook it at home?",
-"«cook» فعل است؛ با «Do» بپرس."
-]
-]
-],
-[
-"بپرس در خانه می‌پزد یا بیرون می‌خورد",
-"بپرس کدام بیشتر",
-"Do you cook it at home, or do you eat it out?",
-"Which more?",
-[],
-[
-[
-"Do you cook it at home or you eat it out?",
-"بخش دوم هم سؤال است: or do you eat it out."
-]
-]
-],
-[
-"بپرس غذای ایتالیایی را از کجا یاد گرفته یا از کجا مواد می‌خرد",
-"بپرس گران است",
-"Where do you buy the ingredients for it?",
-"Are they expensive?",
-[],
-[
-[
-"Where you buy the ingredients for it?",
-"بعد از «Where»، «do you» می‌آید."
-]
-]
-]
-],
-"a": [
-[
-"بگو گاهی",
-"بگو هفته‌ای یک بار",
-"Sometimes.",
-"Once a week.",
-[],
-[
-[
-"Some time.",
-"بگو: sometimes."
-]
-]
-],
-[
-"بگو گاهی در خانه می‌پزم",
-"بگو پاستا آسان است",
-"Sometimes I cook it at home.",
-"Pasta is easy.",
-[],
-[
-[
-"Sometimes I am cook it.",
-"بعد از «I» فعل ساده: cook."
-]
-]
-],
-[
-"بگو از سوپرمارکت چون نزدیک است ولی بعضی مواد گران است",
-"بگو پنیر",
-"From the supermarket, because it's near, but some ingredients are expensive.",
-"The cheese.",
-[],
-[
-[
-"From supermarket because it near.",
-"«the supermarket» و «it's near» بگو."
-]
-]
-]
-]
-},
-{
-"d": 1,
-"k": "f",
-"s": "who-cooks-rice",
-"c": "دوستت گفت: «غذای مورد علاقه‌ام برنج و مرغ است.»",
-"q": [
-[
-"بپرس چه کسی درست می‌کند",
-"بپرس خودش",
-"Who cooks it?",
-"You?",
-[],
-[
-[
-"Who do cook it?",
-"با «Who» فعل s می‌گیرد: cooks."
-]
-]
-],
-[
-"بپرس چه کسی درست می‌کند و چند بار در هفته",
-"بپرس آسان است",
-"Who cooks it, and how often do you eat it?",
-"Is it easy?",
-[],
-[
-[
-"Who cooks it and how often you eat it?",
-"بعد از «how often»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس خودش هم بلد است درست کند یا فقط می‌خورد",
-"بپرس چرا",
-"Do you know how to cook it, or do you only eat it?",
-"Why?",
-[],
-[
-[
-"Do you know how cook it?",
-"بعد از «how» باید «to» بیاید."
-]
-]
-]
-],
-"a": [
-[
-"بگو مادرم",
-"بگو هر هفته",
-"My mum.",
-"Every week.",
-[],
-[
-[
-"My mum cook.",
-"با «mum» فعل s می‌گیرد."
-]
-]
-],
-[
-"بگو مادرم درست می‌کند و من هم کمک می‌کنم",
-"بگو آسان نیست",
-"My mum cooks it, and I help her.",
-"It isn't easy.",
-[],
-[
-[
-"My mum cooks it and I helping.",
-"بعد از «I» فعل ساده: help."
-]
-]
-],
-[
-"بگو فقط می‌خورم چون هنوز بلد نیستم ولی می‌خواهم یاد بگیرم",
-"بگو از مادرم",
-"I only eat it, because I don't know how yet, but I want to learn.",
-"From my mum.",
-[],
-[
-[
-"I only eat it because I don't know how to yet.",
-"بگو: I don't know how yet."
-]
-]
-]
-]
-},
-{
-"d": 1,
-"k": "f",
-"s": "bland-add",
-"c": "دوستت گفت: «غذای من اغلب بی‌مزه است.»",
-"q": [
-[
-"بپرس چیزی به آن اضافه می‌کند",
-"بپرس نمک",
-"Do you add anything?",
-"Salt?",
-[],
-[
-[
-"Do you adding anything?",
-"بعد از «Do you» فعل ساده: add."
-]
-]
-],
-[
-"بپرس چه چیزی اضافه می‌کند و چقدر",
-"بپرس زیاد",
-"What do you add, and how much?",
-"Too much?",
-[],
-[
-[
-"What you add and how much?",
-"بعد از «What»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس چرا بی‌مزه است و خودش می‌پزد",
-"بپرس کمک می‌خواهد",
-"Why is your food bland, and do you cook it yourself?",
-"Do you need help?",
-[],
-[
-[
-"Why your food is bland?",
-"ترتیب سؤال: Why is your food bland."
-]
-]
-]
-],
-"a": [
-[
-"بگو بله",
-"بگو کمی نمک",
-"Yes, I do.",
-"A bit of salt.",
-[],
-[
-[
-"Yes, I add.",
-"جواب «Do you…؟» با «do» است."
-]
-]
-],
-[
-"بگو بله، یک کم نمک و فلفل",
-"بگو بعد بهتر است",
-"Yes, I do. I add a bit of salt and pepper.",
-"Then it's better.",
-[],
-[
-[
-"Yes, I do. I add a bit salt.",
-"بعد از «a bit» باید «of» بیاید."
-]
-]
-],
-[
-"بگو چون خودم می‌پزم و بلد نیستم و کمک می‌خواهم",
-"بگو از مادرم",
-"Because I cook it myself and I don't know how, so I need help.",
-"From my mum.",
-[],
-[
-[
-"Because I cook it myself and I not know how.",
-"منفی: I don't know."
-]
-]
-]
-]
-},
-{
-"d": 1,
-"k": "f",
-"s": "sugar-tea",
-"c": "دوستت گفت: «من چای را با کمی شکر می‌خورم.»",
-"q": [
-[
-"بپرس چقدر شکر می‌ریزد",
-"بپرس همیشه",
-"How much sugar do you take?",
-"Always?",
-[],
-[
-[
-"How many sugar do you take?",
-"«sugar» شمارش‌ناپذیر است: How much."
-]
-]
-],
-[
-"بپرس چقدر شکر و چند فنجان در روز",
-"بپرس زیاد",
-"How much sugar do you take, and how many cups a day?",
-"Is it too many?",
-[],
-[
-[
-"How much sugar do you take and how many cups you drink?",
-"بعد از «how many cups a day»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس می‌خواهد شکر را کم کند",
-"بپرس چرا",
-"Do you want to cut down on sugar?",
-"Why?",
-[],
-[
-[
-"Do you want cut down on sugar?",
-"بعد از «want» باید «to» بیاید."
-]
-]
-]
-],
-"a": [
-[
-"بگو یک قاشق",
-"بگو کوچک",
-"One spoon.",
-"A small one.",
-[],
-[
-[
-"One spoon sugar.",
-"بگو: one spoon of sugar."
-]
-]
-],
-[
-"بگو یک قاشق و سه فنجان در روز",
-"بگو زیاد نیست",
-"One spoon, and three cups a day.",
-"It isn't too many.",
-[],
-[
-[
-"One spoon and three cup a day.",
-"جمع: three cups."
-]
-]
-],
-[
-"بگو بله چون شکر زیاد سالم نیست ولی کم کردنش سخت است",
-"بگو کم کم",
-"Yes, I do, because a lot of sugar isn't healthy, but it's hard to cut down.",
-"Little by little.",
-[],
-[
-[
-"Yes, I do because many sugar isn't healthy.",
-"«sugar» شمارش‌ناپذیر است: a lot of sugar."
-]
-]
-]
-]
-},
-{
-"d": 2,
-"k": "s",
-"s": "home-cooked",
-"c": null,
-"q": [
-[
-"بپرس غذای خانگی می‌خورد",
-"بپرس هر روز",
-"Do you eat home-cooked food?",
-"Every day?",
-[],
-[
-[
-"Are you eat home-cooked food?",
-"«eat» فعل است؛ با «Do» بپرس."
-]
-]
-],
-[
-"بپرس غذای خانگی می‌خورد یا غذای بیرون",
-"بپرس کدام بیشتر",
-"Do you eat home-cooked food, or do you eat out?",
-"Which more?",
-[],
-[
-[
-"Do you eat home-cooked food or you eat out?",
-"بخش دوم هم سؤال است: or do you eat out."
-]
-]
-],
-[
-"بپرس غذای خانگی را از بیرون بهتر می‌داند و چرا",
-"بپرس ارزان‌تر",
-"Is home-cooked food better than food from a restaurant? Why?",
-"Is it cheaper?",
-[],
-[
-[
-"Is home-cooked food more good than restaurant?",
-"«good» می‌شود «better»."
-]
-]
-]
-],
-"a": [
-[
-"بگو بله",
-"بگو بیشتر روزها",
-"Yes, I do.",
-"Most days.",
-[],
-[
-[
-"Yes, I eat.",
-"جواب «Do you…؟» با «do» است."
-]
-]
-],
-[
-"بگو بله و بیشتر شب‌ها",
-"بگو مادرم می‌پزد",
-"Yes, I do, mostly at night.",
-"My mum cooks.",
-[],
-[
-[
-"Yes, I do, mostly in night.",
-"شب: at night."
-]
-]
-],
-[
-"بگو بله چون تازه‌تر و ارزان‌تر است ولی پختنش وقت می‌برد",
-"بگو خسته می‌شوم",
-"Yes, it is, because it's fresher and cheaper, but cooking takes time.",
-"I get tired.",
-[],
-[
-[
-"Yes, it is because it fresher.",
-"بعد از «because» باید «it's» بیاید."
-]
-]
-]
-]
-},
-{
-"d": 2,
-"k": "s",
-"s": "balanced-diet",
-"c": null,
-"q": [
-[
-"بپرس رژیم متعادل دارد",
-"بپرس همیشه",
-"Do you have a balanced diet?",
-"Always?",
-[],
-[
-[
-"Have you a balanced diet?",
-"با «have» به معنی داشتن از «Do you have» استفاده کن."
-]
-]
-],
-[
-"بپرس رژیم متعادل دارد و میوه می‌خورد",
-"بپرس هر روز",
-"Do you have a balanced diet, and do you eat fruit?",
-"Every day?",
-[],
-[
-[
-"Do you have a balanced diet and you eat fruit?",
-"بخش دوم هم سؤال است: do you eat fruit."
-]
-]
-],
-[
-"بپرس رژیم متعادل چیست به نظر او و آیا خودش دارد",
-"بپرس چرا",
-"What is a balanced diet for you, and do you have one?",
-"Why?",
-[],
-[
-[
-"What a balanced diet is for you?",
-"ترتیب سؤال: What is a balanced diet."
-]
-]
-]
-],
-"a": [
-[
-"بگو نه چندان",
-"بگو سعی می‌کنم",
-"Not really.",
-"I try.",
-[],
-[
-[
-"No really.",
-"مؤدبانه: Not really."
-]
-]
-],
-[
-"بگو نه چندان چون خیلی نان می‌خورم",
-"بگو سبزی کم",
-"Not really, because I eat a lot of bread.",
-"Not much vegetables.",
-[],
-[
-[
-"Not really because I eat much bread.",
-"در جمله‌ی مثبت «a lot of» بگو."
-]
-]
-],
-[
-"بگو برای من یعنی گوشت و سبزی و میوه کم و زیاد ولی خودم کم سبزی می‌خورم",
-"بگو باید بیشتر بخورم",
-"For me it means some meat, vegetables and fruit, but I don't eat many vegetables.",
-"I should eat more.",
-[],
-[
-[
-"For me it mean meat, vegetables and fruit.",
-"با «it» فعل s می‌گیرد: means."
-]
-]
-]
-]
-},
-{
-"d": 2,
-"k": "s",
-"s": "fresh-frozen",
-"c": null,
-"q": [
-[
-"بپرس سبزی تازه می‌خرد",
-"بپرس کجا",
-"Do you buy fresh vegetables?",
-"Where?",
-[],
-[
-[
-"Do you buy vegetables fresh?",
-"صفت قبل از اسم: fresh vegetables."
-]
-]
-],
-[
-"بپرس سبزی تازه می‌خرد یا منجمد",
-"بپرس کدام",
-"Do you buy fresh vegetables, or frozen?",
-"Which one?",
-[],
-[
-[
-"Do you buy fresh vegetables or you buy frozen?",
-"کوتاه بپرس: or frozen?"
-]
-]
-],
-[
-"بپرس چه چیزهایی را تازه می‌خرد و چه چیزهایی را منجمد و چرا",
-"بپرس ارزان‌تر",
-"What do you buy fresh, and what do you buy frozen? Why?",
-"Which is cheaper?",
-[],
-[
-[
-"What you buy fresh and what you buy frozen?",
-"بعد از «what»، «do you» می‌آید."
-]
-]
-]
-],
-"a": [
-[
-"بگو بله",
-"بگو هر هفته",
-"Yes, I do.",
-"Every week.",
-[],
-[
-[
-"Yes, I buy.",
-"جواب «Do you…؟» با «do» است."
-]
-]
-],
-[
-"بگو تازه ولی گاهی منجمد",
-"بگو برای سرعت",
-"Fresh, but sometimes frozen.",
-"It's quick.",
-[],
-[
-[
-"Fresh but sometime frozen.",
-"بگو: sometimes."
-]
-]
-],
-[
-"بگو سبزی و میوه را تازه می‌خرم ولی ماهی منجمد می‌خرم چون ارزان‌تر است",
-"بگو و نگه‌داشتنش آسان‌تر",
-"I buy vegetables and fruit fresh, but I buy fish frozen, because it's cheaper.",
-"And easier to keep.",
-[],
-[
-[
-"I buy vegetables and fruit fresh but fish frozen because it cheaper.",
-"بعد از «because» باید «it's» بیاید."
-]
-]
-]
-]
-},
-{
-"d": 2,
-"k": "s",
-"s": "ingredients",
-"c": null,
-"q": [
-[
-"بپرس مواد غذا را می‌خواند",
-"بپرس روی بسته",
-"Do you read the ingredients?",
-"On the box?",
-[],
-[
-[
-"Do you read ingredients the?",
-"«the ingredients» بگو."
-]
-]
-],
-[
-"بپرس مواد را می‌خواند و می‌داند چه چیزی در غذا هست",
-"بپرس همیشه",
-"Do you read the ingredients, and do you know what is in your food?",
-"Always?",
-[],
-[
-[
-"Do you read the ingredients and you know what is in your food?",
-"بخش دوم هم سؤال است: do you know."
-]
-]
-],
-[
-"بپرس مواد غذا را برای او مهم‌اند و چرا",
-"بپرس شکر یا نمک",
-"Are the ingredients important for you? Why?",
-"Sugar or salt?",
-[],
-[
-[
-"Do the ingredients important for you?",
-"با صفت (important) از «Are» استفاده کن."
-]
-]
-]
-],
-"a": [
-[
-"بگو بله",
-"بگو گاهی",
-"Yes, I do.",
-"Sometimes.",
-[],
-[
-[
-"Yes, I read.",
-"جواب «Do you…؟» با «do» است."
-]
-]
-],
-[
-"بگو بله و دنبال شکر می‌گردم",
-"بگو زیاد است",
-"Yes, I do. I look for sugar.",
-"There's a lot.",
-[],
-[
-[
-"Yes, I do. I look sugar.",
-"«look for» را کامل بگو."
-]
-]
-],
-[
-"بگو بله چون می‌خواهم بدانم چه می‌خورم مخصوصاً شکر و نمک",
-"بگو و روغن",
-"Yes, they are, because I want to know what I eat, especially sugar and salt.",
-"And oil.",
-[],
-[
-[
-"Yes, they are because I want know what I eat.",
-"بعد از «want» باید «to» بیاید."
-]
-]
-]
-]
-},
-{
-"d": 2,
-"k": "s",
-"s": "leftovers",
-"c": null,
-"q": [
-[
-"بپرس با غذای باقی‌مانده چه می‌کند",
-"بپرس می‌خورد",
-"What do you do with leftovers?",
-"Do you eat them?",
-[],
-[
-[
-"What you do with leftovers?",
-"بعد از «What»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس غذای باقی‌مانده را فردا می‌خورد یا دور می‌اندازد",
-"بپرس همیشه",
-"Do you eat leftovers the next day, or do you throw them away?",
-"Always?",
-[],
-[
-[
-"Do you eat leftovers next day or you throw them away?",
-"بخش دوم هم سؤال است: or do you throw them away."
-]
-]
-],
-[
-"بپرس غذای باقی‌مانده را چطور نگه می‌دارد و چه روزی می‌خورد",
-"بپرس در یخچال",
-"How do you keep leftovers, and when do you eat them?",
-"In the fridge?",
-[],
-[
-[
-"How you keep leftovers?",
-"بعد از «How»، «do you» می‌آید."
-]
-]
-]
-],
-"a": [
-[
-"بگو فردا می‌خورم",
-"بگو برای ناهار",
-"I eat them the next day.",
-"For lunch.",
-[],
-[
-[
-"I eat they the next day.",
-"ضمیر مفعولی: them."
-]
-]
-],
-[
-"بگو فردا برای ناهار می‌خورم",
-"بگو در یخچال",
-"I eat them the next day for lunch.",
-"I keep them in the fridge.",
-[],
-[
-[
-"I eat them next day for lunch.",
-"بگو: the next day."
-]
-]
-],
-[
-"بگو در یخچال می‌گذارم و فردا گرم می‌کنم چون دور ریختن غذا بد است",
-"بگو پول",
-"I keep them in the fridge and heat them up the next day, because throwing food away is bad.",
-"It's money.",
-[],
-[
-[
-"I keep them in fridge and heat up them.",
-"«heat them up» بگو."
-]
-]
-]
-]
-},
-{
-"d": 2,
-"k": "f",
-"s": "balanced-what",
-"c": "دوستت گفت: «من رژیم متعادل ندارم.»",
-"q": [
-[
-"بپرس معمولاً چه می‌خورد",
-"بپرس زیاد",
-"What do you usually eat?",
-"A lot?",
-[],
-[
-[
-"What you usually eat?",
-"بعد از «What»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس معمولاً چه می‌خورد و چه کم می‌خورد",
-"بپرس سبزی",
-"What do you usually eat, and what don't you eat much?",
-"Vegetables?",
-[],
-[
-[
-"What do you usually eat and what you don't eat much?",
-"بعد از «what»، «don't you» می‌آید."
-]
-]
-],
-[
-"بپرس می‌خواهد رژیمش را عوض کند و از کجا شروع می‌کند",
-"بپرس سخت است",
-"Do you want to change your diet? Where do you start?",
-"Is it hard?",
-[],
-[
-[
-"Do you want change your diet?",
-"بعد از «want» باید «to» بیاید."
-]
-]
-]
-],
-"a": [
-[
-"بگو برنج و نان",
-"بگو زیاد",
-"Rice and bread.",
-"A lot.",
-[],
-[
-[
-"The rice and the bread.",
-"ساده: Rice and bread."
-]
-]
-],
-[
-"بگو برنج و نان زیاد و سبزی کم",
-"بگو میوه هم کم",
-"I eat a lot of rice and bread, and not much vegetable.",
-"Not much fruit.",
-[],
-[
-[
-"I eat many rice and bread.",
-"«rice» شمارش‌ناپذیر است: a lot of rice."
-]
-]
-],
-[
-"بگو بله چون می‌خواهم سالم‌تر باشم ولی نمی‌دانم از کجا شروع کنم",
-"بگو اول سبزی",
-"Yes, I do, because I want to eat better, but I don't know where to start.",
-"First vegetables.",
-[],
-[
-[
-"Yes, I do because I want be healthier.",
-"بعد از «want» باید «to» بیاید."
-]
-]
-]
-]
-},
-{
-"d": 2,
-"k": "f",
-"s": "buy-fresh-where",
-"c": "دوستت گفت: «من فقط سبزی تازه می‌خرم.»",
-"q": [
-[
-"بپرس از کجا می‌خرد",
-"بپرس بازار",
-"Where do you buy it?",
-"At the market?",
-[],
-[
-[
-"Where you buy it?",
-"بعد از «Where»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس از کجا می‌خرد و هر چند روز",
-"بپرس گران است",
-"Where do you buy it, and how often?",
-"Is it expensive?",
-[],
-[
-[
-"Where do you buy it and how often you go?",
-"بگو: and how often?"
-]
-]
-],
-[
-"بپرس سبزی تازه از منجمد بهتر است به نظرش و چرا",
-"بپرس گران‌تر",
-"Do you think fresh vegetables are better than frozen? Why?",
-"Are they more expensive?",
-[],
-[
-[
-"Do you think fresh vegetables are more good?",
-"«good» می‌شود «better»."
-]
-]
-]
-],
-"a": [
-[
-"بگو بازار",
-"بگو نزدیک خانه",
-"At the market.",
-"Near my home.",
-[],
-[
-[
-"In the market near of my home.",
-"«near my home» بدون of."
-]
-]
-],
-[
-"بگو از بازار نزدیک خانه هر دو روز",
-"بگو گران نیست",
-"At the market near my home, every two days.",
-"It isn't expensive.",
-[],
-[
-[
-"At the market near my home each two days.",
-"بگو: every two days."
-]
-]
-],
-[
-"بگو بله چون مزه‌ی بهتر دارد ولی کمی گران‌تر است",
-"بگو ارزش دارد",
-"Yes, I do, because it has a better taste, but it's a bit more expensive.",
-"It's worth it.",
-[],
-[
-[
-"Yes, I do because it have better taste.",
-"با «it» فعل s می‌گیرد: has."
-]
-]
-]
-]
-},
-{
-"d": 2,
-"k": "f",
-"s": "frozen-much",
-"c": "دوستت گفت: «من غذای منجمد زیاد می‌خورم.»",
-"q": [
-[
-"بپرس چرا",
-"بپرس وقت ندارد",
-"Why?",
-"Do you have no time?",
-[],
-[
-[
-"Why you?",
-"فقط «Why?» کافی است."
-]
-]
-],
-[
-"بپرس چرا و چه نوع غذای منجمدی",
-"بپرس پیتزا",
-"Why, and what kind of frozen food?",
-"Pizza?",
-[],
-[
-[
-"Why and what kind of food frozen?",
-"صفت قبل از اسم: frozen food."
-]
-]
-],
-[
-"بپرس فکر می‌کند غذای منجمد سالم است",
-"بپرس چرا",
-"Do you think frozen food is healthy?",
-"Why?",
-[],
-[
-[
-"Do you think frozen food healthy?",
-"فعل را فراموش نکن: is healthy."
-]
-]
-]
-],
-"a": [
-[
-"بگو وقت ندارم",
-"بگو سریع است",
-"I have no time.",
-"It's quick.",
-[],
-[
-[
-"I have not time.",
-"بگو: no time."
-]
-]
-],
-[
-"بگو وقت ندارم و پیتزا و سبزی منجمد می‌خورم",
-"بگو ارزان است",
-"I have no time, so I eat frozen pizza and vegetables.",
-"It's cheap.",
-[],
-[
-[
-"I have no time so I eat pizza frozen.",
-"صفت قبل از اسم: frozen pizza."
-]
-]
-],
-[
-"بگو فکر می‌کنم سبزی منجمد سالم است ولی پیتزای منجمد نه",
-"بگو چربی دارد",
-"I think frozen vegetables are healthy, but frozen pizza isn't.",
-"It has a lot of fat.",
-[],
-[
-[
-"I think frozen vegetables healthy but pizza not.",
-"فعل را فراموش نکن: are healthy / isn't."
-]
-]
-]
-]
-},
-{
-"d": 2,
-"k": "f",
-"s": "heat-up",
-"c": "دوستت گفت: «من باقی‌مانده را فردا می‌خورم.»",
-"q": [
-[
-"بپرس گرم می‌کند",
-"بپرس در مایکروفر",
-"Do you heat it up?",
-"In the microwave?",
-[],
-[
-[
-"Do you heat up it?",
-"ضمیر وسط می‌آید: heat it up."
-]
-]
-],
-[
-"بپرس گرم می‌کند و مزه‌اش هنوز خوب است",
-"بپرس همان",
-"Do you heat it up, and does it still taste good?",
-"The same?",
-[],
-[
-[
-"Do you heat it up and it still tastes good?",
-"بخش دوم هم سؤال است: does it still taste good."
-]
-]
-],
-[
-"بپرس غذای باقی‌مانده را تا چند روز نگه می‌دارد",
-"بپرس خطرناک نیست",
-"How many days do you keep leftovers?",
-"Isn't it dangerous?",
-[],
-[
-[
-"How many days you keep leftovers?",
-"بعد از «How many days»، «do you» می‌آید."
-]
-]
-]
-],
-"a": [
-[
-"بگو بله",
-"بگو مایکروفر",
-"Yes, I do.",
-"In the microwave.",
-[],
-[
-[
-"Yes, I heat.",
-"جواب «Do you…؟» با «do» است."
-]
-]
-],
-[
-"بگو بله و مزه‌اش خوب است",
-"بگو گاهی بهتر",
-"Yes, I do, and it tastes good.",
-"Sometimes better.",
-[],
-[
-[
-"Yes, I do and it taste good.",
-"با «it» فعل s می‌گیرد: tastes."
-]
-]
-],
-[
-"بگو فقط دو روز چون بعد از آن سالم نیست",
-"بگو بعد دور می‌اندازم",
-"Only two days, because after that it isn't safe.",
-"Then I throw it away.",
-[],
-[
-[
-"Only two day because after it not safe.",
-"جمع: two days؛ و «it isn't safe»."
-]
-]
-]
-]
-},
-{
-"d": 2,
-"k": "f",
-"s": "who-cooks-home",
-"c": "دوستت گفت: «من غذای خانگی می‌خورم.»",
-"q": [
-[
-"بپرس چه کسی می‌پزد",
-"بپرس هر روز",
-"Who cooks?",
-"Every day?",
-[],
-[
-[
-"Who cook?",
-"با «Who» فعل s می‌گیرد: cooks."
-]
-]
-],
-[
-"بپرس چه کسی می‌پزد و چه می‌پزد",
-"بپرس خوشمزه",
-"Who cooks, and what does he or she cook?",
-"Is it tasty?",
-[],
-[
-[
-"Who cooks and what he cook?",
-"بعد از «what»، «does he» می‌آید."
-]
-]
-],
-[
-"بپرس خودش هم می‌پزد یا فقط می‌خورد",
-"بپرس بلد است",
-"Do you cook too, or do you only eat?",
-"Do you know how?",
-[],
-[
-[
-"Do you cook too or you only eat?",
-"بخش دوم هم سؤال است: or do you only eat."
-]
-]
-]
-],
-"a": [
-[
-"بگو مادرم",
-"بگو هر روز",
-"My mum.",
-"Every day.",
-[],
-[
-[
-"My mum cook.",
-"با «mum» فعل s می‌گیرد."
-]
-]
-],
-[
-"بگو مادرم می‌پزد و معمولاً برنج و مرغ",
-"بگو خوشمزه است",
-"My mum cooks, and usually rice and chicken.",
-"It's tasty.",
-[],
-[
-[
-"My mum cooks and usually a rice and chicken.",
-"«rice» شمارش‌ناپذیر است."
-]
-]
-],
-[
-"بگو بیشتر مادرم می‌پزد ولی آخر هفته‌ها من هم می‌پزم چون دوست دارم",
-"بگو غذاهای ساده",
-"Mostly my mum cooks, but at the weekend I cook too, because I like it.",
-"Simple dishes.",
-[],
-[
-[
-"Mostly my mum cook but at weekend I cook too.",
-"با «mum» فعل s می‌گیرد؛ و «at the weekend»."
-]
-]
-]
-]
-},
-{
-"d": 3,
-"k": "s",
-"s": "sweet-tooth",
-"c": null,
-"q": [
-[
-"بپرس شیرینی‌خور است",
-"بپرس چه شیرینی",
-"Do you have a sweet tooth?",
-"What sweets?",
-[],
-[
-[
-"Are you have a sweet tooth?",
-"«have» فعل است؛ با «Do» بپرس."
-]
-]
-],
-[
-"بپرس شیرینی‌خور است و چند بار در هفته شیرینی می‌خورد",
-"بپرس هر روز",
-"Do you have a sweet tooth, and how often do you eat sweets?",
-"Every day?",
-[],
-[
-[
-"Do you have a sweet tooth and how often you eat sweets?",
-"بعد از «how often»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس شیرینی یا غذای شور را بیشتر دوست دارد و چرا",
-"بپرس کدام سالم‌تر",
-"Do you like sweet food more than other food? Why?",
-"Which is better for you?",
-[],
-[
-[
-"Do you like sweet food more that salty food?",
-"برای مقایسه «than» می‌آید."
-]
-]
-]
-],
-"a": [
-[
-"بگو بله",
-"بگو خیلی",
-"Yes, I do.",
-"A lot.",
-[],
-[
-[
-"Yes, I have.",
-"جواب «Do you…؟» با «do» است."
-]
-]
-],
-[
-"بگو بله و هر روز شکلات می‌خورم",
-"بگو بعد از ناهار",
-"Yes, I do. I eat chocolate every day.",
-"After lunch.",
-[],
-[
-[
-"Yes, I do. I eat a chocolate every day.",
-"اینجا «chocolate» شمارش‌ناپذیر است."
-]
-]
-],
-[
-"بگو شیرین را بیشتر دوست دارم چون انرژی می‌دهد ولی می‌دانم سالم نیست",
-"بگو باید کم کنم",
-"I like sweet food more, because it gives me energy, but I know it isn't healthy.",
-"I should cut down.",
-[],
-[
-[
-"I like sweet food more because it give me energy.",
-"با «it» فعل s می‌گیرد: gives."
-]
-]
-]
-]
-},
-{
-"d": 3,
-"k": "s",
-"s": "spicy",
-"c": null,
-"q": [
-[
-"بپرس غذای تند دوست دارد",
-"بپرس چقدر",
-"Do you like spicy food?",
-"How spicy?",
-[],
-[
-[
-"Are you like spicy food?",
-"«like» فعل است؛ با «Do» بپرس."
-]
-]
-],
-[
-"بپرس غذای تند دوست دارد و خودش فلفل اضافه می‌کند",
-"بپرس زیاد",
-"Do you like spicy food, and do you add pepper?",
-"A lot?",
-[],
-[
-[
-"Do you like spicy food and you add pepper?",
-"بخش دوم هم سؤال است: do you add pepper."
-]
-]
-],
-[
-"بپرس غذای تند برای معده بد است به نظرش و خودش چه می‌کند",
-"بپرس چرا",
-"Do you think spicy food is bad for you? What do you do?",
-"Why?",
-[],
-[
-[
-"Do you think spicy food bad for you?",
-"فعل را فراموش نکن: is bad."
-]
-]
-]
-],
-"a": [
-[
-"بگو بله",
-"بگو کمی",
-"Yes, I do.",
-"A little.",
-[],
-[
-[
-"Yes, I like.",
-"جواب «Do you…؟» با «do» است."
-]
-]
-],
-[
-"بگو بله ولی نه خیلی تند",
-"بگو فلفل کم",
-"Yes, I do, but not very spicy.",
-"A bit of pepper.",
-[],
-[
-[
-"Yes, I do but not too much spicy.",
-"بگو: not very spicy."
-]
-]
-],
-[
-"بگو فکر می‌کنم گاهی بد است چون معده‌ام درد می‌گیرد برای همین کم می‌خورم",
-"بگو آب می‌نوشم",
-"I think it's sometimes bad, because my stomach hurts, so I eat less.",
-"I drink water.",
-[],
-[
-[
-"I think it sometimes bad because my stomach hurt.",
-"با «stomach» فعل s می‌گیرد: hurts."
-]
-]
-]
-]
-},
-{
-"d": 3,
-"k": "s",
-"s": "junk-food",
-"c": null,
-"q": [
-[
-"بپرس چند بار فست‌فود می‌خورد",
-"بپرس هفته‌ای",
-"How often do you eat junk food?",
-"Per week?",
-[],
-[
-[
-"How often you eat junk food?",
-"بعد از «How often»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس فست‌فود می‌خورد و چه نوع",
-"بپرس همبرگر",
-"Do you eat junk food, and what kind?",
-"Burgers?",
-[],
-[
-[
-"Do you eat junk food and what kind you eat?",
-"کوتاه بپرس: and what kind?"
-]
-]
-],
-[
-"بپرس چه چیزهایی را فست‌فود می‌داند و خودش چه می‌خورد",
-"بپرس سالم است",
-"What food is junk food for you, and what do you eat?",
-"Is it healthy?",
-[],
-[
-[
-"What food is junk food for you and what you eat?",
-"بعد از «what»، «do you» می‌آید."
-]
-]
-]
-],
-"a": [
-[
-"بگو ماهی دو بار",
-"بگو کم",
-"Twice a month.",
-"Not often.",
-[],
-[
-[
-"Two times a month.",
-"بگو: twice a month."
-]
-]
-],
-[
-"بگو ماهی دو بار و بیشتر پیتزا",
-"بگو با دوستان",
-"Twice a month, mostly pizza.",
-"With friends.",
-[],
-[
-[
-"Twice in month, mostly pizza.",
-"بگو: twice a month."
-]
-]
-],
-[
-"بگو همبرگر و پیتزا فست‌فود است و من ماهی دو بار می‌خورم چون دوست دارم ولی بیشتر نه",
-"بگو سالم نیست",
-"Burgers and pizza are junk food. I eat it twice a month, because I like it, but not more.",
-"It isn't healthy.",
-[],
-[
-[
-"Burgers and pizza is junk food.",
-"جمع با «are» می‌آید."
-]
-]
-]
-]
-},
-{
-"d": 3,
-"k": "s",
-"s": "cut-down",
-"c": null,
-"q": [
-[
-"بپرس می‌خواهد شکر را کم کند",
-"بپرس چرا",
-"Do you want to cut down on sugar?",
-"Why?",
-[],
-[
-[
-"Do you want cut down on sugar?",
-"بعد از «want» باید «to» بیاید."
-]
-]
-],
-[
-"بپرس می‌خواهد شکر و نمک را کم کند",
-"بپرس کدام سخت‌تر",
-"Do you want to cut down on sugar and salt?",
-"Which is harder?",
-[],
-[
-[
-"Do you want to cut down sugar and salt?",
-"«cut down on» را کامل بگو."
-]
-]
-],
-[
-"بپرس چه چیزی را می‌خواهد کم کند و چطور",
-"بپرس سخت است",
-"What do you want to cut down on, and how do you do it?",
-"Is it hard?",
-[],
-[
-[
-"What you want to cut down on?",
-"بعد از «What»، «do you» می‌آید."
-]
-]
-]
-],
-"a": [
-[
-"بگو بله",
-"بگو کمی",
-"Yes, I do.",
-"A bit.",
-[],
-[
-[
-"Yes, I want.",
-"جواب «Do you…؟» با «do» است."
-]
-]
-],
-[
-"بگو بله چون زیاد می‌خورم",
-"بگو شیرینی",
-"Yes, I do, because I eat a lot.",
-"Sweets.",
-[],
-[
-[
-"Yes, I do because I eat many.",
-"اینجا «a lot» بگو."
-]
-]
-],
-[
-"بگو شکر را می‌خواهم کم کنم و چای را بدون شکر می‌نوشم ولی سخت است",
-"بگو کم‌کم",
-"I want to cut down on sugar, so I drink tea without sugar, but it's hard.",
-"Little by little.",
-[],
-[
-[
-"I want cut down on sugar so I drink tea without sugar.",
-"بعد از «want» باید «to» بیاید."
-]
-]
-]
-]
-},
-{
-"d": 3,
-"k": "s",
-"s": "healthy-expensive",
-"c": null,
-"q": [
-[
-"بپرس غذای سالم گران است",
-"بپرس چرا",
-"Is healthy food expensive?",
-"Why?",
-[],
-[
-[
-"Does healthy food expensive?",
-"با صفت (expensive) از «Is» استفاده کن."
-]
-]
-],
-[
-"بپرس غذای سالم گران است و او می‌خرد",
-"بپرس هر هفته",
-"Is healthy food expensive, and do you buy it?",
-"Every week?",
-[],
-[
-[
-"Is healthy food expensive and you buy it?",
-"بخش دوم هم سؤال است: do you buy it."
-]
-]
-],
-[
-"بپرس غذای سالم از فست‌فود گران‌تر است و ارزشش را دارد",
-"بپرس چرا",
-"Is healthy food more expensive than junk food? Is it worth it?",
-"Why?",
-[],
-[
-[
-"Is healthy food more expensive that junk food?",
-"برای مقایسه «than» می‌آید."
-]
-]
-]
-],
-"a": [
-[
-"بگو گاهی",
-"بگو بستگی دارد",
-"Sometimes.",
-"It depends.",
-[],
-[
-[
-"Some times.",
-"بگو: sometimes."
-]
-]
-],
-[
-"بگو گاهی، میوه گران است",
-"بگو سبزی ارزان است",
-"Sometimes. Fruit is expensive.",
-"Vegetables are cheap.",
-[],
-[
-[
-"Sometimes. Fruits is expensive.",
-"«fruit» شمارش‌ناپذیر است."
-]
-]
-],
-[
-"بگو بله ولی ارزشش را دارد چون سالم می‌مانم و کمتر دکتر می‌روم",
-"بگو و حالم بهتر است",
-"Yes, it is, but it's worth it, because I stay healthy and I go to the doctor less.",
-"And I feel better.",
-[],
-[
-[
-"Yes, it is but it worth it.",
-"فعل را فراموش نکن: it's worth it."
-]
-]
-]
-]
-},
-{
-"d": 3,
-"k": "f",
-"s": "sweets-per-day",
-"c": "دوستت گفت: «من عاشق شیرینی‌ام.»",
-"q": [
-[
-"بپرس روزی چند تا می‌خورد",
-"بپرس زیاد",
-"How many do you eat a day?",
-"Too many?",
-[],
-[
-[
-"How many you eat a day?",
-"بعد از «How many»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس روزی چند تا می‌خورد و چه نوع",
-"بپرس شکلات",
-"How many do you eat a day, and what kind?",
-"Chocolate?",
-[],
-[
-[
-"How many do you eat a day and what kind you eat?",
-"کوتاه بپرس: and what kind?"
-]
-]
-],
-[
-"بپرس روزی چند تا می‌خورد و فکر می‌کند زیاد است",
-"بپرس می‌خواهد کم کند",
-"How many do you eat a day? Is it too many?",
-"Do you want to cut down?",
-[],
-[
-[
-"How many you eat a day? It is too many?",
-"سؤال دوم: Is it too many?"
-]
-]
-]
-],
-"a": [
-[
-"بگو سه تا",
-"بگو کوچک",
-"Three.",
-"Small ones.",
-[],
-[
-[
-"Three sweet.",
-"بگو: three."
-]
-]
-],
-[
-"بگو روزی سه چهار تا",
-"بگو بعد از غذا",
-"Three or four a day.",
-"After meals.",
-[],
-[
-[
-"Three or four in a day.",
-"بگو: a day."
-]
-]
-],
-[
-"بگو سه چهار تا که کمی زیاد است ولی می‌خواهم کم کنم چون دندان‌هایم ضعیف است",
-"بگو دکتر گفته",
-"Three or four, which is a bit too many, but I want to cut down, because my teeth are weak.",
-"The dentist says so.",
-[],
-[
-[
-"Three or four that is a bit too much.",
-"اینجا «too many» می‌آید."
-]
-]
-]
-]
-},
-{
-"d": 3,
-"k": "f",
-"s": "how-spicy",
-"c": "دوستت گفت: «من غذای تند دوست دارم.»",
-"q": [
-[
-"بپرس چقدر تند",
-"بپرس خیلی",
-"How spicy?",
-"Very spicy?",
-[],
-[
-[
-"How spicy it is?",
-"کوتاه بپرس: How spicy?"
-]
-]
-],
-[
-"بپرس چقدر تند دوست دارد و با چه چیزی می‌خورد",
-"بپرس با نان",
-"How spicy do you like it, and what do you eat it with?",
-"With bread?",
-[],
-[
-[
-"How spicy you like it?",
-"بعد از «How spicy»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس غذای تند برایش عادی است یا خیلی از آن لذت می‌برد",
-"بپرس از بچگی",
-"Is spicy food normal for you, or do you really enjoy it?",
-"Since you were a child?",
-[],
-[
-[
-"Is spicy food normal for you or you really enjoy it?",
-"بخش دوم هم سؤال است: or do you really enjoy it."
-]
-]
-]
-],
-"a": [
-[
-"بگو خیلی",
-"بگو با فلفل",
-"Very.",
-"With a lot of pepper.",
-[],
-[
-[
-"Very much spicy.",
-"بگو: very spicy."
-]
-]
-],
-[
-"بگو خیلی تند و با نان می‌خورم",
-"بگو و ماست",
-"Very spicy, and I eat it with bread.",
-"And yogurt.",
-[],
-[
-[
-"Very spicy and I eat it with a bread.",
-"«bread» شمارش‌ناپذیر است."
-]
-]
-],
-[
-"بگو برایم عادی است چون خانواده‌ام همه تند می‌خورند ولی آن را دوست هم دارم",
-"بگو از بچگی",
-"It's normal for me, because my family all eat spicy food, but I like it too.",
-"Since I was small.",
-[],
-[
-[
-"It normal for me because my family all eats spicy.",
-"فعل را فراموش نکن: It's normal."
-]
-]
-]
-]
-},
-{
-"d": 3,
-"k": "f",
-"s": "junk-cut",
-"c": "دوستت گفت: «من زیاد فست‌فود می‌خورم.»",
-"q": [
-[
-"بپرس می‌خواهد کمش کند",
-"بپرس چرا",
-"Do you want to cut down on it?",
-"Why?",
-[],
-[
-[
-"Do you want cut down on it?",
-"بعد از «want» باید «to» بیاید."
-]
-]
-],
-[
-"بپرس می‌خواهد کمش کند و چه چیزی جایش می‌خورد",
-"بپرس سالم",
-"Do you want to cut down on it, and what do you eat instead?",
-"Healthy food?",
-[],
-[
-[
-"Do you want to cut down on it and what you eat instead?",
-"بعد از «what»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس چرا زیاد فست‌فود می‌خورد و فکر می‌کند ضرر دارد",
-"بپرس وقت ندارد",
-"Why do you eat so much junk food? Do you think it's bad?",
-"No time?",
-[],
-[
-[
-"Why you eat so much junk food?",
-"بعد از «Why»، «do you» می‌آید."
-]
-]
-]
-],
-"a": [
-[
-"بگو بله",
-"بگو کم‌کم",
-"Yes, I do.",
-"Little by little.",
-[],
-[
-[
-"Yes, I want.",
-"جواب «Do you…؟» با «do» است."
-]
-]
-],
-[
-"بگو بله و بیشتر سبزی می‌خورم",
-"بگو با نان",
-"Yes, I do. I eat more vegetables instead.",
-"With bread.",
-[],
-[
-[
-"Yes, I do. I eat more vegetable.",
-"جمع: vegetables."
-]
-]
-],
-[
-"بگو وقت ندارم برای همین سریع می‌خرم ولی می‌دانم ضرر دارد",
-"بگو باید آشپزی کنم",
-"I have no time, so I buy it quickly, but I know it's bad for me.",
-"I have to cook.",
-[],
-[
-[
-"I have no time so I buy quickly but I know is bad.",
-"بعد از «I know» باید «it's» بیاید."
-]
-]
-]
-]
-},
-{
-"d": 3,
-"k": "f",
-"s": "instead",
-"c": "دوستت گفت: «می‌خواهم شکر را کم کنم.»",
-"q": [
-[
-"بپرس به جایش چه می‌خورد",
-"بپرس عسل",
-"What do you eat instead?",
-"Honey?",
-[],
-[
-[
-"What you eat instead?",
-"بعد از «What»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس به جایش چه می‌خورد و چایش را چطور می‌نوشد",
-"بپرس بدون شکر",
-"What do you eat instead, and how do you drink your tea?",
-"Without sugar?",
-[],
-[
-[
-"What do you eat instead and how you drink your tea?",
-"بعد از «how»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس قبلاً چقدر شکر می‌خورد و حالا چقدر",
-"بپرس فرق دارد",
-"How much sugar do you eat now? Is it less than before?",
-"Is it different?",
-[],
-[
-[
-"How much sugar you eat now?",
-"بعد از «How much sugar»، «do you» می‌آید."
-]
-]
-]
-],
-"a": [
-[
-"بگو میوه",
-"بگو و آجیل",
-"Fruit.",
-"And nuts.",
-[],
-[
-[
-"A fruit.",
-"«fruit» شمارش‌ناپذیر است."
-]
-]
-],
-[
-"بگو میوه و چای بدون شکر",
-"بگو عادت می‌کنم",
-"Fruit, and tea without sugar.",
-"I'm getting used to it.",
-[],
-[
-[
-"Fruit and tea no sugar.",
-"بگو: without sugar."
-]
-]
-],
-[
-"بگو حالا کمتر می‌خورم چون کم کردم ولی گاهی هنوز شیرینی دلم می‌خواهد",
-"بگو و می‌خورم",
-"I eat less now, because I cut down, but sometimes I still want something sweet.",
-"And I eat it.",
-[],
-[
-[
-"I eat less now because I cut down on, but sometimes I still want sweet.",
-"«something sweet» بگو."
-]
-]
-]
-]
-},
-{
-"d": 3,
-"k": "f",
-"s": "healthy-what",
-"c": "دوستت گفت: «من غذای سالم دوست دارم.»",
-"q": [
-[
-"بپرس چه غذای سالمی می‌خورد",
-"بپرس هر روز",
-"What healthy food do you eat?",
-"Every day?",
-[],
-[
-[
-"What healthy food you eat?",
-"بعد از «What healthy food»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس چه غذای سالمی می‌خورد و از کجا می‌خرد",
-"بپرس گران",
-"What healthy food do you eat, and where do you buy it?",
-"Is it expensive?",
-[],
-[
-[
-"What healthy food do you eat and where you buy it?",
-"بعد از «where»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس غذای سالم را خودش درست می‌کند یا می‌خرد",
-"بپرس چرا",
-"Do you make healthy food yourself, or do you buy it?",
-"Why?",
-[],
-[
-[
-"Do you make healthy food yourself or you buy it?",
-"بخش دوم هم سؤال است: or do you buy it."
-]
-]
-]
-],
-"a": [
-[
-"بگو سبزی و میوه",
-"بگو هر روز",
-"Vegetables and fruit.",
-"Every day.",
-[],
-[
-[
-"Vegetable and fruits.",
-"«vegetables» جمع و «fruit» شمارش‌ناپذیر."
-]
-]
-],
-[
-"بگو سبزی و میوه و از بازار",
-"بگو ارزان است",
-"Vegetables and fruit, from the market.",
-"It's cheap.",
-[],
-[
-[
-"Vegetables and fruit, from market.",
-"«the market» بگو."
-]
-]
-],
-[
-"بگو خودم درست می‌کنم چون ارزان‌تر است و می‌دانم چه در آن است",
-"بگو آسان است",
-"I make it myself, because it's cheaper and I know what is in it.",
-"It's easy.",
-[],
-[
-[
-"I make it myself because it cheaper.",
-"بعد از «because» باید «it's» بیاید."
-]
-]
-]
-]
-},
-{
-"d": 4,
-"k": "s",
-"s": "eat-meat",
-"c": null,
-"q": [
-[
-"بپرس گوشت زیاد می‌خورد",
-"بپرس هر روز",
-"Do you eat much meat?",
-"Every day?",
-[],
-[
-[
-"Do you eat many meat?",
-"«meat» شمارش‌ناپذیر است: much."
-]
-]
-],
-[
-"بپرس گوشت و ماهی زیاد می‌خورد",
-"بپرس کدام بیشتر",
-"Do you eat much meat or fish?",
-"Which one more?",
-[],
-[
-[
-"Do you eat much meat or fishes?",
-"«fish» شمارش‌ناپذیر است."
-]
-]
-],
-[
-"بپرس گوشت زیاد می‌خورد و فکر می‌کند برای سلامتی خوب است",
-"بپرس چرا",
-"Do you eat much meat? Do you think it's good for you?",
-"Why?",
-[],
-[
-[
-"Do you eat much meat? You think it good?",
-"سؤال دوم کامل: Do you think it's good for you?"
-]
-]
-]
-],
-"a": [
-[
-"بگو نه",
-"بگو کم",
-"No, I don't.",
-"Not much.",
-[],
-[
-[
-"No, I'm not.",
-"جواب «Do you…؟» با «don't» است."
-]
-]
-],
-[
-"بگو نه، کم می‌خورم و بیشتر مرغ",
-"بگو هفته‌ای دو بار",
-"No, I don't. I eat a little, mostly chicken.",
-"Twice a week.",
-[],
-[
-[
-"No, I don't. I eat a few meat.",
-"«meat» شمارش‌ناپذیر است: a little."
-]
-]
-],
-[
-"بگو نه چون گران است و فکر می‌کنم زیادش برای سلامتی خوب نیست",
-"بگو مرغ بهتر است",
-"No, I don't, because it's expensive, and I think a lot of it isn't good for me.",
-"Chicken is better.",
-[],
-[
-[
-"No, I don't because is expensive.",
-"بعد از «because» باید «it's» بیاید."
-]
-]
-]
-]
-},
-{
-"d": 4,
-"k": "s",
-"s": "water",
-"c": null,
-"q": [
-[
-"بپرس روزی چقدر آب می‌نوشد",
-"بپرس کافی",
-"How much water do you drink a day?",
-"Is it enough?",
-[],
-[
-[
-"How many water do you drink a day?",
-"«water» شمارش‌ناپذیر است: How much."
-]
-]
-],
-[
-"بپرس روزی چقدر آب و چای می‌نوشد",
-"بپرس کدام بیشتر",
-"How much water and tea do you drink a day?",
-"Which more?",
-[],
-[
-[
-"How much water and tea you drink a day?",
-"بعد از «How much…»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس آب کافی می‌نوشد و چطور یادش می‌ماند",
-"بپرس بطری",
-"Do you drink enough water? How do you remember?",
-"A bottle?",
-[],
-[
-[
-"Do you drink enough water? How you remember?",
-"بعد از «How»، «do you» می‌آید."
-]
-]
-]
-],
-"a": [
-[
-"بگو چهار لیوان",
-"بگو کم",
-"Four glasses.",
-"A bit.",
-[],
-[
-[
-"Four glass.",
-"جمع: four glasses."
-]
-]
-],
-[
-"بگو چهار لیوان آب و دو فنجان چای",
-"بگو بیشتر چای",
-"Four glasses of water and two cups of tea.",
-"More tea.",
-[],
-[
-[
-"Four glass of water and two cup of tea.",
-"جمع: glasses / cups."
-]
-]
-],
-[
-"بگو کافی نیست چون یادم نمی‌ماند برای همین یک بطری روی میزم می‌گذارم",
-"بگو کمک می‌کند",
-"It isn't enough, because I forget, so I put a bottle on my desk.",
-"It helps.",
-[],
-[
-[
-"It's not enough because I forgetting.",
-"بعد از «I» فعل ساده: forget."
-]
-]
-]
-]
-},
-{
-"d": 4,
-"k": "s",
-"s": "meals",
-"c": null,
-"q": [
-[
-"بپرس روزی چند وعده غذا می‌خورد",
-"بپرس چه ساعتی",
-"How many meals do you have a day?",
-"What time?",
-[],
-[
-[
-"How many meals you have a day?",
-"بعد از «How many meals»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس روزی چند وعده می‌خورد و بزرگ‌ترینش کدام است",
-"بپرس شام",
-"How many meals do you have a day, and which one is the biggest?",
-"Dinner?",
-[],
-[
-[
-"How many meals do you have a day and which is biggest?",
-"«the biggest» بگو."
-]
-]
-],
-[
-"بپرس سه وعده می‌خورد یا بیشتر و همیشه همین است",
-"بپرس آخر هفته",
-"Do you have three meals or more? Is it always the same?",
-"At the weekend?",
-[],
-[
-[
-"Do you have three meals or more? It is always the same?",
-"سؤال دوم: Is it always the same?"
-]
-]
-]
-],
-"a": [
-[
-"بگو سه وعده",
-"بگو و میان‌وعده",
-"Three.",
-"And snacks.",
-[],
-[
-[
-"Three meal.",
-"جمع: three meals."
-]
-]
-],
-[
-"بگو سه وعده و دو میان‌وعده",
-"بگو بزرگ‌ترین شام است",
-"Three meals and two snacks.",
-"Dinner is the biggest.",
-[],
-[
-[
-"Three meals and two snack.",
-"جمع: two snacks."
-]
-]
-],
-[
-"بگو سه وعده و معمولاً همین است ولی آخر هفته‌ها بیشتر می‌خورم چون وقت دارم",
-"بگو ناهار دیر",
-"Three meals, usually the same, but at the weekend I eat more, because I have time.",
-"A late lunch.",
-[],
-[
-[
-"Three meals, usually the same but at weekend I eat more.",
-"«at the weekend» بگو."
-]
-]
-]
-]
-},
-{
-"d": 4,
-"k": "s",
-"s": "cook-a-lot",
-"c": null,
-"q": [
-[
-"بپرس زیاد آشپزی می‌کند",
-"بپرس هر روز",
-"Do you cook a lot?",
-"Every day?",
-[],
-[
-[
-"Are you cook a lot?",
-"«cook» فعل است؛ با «Do» بپرس."
-]
-]
-],
-[
-"بپرس زیاد آشپزی می‌کند و چه غذایی بیشتر",
-"بپرس ساده",
-"Do you cook a lot, and what do you cook most?",
-"Easy things?",
-[],
-[
-[
-"Do you cook a lot and what you cook most?",
-"بعد از «what»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس آشپزی را دوست دارد یا باید آشپزی کند",
-"بپرس چرا",
-"Do you like cooking, or do you have to cook?",
-"Why?",
-[],
-[
-[
-"Do you like cook, or you have to cook?",
-"بعد از «like» شکل «-ing»؛ و بخش دوم سؤال است."
-]
-]
-]
-],
-"a": [
-[
-"بگو بله",
-"بگو هر شب",
-"Yes, I do.",
-"Every night.",
-[],
-[
-[
-"Yes, I cook.",
-"جواب «Do you…؟» با «do» است."
-]
-]
-],
-[
-"بگو بله و بیشتر برنج",
-"بگو ساده",
-"Yes, I do, and I cook rice most.",
-"Easy things.",
-[],
-[
-[
-"Yes, I do and I cook a rice.",
-"«rice» شمارش‌ناپذیر است."
-]
-]
-],
-[
-"بگو باید آشپزی کنم چون تنها زندگی می‌کنم ولی آخر هفته‌ها دوست دارم",
-"بگو برای دوستان",
-"I have to cook, because I live alone, but at the weekend I like it.",
-"For friends.",
-[],
-[
-[
-"I have cook because I live alone.",
-"بعد از «have» باید «to» بیاید."
-]
-]
-]
-]
-},
-{
-"d": 4,
-"k": "s",
-"s": "change-diet",
-"c": null,
-"q": [
-[
-"بپرس می‌خواهد رژیمش را عوض کند",
-"بپرس چرا",
-"Do you want to change your diet?",
-"Why?",
-[],
-[
-[
-"Do you want change your diet?",
-"بعد از «want» باید «to» بیاید."
-]
-]
-],
-[
-"بپرس می‌خواهد رژیمش را عوض کند و چه چیزی را",
-"بپرس اول",
-"Do you want to change your diet, and what first?",
-"Sugar?",
-[],
-[
-[
-"Do you want to change your diet and what you first?",
-"کوتاه بپرس: and what first?"
-]
-]
-],
-[
-"بپرس رژیمش را برای سلامتی عوض می‌کند یا برای ظاهر",
-"بپرس کدام مهم‌تر",
-"Do you want to change your diet for your health, or to look better?",
-"Which is more important?",
-[],
-[
-[
-"Do you want change your diet for health or look better?",
-"بعد از «want» باید «to» بیاید."
-]
-]
-]
-],
-"a": [
-[
-"بگو بله",
-"بگو کمی",
-"Yes, I do.",
-"A little.",
-[],
-[
-[
-"Yes, I want.",
-"جواب «Do you…؟» با «do» است."
-]
-]
-],
-[
-"بگو بله، می‌خواهم شکر را کم کنم",
-"بگو و نان",
-"Yes, I do. I want to eat less sugar.",
-"And less bread.",
-[],
-[
-[
-"Yes, I do. I want eat less sugar.",
-"بعد از «want» باید «to» بیاید."
-]
-]
-],
-[
-"بگو برای سلامتی چون زیاد می‌خورم ولی ظاهر هم مهم است",
-"بگو هر دو",
-"For my health, because I eat too much, but how I look is important too.",
-"Both.",
-[],
-[
-[
-"For my health because I eat too many.",
-"اینجا «too much» می‌آید."
-]
-]
-]
-]
-},
-{
-"d": 4,
-"k": "f",
-"s": "fish-instead",
-"c": "دوستت گفت: «من گوشت کم می‌خورم.»",
-"q": [
-[
-"بپرس ماهی می‌خورد",
-"بپرس هفته‌ای",
-"Do you eat fish?",
-"Per week?",
-[],
-[
-[
-"Are you eat fish?",
-"«eat» فعل است؛ با «Do» بپرس."
-]
-]
-],
-[
-"بپرس ماهی و تخم‌مرغ می‌خورد",
-"بپرس هر روز",
-"Do you eat fish and eggs?",
-"Every day?",
-[],
-[
-[
-"Do you eat fishes and eggs?",
-"«fish» شمارش‌ناپذیر است."
-]
-]
-],
-[
-"بپرس به جای گوشت چه پروتئینی می‌خورد",
-"بپرس لوبیا",
-"What do you eat for protein instead of meat?",
-"Beans?",
-[],
-[
-[
-"What you eat for protein instead of meat?",
-"بعد از «What»، «do you» می‌آید."
-]
-]
-]
-],
-"a": [
-[
-"بگو بله",
-"بگو گاهی",
-"Yes, I do.",
-"Sometimes.",
-[],
-[
-[
-"Yes, I eat.",
-"جواب «Do you…؟» با «do» است."
-]
-]
-],
-[
-"بگو ماهی و تخم‌مرغ",
-"بگو سه بار در هفته",
-"Fish and eggs.",
-"Three times a week.",
-[],
-[
-[
-"Fishes and eggs.",
-"«fish» شمارش‌ناپذیر است."
-]
-]
-],
-[
-"بگو لوبیا و تخم‌مرغ می‌خورم چون ارزان است و سالم",
-"بگو و عدس",
-"I eat beans and eggs, because they're cheap and good for me.",
-"And rice.",
-[],
-[
-[
-"I eat beans and eggs because it cheap and healthy.",
-"جمع: they're cheap."
-]
-]
-]
-]
-},
-{
-"d": 4,
-"k": "f",
-"s": "water-more",
-"c": "دوستت گفت: «من آب کم می‌نوشم.»",
-"q": [
-[
-"بپرس چرا بیشتر نمی‌نوشد",
-"بپرس یادش می‌رود",
-"Why not more?",
-"Do you forget?",
-[],
-[
-[
-"Why no more?",
-"بگو: Why not more?"
-]
-]
-],
-[
-"بپرس چرا بیشتر نمی‌نوشد و چه می‌نوشد",
-"بپرس نوشابه",
-"Why don't you drink more, and what do you drink instead?",
-"Tea?",
-[],
-[
-[
-"Why you don't drink more?",
-"بعد از «Why»، «don't you» می‌آید."
-]
-]
-],
-[
-"بپرس می‌داند آب کافی چقدر است و دکتر چه گفته",
-"بپرس هشت لیوان",
-"Do you know how much water is enough? What does the doctor say?",
-"Eight glasses?",
-[],
-[
-[
-"Do you know how much is water enough?",
-"ترتیب جمله: how much water is enough."
-]
-]
-]
-],
-"a": [
-[
-"بگو یادم می‌رود",
-"بگو سر کار",
-"I forget.",
-"At work.",
-[],
-[
-[
-"I forgot.",
-"برای عادت زمان حال: I forget."
-]
-]
-],
-[
-"بگو یادم می‌رود و چای می‌نوشم",
-"بگو زیاد",
-"I forget, and I drink tea.",
-"A lot.",
-[],
-[
-[
-"I forget and I drinking tea.",
-"بعد از «I» فعل ساده: drink."
-]
-]
-],
-[
-"بگو نمی‌دانم دقیقاً ولی دکتر می‌گوید هشت لیوان و من خیلی کمتر می‌نوشم",
-"بگو باید بیشتر",
-"I don't know exactly, but the doctor says eight glasses, and I drink much less.",
-"I should drink more.",
-[],
-[
-[
-"I don't know exactly but doctor says eight glass.",
-"جمع: eight glasses؛ و «the doctor»."
-]
-]
-]
-]
-},
-{
-"d": 4,
-"k": "f",
-"s": "biggest-meal",
-"c": "دوستت گفت: «من روزی سه وعده می‌خورم.»",
-"q": [
-[
-"بپرس بزرگ‌ترین وعده کی است",
-"بپرس شام",
-"When do you eat the biggest meal?",
-"Dinner?",
-[],
-[
-[
-"When you eat the biggest meal?",
-"بعد از «When»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس بزرگ‌ترین وعده کی است و چرا",
-"بپرس خسته",
-"When do you eat the biggest meal, and why?",
-"Are you tired?",
-[],
-[
-[
-"When do you eat the biggest meal and why you?",
-"کوتاه بپرس: and why?"
-]
-]
-],
-[
-"بپرس غذای بزرگ شب را سالم می‌داند یا نه",
-"بپرس صبحانه بهتر",
-"Do you think a big dinner is healthy? Is breakfast better?",
-"Why?",
-[],
-[
-[
-"Do you think a big dinner healthy?",
-"فعل را فراموش نکن: is healthy."
-]
-]
-]
-],
-"a": [
-[
-"بگو شام",
-"بگو ساعت هشت",
-"Dinner.",
-"At eight.",
-[],
-[
-[
-"The dinner.",
-"ساده: Dinner."
-]
-]
-],
-[
-"بگو شام چون شب‌ها وقت دارم",
-"بگو با خانواده",
-"Dinner, because I have time at night.",
-"With my family.",
-[],
-[
-[
-"Dinner because I have time in night.",
-"شب: at night."
-]
-]
-],
-[
-"بگو فکر نمی‌کنم سالم باشد ولی بعد از کار فقط شب وقت دارم",
-"بگو صبحانه بهتر است",
-"I don't think it's healthy, but I only have time at night after work.",
-"Breakfast is better.",
-[],
-[
-[
-"I don't think is healthy.",
-"بعد از «I think» باید «it's» بیاید."
-]
-]
-]
-]
-},
-{
-"d": 4,
-"k": "f",
-"s": "cook-how-long",
-"c": "دوستت گفت: «من زیاد آشپزی می‌کنم.»",
-"q": [
-[
-"بپرس چقدر طول می‌کشد",
-"بپرس هر شب",
-"How long do you cook?",
-"Every night?",
-[],
-[
-[
-"How long you cook?",
-"بعد از «How long»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس چقدر طول می‌کشد و چه غذایی",
-"بپرس ساده",
-"How long do you cook, and what do you cook?",
-"Something easy?",
-[],
-[
-[
-"How long do you cook and what you cook?",
-"بعد از «what»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس آشپزی برایش وقت زیادی می‌برد و کسی کمک می‌کند",
-"بپرس چه کسی",
-"Does cooking take a lot of time? Does anyone help you?",
-"Who?",
-[],
-[
-[
-"Do cooking take a lot of time?",
-"با «cooking» (سوم شخص) «Does» می‌آید."
-]
-]
-]
-],
-"a": [
-[
-"بگو یک ساعت",
-"بگو تقریباً",
-"One hour.",
-"About.",
-[],
-[
-[
-"One hours.",
-"مفرد: one hour."
-]
-]
-],
-[
-"بگو حدود یک ساعت و غذای ساده",
-"بگو برنج و مرغ",
-"About one hour, and something easy.",
-"Rice and chicken.",
-[],
-[
-[
-"About one hour and simple things.",
-"بگو: something easy."
-]
-]
-],
-[
-"بگو بله حدود یک ساعت و گاهی همسرم کمک می‌کند چون دوست دارد",
-"بگو سبزی خرد می‌کند",
-"Yes, about one hour, and sometimes my wife helps, because she likes it.",
-"She cuts the vegetables.",
-[],
-[
-[
-"Yes, about one hour and sometimes my wife help.",
-"با «wife» فعل s می‌گیرد: helps."
-]
-]
-]
-]
-},
-{
-"d": 4,
-"k": "f",
-"s": "what-to-change",
-"c": "دوستت گفت: «می‌خواهم رژیمم را عوض کنم.»",
-"q": [
-[
-"بپرس چه چیزی را عوض می‌کند",
-"بپرس اول",
-"What do you want to change?",
-"First?",
-[],
-[
-[
-"What you want to change?",
-"بعد از «What»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس چه چیزی را عوض می‌کند و از کجا شروع می‌کند",
-"بپرس امروز",
-"What do you want to change, and where do you start?",
-"Today?",
-[],
-[
-[
-"What do you want to change and where you start?",
-"بعد از «where»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس چه چیزی را کم و چه چیزی را بیشتر می‌خواهد",
-"بپرس سخت است",
-"What do you want to eat less of, and what do you want to eat more of?",
-"Is it hard?",
-[],
-[
-[
-"What you want to eat less of?",
-"بعد از «What»، «do you» می‌آید."
-]
-]
-]
-],
-"a": [
-[
-"بگو شکر",
-"بگو و نان",
-"Sugar.",
-"And bread.",
-[],
-[
-[
-"The sugar.",
-"ساده: Sugar."
-]
-]
-],
-[
-"بگو شکر و از صبحانه شروع می‌کنم",
-"بگو چای بدون شکر",
-"Sugar, and I start with breakfast.",
-"Tea without sugar.",
-[],
-[
-[
-"Sugar and I starting with breakfast.",
-"بعد از «I» فعل ساده: start."
-]
-]
-],
-[
-"بگو شکر و نان کمتر و سبزی و میوه بیشتر چون الان خیلی کم می‌خورم",
-"بگو سخت است",
-"Less sugar and bread, and more vegetables and fruit, because now I eat very little.",
-"It's hard.",
-[],
-[
-[
-"Less sugar and bread and more vegetable.",
-"جمع: vegetables."
-]
-]
-]
-]
-}
-]
+ "mission": 4,
+ "items": [
+  {
+   "d": 1,
+   "k": "s",
+   "s": "packed-lunch",
+   "c": null,
+   "q": [
+    [
+     "بپرس ناهار با خودش می‌برد",
+     "بپرس هر روز",
+     "Do you take a packed lunch?",
+     "Every day?",
+     [],
+     [
+      [
+       "You take a packed lunch?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس ناهار با خودش می‌برد یا بیرون می‌خورد",
+     "بپرس کدام را دوست دارد",
+     "Do you take a packed lunch, or do you eat out?",
+     "Which do you like?",
+     [],
+     [
+      [
+       "You take a packed lunch, or do you eat out?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس در ناهارش چه می‌برد و گاهی بیرون می‌خورد",
+     "بپرس چرا",
+     "What do you take in your packed lunch, and do you ever eat out?",
+     "Why?",
+     [],
+     [
+      [
+       "What you take in your packed lunch, and do you ever eat out?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو هر روز",
+     "Yes, I do.",
+     "Every day.",
+     [],
+     [
+      [
+       "Yes, I am.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو ناهار با خودم می‌برم",
+     "بگو در یک جعبه‌ی کوچک",
+     "I take a packed lunch.",
+     "In a small box.",
+     [],
+     [
+      [
+       "I take packed lunch.",
+       "قبل از «packed» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو معمولاً نان و پنیر ولی گاهی بیرون می‌خورم چون وقت ندارم",
+     "بگو با همکارانم",
+     "I usually take bread and cheese, but sometimes I eat out, because I have no time.",
+     "With my colleagues.",
+     [],
+     [
+      [
+       "I take usually bread and cheese, but sometimes I eat out, because I have no time.",
+       "«usually» قبل از فعل می‌آید: I usually take."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "s",
+   "s": "favourite-dish",
+   "c": null,
+   "q": [
+    [
+     "بپرس غذای مورد علاقه‌اش چیست",
+     "بپرس چرا",
+     "What is your favourite dish?",
+     "Why?",
+     [],
+     [
+      [
+       "What your favourite dish?",
+       "بعد از «what»، «is» می‌آید و بعد فاعل."
+      ]
+     ]
+    ],
+    [
+     "بپرس غذای مورد علاقه‌اش چیست و چه کسی آن را می‌پزد",
+     "بپرس آسان است",
+     "What is your favourite dish, and who cooks it?",
+     "Is it easy?",
+     [],
+     [
+      [
+       "What your favourite dish, and who cooks it?",
+       "بعد از «what»، «is» می‌آید و بعد فاعل."
+      ]
+     ]
+    ],
+    [
+     "بپرس غذای مورد علاقه‌اش چیست و چند بار آن را می‌خورد",
+     "بپرس از آن خسته نمی‌شود",
+     "What is your favourite dish, and how often do you eat it?",
+     "Do you get tired of it?",
+     [],
+     [
+      [
+       "What your favourite dish, and how often do you eat it?",
+       "بعد از «what»، «is» می‌آید و بعد فاعل."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو برنج و مرغ",
+     "بگو دوستش دارم",
+     "Rice and chicken.",
+     "I love it.",
+     [],
+     []
+    ],
+    [
+     "بگو برنج و مرغ است و مادرم می‌پزد",
+     "بگو آسان نیست",
+     "It's rice and chicken, and my mum cooks it.",
+     "It isn't easy.",
+     [],
+     [
+      [
+       "It's rice and chicken, and my mum cook it.",
+       "با «my mum» فعل «s» می‌گیرد: cooks."
+      ]
+     ]
+    ],
+    [
+     "بگو برنج و مرغ است و هفته‌ای یک بار می‌خورم چون مادرم آخر هفته‌ها می‌پزد",
+     "بگو هیچ‌وقت خسته نمی‌شوم",
+     "It's rice and chicken. I eat it once a week, because my mum cooks it at the weekend.",
+     "I never get tired of it.",
+     [],
+     [
+      [
+       "It's rice and chicken. I eat it once a week, because my mum cooks it in the weekend.",
+       "می‌گوییم «at the weekend»."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "s",
+   "s": "cuisine",
+   "c": null,
+   "q": [
+    [
+     "بپرس چه غذایی دوست دارد",
+     "بپرس همیشه",
+     "What cuisine do you like?",
+     "Always?",
+     [],
+     [
+      [
+       "What cuisine you like?",
+       "بعد از «what» و اسم، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه غذایی دوست دارد و آن را می‌پزد",
+     "بپرس سخت است",
+     "What cuisine do you like, and do you cook it?",
+     "Is it hard?",
+     [],
+     [
+      [
+       "What cuisine you like, and do you cook it?",
+       "بعد از «what» و اسم، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس غذای کشور خودش را دوست دارد یا غذای کشورهای دیگر و چرا",
+     "بپرس مثلاً",
+     "Do you like the food of your country, or the food of other countries? Why?",
+     "For example?",
+     [],
+     [
+      [
+       "You like the food of your country, or the food of other countries? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو غذای ایتالیایی",
+     "بگو مخصوصاً پاستا",
+     "Italian food.",
+     "Especially pasta.",
+     [],
+     []
+    ],
+    [
+     "بگو غذای ایتالیایی دوست دارم و در خانه می‌پزم",
+     "بگو آسان است",
+     "I like Italian food, and I cook it at home.",
+     "It's easy.",
+     [],
+     [
+      [
+       "I am like Italian food, and I cook it at home.",
+       "بعد از «I» فعل ساده می‌آید، نه «am»: I like."
+      ]
+     ]
+    ],
+    [
+     "بگو غذای کشور خودم را دوست دارم چون آن را می‌شناسم ولی غذاهای دیگر را هم دوست دارم",
+     "بگو پیتزا و پاستا",
+     "I like the food of my country, because I know it, but I like other food too.",
+     "Pizza and pasta.",
+     [],
+     [
+      [
+       "I like the food of my country, because know it, but I like other food too.",
+       "بعد از «because» فاعل لازم است: because I know."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "s",
+   "s": "bland",
+   "c": null,
+   "q": [
+    [
+     "بپرس غذای بی‌مزه دوست دارد",
+     "بپرس چرا",
+     "Do you like bland food?",
+     "Why?",
+     [],
+     [
+      [
+       "You like bland food?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس غذای بی‌مزه دوست دارد یا غذای ادویه‌دار",
+     "بپرس نمک چطور",
+     "Do you like bland food, or food with spices?",
+     "What about salt?",
+     [],
+     [
+      [
+       "You like bland food, or food with spices?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس غذایش بی‌مزه باشد چه می‌کند",
+     "بپرس نمک اضافه می‌کند",
+     "What do you do when your food is bland?",
+     "Do you add salt?",
+     [],
+     [
+      [
+       "What you do when your food is bland?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو نه",
+     "بگو مزه ندارد",
+     "No, I don't.",
+     "It has no taste.",
+     [],
+     [
+      [
+       "No, I am not.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: No, I don't."
+      ]
+     ]
+    ],
+    [
+     "بگو غذای ادویه‌دار دوست دارم",
+     "بگو کمی نمک لازم دارم",
+     "I like food with spices.",
+     "I need a bit of salt.",
+     [],
+     [
+      [
+       "I am like food with spices.",
+       "بعد از «I» فعل ساده می‌آید، نه «am»: I like."
+      ]
+     ]
+    ],
+    [
+     "بگو کمی نمک و فلفل اضافه می‌کنم چون غذای بی‌مزه خوب نیست",
+     "بگو ولی نه زیاد",
+     "I add a bit of salt and pepper, because bland food isn't good.",
+     "But not too much.",
+     [],
+     [
+      [
+       "I add bit of salt and pepper, because bland food isn't good.",
+       "قبل از «bit» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "s",
+   "s": "bit-of-salt",
+   "c": null,
+   "q": [
+    [
+     "بپرس کمی نمک روی غذایش می‌ریزد",
+     "بپرس همیشه",
+     "Do you put a bit of salt on your food?",
+     "Always?",
+     [],
+     [
+      [
+       "You put a bit of salt on your food?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس چقدر شکر در چایش می‌ریزد",
+     "بپرس هر روز",
+     "How much sugar do you put in your tea?",
+     "Every day?",
+     [],
+     [
+      [
+       "How much sugar you put in your tea?",
+       "بعد از «how much» و اسم، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چقدر نمک و شکر می‌خورد و فکر می‌کند زیاد است",
+     "بپرس سالم است",
+     "How much salt and sugar do you eat, and is it too much?",
+     "Is it healthy?",
+     [],
+     [
+      [
+       "How much salt and sugar you eat, and is it too much?",
+       "بعد از «How much salt and sugar» اول «do» می‌آید: do you eat."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو زیاد نه",
+     "Yes, I do.",
+     "Not much.",
+     [],
+     [
+      [
+       "Yes, I am.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو یک قاشق کوچک",
+     "بگو فقط صبح‌ها",
+     "One small spoon.",
+     "Only in the morning.",
+     [],
+     []
+    ],
+    [
+     "بگو زیاد نه؛ کمی نمک و دو قاشق شکر ولی فکر می‌کنم کمی زیاد است",
+     "بگو می‌خواهم کم کنم",
+     "Not much: a bit of salt and two spoons of sugar, but I think it's a little too much.",
+     "I want to cut down.",
+     [],
+     [
+      [
+       "Not much: bit of salt and two spoons of sugar, but I think it's a little too much.",
+       "قبل از «bit» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "packed-what",
+   "c": "دوستت گفت: «من هر روز ناهار می‌برم.»",
+   "q": [
+    [
+     "بپرس چه می‌برد",
+     "بپرس همیشه همان",
+     "What do you take?",
+     "Always the same?",
+     [],
+     [
+      [
+       "What you take?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه می‌برد و کجا می‌خورد",
+     "بپرس تنها",
+     "What do you take, and where do you eat it?",
+     "Alone?",
+     [],
+     [
+      [
+       "What you take, and where do you eat it?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس همیشه همان را می‌برد یا هر روز فرق می‌کند",
+     "بپرس چرا",
+     "Do you always take the same, or is it different every day?",
+     "Why?",
+     [],
+     [
+      [
+       "You always take the same, or is it different every day?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو ساندویچ",
+     "بگو و میوه",
+     "A sandwich.",
+     "And fruit.",
+     [],
+     [
+      [
+       "sandwich.",
+       "قبل از «sandwich» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو ساندویچ و میوه می‌برم و در اتاق استراحت می‌خورم",
+     "بگو با همکارانم",
+     "I take a sandwich and fruit, and I eat it in the break room.",
+     "With my colleagues.",
+     [],
+     [
+      [
+       "I take sandwich and fruit, and I eat it in the break room.",
+       "قبل از «sandwich» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو معمولاً همان چون سریع است ولی گاهی برنج می‌برم",
+     "بگو برای تنوع",
+     "Usually the same, because it's quick, but sometimes I take rice.",
+     "For a change.",
+     [],
+     [
+      [
+       "Usually the same, because it quick, but sometimes I take rice.",
+       "بعد از «because» باید «it's» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "cook-cuisine",
+   "c": "دوستت گفت: «من غذای ایتالیایی دوست دارم.»",
+   "q": [
+    [
+     "بپرس در خانه هم می‌پزد",
+     "بپرس چند بار",
+     "Do you cook it at home?",
+     "How often?",
+     [],
+     [
+      [
+       "You cook it at home?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس در خانه می‌پزد یا بیرون می‌خورد",
+     "بپرس کدام",
+     "Do you cook it at home, or do you eat it out?",
+     "Which one?",
+     [],
+     [
+      [
+       "You cook it at home, or do you eat it out?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس مواد آن را از کجا می‌خرد",
+     "بپرس گران است",
+     "Where do you buy the ingredients for it?",
+     "Are they expensive?",
+     [],
+     [
+      [
+       "Where you buy the ingredients for it?",
+       "بعد از «where»، «do» می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو گاهی",
+     "بگو هفته‌ای یک بار",
+     "Sometimes.",
+     "Once a week.",
+     [],
+     []
+    ],
+    [
+     "بگو گاهی در خانه می‌پزم",
+     "بگو پاستا آسان است",
+     "Sometimes I cook it at home.",
+     "Pasta is easy.",
+     [],
+     [
+      [
+       "Sometimes I am cook it at home.",
+       "بعد از «I» فعل ساده می‌آید: I cook."
+      ]
+     ]
+    ],
+    [
+     "بگو از سوپرمارکت چون نزدیک است ولی بعضی مواد گران است",
+     "بگو پنیر",
+     "From the supermarket, because it's near, but some ingredients are expensive.",
+     "The cheese.",
+     [],
+     [
+      [
+       "From the supermarket, because it near, but some ingredients are expensive.",
+       "بعد از «because» باید «it's» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "who-cooks-rice",
+   "c": "دوستت گفت: «غذای مورد علاقه‌ام برنج و مرغ است.»",
+   "q": [
+    [
+     "بپرس چه کسی آن را می‌پزد",
+     "بپرس خودش",
+     "Who cooks it?",
+     "You?",
+     [],
+     []
+    ],
+    [
+     "بپرس چه کسی می‌پزد و خودش کمک می‌کند",
+     "بپرس آسان است",
+     "Who cooks it, and do you help?",
+     "Is it easy?",
+     [],
+     [
+      [
+       "Who cook it, and do you help?",
+       "با «Who» فعل «s» می‌گیرد: Who cooks it."
+      ]
+     ]
+    ],
+    [
+     "بپرس خودش بلد است آن را بپزد یا فقط می‌خورد",
+     "بپرس چرا",
+     "Do you know how to cook it, or do you only eat it?",
+     "Why?",
+     [],
+     [
+      [
+       "You know how to cook it, or do you only eat it?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو مادرم",
+     "بگو هر هفته",
+     "My mum.",
+     "Every week.",
+     [],
+     []
+    ],
+    [
+     "بگو مادرم می‌پزد و من کمک می‌کنم",
+     "بگو آسان نیست",
+     "My mum cooks it, and I help her.",
+     "It isn't easy.",
+     [],
+     [
+      [
+       "My mum cook it, and I help her.",
+       "با «my mum» فعل «s» می‌گیرد: cooks."
+      ]
+     ]
+    ],
+    [
+     "بگو فقط می‌خورم چون هنوز بلد نیستم ولی می‌خواهم یاد بگیرم",
+     "بگو از مادرم",
+     "I only eat it, because I don't know how yet, but I want to learn.",
+     "From my mum.",
+     [],
+     [
+      [
+       "I only eat it, because I don't know how yet, but I want learn.",
+       "بعد از «want» باید «to» بیاید: want to learn."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "bland-add",
+   "c": "دوستت گفت: «غذای من اغلب بی‌مزه است.»",
+   "q": [
+    [
+     "بپرس چیزی به آن اضافه می‌کند",
+     "بپرس نمک",
+     "Do you add anything?",
+     "Salt?",
+     [],
+     [
+      [
+       "You add anything?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه چیزی اضافه می‌کند و چقدر",
+     "بپرس زیاد",
+     "What do you add, and how much?",
+     "Too much?",
+     [],
+     [
+      [
+       "What you add, and how much?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چرا بی‌مزه است و خودش می‌پزد",
+     "بپرس کمک می‌خواهد",
+     "Why is your food bland, and do you cook it yourself?",
+     "Do you need help?",
+     [],
+     [
+      [
+       "Why your food bland, and do you cook it yourself?",
+       "بعد از «why»، «is» می‌آید و بعد فاعل."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو کمی نمک",
+     "Yes, I do.",
+     "A bit of salt.",
+     [],
+     [
+      [
+       "Yes, I am.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو کمی نمک و فلفل اضافه می‌کنم",
+     "بگو نه زیاد",
+     "I add a bit of salt and pepper.",
+     "Not too much.",
+     [],
+     [
+      [
+       "I add bit of salt and pepper.",
+       "قبل از «bit» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو چون خودم می‌پزم و بلد نیستم برای همین کمک می‌خواهم",
+     "بگو از مادرم",
+     "Because I cook it myself and I don't know how, so I need help.",
+     "From my mum.",
+     [],
+     [
+      [
+       "Because I cook it myself and I no know how, so I need help.",
+       "منفی با «don't» ساخته می‌شود: I don't know."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "sugar-tea",
+   "c": "دوستت گفت: «من چای را با کمی شکر می‌خورم.»",
+   "q": [
+    [
+     "بپرس چقدر شکر می‌ریزد",
+     "بپرس همیشه",
+     "How much sugar do you take?",
+     "Always?",
+     [],
+     [
+      [
+       "How much sugar you take?",
+       "بعد از «how much» و اسم، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چقدر شکر می‌ریزد و چند فنجان در روز می‌خورد",
+     "بپرس زیاد است",
+     "How much sugar do you take, and how many cups a day?",
+     "Is it too many?",
+     [],
+     [
+      [
+       "How much sugar you take, and how many cups a day?",
+       "بعد از «how much» و اسم، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس می‌خواهد شکر را کم کند",
+     "بپرس چرا",
+     "Do you want to cut down on sugar?",
+     "Why?",
+     [],
+     [
+      [
+       "You want to cut down on sugar?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو یک قاشق",
+     "بگو کوچک",
+     "One spoon.",
+     "A small one.",
+     [],
+     []
+    ],
+    [
+     "بگو یک قاشق و سه فنجان در روز",
+     "بگو زیاد نیست",
+     "One spoon, and three cups a day.",
+     "It isn't too many.",
+     [],
+     [
+      [
+       "One spoon, and three cups day.",
+       "قبل از «day» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو بله چون شکر زیاد سالم نیست ولی کم کردنش سخت است",
+     "بگو کم‌کم",
+     "Yes, I do, because a lot of sugar isn't healthy, but it's hard to cut down.",
+     "Little by little.",
+     [],
+     [
+      [
+       "Yes, I do, because lot of sugar isn't healthy, but it's hard to cut down.",
+       "قبل از «lot» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "home-cooked",
+   "c": null,
+   "q": [
+    [
+     "بپرس غذای خانگی می‌خورد",
+     "بپرس هر روز",
+     "Do you eat home-cooked food?",
+     "Every day?",
+     [],
+     [
+      [
+       "You eat home-cooked food?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس غذای خانگی می‌خورد یا بیرون غذا می‌خورد",
+     "بپرس چه کسی می‌پزد",
+     "Do you eat home-cooked food, or do you eat out?",
+     "Who cooks?",
+     [],
+     [
+      [
+       "You eat home-cooked food, or do you eat out?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس غذای خانگی برایش خوب است و چرا",
+     "بپرس ارزان است",
+     "Is home-cooked food good for you? Why?",
+     "Is it cheap?",
+     [],
+     [
+      [
+       "Is good home-cooked food for you? Why?",
+       "ترتیب جمله: Is home-cooked food good for you?"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو بیشتر روزها",
+     "Yes, I do.",
+     "Most days.",
+     [],
+     [
+      [
+       "Yes, I am.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو غذای خانگی می‌خورم",
+     "بگو مادرم می‌پزد",
+     "I eat home-cooked food.",
+     "My mum cooks.",
+     [],
+     [
+      [
+       "I am eat home-cooked food.",
+       "بعد از «I» فعل ساده می‌آید، نه «am»: I eat."
+      ]
+     ]
+    ],
+    [
+     "بگو بله چون تازه و ارزان است ولی پختنش وقت می‌برد",
+     "بگو خسته می‌شوم",
+     "Yes, it is, because it's fresh and cheap, but cooking takes time.",
+     "I get tired.",
+     [],
+     [
+      [
+       "Yes, it is, because it fresh and cheap, but cooking takes time.",
+       "بعد از «because» باید «it's» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "balanced-diet",
+   "c": null,
+   "q": [
+    [
+     "بپرس رژیم متعادل دارد",
+     "بپرس همیشه",
+     "Do you have a balanced diet?",
+     "Always?",
+     [],
+     [
+      [
+       "You have a balanced diet?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس رژیم متعادل دارد و میوه می‌خورد",
+     "بپرس هر روز",
+     "Do you have a balanced diet, and do you eat fruit?",
+     "Every day?",
+     [],
+     [
+      [
+       "You have a balanced diet, and do you eat fruit?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس رژیم متعادل برای او یعنی چه و آیا خودش دارد",
+     "بپرس چرا",
+     "What is a balanced diet for you, and do you have one?",
+     "Why?",
+     [],
+     [
+      [
+       "What is balanced diet for you, and do you have one?",
+       "قبل از «balanced» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو نه چندان",
+     "بگو سعی می‌کنم",
+     "Not really.",
+     "I try.",
+     [],
+     []
+    ],
+    [
+     "بگو نه چندان ولی میوه می‌خورم",
+     "بگو سبزی زیاد نه",
+     "Not really, but I eat fruit.",
+     "Not many vegetables.",
+     [],
+     [
+      [
+       "Not really, but I am eat fruit.",
+       "بعد از «I» فعل ساده می‌آید: I eat."
+      ]
+     ]
+    ],
+    [
+     "بگو برای من یعنی کمی گوشت و سبزی و میوه ولی خودم سبزی زیاد نمی‌خورم",
+     "بگو باید سبزی بخورم",
+     "For me it means some meat, vegetables and fruit, but I don't eat many vegetables.",
+     "I need to eat vegetables.",
+     [],
+     [
+      [
+       "For me it means some meat, vegetables and fruit, but I no eat many vegetables.",
+       "منفی با «don't» ساخته می‌شود: I don't eat."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "fresh-frozen",
+   "c": null,
+   "q": [
+    [
+     "بپرس سبزی تازه می‌خرد",
+     "بپرس کجا",
+     "Do you buy fresh vegetables?",
+     "Where?",
+     [],
+     [
+      [
+       "You buy fresh vegetables?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس سبزی تازه می‌خرد یا منجمد",
+     "بپرس کدام",
+     "Do you buy fresh vegetables, or frozen?",
+     "Which one?",
+     [],
+     [
+      [
+       "You buy fresh vegetables, or frozen?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه چیزی را تازه می‌خرد و چه چیزی را منجمد و چرا",
+     "بپرس ارزان است",
+     "What do you buy fresh, and what do you buy frozen? Why?",
+     "Is it cheap?",
+     [],
+     [
+      [
+       "What you buy fresh, and what do you buy frozen? Why?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو هر هفته",
+     "Yes, I do.",
+     "Every week.",
+     [],
+     [
+      [
+       "Yes, I am.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو تازه ولی گاهی منجمد",
+     "بگو سریع است",
+     "Fresh, but sometimes frozen.",
+     "It's quick.",
+     [],
+     [
+      [
+       "Fresh, but sometimes the frozen.",
+       "می‌گوییم «frozen» بدون «the»."
+      ]
+     ]
+    ],
+    [
+     "بگو سبزی و میوه را تازه می‌خرم ولی ماهی را منجمد چون ارزان است",
+     "بگو نگه‌داشتنش آسان است",
+     "I buy vegetables and fruit fresh, but I buy fish frozen, because it's cheap.",
+     "It's easy to keep.",
+     [],
+     [
+      [
+       "I buy vegetables and fruit fresh, but I buy fish frozen, because it cheap.",
+       "بعد از «because» باید «it's» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "ingredients",
+   "c": null,
+   "q": [
+    [
+     "بپرس مواد غذا را می‌خواند",
+     "بپرس روی بسته",
+     "Do you read the ingredients?",
+     "On the box?",
+     [],
+     [
+      [
+       "You read the ingredients?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس مواد را می‌خواند و می‌داند در غذایش چیست",
+     "بپرس همیشه",
+     "Do you read the ingredients, and do you know what is in your food?",
+     "Always?",
+     [],
+     [
+      [
+       "You read the ingredients, and do you know what is in your food?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس مواد غذا برایش مهم است و چرا",
+     "بپرس شکر یا نمک",
+     "Are the ingredients important for you? Why?",
+     "Sugar or salt?",
+     [],
+     [
+      [
+       "Are important the ingredients for you? Why?",
+       "ترتیب جمله: Are the ingredients important…؟"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو گاهی",
+     "Yes, I do.",
+     "Sometimes.",
+     [],
+     [
+      [
+       "Yes, I am.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و دنبال شکر می‌گردم",
+     "بگو زیاد است",
+     "Yes, I do. I look for sugar.",
+     "There's a lot.",
+     [],
+     [
+      [
+       "Yes, I am. I look for sugar.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو بله چون می‌خواهم بدانم چه می‌خورم مخصوصاً شکر و نمک",
+     "بگو و روغن",
+     "Yes, they are, because I want to know what I eat, especially sugar and salt.",
+     "And oil.",
+     [],
+     [
+      [
+       "Yes, they are, because I want know what I eat, especially sugar and salt.",
+       "بعد از «want» باید «to» بیاید: want to know."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "leftovers",
+   "c": null,
+   "q": [
+    [
+     "بپرس با غذای باقی‌مانده چه می‌کند",
+     "بپرس می‌خورد",
+     "What do you do with leftovers?",
+     "Do you eat them?",
+     [],
+     [
+      [
+       "What you do with leftovers?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس غذای باقی‌مانده را فردا می‌خورد یا دور می‌اندازد",
+     "بپرس همیشه",
+     "Do you eat leftovers the next day, or do you throw them away?",
+     "Always?",
+     [],
+     [
+      [
+       "You eat leftovers the next day, or do you throw them away?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس غذای باقی‌مانده را چطور نگه می‌دارد و کی می‌خورد",
+     "بپرس در یخچال",
+     "How do you keep leftovers, and when do you eat them?",
+     "In the fridge?",
+     [],
+     [
+      [
+       "How you keep leftovers, and when do you eat them?",
+       "بعد از «how»، «do» می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو در یخچال می‌گذارم",
+     "بگو و فردا می‌خورم",
+     "I put them in the fridge.",
+     "And I eat them the next day.",
+     [],
+     [
+      [
+       "I am put them in the fridge.",
+       "بعد از «I» فعل ساده می‌آید، نه «am»: I put."
+      ]
+     ]
+    ],
+    [
+     "بگو فردا می‌خورم",
+     "بگو برای ناهار",
+     "I eat them the next day.",
+     "For lunch.",
+     [],
+     [
+      [
+       "I am eat them the next day.",
+       "بعد از «I» فعل ساده می‌آید، نه «am»: I eat."
+      ]
+     ]
+    ],
+    [
+     "بگو در یخچال می‌گذارم و فردا گرم می‌کنم چون دور ریختن غذا بد است",
+     "بگو پول خرج دارد",
+     "I keep them in the fridge and heat them up the next day, because throwing food away is bad.",
+     "It costs money.",
+     [],
+     [
+      [
+       "I am keep them in the fridge and heat them up the next day, because throwing food away is bad.",
+       "بعد از «I» فعل ساده می‌آید، نه «am»: I keep."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "balanced-what",
+   "c": "دوستت گفت: «من رژیم متعادل ندارم.»",
+   "q": [
+    [
+     "بپرس معمولاً چه می‌خورد",
+     "بپرس زیاد",
+     "What do you usually eat?",
+     "A lot?",
+     [],
+     [
+      [
+       "What you usually eat?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس معمولاً چه می‌خورد و چه چیزی زیاد نمی‌خورد",
+     "بپرس سبزی",
+     "What do you usually eat, and what don't you eat much?",
+     "Vegetables?",
+     [],
+     [
+      [
+       "What you usually eat, and what don't you eat much?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس می‌خواهد رژیمش را عوض کند و از کجا شروع می‌کند",
+     "بپرس سخت است",
+     "Do you want to change your diet? Where do you start?",
+     "Is it hard?",
+     [],
+     [
+      [
+       "Do you want to change your diet? Where you start?",
+       "بعد از «where»، «do» می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو برنج و نان",
+     "بگو زیاد",
+     "Rice and bread.",
+     "A lot.",
+     [],
+     []
+    ],
+    [
+     "بگو برنج و نان زیاد می‌خورم و سبزی زیاد نمی‌خورم",
+     "بگو میوه هم کم",
+     "I eat a lot of rice and bread, and not many vegetables.",
+     "Not much fruit.",
+     [],
+     [
+      [
+       "I eat lot of rice and bread, and not many vegetables.",
+       "قبل از «lot» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو بله چون می‌خواهم سالم بخورم ولی نمی‌دانم از کجا شروع کنم",
+     "بگو با سبزی",
+     "Yes, I do, because I want to eat well, but I don't know where to start.",
+     "With vegetables.",
+     [],
+     [
+      [
+       "Yes, I do, because I want eat well, but I don't know where to start.",
+       "بعد از «want» باید «to» بیاید: want to eat."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "buy-fresh-where",
+   "c": "دوستت گفت: «من فقط سبزی تازه می‌خرم.»",
+   "q": [
+    [
+     "بپرس از کجا می‌خرد",
+     "بپرس از بازار",
+     "Where do you buy it?",
+     "At the market?",
+     [],
+     [
+      [
+       "Where you buy it?",
+       "بعد از «where»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس از کجا می‌خرد و هر چند روز یک بار",
+     "بپرس گران است",
+     "Where do you buy it, and how often?",
+     "Is it expensive?",
+     [],
+     [
+      [
+       "Where you buy it, and how often?",
+       "بعد از «where»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس میوه را هم تازه می‌خرد و چرا",
+     "بپرس گران است",
+     "Do you buy fruit fresh too? Why?",
+     "Is it expensive?",
+     [],
+     [
+      [
+       "You buy fruit fresh too? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو از بازار",
+     "بگو نزدیک خانه",
+     "At the market.",
+     "Near my home.",
+     [],
+     []
+    ],
+    [
+     "بگو از بازار نزدیک خانه هر دو روز یک بار",
+     "بگو گران نیست",
+     "At the market near my home, every two days.",
+     "It isn't expensive.",
+     [],
+     [
+      [
+       "At the market near my home, in every two days.",
+       "می‌گوییم «every two days» بدون «in»."
+      ]
+     ]
+    ],
+    [
+     "بگو بله چون مزه‌ی خوبی دارد ولی کمی گران است",
+     "بگو می‌ارزد",
+     "Yes, I do, because it has a good taste, but it's a bit expensive.",
+     "It's worth it.",
+     [],
+     [
+      [
+       "Yes, I do, because it have a good taste, but it's a bit expensive.",
+       "با «it» فعل «s» می‌گیرد: has."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "frozen-much",
+   "c": "دوستت گفت: «من غذای منجمد زیاد می‌خورم.»",
+   "q": [
+    [
+     "بپرس چرا",
+     "بپرس وقت ندارد",
+     "Why?",
+     "Do you have no time?",
+     [],
+     []
+    ],
+    [
+     "بپرس چرا و چه نوع غذای منجمدی",
+     "بپرس پیتزا",
+     "Why, and what kind of frozen food?",
+     "Pizza?",
+     [],
+     [
+      [
+       "Why, and what kind frozen food?",
+       "بعد از «what kind» باید «of» بیاید: what kind of frozen food."
+      ]
+     ]
+    ],
+    [
+     "بپرس فکر می‌کند غذای منجمد سالم است و چرا",
+     "بپرس گاهی می‌پزد",
+     "Do you think frozen food is healthy? Why?",
+     "Do you sometimes cook?",
+     [],
+     [
+      [
+       "You think frozen food is healthy? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو وقت ندارم",
+     "بگو سریع است",
+     "I have no time.",
+     "It's quick.",
+     [],
+     [
+      [
+       "I has no time.",
+       "با «I» فعل «have» می‌آید، نه «has»."
+      ]
+     ]
+    ],
+    [
+     "بگو چون وقت ندارم پیتزا و سبزی منجمد می‌خورم",
+     "بگو ارزان است",
+     "I have no time, so I eat frozen pizza and vegetables.",
+     "It's cheap.",
+     [],
+     [
+      [
+       "I has no time, so I eat frozen pizza and vegetables.",
+       "با «I» فعل «have» می‌آید، نه «has»."
+      ]
+     ]
+    ],
+    [
+     "بگو نه چندان چون نمک زیادی دارد ولی گاهی لازمش دارم",
+     "بگو آخر هفته می‌پزم",
+     "Not really, because it has a lot of salt, but sometimes I need it.",
+     "I cook at the weekend.",
+     [],
+     [
+      [
+       "Not really, because it have a lot of salt, but sometimes I need it.",
+       "با «it» فعل «s» می‌گیرد: has."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "heat-up",
+   "c": "دوستت گفت: «من غذای باقی‌مانده را فردا می‌خورم.»",
+   "q": [
+    [
+     "بپرس آن را گرم می‌کند",
+     "بپرس چقدر طول می‌کشد",
+     "Do you heat it up?",
+     "How long?",
+     [],
+     [
+      [
+       "You heat it up?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس آن را گرم می‌کند و با چه می‌خورد",
+     "بپرس با برنج",
+     "Do you heat it up, and what do you eat with it?",
+     "With rice?",
+     [],
+     [
+      [
+       "Do you heat it up, and what you eat with it?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس فردا هم خوب است یا غذای تازه می‌پزد",
+     "بپرس سالم است",
+     "Is it good the next day, or do you cook new food?",
+     "Is it safe?",
+     [],
+     [
+      [
+       "It is good the next day, or do you cook new food?",
+       "سؤال با «Is» شروع می‌شود: Is it…؟"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو پنج دقیقه",
+     "Yes, I do.",
+     "Five minutes.",
+     [],
+     [
+      [
+       "Yes, I am.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و با برنج می‌خورم",
+     "بگو یا نان",
+     "Yes, I do, and I eat it with rice.",
+     "Or bread.",
+     [],
+     [
+      [
+       "Yes, I am, and I eat it with rice.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو فردا هم خوب است چون مزه‌اش خوب است ولی گاهی غذای تازه می‌پزم",
+     "بگو بله اگر در یخچال باشد",
+     "It's good the next day, because the taste is nice, but sometimes I cook new food.",
+     "Yes, if it's in the fridge.",
+     [],
+     [
+      [
+       "It's good the next day, because the taste nice, but sometimes I cook new food.",
+       "بعد از «because» باید فعل «is» بیاید: the taste is nice."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "who-cooks-home",
+   "c": "دوستت گفت: «من غذای خانگی می‌خورم.»",
+   "q": [
+    [
+     "بپرس چه کسی می‌پزد",
+     "بپرس هر روز",
+     "Who cooks?",
+     "Every day?",
+     [],
+     []
+    ],
+    [
+     "بپرس چه کسی می‌پزد و چه می‌خورند",
+     "بپرس برنج",
+     "Who cooks, and what do you eat?",
+     "Rice?",
+     [],
+     [
+      [
+       "Who cooks, and what you eat?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس خودش هم گاهی می‌پزد یا همیشه مادرش می‌پزد و چرا",
+     "بپرس کمک می‌کند",
+     "Do you cook sometimes, or does your mum always cook? Why?",
+     "Do you help?",
+     [],
+     [
+      [
+       "You cook sometimes, or does your mum always cook? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو مادرم",
+     "بگو هر روز",
+     "My mum.",
+     "Every day.",
+     [],
+     []
+    ],
+    [
+     "بگو مادرم می‌پزد و ما برنج و مرغ می‌خوریم",
+     "بگو و سالاد",
+     "My mum cooks, and we eat rice and chicken.",
+     "And salad.",
+     [],
+     [
+      [
+       "My mum cook, and we eat rice and chicken.",
+       "با «my mum» فعل «s» می‌گیرد: cooks."
+      ]
+     ]
+    ],
+    [
+     "بگو گاهی می‌پزم چون مادرم آخر هفته خسته است ولی بیشتر روزها او می‌پزد",
+     "بگو به او کمک می‌کنم",
+     "I cook sometimes, because my mum is tired at the weekend, but she cooks most days.",
+     "I help her.",
+     [],
+     [
+      [
+       "I cook sometimes, because my mum is tired in the weekend, but she cooks most days.",
+       "می‌گوییم «at the weekend»."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "sweet-tooth",
+   "c": null,
+   "q": [
+    [
+     "بپرس شیرینی‌خور است",
+     "بپرس چرا",
+     "Do you have a sweet tooth?",
+     "Why?",
+     [],
+     [
+      [
+       "You have a sweet tooth?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس شیرینی‌خور است و چه شیرینی‌ای دوست دارد",
+     "بپرس شکلات",
+     "Do you have a sweet tooth, and what sweets do you like?",
+     "Chocolate?",
+     [],
+     [
+      [
+       "Do you have a sweet tooth, and what sweets you like?",
+       "بعد از «what» و اسم، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس شیرینی‌خور است و روزی چند تا شیرینی می‌خورد",
+     "بپرس زیاد است",
+     "Do you have a sweet tooth, and how many sweets do you eat a day?",
+     "Is it a lot?",
+     [],
+     [
+      [
+       "Do you have a sweet tooth, and how many sweets you eat a day?",
+       "بعد از «how many» و اسم، «do» می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو شیرینی دوست دارم",
+     "Yes, I do.",
+     "I love sweets.",
+     [],
+     [
+      [
+       "Yes, I am.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و شکلات دوست دارم",
+     "بگو و کیک",
+     "Yes, I do, and I like chocolate.",
+     "And cake.",
+     [],
+     [
+      [
+       "Yes, I am, and I like chocolate.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو بله روزی سه چهار تا می‌خورم ولی سعی می‌کنم زیاد نخورم",
+     "بگو بله زیاد است",
+     "Yes, I do. I eat three or four a day, but I try not to eat too many.",
+     "Yes, it's a lot.",
+     [],
+     [
+      [
+       "Yes, I do. I eat three or four day, but I try not to eat too many.",
+       "قبل از «day» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "spicy",
+   "c": null,
+   "q": [
+    [
+     "بپرس غذای تند دوست دارد",
+     "بپرس چقدر تند",
+     "Do you like spicy food?",
+     "How spicy?",
+     [],
+     [
+      [
+       "You like spicy food?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس غذای تند دوست دارد و آن را می‌پزد",
+     "بپرس هر هفته",
+     "Do you like spicy food, and do you cook it?",
+     "Every week?",
+     [],
+     [
+      [
+       "You like spicy food, and do you cook it?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس غذای تند برایش خوب است یا مشکل دارد و چرا",
+     "بپرس برای معده",
+     "Is spicy food good for you, or is it a problem? Why?",
+     "For your stomach?",
+     [],
+     [
+      [
+       "Is spicy food good for you, or is it problem? Why?",
+       "قبل از «problem» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو کمی",
+     "Yes, I do.",
+     "A bit.",
+     [],
+     [
+      [
+       "Yes, I am.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و در خانه می‌پزم",
+     "بگو هفته‌ای یک بار",
+     "Yes, I do, and I cook it at home.",
+     "Once a week.",
+     [],
+     [
+      [
+       "Yes, I am, and I cook it at home.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو خوب است چون دوستش دارم ولی خیلی تند برای معده‌ام خوب نیست",
+     "بگو کمی می‌خورم",
+     "It's good, because I love it, but too much isn't good for my stomach.",
+     "I eat a bit.",
+     [],
+     [
+      [
+       "It's good, because love it, but too much isn't good for my stomach.",
+       "بعد از «because» فاعل لازم است: because I love."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "junk-food",
+   "c": null,
+   "q": [
+    [
+     "بپرس چند وقت یک بار فست‌فود می‌خورد",
+     "بپرس هر روز",
+     "How often do you eat junk food?",
+     "Every day?",
+     [],
+     [
+      [
+       "How often you eat junk food?",
+       "بعد از «how often»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چند وقت یک بار فست‌فود می‌خورد و چه می‌خورد",
+     "بپرس پیتزا",
+     "How often do you eat junk food, and what do you eat?",
+     "Pizza?",
+     [],
+     [
+      [
+       "How often you eat junk food, and what do you eat?",
+       "بعد از «how often»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس فست‌فود زیاد می‌خورد و می‌خواهد کمش کند و چرا",
+     "بپرس سخت است",
+     "Do you eat a lot of junk food, and do you want to cut down? Why?",
+     "Is it hard?",
+     [],
+     [
+      [
+       "You eat a lot of junk food, and do you want to cut down? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو هفته‌ای یک بار",
+     "بگو جمعه‌ها",
+     "Once a week.",
+     "On Fridays.",
+     [],
+     [
+      [
+       "Once week.",
+       "قبل از «week» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو هفته‌ای یک بار و پیتزا می‌خورم",
+     "بگو گاهی چیپس",
+     "Once a week, and I eat pizza.",
+     "Sometimes chips.",
+     [],
+     [
+      [
+       "Once week, and I eat pizza.",
+       "قبل از «week» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو زیاد نه ولی می‌خواهم کم کنم چون سالم نیست",
+     "بگو سخت است",
+     "Not a lot, but I want to cut down, because it isn't healthy.",
+     "It's hard.",
+     [],
+     [
+      [
+       "Not a lot, but I want cut down, because it isn't healthy.",
+       "بعد از «want» باید «to» بیاید: want to cut."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "cut-down",
+   "c": null,
+   "q": [
+    [
+     "بپرس می‌خواهد شکر را کم کند",
+     "بپرس چرا",
+     "Do you want to cut down on sugar?",
+     "Why?",
+     [],
+     [
+      [
+       "You want to cut down on sugar?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس می‌خواهد شکر را کم کند و چطور",
+     "بپرس بدون شیرینی",
+     "Do you want to cut down on sugar, and how?",
+     "No sweets?",
+     [],
+     [
+      [
+       "You want to cut down on sugar, and how?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس می‌خواهد چه چیزی را کم کند و چرا",
+     "بپرس سخت است",
+     "What do you want to cut down on, and why?",
+     "Is it hard?",
+     [],
+     [
+      [
+       "What you want to cut down on, and why?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو سالم نیست",
+     "Yes, I do.",
+     "It isn't healthy.",
+     [],
+     [
+      [
+       "Yes, I am.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و به جای شیرینی میوه می‌خورم",
+     "بگو بدون کیک",
+     "Yes, I do, and I eat fruit instead of sweets.",
+     "No cake.",
+     [],
+     [
+      [
+       "Yes, I am, and I eat fruit instead of sweets.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو می‌خواهم شکر و نمک را کم کنم چون می‌خواهم سالم باشم ولی سخت است",
+     "بگو هر روز سعی می‌کنم",
+     "I want to cut down on sugar and salt, because I want to be healthy, but it's hard.",
+     "I try every day.",
+     [],
+     [
+      [
+       "I want cut down on sugar and salt, because I want to be healthy, but it's hard.",
+       "بعد از «want» باید «to» بیاید: want to cut."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "healthy-expensive",
+   "c": null,
+   "q": [
+    [
+     "بپرس غذای سالم گران است",
+     "بپرس چرا",
+     "Is healthy food expensive?",
+     "Why?",
+     [],
+     [
+      [
+       "Healthy food is expensive?",
+       "سؤال با «Is» شروع می‌شود: Is healthy food expensive?"
+      ]
+     ]
+    ],
+    [
+     "بپرس غذای سالم گران است و از کجا می‌خرد",
+     "بپرس از بازار",
+     "Is healthy food expensive, and where do you buy it?",
+     "At the market?",
+     [],
+     [
+      [
+       "Is healthy food expensive, and where you buy it?",
+       "بعد از «where»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس غذای سالم را گران می‌داند و چه چیزی می‌خرد",
+     "بپرس چرا",
+     "Do you think healthy food is expensive? What do you buy?",
+     "Why?",
+     [],
+     [
+      [
+       "Do you think healthy food is expensive? What you buy?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو گاهی",
+     "بگو ماهی گران است",
+     "Sometimes.",
+     "Fish is expensive.",
+     [],
+     []
+    ],
+    [
+     "بگو گاهی و از بازار می‌خرم",
+     "بگو نزدیک خانه",
+     "Sometimes, and I buy it at the market.",
+     "Near my home.",
+     [],
+     [
+      [
+       "Sometimes, and I buy it in the market.",
+       "می‌گوییم «at the market»."
+      ]
+     ]
+    ],
+    [
+     "بگو بعضی‌هایش گران است ولی سبزی و برنج ارزان است برای همین هر هفته می‌خرمشان",
+     "بگو گوشت نه",
+     "Some of it is, but vegetables and rice are cheap, so I buy them every week.",
+     "Not meat.",
+     [],
+     [
+      [
+       "Some of it is, but vegetables and rice cheap, so I buy them every week.",
+       "بعد از «vegetables and rice» باید «are» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "sweets-per-day",
+   "c": "دوستت گفت: «من عاشق شیرینی‌ام.»",
+   "q": [
+    [
+     "بپرس روزی چند تا می‌خورد",
+     "بپرس هر روز",
+     "How many do you eat a day?",
+     "Every day?",
+     [],
+     [
+      [
+       "How many you eat a day?",
+       "بعد از «how many»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس روزی چند تا می‌خورد و چه ساعتی",
+     "بپرس شب",
+     "How many do you eat a day, and when?",
+     "At night?",
+     [],
+     [
+      [
+       "How many you eat a day, and when?",
+       "بعد از «how many»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس می‌خواهد کم کند یا خیلی دوستشان دارد و چرا",
+     "بپرس سخت است",
+     "Do you want to cut down, or do you love them too much? Why?",
+     "Is it hard?",
+     [],
+     [
+      [
+       "You want to cut down, or do you love them too much? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو سه چهار تا",
+     "بگو زیاد نه",
+     "Three or four.",
+     "Not many.",
+     [],
+     []
+    ],
+    [
+     "بگو سه چهار تا بعد از ظهر",
+     "بگو با چای",
+     "Three or four, in the afternoon.",
+     "With tea.",
+     [],
+     [
+      [
+       "Three or four, at the afternoon.",
+       "«in the afternoon» می‌گوییم."
+      ]
+     ]
+    ],
+    [
+     "بگو می‌خواهم کم کنم چون سالم نیست ولی خیلی دوستشان دارم",
+     "بگو سخت است",
+     "I want to cut down, because it isn't healthy, but I love them too much.",
+     "It's hard.",
+     [],
+     [
+      [
+       "I want cut down, because it isn't healthy, but I love them too much.",
+       "بعد از «want» باید «to» بیاید: want to cut."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "how-spicy",
+   "c": "دوستت گفت: «من غذای تند دوست دارم.»",
+   "q": [
+    [
+     "بپرس چقدر تند",
+     "بپرس خیلی",
+     "How spicy?",
+     "Very?",
+     [],
+     []
+    ],
+    [
+     "بپرس چقدر تند و چه می‌خورد",
+     "بپرس مرغ",
+     "How spicy, and what do you eat?",
+     "Chicken?",
+     [],
+     [
+      [
+       "How spicy, and what you eat?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس خیلی تند دوست دارد یا فقط کمی و چرا",
+     "بپرس داغ است",
+     "Do you like it very spicy, or only a bit? Why?",
+     "Is it hot?",
+     [],
+     [
+      [
+       "You like it very spicy, or only a bit? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو کمی",
+     "بگو نه خیلی",
+     "A bit.",
+     "Not very.",
+     [],
+     [
+      [
+       "bit.",
+       "قبل از «bit» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو کمی تند و برنج و مرغ می‌خورم",
+     "بگو با فلفل",
+     "A bit spicy, and I eat rice and chicken.",
+     "With pepper.",
+     [],
+     [
+      [
+       "bit spicy, and I eat rice and chicken.",
+       "قبل از «bit» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو فقط کمی چون خیلی تند برای معده‌ام بد است",
+     "بگو زیاد نمی‌خورم",
+     "Only a bit, because too much is bad for my stomach.",
+     "I don't eat a lot.",
+     [],
+     [
+      [
+       "Only bit, because too much is bad for my stomach.",
+       "قبل از «bit» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "junk-cut",
+   "c": "دوستت گفت: «من زیاد فست‌فود می‌خورم.»",
+   "q": [
+    [
+     "بپرس می‌خواهد کمش کند",
+     "بپرس چرا",
+     "Do you want to cut down on it?",
+     "Why?",
+     [],
+     [
+      [
+       "You want to cut down on it?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس می‌خواهد کمش کند و چطور",
+     "بپرس با میوه",
+     "Do you want to cut down on it, and how?",
+     "With fruit?",
+     [],
+     [
+      [
+       "You want to cut down on it, and how?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس چرا زیاد می‌خورد و وقت پختن دارد",
+     "بپرس ارزان است",
+     "Why do you eat a lot of it, and do you have time to cook?",
+     "Is it cheap?",
+     [],
+     [
+      [
+       "Why you eat a lot of it, and do you have time to cook?",
+       "بعد از «why»، «do» می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو سالم نیست",
+     "Yes, I do.",
+     "It isn't healthy.",
+     [],
+     [
+      [
+       "Yes, I am.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و در خانه می‌پزم",
+     "بگو هر روز",
+     "Yes, I do, and I cook at home.",
+     "Every day.",
+     [],
+     [
+      [
+       "Yes, I am, and I cook at home.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو چون سریع است و وقت پختن ندارم ولی می‌خواهم سعی کنم",
+     "بگو بله ارزان است",
+     "Because it's quick, and I have no time to cook, but I want to try.",
+     "Yes, it's cheap.",
+     [],
+     [
+      [
+       "because it quick, and I have no time to cook, but I want to try.",
+       "بعد از «because» باید «it's» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "instead",
+   "c": "دوستت گفت: «می‌خواهم شکر را کم کنم.»",
+   "q": [
+    [
+     "بپرس به جایش چه می‌خورد",
+     "بپرس میوه",
+     "What do you eat instead?",
+     "Fruit?",
+     [],
+     [
+      [
+       "What you eat instead?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس به جایش چه می‌خورد و کی",
+     "بپرس بعد از ظهر",
+     "What do you eat instead, and when?",
+     "In the afternoon?",
+     [],
+     [
+      [
+       "What you eat instead, and when?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس خوردن میوه به جای شیرینی سخت است و چرا",
+     "بپرس میوه را دوست دارد",
+     "Is it hard to eat fruit instead of sweets? Why?",
+     "Do you like fruit?",
+     [],
+     [
+      [
+       "It is hard to eat fruit instead of sweets? Why?",
+       "سؤال با «Is» شروع می‌شود: Is it…؟"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو میوه",
+     "بگو یا آجیل",
+     "Fruit.",
+     "Or nuts.",
+     [],
+     []
+    ],
+    [
+     "بگو بعد از ظهر میوه می‌خورم",
+     "بگو یک سیب",
+     "I eat fruit in the afternoon.",
+     "An apple.",
+     [],
+     [
+      [
+       "I eat fruit at the afternoon.",
+       "«in the afternoon» می‌گوییم."
+      ]
+     ]
+    ],
+    [
+     "بگو کمی سخت است چون شیرینی دوست دارم ولی میوه را هم دوست دارم",
+     "بگو میوه خوب است",
+     "A bit hard, because I love sweets, but I like fruit too.",
+     "Fruit is nice.",
+     [],
+     [
+      [
+       "bit hard, because I love sweets, but I like fruit too.",
+       "قبل از «bit» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "healthy-what",
+   "c": "دوستت گفت: «من غذای سالم دوست دارم.»",
+   "q": [
+    [
+     "بپرس چه غذای سالمی می‌خورد",
+     "بپرس هر روز",
+     "What healthy food do you eat?",
+     "Every day?",
+     [],
+     [
+      [
+       "What healthy food you eat?",
+       "بعد از «what» و اسم، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه غذای سالمی می‌خورد و چه کسی می‌پزد",
+     "بپرس خودش",
+     "What healthy food do you eat, and who cooks it?",
+     "You?",
+     [],
+     [
+      [
+       "What healthy food you eat, and who cooks it?",
+       "بعد از «what» و اسم، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس خوردن غذای سالم هر روز آسان است و چرا",
+     "بپرس گران است",
+     "Is it easy to eat healthy food every day? Why?",
+     "Is it expensive?",
+     [],
+     [
+      [
+       "It is easy to eat healthy food every day? Why?",
+       "سؤال با «Is» شروع می‌شود: Is it…؟"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو سبزی",
+     "بگو و ماهی",
+     "Vegetables.",
+     "And fish.",
+     [],
+     []
+    ],
+    [
+     "بگو سبزی و ماهی می‌خورم و خودم می‌پزم",
+     "بگو در خانه",
+     "I eat vegetables and fish, and I cook them myself.",
+     "At home.",
+     [],
+     [
+      [
+       "I am eat vegetables and fish, and I cook them myself.",
+       "بعد از «I» فعل ساده می‌آید، نه «am»: I eat."
+      ]
+     ]
+    ],
+    [
+     "بگو نه چندان چون در خانه می‌پزم ولی ماهی گران است",
+     "بگو هفته‌ای یک بار می‌خورم",
+     "Not really, because I cook at home, but fish is expensive.",
+     "I eat it once a week.",
+     [],
+     [
+      [
+       "Not really, because cook at home, but fish is expensive.",
+       "بعد از «because» فاعل لازم است: because I cook."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "eat-meat",
+   "c": null,
+   "q": [
+    [
+     "بپرس گوشت زیاد می‌خورد",
+     "بپرس هر روز",
+     "Do you eat much meat?",
+     "Every day?",
+     [],
+     [
+      [
+       "You eat much meat?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس گوشت زیاد می‌خورد و چه نوع",
+     "بپرس مرغ",
+     "Do you eat much meat, and what kind?",
+     "Chicken?",
+     [],
+     [
+      [
+       "You eat much meat, and what kind?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس گوشت می‌خورد یا ماهی و سبزی و چرا",
+     "بپرس سالم است",
+     "Do you eat meat, or fish and vegetables? Why?",
+     "Is it healthy?",
+     [],
+     [
+      [
+       "You eat meat, or fish and vegetables? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو نه",
+     "بگو هفته‌ای یک بار",
+     "No, I don't.",
+     "Once a week.",
+     [],
+     [
+      [
+       "No, I am not.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: No, I don't."
+      ]
+     ]
+    ],
+    [
+     "بگو نه مرغ و ماهی می‌خورم",
+     "بگو زیاد نه",
+     "No, I don't. I eat chicken and fish.",
+     "Not much.",
+     [],
+     [
+      [
+       "No, I am not. I eat chicken and fish.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: No, I don't."
+      ]
+     ]
+    ],
+    [
+     "بگو ماهی و سبزی چون گوشت گران است ولی مرغ هم دوست دارم",
+     "بگو هفته‌ای یک بار",
+     "Fish and vegetables, because meat is expensive, but I like chicken too.",
+     "Once a week.",
+     [],
+     [
+      [
+       "Fish and vegetables, because meat expensive, but I like chicken too.",
+       "بعد از «because» باید فعل «is» بیاید: because meat is expensive."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "water",
+   "c": null,
+   "q": [
+    [
+     "بپرس روزی چقدر آب می‌نوشد",
+     "بپرس کافی",
+     "How much water do you drink a day?",
+     "Is it enough?",
+     [],
+     [
+      [
+       "How much water you drink a day?",
+       "بعد از «how much» و اسم، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس روزی چقدر آب می‌نوشد و چه ساعتی",
+     "بپرس صبح",
+     "How much water do you drink a day, and when?",
+     "In the morning?",
+     [],
+     [
+      [
+       "How much water you drink a day, and when?",
+       "بعد از «how much» و اسم، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس آب کافی می‌نوشد و برای یادآوری چه می‌کند",
+     "بپرس اپلیکیشن دارد",
+     "Do you drink enough water? What do you do to remember?",
+     "Do you use an app?",
+     [],
+     [
+      [
+       "Do you drink enough water? What you do to remember?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو چهار لیوان",
+     "بگو کمی",
+     "Four glasses.",
+     "A bit.",
+     [],
+     []
+    ],
+    [
+     "بگو چهار لیوان بیشتر بعد از ظهر",
+     "بگو با ناهار",
+     "Four glasses, mostly in the afternoon.",
+     "With lunch.",
+     [],
+     [
+      [
+       "Four glasses, mostly at the afternoon.",
+       "«in the afternoon» می‌گوییم."
+      ]
+     ]
+    ],
+    [
+     "بگو همیشه نه ولی یک بطری روی میزم می‌گذارم چون فراموش می‌کنم",
+     "بگو کمک می‌کند",
+     "Not always, but I put a bottle on my table, because I forget.",
+     "It helps.",
+     [],
+     [
+      [
+       "Not always, but I put bottle on my table, because I forget.",
+       "قبل از «bottle» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "meals",
+   "c": null,
+   "q": [
+    [
+     "بپرس روزی چند وعده غذا می‌خورد",
+     "بپرس هر روز",
+     "How many meals do you have a day?",
+     "Every day?",
+     [],
+     [
+      [
+       "How many meals you have a day?",
+       "بعد از «how many» و اسم، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس روزی چند وعده غذا می‌خورد و چه ساعتی",
+     "بپرس ساعت هشت",
+     "How many meals do you have a day, and when?",
+     "At eight?",
+     [],
+     [
+      [
+       "How many meals you have a day, and when?",
+       "بعد از «how many» و اسم، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس کدام وعده برایش بزرگ است و چرا",
+     "بپرس شام",
+     "Which meal is big for you, and why?",
+     "Dinner?",
+     [],
+     [
+      [
+       "Which meal is big for you, and why it is?",
+       "بعد از «why» اول «is» می‌آید: and why? ساده بگو: and why?"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو سه وعده",
+     "بگو و یک میان‌وعده",
+     "Three.",
+     "And a snack.",
+     [],
+     []
+    ],
+    [
+     "بگو سه وعده؛ صبحانه ساعت هشت و ناهار ساعت یک و شام ساعت هشت",
+     "بگو و یک میان‌وعده",
+     "Three: breakfast at eight, lunch at one and dinner at eight.",
+     "And a snack.",
+     [],
+     [
+      [
+       "Three: breakfast in eight, lunch at one and dinner in eight.",
+       "ساعت با «at» می‌آید: at eight."
+      ]
+     ]
+    ],
+    [
+     "بگو ناهار بزرگ است چون ساعت یک گرسنه‌ام ولی شام کوچک است",
+     "بگو میان‌وعده هم می‌خورم",
+     "Lunch is big, because I'm hungry at one, but dinner is small.",
+     "I have a snack too.",
+     [],
+     [
+      [
+       "Lunch is big, because I hungry at one, but dinner is small.",
+       "بعد از «because» باید «I'm» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "cook-a-lot",
+   "c": null,
+   "q": [
+    [
+     "بپرس زیاد آشپزی می‌کند",
+     "بپرس هر روز",
+     "Do you cook a lot?",
+     "Every day?",
+     [],
+     [
+      [
+       "You cook a lot?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس زیاد آشپزی می‌کند و چه می‌پزد",
+     "بپرس برنج",
+     "Do you cook a lot, and what do you cook?",
+     "Rice?",
+     [],
+     [
+      [
+       "Do you cook a lot, and what you cook?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس آشپزی را دوست دارد یا کار است و چرا",
+     "بپرس کسی کمک می‌کند",
+     "Do you like cooking, or is it work for you? Why?",
+     "Does anyone help you?",
+     [],
+     [
+      [
+       "You like cooking, or is it work for you? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو هر روز",
+     "Yes, I do.",
+     "Every day.",
+     [],
+     [
+      [
+       "Yes, I am.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و برنج و مرغ می‌پزم",
+     "بگو و سوپ",
+     "Yes, I do, and I cook rice and chicken.",
+     "And soup.",
+     [],
+     [
+      [
+       "Yes, I am, and I cook rice and chicken.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو دوستش دارم چون آرام است ولی گاهی خسته‌ام",
+     "بگو خواهرم کمک می‌کند",
+     "I like it, because it's calm, but sometimes I'm tired.",
+     "My sister helps me.",
+     [],
+     [
+      [
+       "I like it, because it calm, but sometimes I'm tired.",
+       "بعد از «because» باید «it's» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "change-diet",
+   "c": null,
+   "q": [
+    [
+     "بپرس می‌خواهد رژیمش را عوض کند",
+     "بپرس چرا",
+     "Do you want to change your diet?",
+     "Why?",
+     [],
+     [
+      [
+       "You want to change your diet?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس می‌خواهد رژیمش را عوض کند و چه چیزی را",
+     "بپرس میوه بخورد",
+     "Do you want to change your diet, and what?",
+     "Eat fruit?",
+     [],
+     [
+      [
+       "You want to change your diet, and what?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه چیزی را در رژیمش می‌خواهد عوض کند و چرا",
+     "بپرس سخت است",
+     "What do you want to change in your diet, and why?",
+     "Is it hard?",
+     [],
+     [
+      [
+       "What you want to change in your diet, and why?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو می‌خواهم سالم باشم",
+     "Yes, I do.",
+     "I want to be healthy.",
+     [],
+     [
+      [
+       "Yes, I am.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و می‌خواهم میوه بخورم",
+     "بگو هر روز",
+     "Yes, I do, and I want to eat fruit.",
+     "Every day.",
+     [],
+     [
+      [
+       "Yes, I do, and I want eat fruit.",
+       "بعد از «want» باید «to» بیاید: want to eat."
+      ]
+     ]
+    ],
+    [
+     "بگو می‌خواهم شکر را کم کنم چون خیلی شیرینی می‌خورم ولی سخت است",
+     "بگو از فردا شروع می‌کنم",
+     "I want to cut down on sugar, because I eat a lot of sweets, but it's hard.",
+     "I start tomorrow.",
+     [],
+     [
+      [
+       "I want cut down on sugar, because I eat a lot of sweets, but it's hard.",
+       "بعد از «want» باید «to» بیاید: want to cut."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "fish-instead",
+   "c": "دوستت گفت: «من گوشت کم می‌خورم.»",
+   "q": [
+    [
+     "بپرس ماهی می‌خورد",
+     "بپرس اغلب",
+     "Do you eat fish?",
+     "Often?",
+     [],
+     [
+      [
+       "You eat fish?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس ماهی می‌خورد و چه چیز دیگر",
+     "بپرس مرغ",
+     "Do you eat fish, and what else?",
+     "Chicken?",
+     [],
+     [
+      [
+       "You eat fish, and what else?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس ماهی می‌خورد یا مرغ و چرا",
+     "بپرس ارزان است",
+     "Do you eat fish or chicken? Why?",
+     "Is it cheap?",
+     [],
+     [
+      [
+       "You eat fish or chicken? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو هفته‌ای یک بار",
+     "Yes, I do.",
+     "Once a week.",
+     [],
+     [
+      [
+       "Yes, I am.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و مرغ می‌خورم",
+     "بگو و تخم‌مرغ",
+     "Yes, I do, and I eat chicken.",
+     "And eggs.",
+     [],
+     [
+      [
+       "Yes, I am, and I eat chicken.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو مرغ چون ارزان است ولی هفته‌ای یک بار ماهی می‌خورم",
+     "بگو برایم خوب است",
+     "Chicken, because it's cheap, but I eat fish once a week.",
+     "It's good for me.",
+     [],
+     [
+      [
+       "Chicken, because it cheap, but I eat fish once a week.",
+       "بعد از «because» باید «it's» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "water-more",
+   "c": "دوستت گفت: «من آب کم می‌نوشم.»",
+   "q": [
+    [
+     "بپرس چرا این‌قدر کم",
+     "بپرس فراموش می‌کند",
+     "Why so little?",
+     "Do you forget?",
+     [],
+     []
+    ],
+    [
+     "بپرس چرا این‌قدر کم و بطری دارد",
+     "بپرس سر کار",
+     "Why so little, and do you have a bottle?",
+     "At work?",
+     [],
+     [
+      [
+       "Why so little, and do you have bottle?",
+       "قبل از «bottle» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چرا این‌قدر کم آب می‌نوشد و می‌خواهد زیاد بنوشد",
+     "بپرس نقشه دارد",
+     "Why do you drink so little water, and do you want to drink a lot?",
+     "Do you have a plan?",
+     [],
+     [
+      [
+       "Why you drink so little water, and do you want to drink a lot?",
+       "بعد از «why»، «do» می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو فراموش می‌کنم",
+     "بگو شلوغم",
+     "I forget.",
+     "I'm busy.",
+     [],
+     []
+    ],
+    [
+     "بگو چون فراموش می‌کنم و بطری ندارم",
+     "بگو فقط یک فنجان",
+     "Because I forget, and I have no bottle.",
+     "Only a cup.",
+     [],
+     [
+      [
+       "Because I forget, and I no have bottle.",
+       "می‌گوییم «I have no bottle» یا «I don't have bottle»."
+      ]
+     ]
+    ],
+    [
+     "بگو شلوغم و فراموش می‌کنم ولی می‌خواهم زیاد بنوشم برای همین بطری روی میزم می‌گذارم",
+     "بگو کمک می‌کند",
+     "I'm busy and I forget, but I want to drink a lot, so I put a bottle on my table.",
+     "It helps.",
+     [],
+     [
+      [
+       "I'm busy and I forget, but I want drink a lot, so I put a bottle on my table.",
+       "بعد از «want» باید «to» بیاید: want to drink."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "biggest-meal",
+   "c": "دوستت گفت: «من روزی سه وعده می‌خورم.»",
+   "q": [
+    [
+     "بپرس کدام وعده بزرگ است",
+     "بپرس شام",
+     "Which meal is big?",
+     "Dinner?",
+     [],
+     [
+      [
+       "Which is the meal big?",
+       "ترتیب جمله: Which meal is big?"
+      ]
+     ]
+    ],
+    [
+     "بپرس کدام وعده بزرگ است و چه می‌خورد",
+     "بپرس برنج",
+     "Which meal is big, and what do you eat?",
+     "Rice?",
+     [],
+     [
+      [
+       "Which meal is big, and what you eat?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس شام بزرگ می‌خورد و سالم است و چرا",
+     "بپرس خوب می‌خوابد",
+     "Do you eat a big dinner, and is it healthy? Why?",
+     "Do you sleep well?",
+     [],
+     [
+      [
+       "You eat a big dinner, and is it healthy? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو شام",
+     "بگو ساعت هشت",
+     "Dinner.",
+     "At eight.",
+     [],
+     []
+    ],
+    [
+     "بگو شام و برنج و مرغ می‌خوریم",
+     "بگو و سالاد",
+     "Dinner, and we eat rice and chicken.",
+     "And salad.",
+     [],
+     [
+      [
+       "Dinner, and we eating rice and chicken.",
+       "برای عادت «we eat» می‌گوییم، نه «eating»."
+      ]
+     ]
+    ],
+    [
+     "بگو بله چون شب‌ها گرسنه‌ام ولی فکر می‌کنم شام بزرگ سالم نیست",
+     "بگو سعی می‌کنم کوچک بخورم",
+     "Yes, I do, because I'm hungry at night, but I think a big dinner isn't healthy.",
+     "I try to eat a small one.",
+     [],
+     [
+      [
+       "Yes, I do, because I hungry at night, but I think a big dinner isn't healthy.",
+       "بعد از «because» باید «I'm» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "cook-how-long",
+   "c": "دوستت گفت: «من زیاد آشپزی می‌کنم.»",
+   "q": [
+    [
+     "بپرس چقدر طول می‌کشد",
+     "بپرس هر روز",
+     "How long do you cook?",
+     "Every day?",
+     [],
+     [
+      [
+       "How long you cook?",
+       "بعد از «how long»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چقدر طول می‌کشد و چه می‌پزد",
+     "بپرس برنج",
+     "How long do you cook, and what do you cook?",
+     "Rice?",
+     [],
+     [
+      [
+       "How long you cook, and what do you cook?",
+       "بعد از «how long»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس آشپزی وقت زیادی می‌برد و کسی کمک می‌کند",
+     "بپرس دوستش دارد",
+     "Does cooking take a lot of time? Does anyone help you?",
+     "Do you like it?",
+     [],
+     [
+      [
+       "Cooking take a lot of time? Does anyone help you?",
+       "سؤال با «Does» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو یک ساعت",
+     "بگو هر روز",
+     "An hour.",
+     "Every day.",
+     [],
+     [
+      [
+       "hour.",
+       "قبل از «hour» باید «an» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو یک ساعت و برنج و مرغ می‌پزم",
+     "بگو و سوپ",
+     "An hour, and I cook rice and chicken.",
+     "And soup.",
+     [],
+     [
+      [
+       "hour, and I cook rice and chicken.",
+       "قبل از «hour» باید «an» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو بله یک ساعت می‌برد و خواهرم کمک می‌کند چون شلوغم",
+     "بگو دوستش دارم",
+     "Yes, it takes an hour, and my sister helps me, because I'm busy.",
+     "I like it.",
+     [],
+     [
+      [
+       "Yes, it takes an hour, and my sister helps me, because I busy.",
+       "بعد از «because» باید «I'm» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "what-to-change",
+   "c": "دوستت گفت: «می‌خواهم رژیمم را عوض کنم.»",
+   "q": [
+    [
+     "بپرس چه چیزی را می‌خواهد عوض کند",
+     "بپرس شکر",
+     "What do you want to change?",
+     "Sugar?",
+     [],
+     [
+      [
+       "What you want to change?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه چیزی را می‌خواهد عوض کند و چرا",
+     "بپرس شیرینی می‌خورد",
+     "What do you want to change, and why?",
+     "Do you eat sweets?",
+     [],
+     [
+      [
+       "What you want to change, and why?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس رژیمش را چطور می‌خواهد عوض کند و نقشه دارد",
+     "بپرس سخت است",
+     "How do you want to change your diet? Do you have a plan?",
+     "Is it hard?",
+     [],
+     [
+      [
+       "How you want to change your diet? Do you have a plan?",
+       "بعد از «how»، «do» می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو شکر",
+     "بگو زیاد می‌خورم",
+     "Sugar.",
+     "I eat a lot.",
+     [],
+     []
+    ],
+    [
+     "بگو شکر چون شیرینی زیاد می‌خورم",
+     "بگو هر روز",
+     "Sugar, because I eat a lot of sweets.",
+     "Every day.",
+     [],
+     [
+      [
+       "Sugar, because I eat lot of sweets.",
+       "قبل از «lot» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو می‌خواهم به جای شیرینی میوه بخورم و هر هفته میوه می‌خرم ولی سخت است",
+     "بگو سعی می‌کنم",
+     "I want to eat fruit instead of sweets, and I buy fruit every week, but it's hard.",
+     "I try.",
+     [],
+     [
+      [
+       "I want eat fruit instead of sweets, and I buy fruit every week, but it's hard.",
+       "بعد از «want» باید «to» بیاید: want to eat."
+      ]
+     ]
+    ]
+   ]
+  }
+ ]
 }

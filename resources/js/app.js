@@ -1754,6 +1754,65 @@ document.addEventListener('alpine:init', () => {
      * offered ready-made (`suggestion`).
      */
     /**
+ * The sentence-building review card (see resources/views/components/review):
+ * the sentence is heard, its words are tapped in order into the line, and the
+ * answer sheet shows once the line is right (or the learner gave up). Counts
+ * the full lines that were wrong so the grade can say how easy it was.
+ */
+Alpine.data('reviewBuild', (words, order, sentence) => ({
+    words,
+    order,
+    sentence,
+    picked: [],
+    mistakes: 0,
+    wrong: false,
+    done: false,
+    gaveUp: false,
+
+    say(rate = 0.95) {
+        window.eosVoice?.speak(this.sentence, { rate });
+    },
+
+    pick(index) {
+        if (this.done || this.picked.includes(index)) return;
+
+        this.picked.push(index);
+        this.wrong = false;
+
+        if (this.picked.length === this.words.length) this.finish();
+    },
+
+    unpick(index) {
+        if (this.done) return;
+
+        this.picked = this.picked.filter((i) => i !== index);
+        this.wrong = false;
+    },
+
+    finish() {
+        if (this.picked.map((i) => this.words[i]).join(' ') === this.words.join(' ')) {
+            this.done = true;
+            window.eosFeedback?.right?.();
+            return;
+        }
+
+        this.mistakes++;
+        this.wrong = true;
+        window.eosFeedback?.wrong?.();
+    },
+
+    reset() {
+        this.picked = [];
+        this.wrong = false;
+    },
+
+    giveUp() {
+        this.gaveUp = true;
+        this.done = true;
+    },
+}));
+
+/**
  * The shared word sheet of the Notebook's Words tab (see
  * resources/views/components/notebook/partials/word-sheet.blade.php): shows
  * the tapped word from the data the page carries, at once. It is read again
@@ -1770,6 +1829,8 @@ Alpine.data('notebookWordSheet', () => ({
     noneMade: false,
     raw: '',
     all: {},
+    fetched: {},
+    loading: false,
     sourceLabels: { own: 'Your sentence', ai: 'Made for you ✦', lesson: 'From the lesson' },
 
     /** Called with the page's `sheet` value: 'w12' is word 12, 'n3' a notebook line, false is closed. */
@@ -1788,10 +1849,12 @@ Alpine.data('notebookWordSheet', () => ({
             this.noneMade = false;
         }
 
-        this.word = this.read(id);
+        this.word = this.read(id) ?? this.fetched[id] ?? null;
+
+        if (!this.word) this.fetchSheet(id);
     },
 
-    /** The word's data, from the page as it is now. */
+    /** The word's data, from the page as it is now (only the words most likely tapped ride on it). */
     read(id) {
         const raw = this.$root.dataset.words ?? '{}';
 
@@ -1803,8 +1866,31 @@ Alpine.data('notebookWordSheet', () => ({
         return this.all[id] ?? null;
     },
 
-    refresh() {
-        if (this.word) this.word = this.read(this.word.id) ?? this.word;
+    /** A word whose sheet is not on the page: asked for from the server when it is tapped. */
+    async fetchSheet(id) {
+        this.loading = true;
+
+        try {
+            this.fetched[id] = await this.$wire.wordSheet(Number(id));
+
+            if (this.active && String(this.word?.id ?? id) === String(id)) this.word = this.fetched[id];
+        } catch (e) {
+            // The sheet stays empty; tapping the word again asks again.
+        }
+
+        this.loading = false;
+    },
+
+    async refresh() {
+        if (!this.word) return;
+
+        const onPage = this.read(this.word.id);
+
+        if (onPage) {
+            this.word = onPage;
+        } else {
+            await this.fetchSheet(this.word.id);
+        }
     },
 
     get statusDot() {
@@ -1817,7 +1903,7 @@ Alpine.data('notebookWordSheet', () => ({
         const made = await this.$wire.makeSentence(this.word.id);
         this.making = false;
         this.noneMade = made === null;
-        this.refresh();
+        await this.refresh();
     },
 
     async check() {
@@ -1828,7 +1914,7 @@ Alpine.data('notebookWordSheet', () => ({
         this.checking = false;
         window.eosFeedback?.[this.result.ok ? 'right' : 'wrong']?.();
         if (this.result.ok) this.writing = '';
-        this.refresh();
+        await this.refresh();
     },
 }));
 
@@ -2205,3 +2291,80 @@ Alpine.data('dictionarySheet', (urls) => ({
         },
     }));
 });
+
+/**
+ * Keeps the phone's screen on while a learner listens or watches: any
+ * sound or video that is playing out loud (muted looping backgrounds don't
+ * count) asks the Screen Wake Lock for the screen, and the lock is let go
+ * when everything has paused or ended, the element left the page, or the
+ * tab is hidden (the browser drops it then, so it is asked for again when
+ * the learner comes back). Browsers without the API just carry on.
+ */
+(() => {
+    if (!('wakeLock' in navigator)) {
+        return;
+    }
+
+    const playing = new Set();
+    let lock = null;
+    let asking = false;
+
+    const stillPlaying = () => {
+        for (const media of [...playing]) {
+            if (!media.isConnected || media.paused || media.ended) {
+                playing.delete(media);
+            }
+        }
+
+        return playing.size > 0;
+    };
+
+    const sync = async () => {
+        if (stillPlaying()) {
+            if (lock || asking || document.visibilityState !== 'visible') {
+                return;
+            }
+
+            asking = true;
+
+            try {
+                lock = await navigator.wakeLock.request('screen');
+                lock.addEventListener('release', () => {
+                    lock = null;
+                });
+            } catch {
+                lock = null;
+            } finally {
+                asking = false;
+            }
+
+            if (!stillPlaying()) {
+                sync();
+            }
+
+            return;
+        }
+
+        if (lock) {
+            const held = lock;
+            lock = null;
+            held.release().catch(() => {});
+        }
+    };
+
+    const started = (event) => {
+        const media = event.target;
+
+        if (!(media instanceof HTMLMediaElement) || media.muted) {
+            return;
+        }
+
+        playing.add(media);
+        sync();
+    };
+
+    ['play', 'playing'].forEach((name) => document.addEventListener(name, started, true));
+    ['pause', 'ended', 'emptied', 'abort'].forEach((name) => document.addEventListener(name, sync, true));
+    document.addEventListener('visibilitychange', sync);
+    document.addEventListener('livewire:navigated', sync);
+})();

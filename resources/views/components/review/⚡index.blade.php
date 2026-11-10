@@ -9,6 +9,7 @@ use App\Models\SpeakingPrompt;
 use App\Models\User;
 use App\Models\VocabularyWord;
 use App\Services\FixChecker;
+use App\Services\WordDetails;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -129,7 +130,7 @@ new class extends Component
     public ?string $track = null;
 
     /**
-     * How many extra batches the learner asked for with "6 more" — kept in
+     * How many extra batches the learner asked for with "more words" — kept in
      * the address, so a reload stays in the same batch.
      */
     #[Url(as: 'more')]
@@ -149,14 +150,23 @@ new class extends Component
         $this->track = $track;
         $this->more = $track === null ? 0 : max(0, min($this->more, 20));
         $this->shuffleSeed = Str::random(16);
+
+        $wordIds = auth()->user()->dailyReviewItems($track, $this->more)->where('type', 'word')->pluck('id');
+
+        if ($wordIds->isNotEmpty()) {
+            app(WordDetails::class)->fillLaterFor(auth()->id(), VocabularyWord::whereIn('id', $wordIds)->get());
+        }
     }
 
     /**
-     * A word comes as a dictation card (hear it, type it) once it has been
-     * remembered at least once — see strengthLevel(): a word still being
-     * met for the first time gets the plain card.
+     * A word stops being a plain card once it has been remembered at least
+     * once — see strengthLevel(): a word still being met for the first time
+     * gets the plain card.
      */
     public const DICTATION_FROM_STRENGTH = 2;
+
+    /** From this strength a word is asked for in a gap (or spelled), not built from chips. */
+    public const GAP_FROM_STRENGTH = 4;
 
     /**
      * A fast, mixed session across one path's review systems — the words
@@ -185,7 +195,7 @@ new class extends Component
         // microphone access denied, see voice-recorder.blade.php's own
         // error state) keep moving through the rest of today's queue
         // instead of every later item becoming unreachable behind it.
-        $all = $this->withDictations($all);
+        $all = $this->withStageCards($all);
 
         [$ready, $skipped] = $all->partition(fn ($entry) => ! in_array($this->itemKey($entry['type'], $entry['id']), $this->skippedKeys, true));
 
@@ -193,28 +203,44 @@ new class extends Component
     }
 
     /**
-     * Turns the words that are strong enough and can be spelled from
-     * hearing them into dictation cards (see DICTATION_FROM_STRENGTH and
-     * VocabularyWord::canBeDictated()), except the ones the learner
-     * couldn't listen to.
+     * Gives each word the card that fits how well it is known: a new or
+     * weak word is met in its sentence (the plain card), one that is being
+     * learned (strength 2-3) is built again from a heard sentence, and a
+     * strong one (4+) is filled into a gap — or, with no sentence to use,
+     * spelled from hearing it (see DICTATION_FROM_STRENGTH and
+     * VocabularyWord::canBeDictated()). A word the learner couldn't listen
+     * to stays a plain card.
      *
      * @param  \Illuminate\Support\Collection<int, array{type: string, id: int}>  $entries
      * @return \Illuminate\Support\Collection<int, array{type: string, id: int}>
      */
-    private function withDictations($entries)
+    private function withStageCards($entries)
     {
-        $dictatedIds = VocabularyWord::query()
+        $words = VocabularyWord::query()
+            ->with('sentences')
             ->whereIn('id', $entries->where('type', 'word')->pluck('id'))
             ->get()
-            ->filter(fn (VocabularyWord $word) => $word->strengthLevel() >= self::DICTATION_FROM_STRENGTH
-                && $word->canBeDictated()
-                && ! in_array($word->id, $this->plainWordIds, true))
-            ->pluck('id')
-            ->all();
+            ->keyBy('id');
 
-        return $entries->map(fn (array $entry) => $entry['type'] === 'word' && in_array($entry['id'], $dictatedIds, true)
-            ? ['type' => 'dictation', 'id' => $entry['id']]
-            : $entry);
+        return $entries->map(function (array $entry) use ($words) {
+            $word = $entry['type'] === 'word' ? $words->get($entry['id']) : null;
+
+            if ($word === null || in_array($word->id, $this->plainWordIds, true)) {
+                return $entry;
+            }
+
+            $strength = $word->strengthLevel();
+            $hasSentence = $word->reviewSentence() !== null;
+
+            $type = match (true) {
+                $strength >= self::GAP_FROM_STRENGTH && $word->canBeDictated() => 'dictation',
+                $strength >= self::DICTATION_FROM_STRENGTH && $hasSentence => 'build',
+                $strength >= self::DICTATION_FROM_STRENGTH && $word->canBeDictated() => 'dictation',
+                default => 'word',
+            };
+
+            return ['type' => $type, 'id' => $entry['id']];
+        });
     }
 
     /**
@@ -245,7 +271,7 @@ new class extends Component
     }
 
     /**
-     * Whether "6 more" has anything to bring — on either path, while a next
+     * Whether "more words" has anything to bring — on either path, while a next
      * batch would not be empty.
      */
     #[Computed]
@@ -261,7 +287,7 @@ new class extends Component
     }
 
     /**
-     * "6 more": opens the next batch — the due items first, and on the
+     * "more words": opens the next batch — the due items first, and on the
      * words path the ones coming up soonest after them.
      */
     public function loadMore(): void
@@ -275,7 +301,7 @@ new class extends Component
     }
 
     /**
-     * A dictation card the learner can't listen to right now (no
+     * A dictation or sentence-building card the learner can't listen to right now (no
      * headphones, a noisy place): the same
      * word comes as a plain word card, and nothing is graded.
      */
@@ -283,7 +309,7 @@ new class extends Component
     {
         $item = $this->currentItem;
 
-        if (! $item || $item['type'] !== 'dictation') {
+        if (! $item || ! in_array($item['type'], ['dictation', 'build'], true)) {
             return;
         }
 
@@ -320,7 +346,7 @@ new class extends Component
         }
 
         $model = match ($entry['type']) {
-            'word', 'dictation' => VocabularyWord::find($entry['id']),
+            'word', 'dictation', 'build' => VocabularyWord::with(['sourceMissionRun.mission:id,code,title', 'addedInMission:id,code,title'])->find($entry['id']),
             'speaking' => SpeakingPrompt::find($entry['id']),
             'error' => ErrorPatternReview::find($entry['id']),
             'grammar' => GrammarPoint::find($entry['id']),
@@ -513,6 +539,23 @@ new class extends Component
         }
 
         $this->gradeCurrent($item['model'], $remembered ? $quality : 1);
+    }
+
+    /**
+     * A sentence-building card: the learner put the words of the heard
+     * sentence in order in the browser and reports how it went — a right
+     * first try is a good recall, a right one after a fix is a hard one, and
+     * giving up is a miss.
+     */
+    public function gradeBuilt(int $mistakes, bool $gaveUp = false): void
+    {
+        $item = $this->currentItem;
+
+        if (! $item || $item['type'] !== 'build') {
+            return;
+        }
+
+        $this->gradeCurrent($item['model'], $gaveUp ? 1 : ($mistakes > 0 ? 3 : 4));
     }
 
     /**
@@ -753,7 +796,8 @@ new class extends Component
             $total = $sessionGraded + count($this->queue);
             $label = match ($type) {
                 'word' => 'Word',
-                'dictation' => 'Dictation',
+                'dictation' => $model->gapSentence() !== null ? 'Fill the gap' : 'Dictation',
+                'build' => 'Build the sentence',
                 'speaking' => 'Speaking'.($model->mission_code ? ' · '.$model->mission_code : ''),
                 'note' => $model->isMistake() ? 'Your mistake' : 'Your tip',
                 'error' => 'Your mistake',
@@ -770,10 +814,24 @@ new class extends Component
 
         <div
             wire:key="review-{{ $type }}-{{ $model->id }}"
-            x-data="{ forgot: false, knew: false, meaning: false }"
+            @if ($type === 'build')
+                @php
+                    $buildSentence = $model->reviewSentence();
+                    $buildWords = preg_split('/\s+/u', trim($buildSentence), -1, PREG_SPLIT_NO_EMPTY) ?: [];
+                    $buildOrder = collect(array_keys($buildWords))->sortBy(fn (int $index) => md5($shuffleSeed.$model->id.$index))->values()->all();
+                    $buildOrder = $buildOrder === array_keys($buildWords) ? array_reverse($buildOrder) : $buildOrder;
+                @endphp
+                x-data="reviewBuild(@js($buildWords), @js($buildOrder), @js($buildSentence))"
+                x-init="$nextTick(() => say())"
+            @else
+                x-data="{ forgot: false, knew: false, meaning: false }"
+            @endif
             class="animate-review-card-in flex min-h-0 flex-1 flex-col gap-4"
         >
             <div class="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto overscroll-contain rounded-[1.75rem] bg-surface p-5 dark:bg-surface-dark">
+                @php
+                    $wordMission = in_array($type, ['word', 'dictation', 'build'], true) ? $model->mission() : null;
+                @endphp
                 <p class="flex items-center gap-2 text-xs font-extrabold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">
                     {{ $label }}
                     @if ($type !== 'note')
@@ -783,23 +841,72 @@ new class extends Component
                             @endfor
                         </span>
                     @endif
+                    @if ($wordMission)
+                        <span data-word-mission class="ml-auto min-w-0 truncate rounded-full bg-surface-sunken px-2.5 py-0.5 tracking-normal text-ink-soft normal-case dark:bg-surface-sunken-dark dark:text-ink-soft-dark">{{ $wordMission->code }} · {{ $wordMission->title }}</span>
+                    @endif
                 </p>
 
                 @if ($type === 'word')
-                    <div role="button" tabindex="0" x-on:click="meaning = ! meaning" x-on:keydown.enter="meaning = ! meaning" class="flex flex-1 cursor-pointer flex-col items-center justify-center gap-3 text-center">
+                    @php
+                        $frontSentence = $model->reviewSentence();
+                        $frontText = $frontSentence ?? $model->word;
+                    @endphp
+                    <div
+                        role="button" tabindex="0" x-on:click="meaning = ! meaning" x-on:keydown.enter="meaning = ! meaning"
+                        x-data="{ say: (rate) => window.eosVoice?.speak(@js($frontText), { rate }) }" x-init="$nextTick(() => say(0.95))"
+                        class="flex flex-1 cursor-pointer flex-col items-center justify-center gap-3 text-center"
+                    >
                         <span x-show="! meaning" class="flex flex-col items-center gap-3">
-                            <x-speak-word :word="$model->word" class="font-display text-3xl font-semibold text-ink dark:text-ink-dark" />
+                            @if ($frontSentence)
+                                <span class="font-display text-2xl leading-snug font-semibold text-ink dark:text-ink-dark">{{ $model->highlightIn($frontSentence) }}</span>
+                            @else
+                                <x-speak-word :word="$model->word" class="font-display text-3xl font-semibold text-ink dark:text-ink-dark" />
+                            @endif
                             @if (filled($model->pos))
                                 <span class="rounded-full bg-accent-soft px-3 py-0.5 text-xs font-extrabold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">{{ $model->pos }}</span>
                             @endif
+                            <span class="flex items-center gap-4">
+                                <button type="button" x-on:click.stop="say(0.95)" aria-label="Hear it again" class="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">@svg('heroicon-o-speaker-wave', 'h-6 w-6')</button>
+                                <button type="button" x-on:click.stop="say(0.6)" class="cursor-pointer text-sm font-extrabold text-accent-ink dark:text-accent-ink-dark">🐢 Slower</button>
+                            </span>
                         </span>
                         <span x-show="meaning" x-cloak class="flex flex-col items-center gap-2">
                             <x-review-word-meaning :word="$model" />
                         </span>
                     </div>
+                @elseif ($type === 'build')
+                    <div class="flex flex-1 flex-col gap-4">
+                        <div class="flex items-center justify-center gap-4">
+                            <button type="button" x-on:click="say(0.95)" aria-label="Hear the sentence again" class="flex h-16 w-16 cursor-pointer items-center justify-center rounded-full bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">@svg('heroicon-o-speaker-wave', 'h-8 w-8')</button>
+                            <button type="button" x-on:click="say(0.6)" class="cursor-pointer text-sm font-extrabold text-accent-ink dark:text-accent-ink-dark">🐢 Slower</button>
+                        </div>
+                        @if (filled($model->meaning_fa))
+                            <p dir="rtl" class="text-center font-fa text-base font-semibold text-ink-soft dark:text-ink-soft-dark">{{ $model->meaning_fa }}</p>
+                        @endif
+                        <div class="flex min-h-16 flex-wrap content-start gap-2 rounded-2xl bg-surface-sunken p-3 dark:bg-surface-sunken-dark" x-bind:class="wrong && 'ring-2 ring-danger'" aria-live="polite">
+                            <template x-for="index in picked" x-bind:key="index">
+                                <button type="button" x-on:click="unpick(index)" x-text="words[index]" class="cursor-pointer rounded-xl border-2 border-accent bg-accent-soft px-3.5 py-2 text-base font-bold text-accent-ink dark:border-accent-dark dark:bg-accent-soft-dark dark:text-accent-ink-dark"></button>
+                            </template>
+                        </div>
+                        <div class="flex flex-wrap justify-center gap-2">
+                            <template x-for="index in order" x-bind:key="index">
+                                <button type="button" x-on:click="pick(index)" x-text="words[index]" x-bind:class="picked.includes(index) && 'pointer-events-none opacity-25'" class="cursor-pointer rounded-xl border-2 border-line bg-ground px-3.5 py-2 text-base font-bold text-ink dark:border-line-dark dark:bg-ground-dark dark:text-ink-dark"></button>
+                            </template>
+                        </div>
+                        <button type="button" wire:click="cantListen" class="cursor-pointer self-center text-sm font-bold text-ink-faint hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark">@svg('heroicon-o-speaker-x-mark', 'mr-1 inline h-4 w-4') I can't listen right now</button>
+                    </div>
                 @elseif ($type === 'dictation')
-                    <div class="flex flex-1 flex-col items-center justify-center gap-3" x-data="{ say: (rate) => window.eosVoice?.speak(@js($model->word), { rate }) }" x-init="$nextTick(() => say(1))">
-                        <button type="button" x-on:click="say(1)" aria-label="Hear the word" class="flex h-20 w-20 cursor-pointer items-center justify-center rounded-full bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">@svg('heroicon-o-speaker-wave', 'h-9 w-9')</button>
+                    @php
+                        $gap = $model->gapSentence();
+                    @endphp
+                    <div class="flex flex-1 flex-col items-center justify-center gap-3 text-center" x-data="{ say: (rate) => window.eosVoice?.speak(@js($gap ? $model->reviewSentence() : $model->word), { rate }) }" x-init="$nextTick(() => say(1))">
+                        @if ($gap)
+                            <p class="font-display text-2xl leading-snug font-semibold text-ink dark:text-ink-dark">{{ $gap['before'] }}<span class="mx-1 inline-block min-w-16 border-b-4 border-accent align-bottom dark:border-accent-dark">&nbsp;</span>{{ $gap['after'] }}</p>
+                            @if (filled($model->meaning_fa))
+                                <span dir="rtl" class="font-fa text-base font-semibold text-ink-soft dark:text-ink-soft-dark">{{ $model->meaning_fa }}</span>
+                            @endif
+                        @endif
+                        <button type="button" x-on:click="say(1)" aria-label="{{ $gap ? 'Hear the sentence' : 'Hear the word' }}" class="flex h-20 w-20 cursor-pointer items-center justify-center rounded-full bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">@svg('heroicon-o-speaker-wave', 'h-9 w-9')</button>
                         <button type="button" x-on:click="say(0.6)" class="cursor-pointer text-sm font-extrabold text-accent-ink dark:text-accent-ink-dark">🐢 Slower</button>
                     </div>
                     <form wire:submit="checkSpelling" class="contents">
@@ -810,7 +917,7 @@ new class extends Component
                             autocomplete="off"
                             spellcheck="false"
                             aria-label="Type the word you hear"
-                            placeholder="Type what you hear"
+                            placeholder="{{ $gap ? 'Type the missing words' : 'Type what you hear' }}"
                             @readonly($spellingCorrect !== null)
                             class="w-full rounded-2xl border-2 border-line bg-ground px-4 py-3 text-center text-lg font-bold text-ink focus:border-accent focus:outline-none dark:border-line-dark dark:bg-ground-dark dark:text-ink-dark dark:focus:border-accent-dark"
                         >
@@ -894,6 +1001,20 @@ new class extends Component
                         <button type="button" x-on:click="$wire.gradeWord(1, false)" wire:loading.attr="disabled" wire:target="gradeWord" class="cursor-pointer text-sm font-bold text-ink-soft dark:text-ink-soft-dark">No — I was wrong</button>
                     </x-slot:actions>
                 </x-answer-sheet>
+            @elseif ($type === 'build')
+                <div x-show="! done" class="flex gap-3">
+                    <button type="button" x-on:click="reset()" class="{{ $bigButton }} bg-surface-sunken text-ink-soft dark:bg-surface-sunken-dark dark:text-ink-soft-dark">Start over</button>
+                    <button type="button" x-on:click="giveUp()" class="{{ $forgetClass }}">✕ Show me</button>
+                </div>
+                <x-answer-sheet wire:key="build-sheet-{{ $model->id }}" when="done" tone="gaveUp ? 'almost' : 'good'" title="gaveUp ? 'Here it is' : (mistakes ? 'Got it!' : 'Right!')">
+                    <p class="text-lg font-extrabold text-ink dark:text-ink-dark">{{ $model->highlightIn($buildSentence) }}</p>
+                    <x-review-word-meaning :word="$model" :with-word="false" />
+                    <p class="text-sm font-bold text-ink-soft dark:text-ink-soft-dark">Now say the whole sentence aloud.</p>
+                    <x-slot:actions>
+                        <x-continue-button on-click="$wire.gradeBuilt(mistakes, gaveUp)" wire-target="gradeBuilt" />
+                        <button type="button" x-on:click="say()" class="cursor-pointer text-sm font-bold text-ink-soft dark:text-ink-soft-dark">🔊 Hear it again</button>
+                    </x-slot:actions>
+                </x-answer-sheet>
             @elseif ($type === 'dictation')
                 @if ($spellingCorrect === null)
                     <div wire:key="dictation-check-{{ $model->id }}">
@@ -911,7 +1032,13 @@ new class extends Component
                                 @foreach ($this->spellingPieces() as $piece)<span @class(['text-success dark:text-success-dark' => $piece['missed']])>{{ $piece['text'] }}</span>@endforeach
                             </p>
                         @endunless
+                        @if ($gapParts = $model->gapSentence())
+                            <p class="text-base font-extrabold text-ink dark:text-ink-dark">{{ $model->highlightIn($model->reviewSentence()) }}</p>
+                        @endif
                         <x-review-word-meaning :word="$model" />
+                        @if ($gapParts)
+                            <p class="text-sm font-bold text-ink-soft dark:text-ink-soft-dark">Now say the whole sentence aloud.</p>
+                        @endif
                         <x-slot:actions>
                             <x-continue-button on-click="$wire.continueDictation()" wire-target="continueDictation" />
                         </x-slot:actions>
@@ -986,7 +1113,7 @@ new class extends Component
                     || ($hasQuestion && $pickedOption !== null);
             @endphp
             @unless ($sheetOpen)
-                <button type="button" wire:click="skip" @if ($type === 'word') x-show="! forgot && ! knew" @endif class="cursor-pointer self-center pb-1 text-sm font-bold text-ink-faint hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark">Skip</button>
+                <button type="button" wire:click="skip" @if ($type === 'word') x-show="! forgot && ! knew" @elseif ($type === 'build') x-show="! done" @endif class="cursor-pointer self-center pb-1 text-sm font-bold text-ink-faint hover:text-ink dark:text-ink-faint-dark dark:hover:text-ink-dark">Skip</button>
             @endunless
         </div>
     @endif

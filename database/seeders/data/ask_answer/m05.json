@@ -1,0 +1,3370 @@
+{
+ "mission": 5,
+ "items": [
+  {
+   "d": 1,
+   "k": "s",
+   "s": "hang-out-where",
+   "c": null,
+   "q": [
+    [
+     "بپرس با دوستانش کجا وقت می‌گذراند",
+     "بپرس هر آخر هفته",
+     "Where do you hang out with friends?",
+     "Every weekend?",
+     [],
+     [
+      [
+       "Where you hang out with friends?",
+       "بعد از «where»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس کجا وقت می‌گذراند و با چه کسانی",
+     "بپرس هر هفته",
+     "Where do you hang out, and who with?",
+     "Every week?",
+     [],
+     [
+      [
+       "Where you hang out, and who with?",
+       "بعد از «where»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس دوست دارد در خانه وقت بگذراند یا بیرون برود و چرا",
+     "بپرس بیشتر کدام",
+     "Do you like hanging out at home, or do you like going out? Why?",
+     "Which one?",
+     [],
+     [
+      [
+       "You like hanging out at home, or do you like going out? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو در یک کافه",
+     "بگو نزدیک خانه",
+     "In a café.",
+     "Near my home.",
+     [],
+     []
+    ],
+    [
+     "بگو در یک کافه با دو دوستم",
+     "بگو آخر هفته‌ها",
+     "In a café, with two friends.",
+     "At the weekend.",
+     [],
+     [
+      [
+       "In café, with two friends.",
+       "قبل از «café» باید «a» بیاید: in a café."
+      ]
+     ]
+    ],
+    [
+     "بگو بیرون رفتن را دوست دارم چون آدم‌ها را می‌بینم ولی گاهی در خانه ماندن را هم دوست دارم",
+     "بگو آخر هفته‌ها",
+     "I like going out, because I see people, but sometimes I like staying at home too.",
+     "At the weekend.",
+     [],
+     [
+      [
+       "I like going out, because see people, but sometimes I like staying at home too.",
+       "بعد از «because» فاعل لازم است: because I see."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "s",
+   "s": "once-or-twice",
+   "c": null,
+   "q": [
+    [
+     "بپرس هفته‌ای چند بار ورزش می‌کند",
+     "بپرس صبح",
+     "How often do you exercise?",
+     "In the morning?",
+     [],
+     [
+      [
+       "How often you exercise?",
+       "بعد از «how often»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چند بار در هفته ورزش می‌کند و چه ورزشی",
+     "بپرس تنها",
+     "How often do you exercise, and what do you do?",
+     "Alone?",
+     [],
+     [
+      [
+       "How often you exercise, and what do you do?",
+       "بعد از «how often»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس ورزش کردن را دوست دارد یا فقط لازم می‌داند و چرا",
+     "بپرس چه ساعتی",
+     "Do you like exercising, or do you only need to? Why?",
+     "What time?",
+     [],
+     [
+      [
+       "You like exercising, or do you only need to? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو یکی دو بار در هفته",
+     "بگو در پارک",
+     "Once or twice a week.",
+     "In the park.",
+     [],
+     [
+      [
+       "Once or twice week.",
+       "قبل از «week» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو یکی دو بار در هفته و دویدن",
+     "بگو با یک دوست",
+     "Once or twice a week, and I run.",
+     "With a friend.",
+     [],
+     [
+      [
+       "Once or twice week, and I run.",
+       "قبل از «week» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو دوست دارم چون حالم خوب می‌شود ولی گاهی خسته‌ام و فقط یکی دو بار می‌روم",
+     "بگو بعد از کار",
+     "I like exercising, because I feel good, but sometimes I'm tired and I only go once or twice.",
+     "After work.",
+     [],
+     [
+      [
+       "I like exercising, because feel good, but sometimes I'm tired and I only go once or twice.",
+       "بعد از «because» فاعل لازم است: because I feel."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "s",
+   "s": "free-time",
+   "c": null,
+   "q": [
+    [
+     "بپرس وقت آزادش چه می‌کند",
+     "بپرس هر روز",
+     "What do you do in your free time?",
+     "Every day?",
+     [],
+     [
+      [
+       "What you do in your free time?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس وقت آزادش چه می‌کند و کجا",
+     "بپرس در خانه",
+     "What do you do in your free time, and where?",
+     "At home?",
+     [],
+     [
+      [
+       "What you do in your free time, and where?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس دوست دارد وقت آزادش را چطور بگذراند و چرا",
+     "بپرس تنها یا با دوستان",
+     "What do you like doing in your free time, and why?",
+     "Alone, or with friends?",
+     [],
+     [
+      [
+       "What you like doing in your free time, and why?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو فیلم می‌بینم",
+     "بگو با دوستانم",
+     "I watch films.",
+     "With friends.",
+     [],
+     [
+      [
+       "I am watch films.",
+       "بعد از «I» فعل ساده می‌آید، نه «am»: I watch."
+      ]
+     ]
+    ],
+    [
+     "بگو فیلم می‌بینم و در خانه می‌مانم",
+     "بگو یا قدم می‌زنم",
+     "I watch films, at home.",
+     "Or I walk.",
+     [],
+     [
+      [
+       "I am watch films, at home.",
+       "بعد از «I» فعل ساده می‌آید، نه «am»: I watch."
+      ]
+     ]
+    ],
+    [
+     "بگو دوست دارم قدم بزنم و فیلم ببینم چون آرام است ولی گاهی هم با دوستانم وقت می‌گذرانم",
+     "بگو بیشتر تنها",
+     "I like walking and watching films, because it's calm, but sometimes I hang out with friends too.",
+     "Mostly alone.",
+     [],
+     [
+      [
+       "I like walking and watching films, because it calm, but sometimes I hang out with friends too.",
+       "بعد از «because» باید «it's» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "s",
+   "s": "into-what",
+   "c": null,
+   "q": [
+    [
+     "بپرس به چه چیزی علاقه دارد",
+     "بپرس مدت‌هاست",
+     "What are you into?",
+     "For a long time?",
+     [],
+     [
+      [
+       "What you into?",
+       "بعد از «what»، «are» می‌آید و بعد فاعل."
+      ]
+     ]
+    ],
+    [
+     "بپرس به چه چیزی علاقه دارد و چرا",
+     "بپرس سخت است",
+     "What are you into, and why?",
+     "Is it hard?",
+     [],
+     [
+      [
+       "What you into, and why?",
+       "بعد از «what»، «are» می‌آید و بعد فاعل."
+      ]
+     ]
+    ],
+    [
+     "بپرس به چه چیزی علاقه دارد و چقدر وقت برایش می‌گذارد",
+     "بپرس هر روز",
+     "What are you into, and how much time do you spend on it?",
+     "Every day?",
+     [],
+     [
+      [
+       "What you into, and how much time do you spend on it?",
+       "بعد از «what»، «are» می‌آید و بعد فاعل."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو به عکاسی",
+     "بگو و موسیقی",
+     "I'm into photography.",
+     "And music.",
+     [],
+     []
+    ],
+    [
+     "بگو به عکاسی چون دوست دارم دنیا را ببینم",
+     "بگو آسان است",
+     "I'm into photography, because I like seeing the world.",
+     "It's easy.",
+     [],
+     [
+      [
+       "I'm into photography, because like seeing the world.",
+       "بعد از «because» فاعل لازم است: because I like."
+      ]
+     ]
+    ],
+    [
+     "بگو به عکاسی و هر هفته چند ساعت وقت می‌گذارم چون آن را دوست دارم ولی کار زیاد است",
+     "بگو آخر هفته‌ها بیشتر",
+     "I'm into photography, and I spend a few hours a week on it, because I love it, but I have a lot of work.",
+     "More at the weekend.",
+     [],
+     [
+      [
+       "I'm into photography, and I spend few hours a week on it, because I love it, but I have a lot of work.",
+       "قبل از «few» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "s",
+   "s": "try-new",
+   "c": null,
+   "q": [
+    [
+     "بپرس می‌خواهد چیز تازه‌ای امتحان کند",
+     "بپرس چه",
+     "Do you want to try something new?",
+     "What?",
+     [],
+     [
+      [
+       "You want to try something new?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس می‌خواهد چه چیز تازه‌ای امتحان کند و چرا",
+     "بپرس سخت است",
+     "What do you want to try, and why?",
+     "Is it hard?",
+     [],
+     [
+      [
+       "What you want to try, and why?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه چیز تازه‌ای می‌خواهد امتحان کند و کسی هست که کمکش کند",
+     "بپرس کجا",
+     "What do you want to try, and is there anyone to help you?",
+     "Where?",
+     [],
+     [
+      [
+       "What you want to try, and is there anyone to help you?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو نقاشی",
+     "Yes, I do.",
+     "Painting.",
+     [],
+     [
+      [
+       "Yes, I am.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو نقاشی چون دوست دارم خلاق باشم",
+     "بگو کمی",
+     "Painting, because I want to be creative.",
+     "A bit.",
+     [],
+     [
+      [
+       "Painting, because I want be creative.",
+       "بعد از «want» باید «to» بیاید: want to be."
+      ]
+     ]
+    ],
+    [
+     "بگو نقاشی می‌خواهم و دوستم که نقاش است کمکم می‌کند چون آن را خوب بلد است",
+     "بگو در یک کلاس",
+     "I want to try painting, and my friend helps me, because he knows it well.",
+     "In a class.",
+     [],
+     [
+      [
+       "I want try painting, and my friend helps me, because he knows it well.",
+       "بعد از «want» باید «to» بیاید: want to try."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "hang-out-often",
+   "c": "دوستت گفت: «من با دوستانم زیاد وقت می‌گذرانم.»",
+   "q": [
+    [
+     "بپرس چند بار در هفته",
+     "بپرس هر روز",
+     "How often?",
+     "Every day?",
+     [],
+     []
+    ],
+    [
+     "بپرس چند بار در هفته و کجا",
+     "بپرس در پارک",
+     "How often, and where?",
+     "In the park?",
+     [],
+     [
+      [
+       "How often, and where you?",
+       "پرسش دوم ساده است: «and where?»"
+      ]
+     ]
+    ],
+    [
+     "بپرس از وقت گذراندن با دوستان خسته نمی‌شود یا همیشه دوست دارد و چرا",
+     "بپرس هر روز",
+     "Do you get tired of hanging out, or do you always like it? Why?",
+     "Every day?",
+     [],
+     [
+      [
+       "You get tired of hanging out, or do you always like it? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو سه بار",
+     "بگو بعد از کار",
+     "Three times a week.",
+     "After work.",
+     [],
+     [
+      [
+       "Three times week.",
+       "قبل از «week» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو سه بار در یک کافه",
+     "بگو یا در پارک",
+     "Three times a week, in a café.",
+     "Or in the park.",
+     [],
+     [
+      [
+       "Three times week, in a café.",
+       "قبل از «week» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو همیشه دوست دارم چون خوش می‌گذرد ولی گاهی تنها بودن را هم دوست دارم",
+     "بگو بعد از کار",
+     "I always like it, because it's fun, but sometimes I like being alone too.",
+     "After work.",
+     [],
+     [
+      [
+       "I always like it, because it fun, but sometimes I like being alone too.",
+       "بعد از «because» باید «it's» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "beat-game",
+   "c": "دوستت گفت: «من در شطرنج همیشه می‌برم.»",
+   "q": [
+    [
+     "بپرس همیشه برنده می‌شود",
+     "بپرس با کی",
+     "Do you always win?",
+     "With who?",
+     [],
+     [
+      [
+       "You always win?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس همیشه برنده می‌شود و با چه کسی بازی می‌کند",
+     "بپرس آنلاین",
+     "Do you always win, and who do you play with?",
+     "Online?",
+     [],
+     [
+      [
+       "Do you always win, and who you play with?",
+       "بعد از «who»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس بردن را دوست دارد یا بازی کردن را و چرا",
+     "بپرس هر روز",
+     "Do you like winning, or do you like playing? Why?",
+     "Every day?",
+     [],
+     [
+      [
+       "You like winning, or do you like playing? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو تقریباً",
+     "بگو با برادرم",
+     "Almost.",
+     "With my brother.",
+     [],
+     []
+    ],
+    [
+     "بگو تقریباً و با برادرم بازی می‌کنم",
+     "بگو گاهی آنلاین",
+     "Almost, and I play with my brother.",
+     "Sometimes online.",
+     [],
+     [
+      [
+       "Almost, and I plays with my brother.",
+       "با «I» فعل «s» نمی‌گیرد: I play."
+      ]
+     ]
+    ],
+    [
+     "بگو بازی کردن را دوست دارم چون فکر کردن خوب است ولی بردن هم خوب است",
+     "بگو هر شب",
+     "I like playing, because thinking is good, but winning is good too.",
+     "Every night.",
+     [],
+     [
+      [
+       "I am like playing, because thinking is good, but winning is good too.",
+       "بعد از «I» فعل ساده می‌آید، نه «am»: I like."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "get-the-chance",
+   "c": "دوستت گفت: «می‌خواهم یک ورزش تازه امتحان کنم.»",
+   "q": [
+    [
+     "بپرس فرصتش را دارد",
+     "بپرس کی",
+     "Do you get the chance?",
+     "When?",
+     [],
+     [
+      [
+       "You get the chance?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس فرصتش را دارد و چه ورزشی",
+     "بپرس تنیس",
+     "Do you get the chance, and what sport?",
+     "Tennis?",
+     [],
+     [
+      [
+       "You get the chance, and what sport?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس چرا ورزش تازه می‌خواهد و فکر می‌کند وقتش را پیدا می‌کند",
+     "بپرس چه ساعتی",
+     "Why do you want a new sport, and do you get the time?",
+     "What time?",
+     [],
+     [
+      [
+       "Why you want a new sport, and do you get the time?",
+       "بعد از «why»، «do» می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو گاهی",
+     "بگو آخر هفته",
+     "Sometimes.",
+     "At the weekend.",
+     [],
+     []
+    ],
+    [
+     "بگو گاهی و دوست دارم شنا کنم",
+     "بگو در استخر",
+     "Sometimes, and I want to swim.",
+     "In a pool.",
+     [],
+     [
+      [
+       "Sometimes, and I want swim.",
+       "بعد از «want» باید «to» بیاید: want to swim."
+      ]
+     ]
+    ],
+    [
+     "بگو چون ورزشم خسته‌کننده است ولی وقت کمی دارم",
+     "بگو صبح",
+     "Because my sport is boring, but I have little time.",
+     "In the morning.",
+     [],
+     [
+      [
+       "Because my sport boring, but I have little time.",
+       "برای کار در حال انجام «is» لازم است: is boring."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "photo-hobby",
+   "c": "دوستت گفت: «من به عکاسی علاقه دارم.»",
+   "q": [
+    [
+     "بپرس خیلی دوستش دارد",
+     "بپرس سخت است",
+     "Do you like it a lot?",
+     "Is it hard?",
+     [],
+     [
+      [
+       "You like it a lot?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس زیاد دوستش دارد و کجا عکس می‌گیرد",
+     "بپرس در خیابان",
+     "Do you like it a lot, and where do you take photos?",
+     "In the street?",
+     [],
+     [
+      [
+       "Do you like it a lot, and where you take photos?",
+       "بعد از «where»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس دوست دارد عکس بگیرد یا عکس ببیند و چرا",
+     "بپرس هر روز",
+     "Do you like taking photos, or do you like looking at them? Why?",
+     "Every day?",
+     [],
+     [
+      [
+       "You like taking photos, or do you like looking at them? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو کمی",
+     "Yes, I do.",
+     "A bit.",
+     [],
+     [
+      [
+       "Yes, I am.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و در پارک و خیابان عکس می‌گیرم",
+     "بگو با گوشی",
+     "Yes, I do, and I take photos in the park and the street.",
+     "With my phone.",
+     [],
+     [
+      [
+       "Yes, I am, and I take photos in the park and the street.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو عکس گرفتن را دوست دارم چون چیزهای قشنگ می‌بینم ولی عکس‌های دیگران را هم می‌بینم",
+     "بگو هر روز",
+     "I like taking photos, because I see beautiful things, but I look at other people's photos too.",
+     "Every day.",
+     [],
+     [
+      [
+       "I like taking photos, because see beautiful things, but I look at other people's photos too.",
+       "بعد از «because» فاعل لازم است: because I see."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "twice-week",
+   "c": "دوستت گفت: «من هفته‌ای یکی دو بار شنا می‌کنم.»",
+   "q": [
+    [
+     "بپرس چه ساعتی",
+     "بپرس صبح",
+     "What time?",
+     "In the morning?",
+     [],
+     []
+    ],
+    [
+     "بپرس چه ساعتی و چقدر",
+     "بپرس یک ساعت",
+     "What time, and for how long?",
+     "An hour?",
+     [],
+     [
+      [
+       "What time, and how long for?",
+       "می‌گوییم «for how long»."
+      ]
+     ]
+    ],
+    [
+     "بپرس شنا کردن را دوست دارد یا فقط برای سلامتی انجام می‌دهد و چرا",
+     "بپرس خسته می‌شود",
+     "Do you like swimming, or do you only do it for your health? Why?",
+     "Do you get tired?",
+     [],
+     [
+      [
+       "You like swimming, or do you only do it for your health? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو ساعت شش",
+     "بگو صبح",
+     "At six.",
+     "In the morning.",
+     [],
+     [
+      [
+       "in six.",
+       "ساعت با «at» می‌آید: at six."
+      ]
+     ]
+    ],
+    [
+     "بگو ساعت شش و حدود یک ساعت",
+     "بگو تنها",
+     "At six, for about an hour.",
+     "Alone.",
+     [],
+     [
+      [
+       "in six, for about an hour.",
+       "ساعت با «at» می‌آید: at six."
+      ]
+     ]
+    ],
+    [
+     "بگو دوستش دارم چون آرام است ولی برای سلامتی هم خوب است",
+     "بگو کمی",
+     "I like it, because it's calm, but it's good for my health too.",
+     "A bit.",
+     [],
+     [
+      [
+       "I like it, because it calm, but it's good for my health too.",
+       "بعد از «because» باید «it's» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "go-camping",
+   "c": null,
+   "q": [
+    [
+     "بپرس به کمپ می‌رود",
+     "بپرس هر سال",
+     "Do you go camping?",
+     "Every year?",
+     [],
+     [
+      [
+       "You go camping?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس به کمپ می‌رود و با چه کسی",
+     "بپرس کجا",
+     "Do you go camping, and who with?",
+     "Where?",
+     [],
+     [
+      [
+       "You go camping, and who with?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس کمپ رفتن را دوست دارد یا در هتل ماندن را و چرا",
+     "بپرس کدام",
+     "Do you like going camping, or do you like staying in a hotel? Why?",
+     "Which one?",
+     [],
+     [
+      [
+       "You like going camping, or do you like staying in a hotel? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو هر تابستان",
+     "Yes, I do.",
+     "Every summer.",
+     [],
+     [
+      [
+       "Yes, I am.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو بله با دوستانم",
+     "بگو در کوه",
+     "Yes, I do, with my friends.",
+     "In the mountains.",
+     [],
+     [
+      [
+       "Yes, I am, with my friends.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو کمپ رفتن را دوست دارم چون طبیعت را می‌بینم ولی گاهی هتل را هم دوست دارم",
+     "بگو معمولاً کمپ",
+     "I like going camping, because I see nature, but sometimes I like a hotel too.",
+     "Usually camping.",
+     [],
+     [
+      [
+       "I like going camping, because I see nature, but sometimes I like hotel too.",
+       "قبل از «hotel» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "rock-climbing",
+   "c": null,
+   "q": [
+    [
+     "بپرس از کوهنوردی خوشش می‌آید",
+     "بپرس سخت است",
+     "Do you like rock climbing?",
+     "Is it hard?",
+     [],
+     [
+      [
+       "You like rock climbing?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس کوهنوردی می‌کند و کجا",
+     "بپرس با دوستان",
+     "Do you go rock climbing, and where?",
+     "With friends?",
+     [],
+     [
+      [
+       "You go rock climbing, and where?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس می‌خواهد کوهنوردی را امتحان کند یا از آن می‌ترسد و چرا",
+     "بپرس خطرناک است",
+     "Do you want to try rock climbing, or are you afraid of it? Why?",
+     "Is it dangerous?",
+     [],
+     [
+      [
+       "You want to try rock climbing, or are you afraid of it? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو کمی",
+     "Yes, I do.",
+     "A bit.",
+     [],
+     [
+      [
+       "Yes, I am.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و در کوه‌های نزدیک شهر",
+     "بگو آخر هفته‌ها",
+     "Yes, I do, in the mountains near my city.",
+     "At the weekend.",
+     [],
+     [
+      [
+       "Yes, I am, in the mountains near my city.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو می‌خواهم امتحان کنم چون هیجان‌انگیز است ولی کمی می‌ترسم",
+     "بگو با مربی",
+     "I want to try it, because it's exciting, but I'm a bit afraid.",
+     "With a teacher.",
+     [],
+     [
+      [
+       "I want to try it, because it exciting, but I'm a bit afraid.",
+       "بعد از «because» باید «it's» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "work-out",
+   "c": null,
+   "q": [
+    [
+     "بپرس ورزش می‌کند",
+     "بپرس چه ساعتی",
+     "Do you work out?",
+     "What time?",
+     [],
+     [
+      [
+       "You work out?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس ورزش می‌کند و کجا",
+     "بپرس باشگاه",
+     "Do you work out, and where?",
+     "At a gym?",
+     [],
+     [
+      [
+       "You work out, and where?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس در باشگاه ورزش می‌کند یا در خانه و چرا",
+     "بپرس با دوستان",
+     "Do you work out at a gym, or at home? Why?",
+     "With friends?",
+     [],
+     [
+      [
+       "You work out at a gym, or at home? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو صبح",
+     "Yes, I do.",
+     "In the morning.",
+     [],
+     [
+      [
+       "Yes, I am.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و در باشگاه",
+     "بگو سه بار در هفته",
+     "Yes, I do, at a gym.",
+     "Three times a week.",
+     [],
+     [
+      [
+       "Yes, I do, at gym.",
+       "قبل از «gym» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو در خانه چون وقت ندارم و باشگاه دور است ولی گاهی با دوستم به باشگاه می‌روم",
+     "بگو یکشنبه‌ها",
+     "At home, because I have no time and the gym is far, but sometimes I go to the gym with my friend.",
+     "On Sundays.",
+     [],
+     [
+      [
+       "At home, because have no time and the gym is far, but sometimes I go to the gym with my friend.",
+       "بعد از «because» فاعل لازم است: because I have."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "keep-fit",
+   "c": null,
+   "q": [
+    [
+     "بپرس چطور تناسب اندام دارد",
+     "بپرس هر روز",
+     "How do you keep fit?",
+     "Every day?",
+     [],
+     [
+      [
+       "How you keep fit?",
+       "بعد از «how»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چطور تناسب اندام دارد و چند بار در هفته",
+     "بپرس صبح",
+     "How do you keep fit, and how often?",
+     "In the morning?",
+     [],
+     [
+      [
+       "How you keep fit, and how often?",
+       "بعد از «how»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس غذا هم برای تناسب اندام مهم است و او چه می‌کند",
+     "بپرس چرا",
+     "Is food important for keeping fit? What do you do?",
+     "Why?",
+     [],
+     [
+      [
+       "Is food important for keeping fit? What you do?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو با دویدن",
+     "بگو و شنا",
+     "I run.",
+     "And swim.",
+     [],
+     []
+    ],
+    [
+     "بگو با دویدن سه بار در هفته",
+     "بگو در پارک",
+     "I run three times a week.",
+     "In the park.",
+     [],
+     [
+      [
+       "I run three times week.",
+       "قبل از «week» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو بله چون غذای سالم کمک می‌کند برای همین سبزی زیاد می‌خورم ولی گاهی شیرینی هم می‌خورم",
+     "بگو کم",
+     "Yes, it is, because healthy food helps, so I eat a lot of vegetables, but sometimes I eat sweets too.",
+     "A little.",
+     [],
+     [
+      [
+       "Yes, it is, because healthy food helps, so I eat lot of vegetables, but sometimes I eat sweets too.",
+       "قبل از «lot» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "do-a-bit-of",
+   "c": null,
+   "q": [
+    [
+     "بپرس کمی ورزش می‌کند",
+     "بپرس هر روز",
+     "Do you do a bit of sport?",
+     "Every day?",
+     [],
+     [
+      [
+       "You do a bit of sport?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس کمی ورزش می‌کند و چه ورزشی",
+     "بپرس دویدن",
+     "Do you do a bit of sport, and what?",
+     "Running?",
+     [],
+     [
+      [
+       "You do a bit of sport, and what?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس کمی ورزش می‌کند یا می‌خواهد زیاد ورزش کند و چرا",
+     "بپرس وقت دارد",
+     "Do you do a bit of sport, or do you want to do a lot? Why?",
+     "Do you have time?",
+     [],
+     [
+      [
+       "You do a bit of sport, or do you want to do a lot? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو کمی",
+     "Yes, I do.",
+     "A bit.",
+     [],
+     [
+      [
+       "Yes, I am.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو بله کمی دویدن",
+     "بگو و شنا",
+     "Yes, I do, a bit of running.",
+     "And swimming.",
+     [],
+     [
+      [
+       "Yes, I do, bit of running.",
+       "قبل از «bit» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو کمی می‌کنم چون وقت ندارم ولی می‌خواهم زیاد ورزش کنم",
+     "بگو آخر هفته‌ها",
+     "I do a bit, because I have no time, but I want to do a lot.",
+     "At the weekend.",
+     [],
+     [
+      [
+       "I do a bit, because I have no time, but I want do a lot.",
+       "بعد از «want» باید «to» بیاید: want to do."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "camping-with",
+   "c": "دوستت گفت: «من هر تابستان به کمپ می‌روم.»",
+   "q": [
+    [
+     "بپرس با چه کسی",
+     "بپرس با خانواده",
+     "Who with?",
+     "With your family?",
+     [],
+     []
+    ],
+    [
+     "بپرس با چه کسی و کجا",
+     "بپرس در جنگل",
+     "Who with, and where?",
+     "In a forest?",
+     [],
+     [
+      [
+       "Who with, and where you go?",
+       "پرسش دوم ساده است: «and where?»"
+      ]
+     ]
+    ],
+    [
+     "بپرس کمپ رفتن را دوست دارد یا فقط برای تنوع می‌رود و چرا",
+     "بپرس هر سال",
+     "Do you like going camping, or do you only go for a change? Why?",
+     "Every year?",
+     [],
+     [
+      [
+       "You like going camping, or do you only go for a change? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو با دوستانم",
+     "بگو چهار نفر",
+     "With my friends.",
+     "Four of us.",
+     [],
+     []
+    ],
+    [
+     "بگو با دوستانم در کوه",
+     "بگو کنار یک رودخانه",
+     "With my friends, in the mountains.",
+     "Near a river.",
+     [],
+     [
+      [
+       "With my friends, on the mountains.",
+       "می‌گوییم «in the mountains»."
+      ]
+     ]
+    ],
+    [
+     "بگو دوست دارم چون آرام است و شب‌ها ستاره می‌بینم ولی گاهی سرد است",
+     "بگو لباس گرم می‌برم",
+     "I like it, because it's calm and I see stars at night, but sometimes it's cold.",
+     "I take warm clothes.",
+     [],
+     [
+      [
+       "I like it, because it calm and I see stars at night, but sometimes it's cold.",
+       "بعد از «because» باید «it's» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "climbing-fear",
+   "c": "دوستت گفت: «من کوهنوردی را دوست دارم ولی گاهی می‌ترسم.»",
+   "q": [
+    [
+     "بپرس از چه چیزی می‌ترسد",
+     "بپرس از ارتفاع",
+     "What are you afraid of?",
+     "Of height?",
+     [],
+     [
+      [
+       "What you afraid of?",
+       "بعد از «what»، «are» می‌آید و بعد فاعل."
+      ]
+     ]
+    ],
+    [
+     "بپرس از چه چیزی می‌ترسد و چه می‌کند",
+     "بپرس نفس عمیق می‌کشد",
+     "What are you afraid of, and what do you do?",
+     "A deep breath?",
+     [],
+     [
+      [
+       "What you afraid of, and what do you do?",
+       "بعد از «what»، «are» می‌آید و بعد فاعل."
+      ]
+     ]
+    ],
+    [
+     "بپرس با وجود ترس کوهنوردی را ادامه می‌دهد و چرا",
+     "بپرس تنها",
+     "Do you keep climbing, even when you are afraid? Why?",
+     "Alone?",
+     [],
+     [
+      [
+       "You keep climbing, even when you are afraid? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو از ارتفاع",
+     "بگو کمی",
+     "Heights.",
+     "A bit.",
+     [],
+     []
+    ],
+    [
+     "بگو از ارتفاع و نفس عمیق می‌کشم",
+     "بگو و پایین را نگاه نمی‌کنم",
+     "Heights, and I take a deep breath.",
+     "And I don't look down.",
+     [],
+     [
+      [
+       "Heights, and I take deep breath.",
+       "قبل از «deep» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو بله چون دوستش دارم و بعدش حالم خوب است ولی با یک دوست می‌روم",
+     "بگو همیشه با مربی",
+     "Yes, I do, because I love it and I feel good after, but I go with a friend.",
+     "Always with a teacher.",
+     [],
+     [
+      [
+       "Yes, I do, because I love it and I feel good after, but I go with friend.",
+       "قبل از «friend» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "workout-time",
+   "c": "دوستت گفت: «من صبح‌ها ورزش می‌کنم.»",
+   "q": [
+    [
+     "بپرس چه ساعتی شروع می‌کند",
+     "بپرس زود",
+     "What time do you start?",
+     "Early?",
+     [],
+     [
+      [
+       "What time you start?",
+       "بعد از «what time»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه ساعتی شروع می‌کند و چقدر ورزش می‌کند",
+     "بپرس یک ساعت",
+     "What time do you start, and for how long?",
+     "An hour?",
+     [],
+     [
+      [
+       "What time you start, and for how long?",
+       "بعد از «what time»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس صبح‌ها ورزش کردن را دوست دارد یا شب‌ها و چرا",
+     "بپرس خسته می‌شود",
+     "Do you like working out in the morning, or at night? Why?",
+     "Do you get tired?",
+     [],
+     [
+      [
+       "You like working out in the morning, or at night? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو ساعت شش",
+     "بگو قبل از کار",
+     "At six.",
+     "Before work.",
+     [],
+     [
+      [
+       "in six.",
+       "ساعت با «at» می‌آید: at six."
+      ]
+     ]
+    ],
+    [
+     "بگو ساعت شش و حدود نیم ساعت",
+     "بگو هر روز",
+     "At six, for about half an hour.",
+     "Every day.",
+     [],
+     [
+      [
+       "in six, for about half an hour.",
+       "ساعت با «at» می‌آید: at six."
+      ]
+     ]
+    ],
+    [
+     "بگو صبح‌ها چون بعدش سرحالم ولی شب‌ها خسته‌ام",
+     "بگو گاهی",
+     "In the morning, because I feel fresh after, but at night I'm tired.",
+     "Sometimes.",
+     [],
+     [
+      [
+       "In the morning, because feel fresh after, but at night I'm tired.",
+       "بعد از «because» فاعل لازم است: because I feel."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "for-fun",
+   "c": "دوستت گفت: «من فقط برای تفریح ورزش می‌کنم.»",
+   "q": [
+    [
+     "بپرس چه ورزشی",
+     "بپرس هر روز",
+     "What sport?",
+     "Every day?",
+     [],
+     []
+    ],
+    [
+     "بپرس چه ورزشی و با چه کسی",
+     "بپرس در پارک",
+     "What sport, and who with?",
+     "In the park?",
+     [],
+     [
+      [
+       "What sport, and with who?",
+       "می‌گوییم «who with» یا «with whom»."
+      ]
+     ]
+    ],
+    [
+     "بپرس فقط برای تفریح ورزش می‌کند یا می‌خواهد در مسابقه شرکت کند و چرا",
+     "بپرس تیم دارد",
+     "Do you only play for fun, or do you want to play in a match? Why?",
+     "Do you have a team?",
+     [],
+     [
+      [
+       "You only play for fun, or do you want to play in a match? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو فوتبال",
+     "بگو با دوستان",
+     "Football.",
+     "With friends.",
+     [],
+     []
+    ],
+    [
+     "بگو فوتبال با دوستانم",
+     "بگو جمعه‌ها",
+     "Football, with my friends.",
+     "On Fridays.",
+     [],
+     [
+      [
+       "Football, with my friend and.",
+       "ترتیب: Football, with my friends."
+      ]
+     ]
+    ],
+    [
+     "بگو فقط برای تفریح چون فشار ندارم ولی گاهی در یک مسابقه کوچک بازی می‌کنم",
+     "بگو بله یک تیم محلی",
+     "Only for fun, because I have no pressure, but sometimes I play in a small match.",
+     "Yes, a local team.",
+     [],
+     [
+      [
+       "Only for fun, because I have no pressure, but sometimes I play in small match.",
+       "قبل از «small» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "fit-how",
+   "c": "دوستت گفت: «من تناسب اندامم خوب است.»",
+   "q": [
+    [
+     "بپرس چطور",
+     "بپرس با ورزش",
+     "How?",
+     "With sport?",
+     [],
+     []
+    ],
+    [
+     "بپرس چطور و چند بار در هفته",
+     "بپرس هر روز",
+     "How, and how often?",
+     "Every day?",
+     [],
+     [
+      [
+       "How, and how often you?",
+       "پرسش دوم ساده است: «and how often?»"
+      ]
+     ]
+    ],
+    [
+     "بپرس ورزش را دوست دارد یا فقط برای سلامتی انجام می‌دهد و چرا",
+     "بپرس خسته می‌شود",
+     "Do you like exercising, or do you only do it for your health? Why?",
+     "Do you get tired?",
+     [],
+     [
+      [
+       "You like exercising, or do you only do it for your health? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو با ورزش",
+     "بگو و غذای سالم",
+     "With sport.",
+     "And healthy food.",
+     [],
+     []
+    ],
+    [
+     "بگو با ورزش چهار بار در هفته",
+     "بگو در باشگاه",
+     "With sport, four times a week.",
+     "At the gym.",
+     [],
+     [
+      [
+       "With sport, four times week.",
+       "قبل از «week» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو دوستش دارم چون حالم خوب می‌شود ولی برای سلامتی هم لازم است",
+     "بگو گاهی",
+     "I like it, because I feel good, but it's good for my health too.",
+     "Sometimes.",
+     [],
+     [
+      [
+       "I like it, because feel good, but it's good for my health too.",
+       "بعد از «because» فاعل لازم است: because I feel."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "into-music",
+   "c": null,
+   "q": [
+    [
+     "بپرس به چه نوع موسیقی علاقه دارد",
+     "بپرس همیشه",
+     "What music are you into?",
+     "Always?",
+     [],
+     [
+      [
+       "What music you are into?",
+       "ترتیب جمله: What music are you into?"
+      ]
+     ]
+    ],
+    [
+     "بپرس به چه موسیقی‌ای علاقه دارد و کجا گوش می‌دهد",
+     "بپرس در ماشین",
+     "What music are you into, and where do you listen to it?",
+     "In the car?",
+     [],
+     [
+      [
+       "What music are you into, and where you listen to it?",
+       "بعد از «where»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس دوست دارد موسیقی گوش بدهد یا موسیقی بزند و چرا",
+     "بپرس ساز می‌زند",
+     "Do you like listening to music, or do you like playing it? Why?",
+     "Do you play an instrument?",
+     [],
+     [
+      [
+       "You like listening to music, or do you like playing it? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو موسیقی سنتی",
+     "بگو و پاپ",
+     "Traditional music.",
+     "And pop.",
+     [],
+     []
+    ],
+    [
+     "بگو موسیقی سنتی و در خانه گوش می‌دهم",
+     "بگو شب‌ها",
+     "Traditional music, and I listen to it at home.",
+     "In the evening.",
+     [],
+     [
+      [
+       "Traditional music, and I listen it at home.",
+       "بعد از «listen» حرف «to» می‌آید: listen to it."
+      ]
+     ]
+    ],
+    [
+     "بگو گوش دادن را دوست دارم چون آرام می‌شوم ولی می‌خواهم ساز بزنم",
+     "بگو گیتار",
+     "I like listening, because I feel calm, but I want to play an instrument.",
+     "The guitar.",
+     [],
+     [
+      [
+       "I like listening, because I feel calm, but I want play an instrument.",
+       "بعد از «want» باید «to» بیاید: want to play."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "quite-like",
+   "c": null,
+   "q": [
+    [
+     "بپرس از فیلم‌های ترسناک خوشش می‌آید",
+     "بپرس چرا",
+     "Do you quite like scary films?",
+     "Why?",
+     [],
+     [
+      [
+       "You quite like scary films?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس از چه فیلم‌هایی نسبتاً خوشش می‌آید و کجا می‌بیند",
+     "بپرس در سینما",
+     "What films do you quite like, and where do you watch them?",
+     "At the cinema?",
+     [],
+     [
+      [
+       "What films you quite like, and where do you watch them?",
+       "بعد از «what» و اسم، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس فیلم دیدن را دوست دارد یا کتاب خواندن را و چرا",
+     "بپرس بیشتر کدام",
+     "Do you like watching films, or do you like reading books? Why?",
+     "Which one?",
+     [],
+     [
+      [
+       "You like watching films, or do you like reading books? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو نه چندان",
+     "بگو خوابم نمی‌برد",
+     "Not really.",
+     "I can't sleep.",
+     [],
+     []
+    ],
+    [
+     "بگو فیلم‌های خنده‌دار و در خانه می‌بینم",
+     "بگو با خانواده",
+     "I quite like funny films, and I watch them at home.",
+     "With my family.",
+     [],
+     [
+      [
+       "I am quite like funny films, and I watch them at home.",
+       "بعد از «I» فعل ساده می‌آید، نه «am»: I quite."
+      ]
+     ]
+    ],
+    [
+     "بگو فیلم دیدن را نسبتاً دوست دارم چون سریع است ولی کتاب خواندن را هم دوست دارم",
+     "بگو شب‌ها",
+     "I quite like watching films, because it's quick, but I like reading books too.",
+     "In the evening.",
+     [],
+     [
+      [
+       "I quite like watching films, because it quick, but I like reading books too.",
+       "بعد از «because» باید «it's» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "dont-mind",
+   "c": null,
+   "q": [
+    [
+     "بپرس از انجام کارهای خانه ناراحت می‌شود",
+     "بپرس چرا",
+     "Do you mind doing housework?",
+     "Why?",
+     [],
+     [
+      [
+       "You mind doing housework?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه کاری را اصلاً بدش نمی‌آید و کدام را",
+     "بپرس ظرف شستن",
+     "What jobs don't you mind, and which one do you hate?",
+     "Washing dishes?",
+     [],
+     [
+      [
+       "What jobs don't you mind, and which one you hate?",
+       "بعد از «which» و اسم، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس از رانندگی در شهر ناراحت می‌شود یا دوست دارد با مترو برود و چرا",
+     "بپرس هر روز",
+     "Do you mind driving in the city, or do you like taking the metro? Why?",
+     "Every day?",
+     [],
+     [
+      [
+       "You mind driving in the city, or do you like taking the metro? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو نه",
+     "بگو مهم نیست",
+     "No, I don't.",
+     "I don't mind it.",
+     [],
+     [
+      [
+       "No, I am not.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: No, I don't."
+      ]
+     ]
+    ],
+    [
+     "بگو از جارو کردن بدم نمی‌آید و از شستن ظرف بدم می‌آید",
+     "بگو خیلی",
+     "I don't mind cleaning, and I hate washing dishes.",
+     "A lot.",
+     [],
+     [
+      [
+       "I no mind cleaning, and I hate washing dishes.",
+       "منفی با «don't» ساخته می‌شود: I don't mind."
+      ]
+     ]
+    ],
+    [
+     "بگو از رانندگی بدم نمی‌آید چون سریع است ولی گاهی مترو را دوست دارم",
+     "بگو وقتی ترافیک است",
+     "I don't mind driving, because it's quick, but sometimes I like the metro.",
+     "When there's traffic.",
+     [],
+     [
+      [
+       "I don't mind driving, because it quick, but sometimes I like the metro.",
+       "بعد از «because» باید «it's» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "cant-stand",
+   "c": null,
+   "q": [
+    [
+     "بپرس از چه چیزی خوشش نمی‌آید",
+     "بپرس خیلی",
+     "What can't you stand?",
+     "A lot?",
+     [],
+     [
+      [
+       "What you can't stand?",
+       "بعد از «What» اول «can't» می‌آید: What can't you stand?"
+      ]
+     ]
+    ],
+    [
+     "بپرس از چه چیزی بدش می‌آید و چرا",
+     "بپرس هر روز",
+     "What can't you stand, and why?",
+     "Every day?",
+     [],
+     [
+      [
+       "What you can't stand, and why?",
+       "بعد از «What» اول «can't» می‌آید: What can't you stand?"
+      ]
+     ]
+    ],
+    [
+     "بپرس از انتظار کشیدن بدش می‌آید یا از دیر رسیدن و چرا",
+     "بپرس چه کار می‌کند",
+     "Do you hate waiting, or do you hate being late? Why?",
+     "What do you do?",
+     [],
+     [
+      [
+       "You hate waiting, or do you hate being late? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو سروصدا",
+     "بگو سر کار",
+     "Noise.",
+     "At work.",
+     [],
+     []
+    ],
+    [
+     "بگو سروصدا چون نمی‌توانم فکر کنم",
+     "بگو مخصوصاً صبح",
+     "Noise, because I can't think.",
+     "Especially in the morning.",
+     [],
+     [
+      [
+       "Noise, because can't think.",
+       "بعد از «because» فاعل لازم است: because I can."
+      ]
+     ]
+    ],
+    [
+     "بگو از دیر رسیدن بدم می‌آید چون ناراحت می‌شوم ولی از انتظار هم خوشم نمی‌آید",
+     "بگو کتاب می‌خوانم",
+     "I hate being late, because I get upset, but I can't stand waiting too.",
+     "I read a book.",
+     [],
+     [
+      [
+       "I hate being late, because get upset, but I can't stand waiting too.",
+       "بعد از «because» فاعل لازم است: because I get."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "keen-on",
+   "c": null,
+   "q": [
+    [
+     "بپرس به ورزش علاقه‌ی زیادی دارد",
+     "بپرس چه ورزشی",
+     "Are you keen on sport?",
+     "What sport?",
+     [],
+     [
+      [
+       "You are keen on sport?",
+       "سؤال با «Are» شروع می‌شود: Are you…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس به ورزش علاقه‌ی زیادی دارد و چند بار بازی می‌کند",
+     "بپرس هفته‌ای",
+     "Are you keen on sport, and how often do you play?",
+     "A week?",
+     [],
+     [
+      [
+       "Are you keen on sport, and how often you play?",
+       "بعد از «how often»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس به بازی کردن علاقه دارد یا به تماشا کردن و چرا",
+     "بپرس تیمش",
+     "Are you keen on playing sport, or on watching it? Why?",
+     "Which team?",
+     [],
+     [
+      [
+       "You are keen on playing sport, or on watching it? Why?",
+       "سؤال با «Are» شروع می‌شود: Are you…؟"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو فوتبال",
+     "Yes, I am.",
+     "Football.",
+     [],
+     [
+      [
+       "Yes, I do.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I am."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و هفته‌ای دو بار بازی می‌کنم",
+     "بگو با دوستان",
+     "Yes, I am, and I play twice a week.",
+     "With friends.",
+     [],
+     [
+      [
+       "Yes, I am, and I play twice week.",
+       "قبل از «week» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو به بازی کردن چون سالم می‌مانم ولی گاهی تماشا هم می‌کنم",
+     "بگو تیم محلی",
+     "On playing, because I stay healthy, but sometimes I watch too.",
+     "A local team.",
+     [],
+     [
+      [
+       "On playing, because stay healthy, but sometimes I watch too.",
+       "بعد از «because» فاعل لازم است: because I stay."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "hobby-in-common",
+   "c": "دوستت گفت: «من و دوستم خیلی چیز مشترک داریم.»",
+   "q": [
+    [
+     "بپرس چه چیزی",
+     "بپرس فیلم",
+     "What?",
+     "Films?",
+     [],
+     []
+    ],
+    [
+     "بپرس چه چیزی و چه کار با هم می‌کنند",
+     "بپرس هر هفته",
+     "What, and what do you do together?",
+     "Every week?",
+     [],
+     [
+      [
+       "What, and what you do together?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس به چیزهای مشترک علاقه دارند یا فقط وقت می‌گذرانند و چرا",
+     "بپرس از مدرسه",
+     "Do you like the same things, or do you only spend time together? Why?",
+     "Since school?",
+     [],
+     [
+      [
+       "You like the same things, or do you only spend time together? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو فوتبال",
+     "بگو و فیلم",
+     "Football.",
+     "And films.",
+     [],
+     []
+    ],
+    [
+     "بگو فوتبال و با هم بازی می‌کنیم",
+     "بگو آخر هفته‌ها",
+     "Football, and we play together.",
+     "At the weekend.",
+     [],
+     [
+      [
+       "Football, and we plays together.",
+       "با «we» فعل «s» نمی‌گیرد: we play."
+      ]
+     ]
+    ],
+    [
+     "بگو هر دو فوتبال و فیلم را دوست داریم برای همین وقت زیادی با هم می‌گذرانیم",
+     "بگو از مدرسه",
+     "We both like football and films, so we spend a lot of time together.",
+     "From school.",
+     [],
+     [
+      [
+       "We both like football and films, so we spend lot of time together.",
+       "قبل از «lot» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "like-reading",
+   "c": "دوستت گفت: «من عاشق کتاب خواندن‌ام.»",
+   "q": [
+    [
+     "بپرس چه نوع کتابی",
+     "بپرس رمان",
+     "What kind of books?",
+     "Novels?",
+     [],
+     [
+      [
+       "What kinds books?",
+       "بعد از «kind» حرف «of» می‌آید: What kind of books?"
+      ]
+     ]
+    ],
+    [
+     "بپرس چه نوع کتابی می‌خواند و کجا",
+     "بپرس شب‌ها",
+     "What kind of books do you read, and where?",
+     "At night?",
+     [],
+     [
+      [
+       "What kind books do you read, and where?",
+       "بعد از «kind» حرف «of» می‌آید: What kind of books."
+      ]
+     ]
+    ],
+    [
+     "بپرس خواندن را دوست دارد یا نوشتن را و چرا",
+     "بپرس هر روز",
+     "Do you like reading, or do you like writing? Why?",
+     "Every day?",
+     [],
+     [
+      [
+       "You like reading, or do you like writing? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو رمان",
+     "بگو و تاریخی",
+     "Novels.",
+     "And history.",
+     [],
+     []
+    ],
+    [
+     "بگو رمان و در تخت می‌خوانم",
+     "بگو قبل از خواب",
+     "I read novels, in bed.",
+     "Before sleep.",
+     [],
+     [
+      [
+       "I am read novels, in bed.",
+       "بعد از «I» فعل ساده می‌آید، نه «am»: I read."
+      ]
+     ]
+    ],
+    [
+     "بگو خواندن را دوست دارم چون چیزهای تازه یاد می‌گیرم ولی گاهی هم می‌نویسم",
+     "بگو شب‌ها",
+     "I like reading, because I learn new things, but I write sometimes too.",
+     "At night.",
+     [],
+     [
+      [
+       "I like reading, because learn new things, but I write sometimes too.",
+       "بعد از «because» فاعل لازم است: because I learn."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "cant-stand-why",
+   "c": "دوستت گفت: «من از سروصدا بدم می‌آید.»",
+   "q": [
+    [
+     "بپرس چرا",
+     "بپرس سر کار",
+     "Why?",
+     "At work?",
+     [],
+     []
+    ],
+    [
+     "بپرس چرا و چه کار می‌کند",
+     "بپرس در را می‌بندد",
+     "Why, and what do you do?",
+     "Do you close the door?",
+     [],
+     [
+      [
+       "Why, and what you do?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس از سروصدای شهر بدش می‌آید یا از سروصدای خانه و چرا",
+     "بپرس شب‌ها",
+     "Do you hate city noise, or noise at home? Why?",
+     "At night?",
+     [],
+     [
+      [
+       "You hate city noise, or noise at home? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو نمی‌توانم فکر کنم",
+     "بگو خیلی",
+     "I can't think.",
+     "A lot.",
+     [],
+     [
+      [
+       "I am can't think.",
+       "بعد از «I» فعل ساده می‌آید، نه «am»: I can."
+      ]
+     ]
+    ],
+    [
+     "بگو چون نمی‌توانم فکر کنم و در را می‌بندم",
+     "بگو به اتاق دیگر می‌روم",
+     "Because I can't think, and I close the door.",
+     "I go to another room.",
+     [],
+     [
+      [
+       "Because I can't think, and I closing the door.",
+       "بعد از «I» فعل ساده می‌آید: I close."
+      ]
+     ]
+    ],
+    [
+     "بگو از سروصدای شهر چون بلند است ولی در خانه هم گاهی همسایه سروصدا می‌کند",
+     "بگو خیلی بلند",
+     "City noise, because it's loud, but at home my neighbour makes noise sometimes too.",
+     "Very loud.",
+     [],
+     [
+      [
+       "City noise, because it loud, but at home my neighbour makes noise sometimes too.",
+       "بعد از «because» باید «it's» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "dont-mind-what",
+   "c": "دوستت گفت: «من از رانندگی بدم نمی‌آید.»",
+   "q": [
+    [
+     "بپرس هر روز رانندگی می‌کند",
+     "بپرس چه ساعتی",
+     "Do you drive every day?",
+     "What time?",
+     [],
+     [
+      [
+       "You drive every day?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس هر روز رانندگی می‌کند و چقدر",
+     "بپرس نیم ساعت",
+     "Do you drive every day, and how long?",
+     "Half an hour?",
+     [],
+     [
+      [
+       "You drive every day, and how long?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس رانندگی را دوست دارد یا فقط لازمش دارد و چرا",
+     "بپرس وقتی ترافیک است",
+     "Do you like driving, or do you only need it? Why?",
+     "When there's traffic?",
+     [],
+     [
+      [
+       "You like driving, or do you only need it? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو صبح",
+     "Yes, I do.",
+     "In the morning.",
+     [],
+     [
+      [
+       "Yes, I am.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و حدود نیم ساعت",
+     "بگو تا محل کارم",
+     "Yes, I do, for about half an hour.",
+     "To work.",
+     [],
+     [
+      [
+       "Yes, I do, for about half hour.",
+       "قبل از «hour» باید «an» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو بدم نمی‌آید چون سریع است ولی گاهی ترافیک خسته‌ام می‌کند",
+     "بگو کمی",
+     "I don't mind it, because it's quick, but sometimes traffic makes me tired.",
+     "A bit.",
+     [],
+     [
+      [
+       "I don't mind it, because it quick, but sometimes traffic makes me tired.",
+       "بعد از «because» باید «it's» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "keen-sport",
+   "c": "دوستت گفت: «من به شنا علاقه دارم.»",
+   "q": [
+    [
+     "بپرس هر چند وقت می‌رود",
+     "بپرس صبح",
+     "How often do you go?",
+     "In the morning?",
+     [],
+     [
+      [
+       "How often you go?",
+       "بعد از «how often»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس هر چند وقت می‌رود و چقدر می‌ماند",
+     "بپرس یک ساعت",
+     "How often do you go, and for how long?",
+     "An hour?",
+     [],
+     [
+      [
+       "How often you go, and for how long?",
+       "بعد از «how often»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس شنا کردن را دوست دارد یا شنا را فقط برای سلامتی می‌خواهد و چرا",
+     "بپرس سخت است",
+     "Do you like swimming, or do you only want it for your health? Why?",
+     "Is it hard?",
+     [],
+     [
+      [
+       "You like swimming, or do you only want it for your health? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو دو بار در هفته",
+     "بگو در استخر",
+     "Twice a week.",
+     "At the pool.",
+     [],
+     [
+      [
+       "Twice week.",
+       "قبل از «week» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو دو بار در هفته و یک ساعت",
+     "بگو تنها",
+     "Twice a week, for an hour.",
+     "Alone.",
+     [],
+     [
+      [
+       "Twice week, for an hour.",
+       "قبل از «week» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو دوستش دارم چون آرام می‌شوم ولی برای سلامتی هم خوب است",
+     "بگو کمی",
+     "I like it, because I feel calm, but it's good for my health too.",
+     "A bit.",
+     [],
+     [
+      [
+       "I like it, because feel calm, but it's good for my health too.",
+       "بعد از «because» فاعل لازم است: because I feel."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "weekend-hobby",
+   "c": null,
+   "q": [
+    [
+     "بپرس آخر هفته چه کاری دوست دارد",
+     "بپرس تنها",
+     "What do you like doing at the weekend?",
+     "Alone?",
+     [],
+     [
+      [
+       "What you like doing at the weekend?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس آخر هفته چه کاری دوست دارد و با چه کسی",
+     "بپرس با دوستان",
+     "What do you like doing at the weekend, and who with?",
+     "Friends?",
+     [],
+     [
+      [
+       "What you like doing at the weekend, and who with?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس آخر هفته دوست دارد در خانه بماند یا بیرون برود و چرا",
+     "بپرس همیشه",
+     "Do you like staying home at the weekend, or do you like going out? Why?",
+     "Always?",
+     [],
+     [
+      [
+       "You like staying home at the weekend, or do you like going out? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو قدم زدن",
+     "بگو در پارک",
+     "Walking.",
+     "In the park.",
+     [],
+     []
+    ],
+    [
+     "بگو قدم زدن با دوستانم",
+     "بگو و چای خوردن",
+     "Walking with my friends.",
+     "And drinking tea.",
+     [],
+     [
+      [
+       "Walk with my friends.",
+       "بعد از «like doing» مصدر با -ing: Walking with my friends."
+      ]
+     ]
+    ],
+    [
+     "بگو بیرون رفتن را دوست دارم چون خوش می‌گذرد ولی گاهی ماندن در خانه هم خوب است",
+     "بگو بستگی دارد",
+     "I like going out, because it's fun, but sometimes staying home is good too.",
+     "It depends.",
+     [],
+     [
+      [
+       "I like going out, because it fun, but sometimes staying home is good too.",
+       "بعد از «because» باید «it's» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "want-to-try",
+   "c": null,
+   "q": [
+    [
+     "بپرس می‌خواهد چه کاری امتحان کند",
+     "بپرس چرا",
+     "What do you want to try?",
+     "Why?",
+     [],
+     [
+      [
+       "What you want to try?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس می‌خواهد چه کاری امتحان کند و کجا",
+     "بپرس در کلاس",
+     "What do you want to try, and where?",
+     "In a class?",
+     [],
+     [
+      [
+       "What you want to try, and where?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس می‌خواهد کاری یاد بگیرد یا فقط امتحان کند و چرا",
+     "بپرس چقدر وقت",
+     "Do you want to learn something, or do you only want to try? Why?",
+     "How much time?",
+     [],
+     [
+      [
+       "You want to learn something, or do you only want to try? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو نقاشی",
+     "بگو فکر می‌کنم جالب است",
+     "Painting.",
+     "I think it's interesting.",
+     [],
+     []
+    ],
+    [
+     "بگو نقاشی در یک کلاس",
+     "بگو آخر هفته‌ها",
+     "Painting, in a class.",
+     "At the weekend.",
+     [],
+     [
+      [
+       "Painting, in class.",
+       "قبل از «class» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو می‌خواهم یاد بگیرم چون به آن علاقه دارم ولی اول فقط امتحان می‌کنم",
+     "بگو هفته‌ای دو ساعت",
+     "I want to learn, because I'm into it, but first I only try.",
+     "Two hours a week.",
+     [],
+     [
+      [
+       "I want to learn, because I into it, but first I only try.",
+       "بعد از «because» باید «I'm» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "hobby-cost",
+   "c": null,
+   "q": [
+    [
+     "بپرس سرگرمی‌اش پول زیادی می‌خواهد",
+     "بپرس چقدر",
+     "Does your hobby cost a lot?",
+     "How much?",
+     [],
+     [
+      [
+       "Your hobby cost a lot?",
+       "سؤال با «Does» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس سرگرمی‌اش پول زیادی می‌خواهد و چه چیزی لازم دارد",
+     "بپرس دوربین",
+     "Does your hobby cost a lot, and what do you need?",
+     "A camera?",
+     [],
+     [
+      [
+       "Does your hobby cost a lot, and what you need?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس سرگرمی‌اش وقت زیادی می‌برد یا پول زیادی و چرا",
+     "بپرس کدام",
+     "Does your hobby take a lot of time, or a lot of money? Why?",
+     "Which one?",
+     [],
+     [
+      [
+       "Your hobby take a lot of time, or a lot of money? Why?",
+       "سؤال با «Does» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو نه",
+     "بگو کم",
+     "No, it doesn't.",
+     "A little.",
+     [],
+     [
+      [
+       "No, it isn't.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: No, it doesn't."
+      ]
+     ]
+    ],
+    [
+     "بگو نه فقط یک دوربین ساده لازم دارم",
+     "بگو گوشی هم کافی است",
+     "No, I only need a simple camera.",
+     "My phone is enough.",
+     [],
+     [
+      [
+       "No, I only need simple camera.",
+       "قبل از «simple» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو وقت زیادی می‌برد چون هر هفته می‌روم ولی پول زیادی نمی‌خواهد",
+     "بگو پنج ساعت",
+     "It takes a lot of time, because I go every week, but it doesn't cost a lot.",
+     "Five hours.",
+     [],
+     [
+      [
+       "It takes lot of time, because I go every week, but it doesn't cost a lot.",
+       "قبل از «lot» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "free-or-busy",
+   "c": null,
+   "q": [
+    [
+     "بپرس این روزها وقت آزاد دارد",
+     "بپرس زیاد",
+     "Do you have free time these days?",
+     "A lot?",
+     [],
+     [
+      [
+       "You have free time these days?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس این روزها وقت آزاد دارد و با آن چه می‌کند",
+     "بپرس فیلم",
+     "Do you have free time these days, and what do you do with it?",
+     "Films?",
+     [],
+     [
+      [
+       "Do you have free time these days, and what you do with it?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس دوست دارد وقت آزادش را برنامه‌ریزی کند و چرا",
+     "بپرس هر هفته",
+     "Do you like planning your free time? Why?",
+     "Every week?",
+     [],
+     [
+      [
+       "You like planning your free time? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو نه چندان",
+     "بگو کمی",
+     "Not really.",
+     "A bit.",
+     [],
+     []
+    ],
+    [
+     "بگو کم و فیلم می‌بینم",
+     "بگو یا قدم می‌زنم",
+     "A little, and I watch films.",
+     "Or I walk.",
+     [],
+     [
+      [
+       "little, and I watch films.",
+       "قبل از «little» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو بله چون وقتم کم است ولی گاهی بدون برنامه هم خوب است",
+     "بگو یکشنبه‌ها",
+     "Yes, I do, because I have little time, but sometimes no plan is good too.",
+     "On Sundays.",
+     [],
+     [
+      [
+       "Yes, I am, because I have little time, but sometimes no plan is good too.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "hate-doing",
+   "c": null,
+   "q": [
+    [
+     "بپرس از چه کاری بدش می‌آید",
+     "بپرس چرا",
+     "What do you hate doing?",
+     "Why?",
+     [],
+     [
+      [
+       "What you hate doing?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس از چه کاری بدش می‌آید و چه کاری را دوست دارد",
+     "بپرس پختن",
+     "What do you hate doing, and what do you love doing?",
+     "Cooking?",
+     [],
+     [
+      [
+       "What you hate doing, and what do you love doing?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس از کار کردن بدش می‌آید یا از تنها بودن و چرا",
+     "بپرس همیشه",
+     "Do you hate working, or do you hate being alone? Why?",
+     "Always?",
+     [],
+     [
+      [
+       "You hate working, or do you hate being alone? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو ظرف شستن",
+     "بگو خسته‌کننده است",
+     "Washing dishes.",
+     "It's boring.",
+     [],
+     []
+    ],
+    [
+     "بگو از ظرف شستن بدم می‌آید و پختن را دوست دارم",
+     "بگو خیلی",
+     "I hate washing dishes, and I love cooking.",
+     "A lot.",
+     [],
+     [
+      [
+       "I am hate washing dishes, and I love cooking.",
+       "بعد از «I» فعل ساده می‌آید، نه «am»: I hate."
+      ]
+     ]
+    ],
+    [
+     "بگو از تنها بودن بدم می‌آید چون خسته می‌شوم ولی کار کردن را دوست دارم",
+     "بگو گاهی",
+     "I hate being alone, because I get bored, but I like working.",
+     "Sometimes.",
+     [],
+     [
+      [
+       "I hate being alone, because get bored, but I like working.",
+       "بعد از «because» فاعل لازم است: because I get."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "hobby-share",
+   "c": "دوستت گفت: «می‌خواهم یک سرگرمی تازه شروع کنم.»",
+   "q": [
+    [
+     "بپرس چه سرگرمی‌ای",
+     "بپرس نقاشی",
+     "What hobby?",
+     "Painting?",
+     [],
+     []
+    ],
+    [
+     "بپرس چه سرگرمی‌ای و چرا",
+     "بپرس سخت است",
+     "What hobby, and why?",
+     "Is it hard?",
+     [],
+     [
+      [
+       "What hobby, and why you?",
+       "پرسش دوم ساده است: «and why?»"
+      ]
+     ]
+    ],
+    [
+     "بپرس می‌خواهد تنها شروع کند یا با یک دوست و چرا",
+     "بپرس کجا",
+     "Do you want to start alone, or with a friend? Why?",
+     "Where?",
+     [],
+     [
+      [
+       "You want to start alone, or with a friend? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو نقاشی",
+     "بگو یا عکاسی",
+     "Painting.",
+     "Or photography.",
+     [],
+     []
+    ],
+    [
+     "بگو نقاشی چون دوست دارم خلاق باشم",
+     "بگو کمی",
+     "Painting, because I want to be creative.",
+     "A bit.",
+     [],
+     [
+      [
+       "Painting, because I want be creative.",
+       "بعد از «want» باید «to» بیاید: want to be."
+      ]
+     ]
+    ],
+    [
+     "بگو با یک دوست چون خوش‌تر می‌گذرد ولی اگر نشد تنها می‌کنم",
+     "بگو در یک کلاس",
+     "With a friend, because it's fun, but if not I start alone.",
+     "In a class.",
+     [],
+     [
+      [
+       "With a friend, because it fun, but if not I start alone.",
+       "بعد از «because» باید «it's» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "hobby-time",
+   "c": "دوستت گفت: «برای سرگرمی‌ام وقت ندارم.»",
+   "q": [
+    [
+     "بپرس چرا وقت ندارد",
+     "بپرس کار",
+     "Why no time?",
+     "Work?",
+     [],
+     []
+    ],
+    [
+     "بپرس چرا وقت ندارد و چه می‌کند",
+     "بپرس آخر هفته",
+     "Why no time, and what do you do?",
+     "At the weekend?",
+     [],
+     [
+      [
+       "Why no time, and what you do?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس می‌خواهد وقت بیشتری پیدا کند یا ترجیح می‌دهد استراحت کند و چرا",
+     "بپرس چطور",
+     "Do you want to find time, or do you prefer resting? Why?",
+     "How?",
+     [],
+     [
+      [
+       "You want to find time, or do you prefer resting? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو کار زیاد دارم",
+     "بگو و خانه",
+     "I have a lot of work.",
+     "And home.",
+     [],
+     [
+      [
+       "I have lot of work.",
+       "قبل از «lot» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو کار زیاد دارم و آخر هفته استراحت می‌کنم",
+     "بگو گاهی",
+     "I have a lot of work, and I rest at the weekend.",
+     "Sometimes.",
+     [],
+     [
+      [
+       "I have a lot of work, and I rest in the weekend.",
+       "می‌گوییم «at the weekend»."
+      ]
+     ]
+    ],
+    [
+     "بگو می‌خواهم وقت پیدا کنم چون سرگرمی خوب است ولی گاهی استراحت هم لازم است",
+     "بگو هفته‌ای یک ساعت",
+     "I want to find time, because a hobby is good, but sometimes I need to rest too.",
+     "An hour a week.",
+     [],
+     [
+      [
+       "I want find time, because a hobby is good, but sometimes I need to rest too.",
+       "بعد از «want» باید «to» بیاید: want to find."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "sport-like",
+   "c": "دوستت گفت: «من ورزش را دوست دارم.»",
+   "q": [
+    [
+     "بپرس چه ورزشی دوست دارد",
+     "بپرس همیشه",
+     "What sport do you like?",
+     "Always?",
+     [],
+     [
+      [
+       "What sport you like?",
+       "بعد از «what» و اسم، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه ورزشی دوست دارد و با چه کسی بازی می‌کند",
+     "بپرس در پارک",
+     "What sport do you like, and who do you play with?",
+     "In the park?",
+     [],
+     [
+      [
+       "What sport you like, and who do you play with?",
+       "بعد از «what» و اسم، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس ورزش کردن را دوست دارد یا تماشا کردن را و چرا",
+     "بپرس هر روز",
+     "Do you like playing sport, or do you like watching it? Why?",
+     "Every day?",
+     [],
+     [
+      [
+       "You like playing sport, or do you like watching it? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو فوتبال",
+     "بگو و شنا",
+     "Football.",
+     "And swimming.",
+     [],
+     []
+    ],
+    [
+     "بگو فوتبال با دوستانم",
+     "بگو جمعه‌ها",
+     "Football, with my friends.",
+     "On Fridays.",
+     [],
+     [
+      [
+       "Football with my friends I play.",
+       "ترتیب جمله: Football, with my friends."
+      ]
+     ]
+    ],
+    [
+     "بگو ورزش کردن را دوست دارم چون سالم می‌مانم ولی تماشای فوتبال هم خوب است",
+     "بگو شب‌ها",
+     "I like playing, because I stay healthy, but watching football is good too.",
+     "In the evening.",
+     [],
+     [
+      [
+       "I like playing, because stay healthy, but watching football is good too.",
+       "بعد از «because» فاعل لازم است: because I stay."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "like-to-try",
+   "c": "دوستت گفت: «من دوست دارم چیز تازه امتحان کنم.»",
+   "q": [
+    [
+     "بپرس چه چیزهای تازه‌ای امتحان می‌کند",
+     "بپرس غذا",
+     "What new things do you try?",
+     "Food?",
+     [],
+     [
+      [
+       "What new things you try?",
+       "بعد از «what» و اسم، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه چیزهای تازه‌ای امتحان می‌کند و کجا",
+     "بپرس در شهر",
+     "What new things do you try, and where?",
+     "In the city?",
+     [],
+     [
+      [
+       "What new things you try, and where?",
+       "بعد از «what» و اسم، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس امتحان کردن چیز تازه را دوست دارد یا همان چیزهای قبلی را و چرا",
+     "بپرس همیشه",
+     "Do you like trying new things, or do you like the same things? Why?",
+     "Always?",
+     [],
+     [
+      [
+       "You like trying new things, or do you like the same things? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو غذای تازه",
+     "بگو و ورزش",
+     "New food.",
+     "And sport.",
+     [],
+     []
+    ],
+    [
+     "بگو غذای تازه در یک رستوران",
+     "بگو نزدیک خانه",
+     "New food, at a restaurant.",
+     "Near my home.",
+     [],
+     [
+      [
+       "New food, at restaurant.",
+       "قبل از «restaurant» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو امتحان کردن را دوست دارم چون یاد می‌گیرم ولی گاهی همان چیز قبلی را می‌خواهم",
+     "بگو بستگی دارد",
+     "I like trying new things, because I learn, but sometimes I want the same thing.",
+     "It depends.",
+     [],
+     [
+      [
+       "I like trying new things, because learn, but sometimes I want the same thing.",
+       "بعد از «because» فاعل لازم است: because I learn."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "best-day-off",
+   "c": "دوستت گفت: «روز تعطیلم را خیلی دوست دارم.»",
+   "q": [
+    [
+     "بپرس آن روز چه می‌کند",
+     "بپرس تنها",
+     "What do you do that day?",
+     "Alone?",
+     [],
+     [
+      [
+       "What you do that day?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس آن روز چه می‌کند و با چه کسی",
+     "بپرس با خانواده",
+     "What do you do that day, and who with?",
+     "With family?",
+     [],
+     [
+      [
+       "What you do that day, and who with?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس آن روز بیرون می‌رود یا در خانه می‌ماند و چرا",
+     "بپرس همیشه",
+     "Do you go out, or do you stay home that day? Why?",
+     "Always?",
+     [],
+     [
+      [
+       "You go out, or do you stay home that day? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو استراحت",
+     "بگو و قدم",
+     "I rest.",
+     "And walk.",
+     [],
+     []
+    ],
+    [
+     "بگو استراحت و با خانواده غذا می‌خورم",
+     "بگو ظهر",
+     "I rest, and I eat with my family.",
+     "At noon.",
+     [],
+     [
+      [
+       "I am rest, and I eat with my family.",
+       "بعد از «I» فعل ساده می‌آید، نه «am»: I rest."
+      ]
+     ]
+    ],
+    [
+     "بگو در خانه می‌مانم چون خسته‌ام ولی گاهی با دوستانم بیرون می‌روم",
+     "بگو بستگی دارد",
+     "I stay home, because I'm tired, but sometimes I go out with my friends.",
+     "It depends.",
+     [],
+     [
+      [
+       "I stay home, because I tired, but sometimes I go out with my friends.",
+       "بعد از «because» باید «I'm» بیاید."
+      ]
+     ]
+    ]
+   ]
+  }
+ ]
+}

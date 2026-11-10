@@ -16,10 +16,11 @@ use Livewire\WithFileUploads;
 
 /**
  * Reading, one task per screen (lesson design 9): the passage alone (tap a
- * word for its meaning), the true/false cards one per screen, then each
- * question on its own screen — typed or said, checked from the bottom,
- * the passage a tap away in a sheet. The new words join My Words by
- * themselves.
+ * word for its meaning), the true/false cards one per screen, then the
+ * questions — multiple choice when the mission has `choice_questions` (one
+ * tap each, no AI), otherwise each question on its own screen, typed or
+ * said and checked from the bottom, the passage a tap away in a sheet. The
+ * new words join My Words by themselves.
  */
 new class extends Component
 {
@@ -100,9 +101,51 @@ new class extends Component
             ->all();
     }
 
+    /**
+     * The written questions — none when the mission asks its questions as
+     * multiple choice instead (see choiceCards()).
+     */
     public function questions(): array
     {
+        if ($this->choiceQuestions() !== []) {
+            return [];
+        }
+
         return $this->run->mission->stepContent('reading_comprehension')['questions'] ?? [];
+    }
+
+    /**
+     * @return list<array{prompt: string, options: list<string>, correct: int, difficulty?: string}>
+     */
+    private function choiceQuestions(): array
+    {
+        return array_values($this->run->mission->stepContent('reading_comprehension')['choice_questions'] ?? []);
+    }
+
+    /**
+     * The multiple-choice questions as <x-quick-round> cards.
+     *
+     * @return list<array{prompt: string, options: list<string>, correct: int, label: string, difficulty?: string}>
+     */
+    public function choiceCards(): array
+    {
+        return array_map(fn (array $item) => [...$item, 'label' => 'Choose the answer'], $this->choiceQuestions());
+    }
+
+    /**
+     * The multiple-choice round is finished: the step is done. What was
+     * answered right on the first try is kept with the evidence.
+     */
+    public function finishChoices(int $correct, int $total): void
+    {
+        Evidence::create([
+            'mission_run_id' => $this->run->id,
+            'phase' => 'reading_comprehension',
+            'type' => Evidence::TYPE_TEXT,
+            'content_ref' => json_encode(['answers' => [], 'choices' => ['correct' => max(0, $correct), 'total' => max(0, $total)]]),
+        ]);
+
+        $this->finishStep();
     }
 
     private function topicSummary(): ?string
@@ -259,8 +302,8 @@ new class extends Component
                 ? ($match['definition'] ?? '')
                 : 'این کلمه رو توی New Words دیدی';
             $classes = $isNew
-                ? 'rounded bg-accent/15 px-0.5 text-accent-ink cursor-help dark:bg-accent-dark/25 dark:text-accent-ink-dark'
-                : 'rounded bg-success/15 px-0.5 text-success cursor-help dark:bg-success-dark/25 dark:text-success-dark';
+                ? 'rounded-md bg-accent/25 px-1 py-0.5 font-bold text-accent-ink underline decoration-accent decoration-2 underline-offset-4 dark:bg-accent-dark/35 dark:text-accent-ink-dark dark:decoration-accent-dark'
+                : 'rounded-md bg-success/25 px-1 py-0.5 font-bold text-ink underline decoration-success decoration-2 underline-offset-4 dark:bg-success-dark/35 dark:text-ink-dark dark:decoration-success-dark';
 
             return '<mark class="'.$classes.'" title="'.e($tooltip).'">'.e($part).'</mark>';
         })->implode('');
@@ -342,7 +385,15 @@ new class extends Component
             'content_ref' => json_encode(['answers' => $filled->values(), 'severities' => $severities]),
         ]);
 
-        // The passage's new words join My Words by themselves (lesson design 9).
+        $this->finishStep();
+    }
+
+    /**
+     * The passage's new words join My Words by themselves (lesson design 9),
+     * the draft is cleared and the learner moves on.
+     */
+    private function finishStep(): void
+    {
         $this->initWordsToTrack();
         $this->addWordsToNotebook();
 
@@ -369,10 +420,11 @@ new class extends Component
     $draftPrefix = $this->draftPrefix();
     $questions = $this->questions();
     $cards = $readOnly ? [] : $this->comprehensionCards();
-    // Screens: 0 start · 1 the passage · 2 true/false · 3.. one question each.
+    $choiceCards = $readOnly ? [] : $this->choiceCards();
+    // Screens: 0 start · 1 the passage · 2 true/false · 3 the multiple-choice round, or 3.. one written question each.
     $quizScreen = count($cards) ? 2 : null;
     $firstQuestionScreen = 3;
-    $screenCount = $firstQuestionScreen + count($questions);
+    $screenCount = $firstQuestionScreen + max(count($questions), count($choiceCards) ? 1 : 0);
 @endphp
 
 @if ($readOnly)
@@ -417,13 +469,13 @@ new class extends Component
         <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
             <x-listen-aloud :text="$reading['passage'] ?? ''" />
             @if ($highlightTypes->contains('reused'))
-                <span class="inline-flex items-center gap-1.5 text-xs font-bold text-ink-soft dark:text-ink-soft-dark"><span class="h-2.5 w-2.5 rounded-full bg-success dark:bg-success-dark"></span>From New Words</span>
+                <span class="inline-flex items-center gap-1.5 text-xs font-bold text-ink-soft dark:text-ink-soft-dark"><span class="rounded-md bg-success/25 px-1.5 text-ink underline decoration-success decoration-2 underline-offset-4 dark:bg-success-dark/35 dark:text-ink-dark dark:decoration-success-dark">word</span>From New Words</span>
             @endif
             @if ($highlightTypes->contains('new'))
-                <span class="inline-flex items-center gap-1.5 text-xs font-bold text-ink-soft dark:text-ink-soft-dark"><span class="h-2.5 w-2.5 rounded-full bg-accent dark:bg-accent-dark"></span>New word</span>
+                <span class="inline-flex items-center gap-1.5 text-xs font-bold text-ink-soft dark:text-ink-soft-dark"><span class="rounded-md bg-accent/25 px-1.5 text-accent-ink underline decoration-accent decoration-2 underline-offset-4 dark:bg-accent-dark/35 dark:text-accent-ink-dark dark:decoration-accent-dark">word</span>New word</span>
             @endif
         </div>
-        <p x-lookup class="text-base leading-loose text-ink dark:text-ink-dark">{!! $passageHtml !!}</p>
+        <p x-lookup class="rounded-3xl bg-surface p-5 text-lg leading-loose text-ink shadow-sm dark:bg-surface-dark dark:text-ink-dark">{!! $passageHtml !!}</p>
 
         <x-slot:actions>
             <x-continue-button on-click="screen = {{ $quizScreen ?? $firstQuestionScreen }}" wire-target="save" />
@@ -439,6 +491,19 @@ new class extends Component
                 draft-key="{{ $draftPrefix }}quiz"
                 on-complete="if (screen === {{ $quizScreen }}) screen = {{ $firstQuestionScreen }}"
                 on-skip="screen = {{ $firstQuestionScreen }}"
+            />
+        </section>
+    @endif
+
+    @if (count($choiceCards))
+        <section x-show="screen === {{ $firstQuestionScreen }}" x-cloak class="animate-lesson-screen-in pt-2">
+            <x-quick-round
+                lesson
+                :cards="$choiceCards"
+                label="Choose the answer"
+                draft-key="{{ $draftPrefix }}choices"
+                on-complete="if (screen === {{ $firstQuestionScreen }}) $wire.finishChoices(correctCount, firstTries)"
+                on-skip="$wire.finishChoices(0, 0)"
             />
         </section>
     @endif

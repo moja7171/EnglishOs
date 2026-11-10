@@ -43,7 +43,7 @@ class FriendStory
     public const KIND_NAMES = [
         'mission' => 'مأموریت',
         'listening' => 'گوش دادن',
-        'pi' => 'صحبت با Pi',
+        'pi' => 'گفتگوی روزانه',
         'review' => 'مرور',
         'pair' => 'تمرین دونفره',
         'game' => 'بازی',
@@ -159,7 +159,7 @@ class FriendStory
         foreach ($this->activity->dayItems($friend, $viewer, $date) as $item) {
             $mapped = match ($item['kind']) {
                 'listening' => $heard === [] ? ['گوش دادن', 'یک لیسنینگ روزانه'] : null,
-                'pi' => ['صحبت با Pi', $this->piLine($friend, $date)],
+                'pi' => ['گفتگوی روزانه', $this->piLine($friend, $date)],
                 'review' => ['مرور', $this->reviewLine($friend)],
                 'pair' => ['تمرین دونفره', $this->pairLine($friend)],
                 'ai-practice' => ['تمرین با Teddy', 'هم‌کلاسی هوشمند'],

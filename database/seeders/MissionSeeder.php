@@ -725,6 +725,15 @@ class MissionSeeder extends Seeder
                                     "What is Aisha's morning usually like on a weekday?",
                                     "What is different about Aisha's Sunday, compared to a normal weekday?",
                                 ],
+                                // Multiple choice instead of written answers (reading task 11,
+                                // 2026-11-10): one tap each, graded in the browser like the true/false
+                                // round above. Every right answer is stated in the passage; the wrong
+                                // ones are things the passage mentions or plausibly could.
+                                'choice_questions' => [
+                                    ['prompt' => 'What time does Aisha wake up on weekdays?', 'options' => ['At seven', 'At six', 'At ten'], 'correct' => 1, 'difficulty' => 'easy'],
+                                    ['prompt' => 'What does Aisha like to do on Sundays?', 'options' => ['Sleep in until nearly ten', 'Do the shopping with her sister', 'Start work early'], 'correct' => 0, 'difficulty' => 'medium'],
+                                    ['prompt' => 'Why does Aisha usually stay in on weekday evenings?', 'options' => ['She has to study', 'She does not like films', 'She is exhausted after a long shift'], 'correct' => 2, 'difficulty' => 'hard'],
+                                ],
                             ],
                             [
                                 'key' => 'writing',
@@ -1490,6 +1499,15 @@ class MissionSeeder extends Seeder
                                     "How does Sara feel about her friendship with Mina, even though they don't talk every week anymore?",
                                     "What is different about Sara's routine with her school friends these days, compared to usual?",
                                 ],
+                                // Multiple choice instead of written answers (reading task 11,
+                                // 2026-11-10): one tap each, graded in the browser like the true/false
+                                // round above. Every right answer is stated in the passage; the wrong
+                                // ones are things the passage mentions or plausibly could.
+                                'choice_questions' => [
+                                    ['prompt' => 'How long have Sara and her three school friends been best friends?', 'options' => ['Almost fifteen years', 'About five years', 'Only a few months'], 'correct' => 0, 'difficulty' => 'easy'],
+                                    ['prompt' => 'Why is it harder to plan dinners with her school friends these days?', 'options' => ['Sara is too busy at work', 'Two of them are working abroad', 'They do not like dinner any more'], 'correct' => 1, 'difficulty' => 'medium'],
+                                    ['prompt' => 'What does Sara think about her friendship with Mina?', 'options' => ['They will lose touch soon', 'They must talk every week', 'A good friendship can survive a few quiet months'], 'correct' => 2, 'difficulty' => 'hard'],
+                                ],
                             ],
                             [
                                 'key' => 'writing',
@@ -2137,6 +2155,15 @@ class MissionSeeder extends Seeder
                                     'What does Marco usually eat for breakfast, and why?',
                                     "What is Marco's one rule about eating before a night shift?",
                                 ],
+                                // Multiple choice instead of written answers (reading task 11,
+                                // 2026-11-10): one tap each, graded in the browser like the true/false
+                                // round above. Every right answer is stated in the passage; the wrong
+                                // ones are things the passage mentions or plausibly could.
+                                'choice_questions' => [
+                                    ['prompt' => 'Where is Sara a student?', 'options' => ['At a university in Leeds', 'At a school in London', 'At a cafe in Leeds'], 'correct' => 0, 'difficulty' => 'easy'],
+                                    ['prompt' => 'What does Sara find most difficult about her course?', 'options' => ['Understanding the lectures', 'Having several assignments due in the same week', 'Working in the library'], 'correct' => 1, 'difficulty' => 'medium'],
+                                    ['prompt' => 'What is Sara in charge of at her part-time job?', 'options' => ['Making the coffee', 'Opening the cafe in the morning', 'Closing the till at the end of her shift'], 'correct' => 2, 'difficulty' => 'hard'],
+                                ],
                             ],
                             [
                                 'key' => 'writing',
@@ -2740,6 +2767,15 @@ class MissionSeeder extends Seeder
                                 'questions' => [
                                     'What does Sara find most difficult about her course, and what does she enjoy most?',
                                     'What is Sara in charge of at her part-time job?',
+                                ],
+                                // Multiple choice instead of written answers (reading task 11,
+                                // 2026-11-10): one tap each, graded in the browser like the true/false
+                                // round above. Every right answer is stated in the passage; the wrong
+                                // ones are things the passage mentions or plausibly could.
+                                'choice_questions' => [
+                                    ['prompt' => 'What is Marco\'s job?', 'options' => ['He is a cook', 'He is a nurse', 'He is a shop assistant'], 'correct' => 1, 'difficulty' => 'easy'],
+                                    ['prompt' => 'What does Marco have for breakfast?', 'options' => ['A bowl of oats', 'A chocolate bar', 'Takeaway'], 'correct' => 0, 'difficulty' => 'medium'],
+                                    ['prompt' => 'What is Marco\'s one rule about eating?', 'options' => ['Never eat takeaway', 'Never eat after 3pm', 'Never eat a heavy meal right before a night shift'], 'correct' => 2, 'difficulty' => 'hard'],
                                 ],
                             ],
                             [
@@ -3387,6 +3423,15 @@ class MissionSeeder extends Seeder
                                 'questions' => [
                                     'How did Sara get into rock climbing?',
                                     'Why does Sara like climbing more than the gym?',
+                                ],
+                                // Multiple choice instead of written answers (reading task 11,
+                                // 2026-11-10): one tap each, graded in the browser like the true/false
+                                // round above. Every right answer is stated in the passage; the wrong
+                                // ones are things the passage mentions or plausibly could.
+                                'choice_questions' => [
+                                    ['prompt' => 'What does Sara do for work?', 'options' => ['She is a gym trainer', 'She is a climbing teacher', 'She is a nurse'], 'correct' => 2, 'difficulty' => 'easy'],
+                                    ['prompt' => 'How did Sara get into rock climbing?', 'options' => ['A friend from work got her into it', 'She saw it on TV', 'Her sister took her'], 'correct' => 0, 'difficulty' => 'medium'],
+                                    ['prompt' => 'Why does Sara not mind falling?', 'options' => ['She is very strong', 'There is always a rope', 'She only climbs outdoors'], 'correct' => 1, 'difficulty' => 'hard'],
                                 ],
                             ],
                             [
@@ -4067,6 +4112,15 @@ class MissionSeeder extends Seeder
                                 'questions' => [
                                     'Why did Reza quit English at sixteen?',
                                     'What did Reza do differently the second time?',
+                                ],
+                                // Multiple choice instead of written answers (reading task 11,
+                                // 2026-11-10): one tap each, graded in the browser like the true/false
+                                // round above. Every right answer is stated in the passage; the wrong
+                                // ones are things the passage mentions or plausibly could.
+                                'choice_questions' => [
+                                    ['prompt' => 'How old was Reza when he started learning English?', 'options' => ['Sixteen', 'Eighteen', 'Twelve'], 'correct' => 2, 'difficulty' => 'easy'],
+                                    ['prompt' => 'Why did Reza feel embarrassed when his cousin visited?', 'options' => ['He understood almost nothing', 'He forgot his cousin\'s name', 'He spoke too loudly'], 'correct' => 0, 'difficulty' => 'medium'],
+                                    ['prompt' => 'What did Reza do differently the second time?', 'options' => ['He joined a big class at school', 'He found an online teacher and watched cartoons with subtitles', 'He moved to Canada'], 'correct' => 1, 'difficulty' => 'hard'],
                                 ],
                             ],
                             [
@@ -4836,6 +4890,15 @@ class MissionSeeder extends Seeder
                                     'What did Leila\'s relatives use to do every Friday?',
                                     'What were the people in the house doing when the lights went out?',
                                 ],
+                                // Multiple choice instead of written answers (reading task 11,
+                                // 2026-11-10): one tap each, graded in the browser like the true/false
+                                // round above. Every right answer is stated in the passage; the wrong
+                                // ones are things the passage mentions or plausibly could.
+                                'choice_questions' => [
+                                    ['prompt' => 'Who came to Leila\'s grandmother\'s house every Friday?', 'options' => ['Only her cousins', 'Her teachers', 'All her relatives'], 'correct' => 2, 'difficulty' => 'easy'],
+                                    ['prompt' => 'What kind of house did Leila\'s grandparents have?', 'options' => ['A small rented house with a garden', 'A big house they owned', 'A flat in a tall building'], 'correct' => 0, 'difficulty' => 'medium'],
+                                    ['prompt' => 'What happened when the lights went out?', 'options' => ['Everyone went home', 'Grandpa lit candles and told stories', 'The children went to bed'], 'correct' => 1, 'difficulty' => 'hard'],
+                                ],
                             ],
                             [
                                 'key' => 'writing',
@@ -5559,6 +5622,15 @@ class MissionSeeder extends Seeder
                                     'In what ways is Kian different from Arash?',
                                     'How do the two friends stay close now that Kian lives in Germany?',
                                 ],
+                                // Multiple choice instead of written answers (reading task 11,
+                                // 2026-11-10): one tap each, graded in the browser like the true/false
+                                // round above. Every right answer is stated in the passage; the wrong
+                                // ones are things the passage mentions or plausibly could.
+                                'choice_questions' => [
+                                    ['prompt' => 'How long have Arash and Kian been friends?', 'options' => ['Since university', 'Since Kian moved to Germany', 'Since primary school'], 'correct' => 2, 'difficulty' => 'easy'],
+                                    ['prompt' => 'Which friend is shy and quieter?', 'options' => ['Kian', 'Arash', 'Both of them'], 'correct' => 0, 'difficulty' => 'medium'],
+                                    ['prompt' => 'How do the two friends stay close now?', 'options' => ['They write letters', 'They talk every Sunday and Arash often flies to Berlin', 'Kian flies home every month'], 'correct' => 1, 'difficulty' => 'hard'],
+                                ],
                             ],
                             [
                                 'key' => 'writing',
@@ -6250,6 +6322,15 @@ class MissionSeeder extends Seeder
                                 'questions' => [
                                     'What kind of person was Nadia looking for?',
                                     'Why didn\'t Nadia choose the first two people?',
+                                ],
+                                // Multiple choice instead of written answers (reading task 11,
+                                // 2026-11-10): one tap each, graded in the browser like the true/false
+                                // round above. Every right answer is stated in the passage; the wrong
+                                // ones are things the passage mentions or plausibly could.
+                                'choice_questions' => [
+                                    ['prompt' => 'Where does Nadia work?', 'options' => ['From home', 'In a hospital', 'At a university'], 'correct' => 0, 'difficulty' => 'easy'],
+                                    ['prompt' => 'Why did Nadia not want Tara as a flatmate?', 'options' => ['Tara is rude', 'Tara works at night', 'Big parties drain Nadia and Tara loves parties'], 'correct' => 2, 'difficulty' => 'medium'],
+                                    ['prompt' => 'Why is Bahar at home only in the afternoons?', 'options' => ['She studies in the morning', 'She works at night', 'She travels a lot'], 'correct' => 1, 'difficulty' => 'hard'],
                                 ],
                             ],
                             [
@@ -6969,6 +7050,15 @@ class MissionSeeder extends Seeder
                                 'questions' => [
                                     'How long have Mahin and Javad been married?',
                                     'What has helped Javad with his temper?',
+                                ],
+                                // Multiple choice instead of written answers (reading task 11,
+                                // 2026-11-10): one tap each, graded in the browser like the true/false
+                                // round above. Every right answer is stated in the passage; the wrong
+                                // ones are things the passage mentions or plausibly could.
+                                'choice_questions' => [
+                                    ['prompt' => 'What was the party for?', 'options' => ['Mahin and Javad\'s golden anniversary', 'Sara\'s birthday', 'A wedding'], 'correct' => 0, 'difficulty' => 'easy'],
+                                    ['prompt' => 'Where did Mahin and Javad go on their honeymoon?', 'options' => ['To Shiraz', 'To the Caspian Sea', 'To Europe'], 'correct' => 1, 'difficulty' => 'medium'],
+                                    ['prompt' => 'What does Javad do now when he gets angry?', 'options' => ['He walks away', 'He goes to bed', 'He takes a deep breath'], 'correct' => 2, 'difficulty' => 'hard'],
                                 ],
                             ],
                             [
@@ -7706,6 +7796,15 @@ class MissionSeeder extends Seeder
                                 'questions' => [
                                     'What is Arash doing on Tuesday and on Wednesday?',
                                     'Why does Arash want the new job?',
+                                ],
+                                // Multiple choice instead of written answers (reading task 11,
+                                // 2026-11-10): one tap each, graded in the browser like the true/false
+                                // round above. Every right answer is stated in the passage; the wrong
+                                // ones are things the passage mentions or plausibly could.
+                                'choice_questions' => [
+                                    ['prompt' => 'What is Arash doing on Tuesday?', 'options' => ['Having a job interview', 'Going to a training course', 'Having lunch with his old manager'], 'correct' => 0, 'difficulty' => 'easy'],
+                                    ['prompt' => 'What will Arash do if the bus breaks down?', 'options' => ['Cancel the interview', 'Take a taxi', 'Call his mum'], 'correct' => 1, 'difficulty' => 'medium'],
+                                    ['prompt' => 'What does Arash want if he gets the new job?', 'options' => ['To work from home every day', 'To get a pay rise on Monday', 'To work from home two days a week'], 'correct' => 2, 'difficulty' => 'hard'],
                                 ],
                             ],
                             [

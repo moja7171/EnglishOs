@@ -36,6 +36,25 @@ class FriendActivity
     }
 
     /**
+     * What $user earned in the competitive games (Ask & Answer, Two Truths,
+     * Just a Minute, Who am I) they finished in the week from $start, in
+     * half points — the number the Board ranks on its Games tab. Games
+     * played inside a pair practice round do not count.
+     */
+    public function gamePoints(User $user, Carbon $start): int
+    {
+        return (int) PairGame::query()
+            ->involving($user)
+            ->standalone()
+            ->where('stage', PairGame::STAGE_DONE)
+            ->whereIn('game', PairGame::COMPETITIVE)
+            ->where('finished_at', '>=', $start->copy()->startOfDay())
+            ->where('finished_at', '<', $start->copy()->addDays(7)->startOfDay())
+            ->get()
+            ->sum(fn (PairGame $game) => $game->personalPoints()[$user->id] ?? 0);
+    }
+
+    /**
      * $user's seven days from $start: whether each was practised, its tag
      * ("D2" for a mission day, "·" for other practice) and the day's place
      * against today.
@@ -144,7 +163,7 @@ class FriendActivity
 
         $labels = [
             'listening' => ['Listening', 'A daily listening'],
-            'pi' => ['Daily talk', 'A talk with Pi'],
+            'pi' => ['Daily talk', 'A speaking talk'],
             'review' => ['Review', 'Words and sentences'],
             'pair' => ['Pair practice', '12 minutes with a friend'],
             'ai-practice' => ['Practice with Teddy', 'Your AI classmate'],

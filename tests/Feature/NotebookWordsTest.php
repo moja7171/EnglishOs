@@ -144,7 +144,7 @@ class NotebookWordsTest extends TestCase
     {
         $learner = User::factory()->create();
         $this->actingAs($learner);
-        $word = $this->word($learner, 'spicy');
+        $word = $this->word($learner, 'spicy', ['example' => 'Is it spicy?']);
         $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->twice()->andReturn('This soup is spicy and my little sister does not like it at all today.', 'This soup is too spicy.'));
 
         $made = Livewire::test('notebook.index')->call('makeSentence', $word->id)->effects['returns'][0] ?? null;
@@ -157,7 +157,7 @@ class NotebookWordsTest extends TestCase
     {
         $learner = User::factory()->create();
         $this->actingAs($learner);
-        $word = $this->word($learner, 'spicy');
+        $word = $this->word($learner, 'spicy', ['example' => 'Is it spicy?']);
         $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->andThrow(new RuntimeException('down')));
 
         Livewire::test('notebook.index')->call('makeSentence', $word->id);
@@ -169,7 +169,7 @@ class NotebookWordsTest extends TestCase
     {
         $learner = User::factory()->create();
         $this->actingAs($learner);
-        $word = $this->word($learner, 'reluctant');
+        $word = $this->word($learner, 'reluctant', ['example' => 'He looked reluctant.']);
         $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->twice()->andReturn(
             '{"ok": true, "better": null, "note": "Nice and clear."}',
             '{"ok": false, "better": "She was reluctant to go.", "note": "Use was after she."}',
@@ -195,7 +195,7 @@ class NotebookWordsTest extends TestCase
     {
         $learner = User::factory()->create();
         $this->actingAs($learner);
-        $word = $this->word($learner, 'reluctant');
+        $word = $this->word($learner, 'reluctant', ['example' => 'He looked reluctant.']);
         $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->andThrow(new RuntimeException('down')));
 
         Livewire::test('notebook.index')->call('checkSentence', $word->id, 'I was reluctant to say yes.');

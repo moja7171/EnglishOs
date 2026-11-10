@@ -10,7 +10,8 @@ use Illuminate\Console\Command;
 
 /**
  * Runs the automatic checks (AskAnswerFilter) over the Ask & Answer data
- * files, so every edit is checked before the bank is seeded.
+ * files, so every edit is checked before the bank is seeded. A level 1
+ * question may not repeat inside one mission ("Why?" may start two missions).
  */
 class AskAnswerCheck extends Command
 {
@@ -38,8 +39,8 @@ class AskAnswerCheck extends Command
             $allowed = $this->wordsTaughtUpTo((int) $data['mission'], $pairPractice);
 
             foreach ($data['items'] as $item) {
-                $problems = $filter->problems($item, $allowed, $taken, (int) $data['mission']);
-                $taken[] = AskAnswerChecker::normalize($item['q'][0][2] ?? '');
+                $problems = $filter->problems($item, $allowed, $taken[(int) $data['mission']] ?? [], (int) $data['mission']);
+                $taken[(int) $data['mission']][] = AskAnswerChecker::normalize($item['q'][0][2] ?? '');
                 $checked++;
 
                 foreach ($problems as $problem) {

@@ -62,11 +62,11 @@ class DailyReviewTest extends TestCase
         );
     }
 
-    private function makeDuePrompt(User $learner): SpeakingPrompt
+    private function makeDuePrompt(User $learner, string $prompt = 'What time do you usually wake up?'): SpeakingPrompt
     {
         return SpeakingPrompt::create([
             'learner_id' => $learner->id,
-            'prompt' => 'What time do you usually wake up?',
+            'prompt' => $prompt,
             'next_review_at' => now()->subMinute(),
         ]);
     }
@@ -135,6 +135,15 @@ class DailyReviewTest extends TestCase
 
         $this->assertCount(4, $queue);
         $this->assertEqualsCanonicalizing(['word', 'speaking', 'error', 'grammar'], array_column($queue, 'type'));
+    }
+
+    public function test_a_word_card_says_which_mission_the_word_is_from(): void
+    {
+        $learner = User::factory()->create();
+        $this->makeDueWord($learner);
+        $this->actingAs($learner);
+
+        Livewire::test('review.index')->assertSee('M01 · My Daily Life');
     }
 
     public function test_a_word_shows_the_front_of_a_recall_card_with_session_progress(): void
@@ -293,11 +302,11 @@ class DailyReviewTest extends TestCase
             ->assertDontSee("You're all caught up");
     }
 
-    public function test_after_todays_six_words_the_review_says_how_many_more_are_waiting(): void
+    public function test_after_todays_words_the_review_says_how_many_more_are_waiting(): void
     {
         $learner = User::factory()->create();
 
-        foreach (range(1, 9) as $number) {
+        foreach (range(1, User::DAILY_WORD_LIMIT + 3) as $number) {
             $this->makeDueWord($learner, ['word' => 'word'.$number, 'next_review_at' => now()->subMinutes($number)]);
         }
 
@@ -305,7 +314,7 @@ class DailyReviewTest extends TestCase
 
         $page = Livewire::test('review.index', ['track' => 'words']);
 
-        foreach (range(1, 6) as $ignored) {
+        foreach (range(1, User::DAILY_WORD_LIMIT) as $ignored) {
             $page->call('gradeWord', 4, true);
         }
 
@@ -577,36 +586,36 @@ class DailyReviewTest extends TestCase
         $learner = User::factory()->create();
         $this->actingAs($learner);
 
-        foreach (range(1, 8) as $minutesOverdue) {
+        foreach (range(1, User::DAILY_WORD_LIMIT + 2) as $minutesOverdue) {
             $this->makeDueWord($learner, ['word' => "word{$minutesOverdue}", 'next_review_at' => now()->subMinutes($minutesOverdue)]);
         }
 
         $items = $learner->dailyReviewItems();
 
         $this->assertCount(User::DAILY_WORD_LIMIT, $items);
-        $this->assertSame(6, $learner->dailyReviewCount());
+        $this->assertSame(User::DAILY_WORD_LIMIT, $learner->dailyReviewCount());
         $this->assertNotContains(
             VocabularyWord::where('word', 'word1')->value('id'),
             $items->pluck('id')->all(),
         );
 
-        Livewire::test('missions.overview')->assertSeeInOrder(['Daily Review', '6 items']);
+        Livewire::test('missions.overview')->assertSeeInOrder(['Daily Review', User::DAILY_WORD_LIMIT.' items']);
     }
 
-    public function test_reviewing_a_word_uses_up_one_of_todays_six_instead_of_pulling_in_a_seventh(): void
+    public function test_reviewing_a_word_uses_up_one_of_todays_batch_instead_of_pulling_in_another(): void
     {
         $learner = User::factory()->create();
         $this->actingAs($learner);
 
-        foreach (range(1, 8) as $minutesOverdue) {
+        foreach (range(1, User::DAILY_WORD_LIMIT + 2) as $minutesOverdue) {
             $this->makeDueWord($learner, ['word' => "word{$minutesOverdue}", 'next_review_at' => now()->subMinutes($minutesOverdue), 'repetitions' => 1]);
         }
 
         Livewire::test('review.index', ['track' => 'words'])->call('gradeWord', 4, true);
 
         $this->assertSame(1, $learner->reviewedTodayCount());
-        $this->assertCount(5, $learner->dailyReviewItems());
-        $this->assertSame(5, $learner->dailyReviewCount());
+        $this->assertCount(User::DAILY_WORD_LIMIT - 1, $learner->dailyReviewItems());
+        $this->assertSame(User::DAILY_WORD_LIMIT - 1, $learner->dailyReviewCount());
     }
 
     public function test_finishing_todays_batch_shows_reviewed_today_even_with_more_still_due(): void
@@ -614,8 +623,8 @@ class DailyReviewTest extends TestCase
         $learner = User::factory()->create();
         $this->actingAs($learner);
 
-        foreach (range(1, 7) as $i) {
-            $this->makeDueWord($learner, ['word' => "word{$i}", 'last_reviewed_at' => $i <= 6 ? now() : null, 'next_review_at' => $i <= 6 ? now()->addDay() : now()->subMinute()]);
+        foreach (range(1, User::DAILY_WORD_LIMIT + 1) as $i) {
+            $this->makeDueWord($learner, ['word' => "word{$i}", 'last_reviewed_at' => $i <= User::DAILY_WORD_LIMIT ? now() : null, 'next_review_at' => $i <= User::DAILY_WORD_LIMIT ? now()->addDay() : now()->subMinute()]);
         }
 
         $this->assertSame(0, $learner->dailyReviewCount());
@@ -833,7 +842,7 @@ class DailyReviewTest extends TestCase
     public function test_after_checking_a_spelling_the_full_word_card_is_shown(): void
     {
         $learner = User::factory()->create();
-        $this->makeStrongWord($learner, ['meaning' => 'to travel to work', 'meaning_fa' => 'رفت‌وآمد', 'pos' => 'verb', 'example' => 'I commute by train.']);
+        $this->makeStrongWord($learner, ['meaning' => 'to travel to work', 'meaning_fa' => 'رفت‌وآمد', 'pos' => 'verb', 'example' => 'I commute by train.', 'interval_days' => 30, 'last_reviewed_at' => now()->subDays(30)]);
         $this->actingAs($learner);
 
         Livewire::test('review.index', ['track' => 'words'])
@@ -856,6 +865,105 @@ class DailyReviewTest extends TestCase
         $queue = Livewire::test('review.index', ['track' => 'words'])->instance()->queue();
 
         $this->assertSame(5, collect($queue)->where('type', 'dictation')->count());
+    }
+
+    public function test_a_new_word_with_a_sentence_is_met_in_that_sentence_and_the_card_can_be_heard_again(): void
+    {
+        $learner = User::factory()->create();
+        $this->makeDueWord($learner, ['word' => 'commute', 'example' => 'I commute by train.']);
+        $this->actingAs($learner);
+
+        Livewire::test('review.index', ['track' => 'words'])
+            ->assertSee('I commute by train.', false)
+            ->assertSee('Hear it again');
+    }
+
+    public function test_a_word_being_learned_with_a_sentence_comes_as_a_sentence_to_build(): void
+    {
+        $learner = User::factory()->create();
+        $this->makeStrongWord($learner, ['word' => 'commute', 'example' => 'I commute by train.']);
+        $this->actingAs($learner);
+
+        $page = Livewire::test('review.index', ['track' => 'words']);
+
+        $this->assertSame('build', $page->instance()->queue()[0]['type']);
+        $page->assertSee('Build the sentence')->assertSee('reviewBuild', false)->assertSee('M01 · My Daily Life');
+    }
+
+    /**
+     * @return array<string, array{int, bool, int}>
+     */
+    public static function builtSentenceGrades(): array
+    {
+        return [
+            'right first try' => [0, false, 3],
+            'right after a fix' => [2, false, 3],
+            'gave up' => [0, true, 0],
+        ];
+    }
+
+    #[DataProvider('builtSentenceGrades')]
+    public function test_building_the_sentence_is_graded_by_how_it_went(int $mistakes, bool $gaveUp, int $repetitionsAfter): void
+    {
+        $learner = User::factory()->create();
+        $word = $this->makeStrongWord($learner, ['word' => 'commute', 'example' => 'I commute by train.']);
+        $this->actingAs($learner);
+
+        Livewire::test('review.index', ['track' => 'words'])->call('gradeBuilt', $mistakes, $gaveUp);
+
+        $this->assertSame($repetitionsAfter, $word->fresh()->repetitions);
+    }
+
+    public function test_a_clean_build_is_remembered_better_than_one_that_needed_a_fix(): void
+    {
+        $learner = User::factory()->create();
+        $clean = $this->makeStrongWord($learner, ['word' => 'commute', 'example' => 'I commute by train.']);
+        $fixed = $this->makeStrongWord($learner, ['word' => 'errand', 'example' => 'I run an errand today.']);
+        $this->actingAs($learner);
+
+        $page = Livewire::test('review.index', ['track' => 'words']);
+
+        $first = $page->instance()->currentItem['model']->id;
+        $page->call('gradeBuilt', $first === $clean->id ? 0 : 2);
+        $page->call('gradeBuilt', $first === $clean->id ? 2 : 0);
+
+        $this->assertGreaterThan($fixed->fresh()->ease_factor, $clean->fresh()->ease_factor);
+    }
+
+    public function test_a_strong_word_with_a_sentence_is_asked_for_in_a_gap_and_the_sheet_shows_the_whole_sentence(): void
+    {
+        $learner = User::factory()->create();
+        $this->makeStrongWord($learner, ['word' => 'commute', 'meaning_fa' => 'رفت‌وآمد', 'example' => 'I commute by train.', 'interval_days' => 30, 'last_reviewed_at' => now()->subDays(30)]);
+        $this->actingAs($learner);
+
+        Livewire::test('review.index', ['track' => 'words'])
+            ->assertSee('Fill the gap')
+            ->assertSee('Type the missing words')
+            ->assertSee('رفت‌وآمد')
+            ->set('spelling', 'commute')
+            ->call('checkSpelling')
+            ->assertSee('Now say the whole sentence aloud.');
+    }
+
+    public function test_a_learner_who_cannot_listen_gets_the_plain_card_instead_of_a_sentence_to_build(): void
+    {
+        $learner = User::factory()->create();
+        $word = $this->makeStrongWord($learner, ['word' => 'commute', 'example' => 'I commute by train.']);
+        $this->actingAs($learner);
+
+        $page = Livewire::test('review.index', ['track' => 'words'])->call('cantListen');
+
+        $this->assertSame('word', $page->instance()->queue()[0]['type']);
+        $this->assertSame(2, $word->fresh()->repetitions, 'nothing was graded');
+    }
+
+    public function test_a_long_sentence_is_not_built_from_chips(): void
+    {
+        $learner = User::factory()->create();
+        $this->makeStrongWord($learner, ['word' => 'commute', 'example' => 'Every single morning I commute by train to the big city office downtown.']);
+        $this->actingAs($learner);
+
+        $this->assertSame('dictation', Livewire::test('review.index', ['track' => 'words'])->instance()->queue()[0]['type']);
     }
 
     public function test_a_word_still_being_met_for_the_first_time_gets_the_plain_card(): void
@@ -960,46 +1068,50 @@ class DailyReviewTest extends TestCase
     public function test_the_two_paths_have_their_own_daily_limits(): void
     {
         $learner = User::factory()->create();
-        foreach (range(1, 8) as $number) {
+        foreach (range(1, User::DAILY_WORD_LIMIT + 2) as $number) {
             $this->makeDueWord($learner, ['word' => "word{$number}"]);
         }
-        foreach (range(1, 8) as $ignored) {
-            $this->makeDuePrompt($learner);
+        foreach (range(1, User::DAILY_TALK_LIMIT + 2) as $number) {
+            $this->makeDuePrompt($learner, "Question {$number}?");
         }
 
-        $this->assertCount(6, $learner->dailyReviewItems('words'));
-        $this->assertCount(6, $learner->dailyReviewItems('talk'));
-        $this->assertSame(12, $learner->dailyReviewCount());
+        $this->assertCount(User::DAILY_WORD_LIMIT, $learner->dailyReviewItems('words'));
+        $this->assertCount(User::DAILY_TALK_LIMIT, $learner->dailyReviewItems('talk'));
+        $this->assertSame(User::DAILY_WORD_LIMIT + User::DAILY_TALK_LIMIT, $learner->dailyReviewCount());
     }
 
-    public function test_six_more_words_brings_the_next_due_ones_and_then_the_ones_coming_up_soonest(): void
+    public function test_more_words_brings_the_next_due_ones_and_then_the_ones_coming_up_soonest(): void
     {
         $learner = User::factory()->create();
-        foreach (range(1, 8) as $number) {
+        $limit = User::DAILY_WORD_LIMIT;
+        foreach (range(1, $limit + 2) as $number) {
             $this->makeDueWord($learner, ['word' => "due{$number}", 'next_review_at' => now()->subMinutes($number)]);
         }
-        foreach (range(1, 8) as $number) {
+        foreach (range(1, $limit) as $number) {
             $this->makeDueWord($learner, ['word' => "soon{$number}", 'next_review_at' => now()->addDays($number)]);
         }
         $this->actingAs($learner);
 
         $page = Livewire::test('review.index', ['track' => 'words']);
-        foreach (range(1, 6) as $ignored) {
+        foreach (range(1, $limit) as $ignored) {
             $page->call('gradeWord', 4, true);
         }
 
-        $page->assertSee('Session done!')->assertSee('6 more words')->call('loadMore')->assertSet('more', 1);
+        $page->assertSee('Session done!')->assertSee(User::DAILY_WORD_LIMIT.' more words')->call('loadMore')->assertSet('more', 1);
 
         $words = collect($page->instance()->queue())->map(fn (array $entry) => VocabularyWord::find($entry['id'])->word)->sort()->values()->all();
 
-        $this->assertSame(['due1', 'due2', 'soon1', 'soon2', 'soon3', 'soon4'], $words);
+        $expected = ['due1', 'due2', ...array_map(fn (int $number) => 'soon'.$number, range(1, $limit - 2))];
+        sort($expected);
+
+        $this->assertSame($expected, $words);
     }
 
     public function test_six_more_on_the_speaking_and_grammar_path_brings_the_next_due_ones_only(): void
     {
         $learner = User::factory()->create();
-        foreach (range(1, 8) as $ignored) {
-            $this->makeDuePrompt($learner);
+        foreach (range(1, 8) as $number) {
+            $this->makeDuePrompt($learner, "Question {$number}?");
         }
         $this->actingAs($learner);
 

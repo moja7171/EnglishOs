@@ -403,6 +403,41 @@ class VocabularyWord extends Model
             .($keepAfter < count($after) ? ' …' : '');
     }
 
+    /**
+     * The sentence a review card builds from or fills a gap in: the one
+     * shown under the word (displaySentence()) when it is short, has at
+     * least three words and has the word in it. Null when there is none.
+     */
+    public function reviewSentence(): ?string
+    {
+        $sentence = $this->displaySentence();
+
+        if ($sentence === null || ! static::isSimple($sentence) || str_word_count($sentence) < 3 || $this->splitAround($sentence) === null) {
+            return null;
+        }
+
+        return $sentence;
+    }
+
+    /**
+     * The review sentence cut around the word as it is saved ("get up", not
+     * "gets up"), for a card that blanks the word and asks for it. Null when
+     * there is no review sentence or it has the word in another form.
+     *
+     * @return array{before: string, hit: string, after: string}|null
+     */
+    public function gapSentence(): ?array
+    {
+        $sentence = $this->reviewSentence();
+        $parts = $sentence === null ? null : $this->splitAround($sentence);
+
+        if ($parts === null || mb_strtolower(trim($parts['hit'])) !== mb_strtolower(trim($this->word))) {
+            return null;
+        }
+
+        return $parts;
+    }
+
     /** A sentence short enough to learn by heart. */
     public const SIMPLE_SENTENCE_WORDS = 8;
 

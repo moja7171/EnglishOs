@@ -1,3561 +1,3499 @@
 {
-"mission": 1,
-"items": [
-{
-"d": 1,
-"k": "s",
-"s": "get-up-time",
-"c": null,
-"q": [
-[
-"بپرس چه ساعتی از خواب بلند می‌شود",
-"بپرس هر روز",
-"What time do you get up?",
-"Every day?",
-[],
-[
-[
-"What time you get up?",
-"بعد از «What time»، «do» می‌آید."
-]
-]
-],
-[
-"بپرس چه ساعتی بلند می‌شود و اول چه می‌کند",
-"بپرس دوش می‌گیرد",
-"What time do you get up, and what do you do first?",
-"Do you have a shower?",
-[],
-[
-[
-"What time do you get up and what you do first?",
-"برای بخش دوم هم «do» لازم است."
-]
-]
-],
-[
-"بپرس در طول هفته چه ساعتی بلند می‌شود و آخر هفته فرق می‌کند",
-"بپرس دیرتر می‌خوابد",
-"What time do you get up during the week, and is it different at the weekend?",
-"Do you sleep in?",
-[],
-[
-[
-"What time do you get up on weekdays and is different at the weekend?",
-"بعد از «is» باید «it» بیاید: is it different."
-]
-]
-]
-],
-"a": [
-[
-"بگو ساعت هفت",
-"بگو هر روز",
-"I get up at seven.",
-"Every day.",
-[],
-[
-[
-"I get up in seven.",
-"برای ساعت از «at» استفاده کن."
-]
-]
-],
-[
-"بگو ساعت هفت و دوش می‌گیرم",
-"بگو بعد صبحانه",
-"I get up at seven, and I have a shower.",
-"Then I have breakfast.",
-[],
-[
-[
-"I gets up at seven.",
-"با «I» فعل بدون s می‌آید."
-]
-]
-],
-[
-"بگو معمولاً هفت ولی آخر هفته دیر بلند می‌شوم",
-"بگو ساعت ده",
-"I usually get up at seven during the week, but at the weekend I sleep in.",
-"I get up at ten.",
-[],
-[
-[
-"I am usually get up at seven.",
-"بعد از «usually» فعل ساده می‌آید، نه «am»."
-]
-]
-]
-]
-},
-{
-"d": 1,
-"k": "s",
-"s": "morning-person",
-"c": null,
-"q": [
-[
-"بپرس آدم صبح‌هاست",
-"بپرس چرا",
-"Are you a morning person?",
-"Why?",
-[],
-[
-[
-"Do you a morning person?",
-"با «person» (اسم) از «Are» استفاده کن."
-]
-]
-],
-[
-"بپرس آدم صبح‌هاست یا شب‌ها",
-"بپرس کدام بهتر است",
-"Are you a morning person, or are you a night person?",
-"Which is better?",
-[],
-[
-[
-"Are you a morning person or you are a night person?",
-"بخش دوم هم سؤال است: or are you."
-]
-]
-],
-[
-"بپرس آدم صبح‌هاست و گاهی خواب می‌ماند",
-"بپرس بعد چه می‌کند",
-"Are you a morning person, and do you ever oversleep?",
-"What do you do then?",
-[],
-[
-[
-"Are you a morning person and you ever oversleep?",
-"بخش دوم هم سؤال است: do you ever oversleep."
-]
-]
-]
-],
-"a": [
-[
-"بگو بله",
-"بگو صبح‌ها را دوست دارم",
-"Yes, I am.",
-"I love the morning.",
-[],
-[
-[
-"Yes, I do.",
-"جواب «Are you…؟» با «am» است: Yes, I am."
-]
-]
-],
-[
-"بگو بله و زود بلند می‌شوم",
-"بگو هیچ‌وقت دیر نمی‌خوابم",
-"Yes, I am. I get up early.",
-"I never sleep in.",
-[],
-[
-[
-"Yes, I am. I am get up early.",
-"بعد از «I am» فعل ساده نمی‌آید؛ بگو I get up."
-]
-]
-],
-[
-"بگو نه، شب‌ها فعالم برای همین گاهی خواب می‌مانم",
-"بگو همیشه دیر می‌کنم",
-"No, I'm not. I'm a night person, so I sometimes oversleep.",
-"I'm always late.",
-[],
-[
-[
-"No, I'm not. I'm night person, so I sometimes oversleep.",
-"قبل از «night person» باید «a» بیاید."
-]
-]
-]
-]
-},
-{
-"d": 1,
-"k": "s",
-"s": "breakfast",
-"c": null,
-"q": [
-[
-"بپرس صبحانه می‌خورد",
-"بپرس هر روز",
-"Do you have breakfast?",
-"Every day?",
-[],
-[
-[
-"Have you breakfast?",
-"با «have» به معنی خوردن از «Do you have» استفاده کن."
-]
-]
-],
-[
-"بپرس صبحانه چه می‌خورد",
-"بپرس در خانه",
-"What do you have for breakfast?",
-"At home?",
-[],
-[
-[
-"What you have for breakfast?",
-"بعد از «What»، «do» می‌آید."
-]
-]
-],
-[
-"بپرس صبحانه چه می‌خورد و گاهی صبحانه را رد می‌کند",
-"بپرس چرا",
-"What do you have for breakfast, and do you ever skip it?",
-"Why?",
-[],
-[
-[
-"What do you have for breakfast and you ever skip it?",
-"بخش دوم هم سؤال است: do you ever skip it."
-]
-]
-]
-],
-"a": [
-[
-"بگو بله",
-"بگو هر صبح",
-"Yes, I do.",
-"Every morning.",
-[],
-[
-[
-"Yes, I have.",
-"جواب «Do you…؟» با «do» است: Yes, I do."
-]
-]
-],
-[
-"بگو چای و نان می‌خورم",
-"بگو در خانه",
-"I have tea and bread.",
-"At home.",
-[],
-[
-[
-"I have breakfast tea and bread.",
-"ساده بگو: I have tea and bread."
-]
-]
-],
-[
-"بگو معمولاً چای و نان ولی گاهی صبحانه نمی‌خورم چون دیرم می‌شود",
-"بگو گرسنه‌ام",
-"I usually have tea and bread, but sometimes I skip breakfast because I'm late.",
-"Then I'm hungry.",
-[],
-[
-[
-"I usually have tea and bread but sometimes I skip breakfast because I late.",
-"بعد از «because I» باید «am» بیاید."
-]
-]
-]
-]
-},
-{
-"d": 1,
-"k": "s",
-"s": "sleep-in-weekend",
-"c": null,
-"q": [
-[
-"بپرس آخر هفته دیر بلند می‌شود",
-"بپرس تا چه ساعتی",
-"Do you sleep in at the weekend?",
-"Until what time?",
-[],
-[
-[
-"Do you sleeping in at the weekend?",
-"بعد از «Do you» فعل ساده می‌آید: sleep."
-]
-]
-],
-[
-"بپرس آخر هفته دیر بلند می‌شود و چه ساعتی",
-"بپرس دوست دارد",
-"Do you sleep in at the weekend, and what time do you get up?",
-"Do you like it?",
-[],
-[
-[
-"Do you sleep in at the weekend and what time you get up?",
-"بعد از «what time»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس آخر هفته دیر بلند می‌شود یا زود",
-"بپرس چرا",
-"Do you sleep in at the weekend, or do you get up early?",
-"Why?",
-[],
-[
-[
-"Do you sleep in at the weekend or you get up early?",
-"بخش دوم هم سؤال است: or do you."
-]
-]
-]
-],
-"a": [
-[
-"بگو بله",
-"بگو خیلی دوستش دارم",
-"Yes, I do.",
-"I love it.",
-[],
-[
-[
-"Yes, I sleep.",
-"جواب «Do you…؟» با «do» است."
-]
-]
-],
-[
-"بگو بله و ساعت ده بلند می‌شوم",
-"بگو بهترین قسمت هفته است",
-"Yes, I do. I get up at ten.",
-"It's the best part of the week.",
-[],
-[
-[
-"Yes, I do. I get up in ten.",
-"برای ساعت از «at» استفاده کن."
-]
-]
-],
-[
-"بگو بله چون بعد از کار خسته‌ام ولی یکشنبه‌ها زود بلند می‌شوم",
-"بگو برای ورزش",
-"Yes, I do, because I'm tired after work, but on Sundays I get up early.",
-"I go for a walk.",
-[],
-[
-[
-"Yes, I do because I tired after work.",
-"بعد از «because I» باید «am» بیاید."
-]
-]
-]
-]
-},
-{
-"d": 1,
-"k": "s",
-"s": "bedtime",
-"c": null,
-"q": [
-[
-"بپرس چه ساعتی می‌خوابد",
-"بپرس هر شب",
-"What time do you go to bed?",
-"Every night?",
-[],
-[
-[
-"What time you go to bed?",
-"بعد از «What time»، «do» می‌آید."
-]
-]
-],
-[
-"بپرس چه ساعتی می‌خوابد و بعد از آن چه می‌کند",
-"بپرس موبایل نگاه می‌کند",
-"What time do you go to bed, and what do you do before that?",
-"Do you use your phone?",
-[],
-[
-[
-"What time do you go to bed and what you do before?",
-"بعد از «what»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس معمولاً چه ساعتی می‌خوابد و هیچ‌وقت دیر می‌خوابد",
-"بپرس چرا",
-"What time do you usually go to bed, and do you ever go to bed late?",
-"Why?",
-[],
-[
-[
-"What time you usually go to bed?",
-"بعد از «What time»، «do you» می‌آید."
-]
-]
-]
-],
-"a": [
-[
-"بگو ساعت یازده",
-"بگو معمولاً",
-"I go to bed at eleven.",
-"Usually.",
-[],
-[
-[
-"I go to the bed at eleven.",
-"«go to bed» بدون «the» است."
-]
-]
-],
-[
-"بگو ساعت یازده و قبلش کتاب می‌خوانم",
-"بگو ده دقیقه",
-"I go to bed at eleven, and before that I read a book.",
-"For ten minutes.",
-[],
-[
-[
-"I go to bed at eleven and before that I reading a book.",
-"بعد از «I» فعل ساده: I read."
-]
-]
-],
-[
-"بگو معمولاً یازده ولی گاهی دیر می‌خوابم چون فیلم می‌بینم",
-"بگو بعد خسته‌ام",
-"I usually go to bed at eleven, but sometimes I go to bed late because I watch a film.",
-"Then I'm tired.",
-[],
-[
-[
-"I go usually to bed at eleven.",
-"«usually» قبل از فعل اصلی می‌آید: I usually go."
-]
-]
-]
-]
-},
-{
-"d": 1,
-"k": "f",
-"s": "oversleep-late",
-"c": "دوستت گفت: «امروز خواب ماندم.»",
-"q": [
-[
-"بپرس دیر رسید",
-"بپرس چقدر",
-"Are you late?",
-"How late?",
-[],
-[
-[
-"Do you late?",
-"با صفت (late) از «Are» استفاده کن."
-]
-]
-],
-[
-"بپرس دیر رسید و رئیس ناراحت است",
-"بپرس چه گفت",
-"Are you late, and is your boss angry?",
-"What does the boss say?",
-[],
-[
-[
-"Are you late and your boss is angry?",
-"بخش دوم هم سؤال است: is your boss angry."
-]
-]
-],
-[
-"بپرس همیشه خواب می‌ماند یا فقط گاهی",
-"بپرس چرا",
-"Do you always oversleep, or only sometimes?",
-"Why?",
-[],
-[
-[
-"Do you oversleep always or only sometimes?",
-"«always» قبل از فعل می‌آید: always oversleep."
-]
-]
-]
-],
-"a": [
-[
-"بگو بله",
-"بگو بیست دقیقه",
-"Yes, I am.",
-"Twenty minutes.",
-[],
-[
-[
-"Yes, I do.",
-"جواب «Are you…؟» با «am» است."
-]
-]
-],
-[
-"بگو بله بیست دقیقه دیر شدم",
-"بگو رئیس ناراحت نیست",
-"Yes, I am. I'm twenty minutes late.",
-"The boss isn't angry.",
-[],
-[
-[
-"Yes, I am. I late twenty minutes.",
-"قبل از «late» باید «am» بیاید."
-]
-]
-],
-[
-"بگو فقط گاهی چون شب‌ها دیر می‌خوابم",
-"بگو باید زودتر بخوابم",
-"Only sometimes, because I go to bed late.",
-"I need to go to bed early.",
-[],
-[
-[
-"Only sometimes because I am go to bed late.",
-"بعد از «I» فعل ساده: I go."
-]
-]
-]
-]
-},
-{
-"d": 1,
-"k": "f",
-"s": "skip-breakfast-why",
-"c": "دوستت گفت: «من معمولاً صبحانه نمی‌خورم.»",
-"q": [
-[
-"بپرس چرا",
-"بپرس وقت ندارد",
-"Why?",
-"Do you have no time?",
-[
-"Why not?"
-],
-[
-[
-"Why you don't?",
-"فقط «Why?» یا «Why not?» کافی است."
-]
-]
-],
-[
-"بپرس چرا صبحانه نمی‌خورد و ظهر گرسنه است",
-"بپرس میان‌وعده می‌خورد",
-"Why don't you have breakfast, and are you hungry at lunch?",
-"Do you have a snack?",
-[],
-[
-[
-"Why you don't have breakfast?",
-"ترتیب سؤال: Why don't you have."
-]
-]
-],
-[
-"بپرس صبحانه نمی‌خورد چون وقت ندارد یا چون دوست ندارد",
-"بپرس قبلاً می‌خورد",
-"Is it because you have no time, or because you don't like it?",
-"Did you have it before?",
-[],
-[
-[
-"Is it because you have not time?",
-"بعد از «no» اسم می‌آید: no time."
-]
-]
-]
-],
-"a": [
-[
-"بگو وقت ندارم",
-"بگو صبح‌ها شلوغ است",
-"I have no time.",
-"The morning is busy.",
-[
-"I don't have time."
-],
-[
-[
-"I haven't time.",
-"طبیعی‌تر: I don't have time."
-]
-]
-],
-[
-"بگو وقت ندارم و فقط چای می‌خورم",
-"بگو سر کار",
-"I have no time, so I only have tea.",
-"At work.",
-[],
-[
-[
-"I have no time so I have only tea.",
-"«only» قبل از فعل اصلی می‌آید."
-]
-]
-],
-[
-"بگو چون وقت ندارم ولی ظهر خیلی گرسنه‌ام و یک میان‌وعده می‌خورم",
-"بگو نان و پنیر",
-"Because I have no time, but I'm very hungry at lunch, so I have a snack.",
-"Bread and cheese.",
-[],
-[
-[
-"I very hungry at lunch.",
-"قبل از «very hungry» باید «am» بیاید."
-]
-]
-]
-]
-},
-{
-"d": 1,
-"k": "f",
-"s": "night-person-work",
-"c": "دوستت گفت: «من آدم شب‌هام.»",
-"q": [
-[
-"بپرس شب‌ها کار می‌کند",
-"بپرس تا کی",
-"Do you work at night?",
-"Until when?",
-[],
-[
-[
-"Do you working at night?",
-"بعد از «Do you» فعل ساده: work."
-]
-]
-],
-[
-"بپرس شب‌ها کار می‌کند و صبح تا کی می‌خوابد",
-"بپرس مشکل نیست",
-"Do you work at night, and what time do you wake up?",
-"Is that a problem?",
-[],
-[
-[
-"Do you work at night and what time you wake up?",
-"بعد از «what time»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس همیشه شب‌ها بیدار می‌ماند یا فقط آخر هفته",
-"بپرس چه کار می‌کند",
-"Do you always stay up late, or only at the weekend?",
-"What do you do?",
-[],
-[
-[
-"Do you stay always up late?",
-"«always» قبل از فعل می‌آید: always stay up."
-]
-]
-]
-],
-"a": [
-[
-"بگو بله",
-"بگو برای کارم",
-"Yes, I do.",
-"For my job.",
-[],
-[
-[
-"Yes, I work.",
-"جواب «Do you…؟» با «do» است."
-]
-]
-],
-[
-"بگو بله و ساعت یازده بیدار می‌شوم",
-"بگو مشکلی نیست",
-"Yes, I do, and I wake up at eleven.",
-"It's not a problem.",
-[],
-[
-[
-"Yes, I do and I wake up in eleven.",
-"برای ساعت از «at» استفاده کن."
-]
-]
-],
-[
-"بگو فقط آخر هفته چون روزهای دیگر باید زود بلند شوم",
-"بگو فیلم می‌بینم",
-"Only at the weekend, because on other days I have to get up early.",
-"I watch films.",
-[],
-[
-[
-"Only at weekend because other days I have to get up early.",
-"«at the weekend» بگو."
-]
-]
-]
-]
-},
-{
-"d": 1,
-"k": "f",
-"s": "gets-up-early",
-"c": "دوستت گفت: «من ساعت پنج بلند می‌شوم.»",
-"q": [
-[
-"بپرس چرا این‌قدر زود",
-"بپرس خسته نیست",
-"Why so early?",
-"Are you tired?",
-[
-"Why do you get up so early?"
-],
-[
-[
-"Why you get up so early?",
-"بعد از «Why»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس چرا این‌قدر زود بلند می‌شود و چه ساعتی می‌خوابد",
-"بپرس کافی می‌خوابد",
-"Why do you get up so early, and what time do you go to bed?",
-"Do you sleep enough?",
-[],
-[
-[
-"Why do you get up so early and what time you go to bed?",
-"بعد از «what time»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس زود بلند می‌شود چون کار دارد یا چون دوست دارد",
-"بپرس بعدش چه می‌کند",
-"Do you get up early because of work, or because you like it?",
-"What do you do then?",
-[],
-[
-[
-"Do you get up early because work or you like it?",
-"با اسم «because of work» و با جمله «because you like it»."
-]
-]
-]
-],
-"a": [
-[
-"بگو برای کار",
-"بگو دور است",
-"For work.",
-"It's far.",
-[
-"Because of work."
-],
-[
-[
-"For the work.",
-"فقط «For work» (بدون the)."
-]
-]
-],
-[
-"بگو برای کار و دور است",
-"بگو ساعت ده می‌خوابم",
-"I get up early for work. It's far.",
-"I go to bed at ten.",
-[],
-[
-[
-"I get up early for work, it far.",
-"فعل «is» را فراموش نکن: It's far."
-]
-]
-],
-[
-"بگو برای کار چون راهش دور است ولی صبح‌ها را هم دوست دارم",
-"بگو خیلی ساکت است",
-"Because of work, because it's far, but I also like the morning.",
-"It's very quiet.",
-[],
-[
-[
-"Because of work because it far.",
-"بعد از «because» باید فعل بیاید: it's far."
-]
-]
-]
-]
-},
-{
-"d": 1,
-"k": "f",
-"s": "sleep-in-until",
-"c": "دوستت گفت: «آخر هفته تا ظهر می‌خوابم.»",
-"q": [
-[
-"بپرس تا ظهر می‌خوابد",
-"بپرس همیشه",
-"Do you sleep until noon?",
-"Always?",
-[],
-[
-[
-"Do you sleeping until noon?",
-"بعد از «Do you» فعل ساده."
-]
-]
-],
-[
-"بپرس تا ظهر می‌خوابد و بعد صبحانه می‌خورد",
-"بپرس تنها",
-"Do you sleep until noon, and then have breakfast?",
-"Alone?",
-[],
-[
-[
-"Do you sleep until noon and then you have breakfast?",
-"بعد از «and then» جمله‌ی دوم بدون فاعل: and then have."
-]
-]
-],
-[
-"بپرس تا ظهر می‌خوابد یا فقط یکشنبه‌ها",
-"بپرس چرا",
-"Do you sleep until noon every weekend, or only on Sundays?",
-"Why?",
-[],
-[
-[
-"Do you sleep until noon every weekend or only in Sundays?",
-"برای روز هفته از «on» استفاده کن."
-]
-]
-]
-],
-"a": [
-[
-"بگو بله",
-"بگو خیلی خسته‌ام",
-"Yes, I do.",
-"I'm very tired.",
-[],
-[
-[
-"Yes, I sleep.",
-"جواب «Do you…؟» با «do» است."
-]
-]
-],
-[
-"بگو بله و بعد صبحانه می‌خورم",
-"بگو کنار پنجره",
-"Yes, I do, and then I have breakfast.",
-"Near the window.",
-[],
-[
-[
-"Yes, I do and then I having breakfast.",
-"بعد از «I» فعل ساده: I have."
-]
-]
-],
-[
-"بگو فقط یکشنبه‌ها چون شنبه‌ها کار دارم",
-"بگو بعد استراحت می‌کنم",
-"Only on Sundays, because I work on Saturdays.",
-"Then I rest.",
-[],
-[
-[
-"Only on Sundays because I work in Saturdays.",
-"برای روز هفته از «on» استفاده کن."
-]
-]
-]
-]
-},
-{
-"d": 2,
-"k": "s",
-"s": "cereal",
-"c": null,
-"q": [
-[
-"بپرس غلات صبحانه دوست دارد",
-"بپرس با شیر",
-"Do you like cereal?",
-"With milk?",
-[],
-[
-[
-"Are you like cereal?",
-"«like» فعل است؛ با «Do» بپرس."
-]
-]
-],
-[
-"بپرس غلات دوست دارد یا نان",
-"بپرس کدام بیشتر",
-"Do you like cereal, or do you like bread?",
-"Which one more?",
-[],
-[
-[
-"Do you like cereal or you like bread?",
-"بخش دوم هم سؤال است: or do you like."
-]
-]
-],
-[
-"بپرس غلات می‌خورد و چند بار در هفته",
-"بپرس چه نوعی",
-"Do you eat cereal, and how often do you eat it?",
-"What kind?",
-[],
-[
-[
-"Do you eat cereal and how often you eat it?",
-"بعد از «how often»، «do you» می‌آید."
-]
-]
-]
-],
-"a": [
-[
-"بگو بله",
-"بگو با شیر",
-"Yes, I do.",
-"With milk.",
-[],
-[
-[
-"Yes, I like.",
-"جواب «Do you…؟» با «do» است."
-]
-]
-],
-[
-"بگو بله ولی بیشتر نان می‌خورم",
-"بگو نان و پنیر",
-"Yes, I do, but I eat bread more.",
-"Bread and cheese.",
-[],
-[
-[
-"Yes, I do but I eat more bread.",
-"هر دو درست‌اند؛ برای مقایسه «I eat bread more» طبیعی‌تر است."
-]
-]
-],
-[
-"بگو دو بار در هفته چون وقت ندارم و غلات سریع است",
-"بگو شکلاتی",
-"I eat it twice a week, because I have no time and it's quick.",
-"Chocolate cereal.",
-[],
-[
-[
-"I eat it two times in week.",
-"بگو: twice a week."
-]
-]
-]
-]
-},
-{
-"d": 2,
-"k": "s",
-"s": "shower",
-"c": null,
-"q": [
-[
-"بپرس چه ساعتی دوش می‌گیرد",
-"بپرس صبح یا شب",
-"What time do you have a shower?",
-"In the morning or at night?",
-[],
-[
-[
-"What time you have a shower?",
-"بعد از «What time»، «do» می‌آید."
-]
-]
-],
-[
-"بپرس صبح دوش می‌گیرد یا شب",
-"بپرس چرا",
-"Do you have a shower in the morning, or at night?",
-"Why?",
-[],
-[
-[
-"Do you have a shower in the morning or in the night?",
-"شب: at night."
-]
-]
-],
-[
-"بپرس هر روز دوش می‌گیرد و چند دقیقه",
-"بپرس آب گرم",
-"Do you have a shower every day, and how long does it take?",
-"Hot water?",
-[],
-[
-[
-"Do you have a shower every day and how long it takes?",
-"بعد از «how long»، «does it take» می‌آید."
-]
-]
-]
-],
-"a": [
-[
-"بگو ساعت هفت",
-"بگو صبح",
-"I have a shower at seven.",
-"In the morning.",
-[],
-[
-[
-"I take a shower in seven.",
-"برای ساعت از «at» استفاده کن."
-]
-]
-],
-[
-"بگو صبح دوش می‌گیرم چون بیدار می‌شوم",
-"بگو آب گرم",
-"I have a shower in the morning, because it wakes me up.",
-"Hot water.",
-[],
-[
-[
-"I have a shower in the morning because it wake me up.",
-"با «it» فعل s می‌گیرد: wakes."
-]
-]
-],
-[
-"بگو هر روز و حدود ده دقیقه ولی آخر هفته بیشتر",
-"بگو دوست دارم",
-"Every day, for about ten minutes, but at the weekend it takes longer.",
-"I love it.",
-[],
-[
-[
-"Every day about ten minutes but in the weekend longer.",
-"«at the weekend» بگو."
-]
-]
-]
-]
-},
-{
-"d": 2,
-"k": "s",
-"s": "clean-teeth",
-"c": null,
-"q": [
-[
-"بپرس چند بار در روز دندان‌هایش را مسواک می‌زند",
-"بپرس صبح و شب",
-"How often do you clean your teeth?",
-"Morning and night?",
-[
-"How many times a day do you clean your teeth?"
-],
-[
-[
-"How often you clean your teeth?",
-"بعد از «How often»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس چند بار مسواک می‌زند و بعد از غذا هم",
-"بپرس با خمیردندان",
-"How often do you clean your teeth, and do you clean them after lunch?",
-"Before bed?",
-[],
-[
-[
-"How often do you clean your teeth and you clean them after lunch?",
-"بخش دوم هم سؤال است: do you clean them."
-]
-]
-],
-[
-"بپرس همیشه قبل از خواب مسواک می‌زند",
-"بپرس گاهی فراموش می‌کند",
-"Do you always clean your teeth before bed, or do you sometimes forget?",
-"What do you do then?",
-[],
-[
-[
-"Do you clean always your teeth before bed?",
-"«always» قبل از فعل اصلی می‌آید."
-]
-]
-]
-],
-"a": [
-[
-"بگو دو بار در روز",
-"بگو صبح و شب",
-"Twice a day.",
-"Morning and night.",
-[
-"I clean them twice a day."
-],
-[
-[
-"Two times in day.",
-"بگو: twice a day."
-]
-]
-],
-[
-"بگو دو بار در روز، صبح و قبل از خواب",
-"بگو بعد از ناهار نه",
-"I clean my teeth twice a day, in the morning and before bed.",
-"Not after lunch.",
-[],
-[
-[
-"I clean my teeth two times a day.",
-"بگو: twice a day."
-]
-]
-],
-[
-"بگو همیشه قبل از خواب ولی گاهی خسته‌ام و فراموش می‌کنم",
-"بگو فردا صبح دو بار",
-"I always clean them before bed, but sometimes I'm tired and I forget.",
-"Then I clean them twice in the morning.",
-[],
-[
-[
-"I clean always them before bed.",
-"«always» قبل از فعل اصلی می‌آید."
-]
-]
-]
-]
-},
-{
-"d": 2,
-"k": "s",
-"s": "snack",
-"c": null,
-"q": [
-[
-"بپرس میان‌وعده می‌خورد",
-"بپرس چه ساعتی",
-"Do you have a snack?",
-"What time?",
-[],
-[
-[
-"Do you have snack?",
-"قبل از «snack» باید «a» بیاید."
-]
-]
-],
-[
-"بپرس بین غذاها چه میان‌وعده‌ای می‌خورد",
-"بپرس سالم",
-"What snack do you have between meals?",
-"Is it healthy?",
-[],
-[
-[
-"What snack you have between meals?",
-"بعد از «What snack»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس معمولاً چه میان‌وعده‌ای می‌خورد و گاهی شیرینی هم",
-"بپرس چرا",
-"What do you usually have as a snack, and do you ever have sweets?",
-"Why?",
-[],
-[
-[
-"What do you usually have for snack?",
-"بگو: as a snack یا for a snack."
-]
-]
-]
-],
-"a": [
-[
-"بگو بله",
-"بگو ساعت چهار",
-"Yes, I do.",
-"At four.",
-[],
-[
-[
-"Yes, I have.",
-"جواب «Do you…؟» با «do» است."
-]
-]
-],
-[
-"بگو میوه می‌خورم",
-"بگو سیب",
-"I have some fruit.",
-"An apple.",
-[],
-[
-[
-"I have a fruit.",
-"«fruit» شمارش‌ناپذیر است: some fruit."
-]
-]
-],
-[
-"بگو معمولاً میوه ولی گاهی شیرینی هم می‌خورم چون دوستش دارم",
-"بگو شکلات",
-"I usually have fruit, but sometimes I have sweets because I love them.",
-"Chocolate.",
-[],
-[
-[
-"I usually have fruit but sometimes I have sweet.",
-"جمع: sweets."
-]
-]
-]
-]
-},
-{
-"d": 2,
-"k": "s",
-"s": "takeaway",
-"c": null,
-"q": [
-[
-"بپرس غذای بیرون‌بر می‌گیرد",
-"بپرس چند بار",
-"Do you get takeaway?",
-"How often?",
-[
-"Do you order takeaway?"
-],
-[
-[
-"Do you take takeaway?",
-"با «takeaway» از «get» یا «order» استفاده کن."
-]
-]
-],
-[
-"بپرس غذای بیرون‌بر می‌گیرد و چه می‌گیرد",
-"بپرس پیتزا",
-"Do you get takeaway, and what do you usually get?",
-"Pizza?",
-[],
-[
-[
-"Do you get takeaway and what you usually get?",
-"بعد از «what»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس غذای بیرون‌بر بیشتر می‌گیرد یا خودش می‌پزد",
-"بپرس کدام ارزان‌تر",
-"Do you get takeaway more often, or do you cook at home?",
-"Which is cheaper?",
-[],
-[
-[
-"Do you get takeaway more often or you cook at home?",
-"بخش دوم هم سؤال است: or do you cook."
-]
-]
-]
-],
-"a": [
-[
-"بگو بله",
-"بگو هفته‌ای یک بار",
-"Yes, I do.",
-"Once a week.",
-[],
-[
-[
-"Yes, I get.",
-"جواب «Do you…؟» با «do» است."
-]
-]
-],
-[
-"بگو بله، معمولاً پیتزا می‌گیرم",
-"بگو جمعه‌ها",
-"Yes, I do. I usually get pizza.",
-"On Fridays.",
-[],
-[
-[
-"Yes, I do. I get usually pizza.",
-"«usually» قبل از فعل می‌آید."
-]
-]
-],
-[
-"بگو بیشتر در خانه می‌پزم چون ارزان‌تر است ولی گاهی خسته‌ام و غذا سفارش می‌دهم",
-"بگو آخر هفته",
-"I cook at home more often, because it's cheaper, but sometimes I'm tired and I get takeaway.",
-"At the weekend.",
-[],
-[
-[
-"I cook at home more often because it cheaper.",
-"بعد از «because» باید فعل بیاید: it's cheaper."
-]
-]
-]
-]
-},
-{
-"d": 2,
-"k": "f",
-"s": "cook-or-takeaway",
-"c": "دوستت گفت: «من هیچ‌وقت غذا نمی‌پزم.»",
-"q": [
-[
-"بپرس پس چه می‌خورد",
-"بپرس هر روز",
-"So what do you eat?",
-"Every day?",
-[],
-[
-[
-"So what you eat?",
-"بعد از «what»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس پس غذا را از کجا می‌گیرد و چه می‌خورد",
-"بپرس گران نیست",
-"So where do you get food, and what do you eat?",
-"Isn't it expensive?",
-[],
-[
-[
-"So where you get food?",
-"بعد از «where»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس آیا غذای بیرون‌بر می‌گیرد یا بیرون می‌خورد",
-"بپرس کدام را بیشتر",
-"Do you get takeaway, or do you eat out?",
-"Which one more often?",
-[],
-[
-[
-"Do you get takeaway or you eat out?",
-"بخش دوم هم سؤال است: or do you eat out."
-]
-]
-]
-],
-"a": [
-[
-"بگو غذای بیرون‌بر",
-"بگو معمولاً",
-"Takeaway.",
-"Usually.",
-[
-"I get takeaway."
-],
-[
-[
-"I eat takeaway.",
-"با takeaway از «get/order» استفاده کن."
-]
-]
-],
-[
-"بگو غذای بیرون‌بر می‌گیرم یا بیرون می‌خورم",
-"بگو نزدیک خانه",
-"I get takeaway or I eat out.",
-"Near my home.",
-[],
-[
-[
-"I get takeaway or eat out near my home.",
-"درست است؛ برای وضوح جمله را کامل بگو."
-]
-]
-],
-[
-"بگو بیشتر غذای بیرون‌بر چون وقت ندارم ولی گاهی با دوستانم بیرون می‌خورم",
-"بگو آخر هفته",
-"Mostly takeaway, because I have no time, but sometimes I eat out with friends.",
-"At the weekend.",
-[],
-[
-[
-"Mostly takeaway because I no have time.",
-"منفی: I have no time یا I don't have time."
-]
-]
-]
-]
-},
-{
-"d": 2,
-"k": "f",
-"s": "shopping-day",
-"c": "دوستت گفت: «من فردا خرید می‌کنم.»",
-"q": [
-[
-"بپرس کجا خرید می‌کند",
-"بپرس هر هفته",
-"Where do you do the shopping?",
-"Every week?",
-[
-"Where do you shop?"
-],
-[
-[
-"Where you do the shopping?",
-"بعد از «Where»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس کجا خرید می‌کند و چه می‌خرد",
-"بپرس لیست دارد",
-"Where do you do the shopping, and what do you buy?",
-"Do you have a list?",
-[],
-[
-[
-"Where do you do the shopping and what you buy?",
-"بعد از «what»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس تنها خرید می‌کند یا با کسی",
-"بپرس چه کسی",
-"Do you do the shopping alone, or does someone help you?",
-"Who?",
-[],
-[
-[
-"Do you do the shopping alone or someone helps you?",
-"بخش دوم هم سؤال است: or does someone help you."
-]
-]
-]
-],
-"a": [
-[
-"بگو سوپرمارکت",
-"بگو نزدیک خانه",
-"At the supermarket.",
-"Near my home.",
-[
-"In the supermarket."
-],
-[
-[
-"To the supermarket.",
-"مکان: at/in the supermarket."
-]
-]
-],
-[
-"بگو در سوپرمارکت، نان و میوه می‌خرم",
-"بگو لیست دارم",
-"At the supermarket. I buy bread and fruit.",
-"I have a list.",
-[],
-[
-[
-"At the supermarket. I buy a bread and fruits.",
-"«bread» شمارش‌ناپذیر است."
-]
-]
-],
-[
-"بگو تنها چون دوست دارم خودم انتخاب کنم ولی گاهی برادرم کمک می‌کند",
-"بگو کیف‌ها سنگین است",
-"Alone, because I like to choose, but sometimes my brother helps me.",
-"The bags are heavy.",
-[],
-[
-[
-"Alone because I like choose.",
-"بعد از «like» باید «to» بیاید."
-]
-]
-]
-]
-},
-{
-"d": 2,
-"k": "f",
-"s": "love-shower",
-"c": "دوستت گفت: «من هر صبح دوش آب سرد می‌گیرم.»",
-"q": [
-[
-"بپرس چرا",
-"بپرس سرد نیست",
-"Why cold water?",
-"Isn't it cold?",
-[],
-[
-[
-"Why you do?",
-"فقط «Why?» کافی است."
-]
-]
-],
-[
-"بپرس چرا آب سرد و دوستش دارد",
-"بپرس چند دقیقه",
-"Why cold water, and do you like it?",
-"How long?",
-[],
-[
-[
-"Why cold water and you like it?",
-"بخش دوم هم سؤال است: do you like it."
-]
-]
-],
-[
-"بپرس آب سرد حالش را بهتر می‌کند یا فقط عادت است",
-"بپرس زمستان هم",
-"Does cold water make you feel better, or is it just a habit?",
-"In winter too?",
-[],
-[
-[
-"Do cold water make you feel better?",
-"«water» سوم شخص است: Does."
-]
-]
-]
-],
-"a": [
-[
-"بگو بیدارم می‌کند",
-"بگو خیلی",
-"It wakes me up.",
-"A lot.",
-[],
-[
-[
-"It wake me up.",
-"با «it» فعل s می‌گیرد: wakes."
-]
-]
-],
-[
-"بگو بیدارم می‌کند و دوستش دارم",
-"بگو پنج دقیقه",
-"It wakes me up, and I love it.",
-"Five minutes.",
-[],
-[
-[
-"It wakes me up and I loving it.",
-"بعد از «I» فعل ساده: love."
-]
-]
-],
-[
-"بگو حالم بهتر می‌شود چون سرحال می‌شوم و زمستان هم همین کار را می‌کنم",
-"بگو کمی سخت است",
-"It makes me feel better, because I feel fresh, and I do it in winter too.",
-"It's a bit hard.",
-[],
-[
-[
-"It make me feel better.",
-"با «it» فعل s می‌گیرد: makes."
-]
-]
-]
-]
-},
-{
-"d": 2,
-"k": "f",
-"s": "snack-time",
-"c": "دوستت گفت: «من همیشه گرسنه‌ام.»",
-"q": [
-[
-"بپرس میان‌وعده می‌خورد",
-"بپرس چه ساعتی",
-"Do you have snacks?",
-"What time?",
-[],
-[
-[
-"Are you have snacks?",
-"«have» فعل است؛ با «Do» بپرس."
-]
-]
-],
-[
-"بپرس میان‌وعده می‌خورد و چه",
-"بپرس سالم است",
-"Do you have snacks, and what do you eat?",
-"Is it healthy?",
-[],
-[
-[
-"Do you have snacks and what you eat?",
-"بعد از «what»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس چند بار در روز غذا می‌خورد",
-"بپرس زیاد",
-"How many times a day do you eat?",
-"Is it too much?",
-[],
-[
-[
-"How many times a day you eat?",
-"بعد از «How many times a day»، «do you» می‌آید."
-]
-]
-]
-],
-"a": [
-[
-"بگو بله",
-"بگو ساعت یازده",
-"Yes, I do.",
-"At eleven.",
-[],
-[
-[
-"Yes, I am.",
-"جواب «Do you…؟» با «do» است."
-]
-]
-],
-[
-"بگو بله، میوه یا آجیل می‌خورم",
-"بگو سالم است",
-"Yes, I do. I eat fruit or nuts.",
-"It's healthy.",
-[],
-[
-[
-"Yes, I do. I eat a fruit or a nuts.",
-"«fruit» شمارش‌ناپذیر و «nuts» جمع."
-]
-]
-],
-[
-"بگو پنج بار در روز چون کم کم می‌خورم و گاهی میان‌وعده هم می‌خورم",
-"بگو زیاد نیست",
-"I eat five times a day, because I eat small meals, and sometimes I have a snack.",
-"It isn't too much.",
-[],
-[
-[
-"I eat five times in day.",
-"بگو: five times a day."
-]
-]
-]
-]
-},
-{
-"d": 3,
-"k": "s",
-"s": "housework",
-"c": null,
-"q": [
-[
-"بپرس کارهای خانه را انجام می‌دهد",
-"بپرس هر روز",
-"Do you do the housework?",
-"Every day?",
-[],
-[
-[
-"Do you make the housework?",
-"با «housework» فعل «do» می‌آید."
-]
-]
-],
-[
-"بپرس چه کارهای خانه‌ای می‌کند",
-"بپرس کدام را دوست ندارد",
-"What housework do you do?",
-"Which one do you hate?",
-[],
-[
-[
-"What housework you do?",
-"بعد از «What housework»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس کارهای خانه را تنها می‌کند و چقدر طول می‌کشد",
-"بپرس آخر هفته",
-"Do you do the housework alone, and how long does it take?",
-"At the weekend?",
-[],
-[
-[
-"Do you do the housework alone and how long it takes?",
-"بعد از «how long»، «does it take» می‌آید."
-]
-]
-]
-],
-"a": [
-[
-"بگو بله",
-"بگو هر روز کمی",
-"Yes, I do.",
-"A little every day.",
-[],
-[
-[
-"Yes, I make.",
-"جواب «Do you…؟» با «do» است."
-]
-]
-],
-[
-"بگو ظرف‌ها را می‌شویم و اتاق را جارو می‌کنم",
-"بگو از شستن ظرف بدم می‌آید",
-"I wash the dishes and clean the room.",
-"I hate washing the dishes.",
-[],
-[
-[
-"I wash dishes and clean room.",
-"قبل از «room» باید «the» بیاید."
-]
-]
-],
-[
-"بگو تنها چون تنها زندگی می‌کنم و حدود یک ساعت طول می‌کشد",
-"بگو شنبه‌ها",
-"Alone, because I live alone, and it takes about an hour.",
-"On Saturdays.",
-[],
-[
-[
-"Alone because I live alone and it take about an hour.",
-"با «it» فعل s می‌گیرد: takes."
-]
-]
-]
-]
-},
-{
-"d": 3,
-"k": "s",
-"s": "washing",
-"c": null,
-"q": [
-[
-"بپرس چه روزی لباس می‌شوید",
-"بپرس با ماشین",
-"What day do you do the washing?",
-"With a machine?",
-[],
-[
-[
-"What day you do the washing?",
-"بعد از «What day»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس لباس‌ها را چند بار در هفته می‌شوید",
-"بپرس خودش",
-"How often do you do the washing?",
-"Do you do it yourself?",
-[],
-[
-[
-"How often you do the washing?",
-"بعد از «How often»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس لباس‌ها را خودش می‌شوید یا کسی کمک می‌کند",
-"بپرس اتو هم",
-"Do you do the washing yourself, or does someone help you?",
-"What about ironing?",
-[],
-[
-[
-"Do you do the washing yourself or someone helps you?",
-"بخش دوم هم سؤال است: or does someone help you."
-]
-]
-]
-],
-"a": [
-[
-"بگو جمعه‌ها",
-"بگو صبح",
-"On Fridays.",
-"In the morning.",
-[],
-[
-[
-"In Fridays.",
-"برای روز هفته: on Fridays."
-]
-]
-],
-[
-"بگو هفته‌ای دو بار",
-"بگو با ماشین",
-"Twice a week.",
-"With a machine.",
-[],
-[
-[
-"Two times in a week.",
-"بگو: twice a week."
-]
-]
-],
-[
-"بگو خودم می‌شوم چون ماشین دارم ولی اتو را مامانم می‌کند",
-"بگو دوست ندارم",
-"I do it myself, because I have a machine, but my mum does the ironing.",
-"I don't like ironing.",
-[],
-[
-[
-"I do it myself because I have machine.",
-"قبل از «machine» باید «a» بیاید."
-]
-]
-]
-]
-},
-{
-"d": 3,
-"k": "s",
-"s": "stay-in",
-"c": null,
-"q": [
-[
-"بپرس شب‌ها در خانه می‌ماند",
-"بپرس چه می‌کند",
-"Do you stay in at night?",
-"What do you do?",
-[],
-[
-[
-"Do you stay at home in the night?",
-"شب: at night."
-]
-]
-],
-[
-"بپرس آخر هفته در خانه می‌ماند یا بیرون می‌رود",
-"بپرس بیشتر کدام",
-"Do you stay in at the weekend, or do you go out?",
-"Which one more?",
-[],
-[
-[
-"Do you stay in at the weekend or you go out?",
-"بخش دوم هم سؤال است: or do you go out."
-]
-]
-],
-[
-"بپرس معمولاً شب‌ها چه می‌کند و با کسی",
-"بپرس تلویزیون",
-"What do you usually do in the evening, and who with?",
-"Do you watch TV?",
-[],
-[
-[
-"What do you usually do in the evening and who with you?",
-"کوتاه بپرس: and who with?"
-]
-]
-]
-],
-"a": [
-[
-"بگو بله",
-"بگو بیشتر",
-"Yes, I do.",
-"Mostly.",
-[],
-[
-[
-"Yes, I stay.",
-"جواب «Do you…؟» با «do» است."
-]
-]
-],
-[
-"بگو معمولاً در خانه می‌مانم",
-"بگو با خانواده",
-"I usually stay in.",
-"With my family.",
-[],
-[
-[
-"I stay usually in.",
-"«usually» قبل از فعل می‌آید."
-]
-]
-],
-[
-"بگو شب‌ها در خانه می‌مانم چون خسته‌ام ولی آخر هفته با دوستانم بیرون می‌روم",
-"بگو گاهی",
-"I stay in in the evening, because I'm tired, but at the weekend I go out with friends.",
-"Sometimes.",
-[],
-[
-[
-"I stay in at the evening because I tired.",
-"شب: in the evening؛ و بعد از «because I» باید «am» بیاید."
-]
-]
-]
-]
-},
-{
-"d": 3,
-"k": "s",
-"s": "eat-out",
-"c": null,
-"q": [
-[
-"بپرس بیرون غذا می‌خورد",
-"بپرس چند بار",
-"Do you eat out?",
-"How often?",
-[],
-[
-[
-"Do you eat in outside?",
-"«eat out» یک عبارت است."
-]
-]
-],
-[
-"بپرس کجا بیرون غذا می‌خورد",
-"بپرس با کی",
-"Where do you eat out?",
-"Who with?",
-[],
-[
-[
-"Where you eat out?",
-"بعد از «Where»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس بیرون غذا می‌خورد یا در خانه ترجیح می‌دهد",
-"بپرس چرا",
-"Do you eat out, or do you prefer to eat at home?",
-"Why?",
-[],
-[
-[
-"Do you eat out or you prefer eat at home?",
-"بخش دوم هم سؤال است و بعد از «prefer» باید «to» بیاید."
-]
-]
-]
-],
-"a": [
-[
-"بگو بله",
-"بگو ماهی یک بار",
-"Yes, I do.",
-"Once a month.",
-[],
-[
-[
-"Yes, I eat.",
-"جواب «Do you…؟» با «do» است."
-]
-]
-],
-[
-"بگو یک رستوران کوچک نزدیک خانه",
-"بگو با دوستانم",
-"A small restaurant near my home.",
-"With friends.",
-[],
-[
-[
-"In a small restaurant near of my home.",
-"«near my home» بدون of."
-]
-]
-],
-[
-"بگو در خانه چون ارزان‌تر است ولی گاهی با خانواده بیرون می‌خوریم",
-"بگو تولد",
-"At home, because it's cheaper, but sometimes we eat out with my family.",
-"On birthdays.",
-[],
-[
-[
-"At home because is cheaper.",
-"بعد از «because» باید «it's» بیاید."
-]
-]
-]
-]
-},
-{
-"d": 3,
-"k": "s",
-"s": "chat-friends",
-"c": null,
-"q": [
-[
-"بپرس با دوستانش چت می‌کند",
-"بپرس چند بار",
-"Do you chat with your friends?",
-"How often?",
-[],
-[
-[
-"Do you chat to with your friends?",
-"فقط «chat with»."
-]
-]
-],
-[
-"بپرس با دوستانش چت می‌کند یا تلفنی حرف می‌زند",
-"بپرس کدام بهتر",
-"Do you chat online, or do you talk on the phone?",
-"Which is better?",
-[],
-[
-[
-"Do you chat online or you talk on phone?",
-"بخش دوم هم سؤال است و «on the phone»."
-]
-]
-],
-[
-"بپرس معمولاً درباره‌ی چه چیزی چت می‌کنند و هر شب",
-"بپرس تا کی",
-"What do you usually chat about, and do you chat every night?",
-"Until when?",
-[],
-[
-[
-"What you usually chat about?",
-"بعد از «What»، «do you» می‌آید."
-]
-]
-]
-],
-"a": [
-[
-"بگو بله",
-"بگو هر روز",
-"Yes, I do.",
-"Every day.",
-[],
-[
-[
-"Yes, I chat.",
-"جواب «Do you…؟» با «do» است."
-]
-]
-],
-[
-"بگو آنلاین چت می‌کنیم",
-"بگو شب‌ها",
-"We chat online.",
-"In the evening.",
-[],
-[
-[
-"We chatting online.",
-"بعد از «We» فعل ساده: chat."
-]
-]
-],
-[
-"بگو درباره‌ی کار و فیلم چت می‌کنیم و هر شب نه چون گاهی خسته‌ام",
-"بگو آخر هفته بیشتر",
-"We chat about work and films, but not every night, because sometimes I'm tired.",
-"More at the weekend.",
-[],
-[
-[
-"We chat about work and films but not every night because sometimes I tired.",
-"بعد از «because sometimes I» باید «am» بیاید."
-]
-]
-]
-]
-},
-{
-"d": 3,
-"k": "f",
-"s": "washing-who",
-"c": "دوستت گفت: «من از شستن لباس بدم می‌آید.»",
-"q": [
-[
-"بپرس چه کسی می‌شوید",
-"بپرس هر هفته",
-"Who does it?",
-"Every week?",
-[],
-[
-[
-"Who do it?",
-"با «Who» فعل s می‌گیرد: does."
-]
-]
-],
-[
-"بپرس چه کسی لباس‌ها را می‌شوید و چه روزی",
-"بپرس ماشین دارند",
-"Who does the washing, and which day?",
-"Do you have a machine?",
-[],
-[
-[
-"Who do the washing and which day?",
-"با «Who» فعل s می‌گیرد: does."
-]
-]
-],
-[
-"بپرس همیشه خودش می‌شوید یا کسی کمک می‌کند",
-"بپرس اتو هم",
-"Do you always do it yourself, or does someone help you?",
-"What about ironing?",
-[],
-[
-[
-"Do you do always it yourself?",
-"«always» قبل از فعل: always do."
-]
-]
-]
-],
-"a": [
-[
-"بگو خودم",
-"بگو جمعه‌ها",
-"I do.",
-"On Fridays.",
-[
-"Me."
-],
-[
-[
-"I does.",
-"با «I» فعل بدون s: do."
-]
-]
-],
-[
-"بگو خودم می‌شوم ولی از آن بدم می‌آید",
-"بگو خیلی زیاد است",
-"I do it, but I hate it.",
-"There's a lot.",
-[],
-[
-[
-"I does it but I hate it.",
-"با «I» فعل بدون s: do."
-]
-]
-],
-[
-"بگو همیشه خودم چون تنها زندگی می‌کنم ولی گاهی دوستم کمک می‌کند",
-"بگو اتو را نه",
-"I always do it myself, because I live alone, but sometimes my friend helps me.",
-"Not the ironing.",
-[],
-[
-[
-"I do always it myself.",
-"«always» قبل از فعل: always do."
-]
-]
-]
-]
-},
-{
-"d": 3,
-"k": "f",
-"s": "go-out-where",
-"c": "دوستت گفت: «من آخر هفته بیرون می‌روم.»",
-"q": [
-[
-"بپرس کجا",
-"بپرس با کی",
-"Where do you go?",
-"Who with?",
-[
-"Where do you go out?"
-],
-[
-[
-"Where you go?",
-"بعد از «Where»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس کجا می‌رود و چه ساعتی برمی‌گردد",
-"بپرس دیر",
-"Where do you go, and what time do you come back?",
-"Is it late?",
-[],
-[
-[
-"Where do you go and what time you come back?",
-"بعد از «what time»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس همیشه همان‌جا می‌رود یا هر بار جای دیگر",
-"بپرس چرا",
-"Do you always go to the same place, or to a different place?",
-"Why?",
-[],
-[
-[
-"Do you go always to the same place?",
-"«always» قبل از فعل: always go."
-]
-]
-]
-],
-"a": [
-[
-"بگو کافه",
-"بگو با دوستانم",
-"To a café.",
-"With friends.",
-[
-"A café."
-],
-[
-[
-"In a café.",
-"برای رفتن: to a café."
-]
-]
-],
-[
-"بگو به یک کافه می‌روم و ساعت ده برمی‌گردم",
-"بگو زیاد دیر نیست",
-"I go to a café, and I come back at ten.",
-"It isn't late.",
-[],
-[
-[
-"I go to a café and I come back in ten.",
-"برای ساعت از «at» استفاده کن."
-]
-]
-],
-[
-"بگو معمولاً همان کافه چون دوستش دارم ولی گاهی جای دیگر می‌رویم",
-"بگو برای تنوع",
-"I usually go to the same café, because I like it, but sometimes we go somewhere else.",
-"For a change.",
-[],
-[
-[
-"I go usually to the same café.",
-"«usually» قبل از فعل: usually go."
-]
-]
-]
-]
-},
-{
-"d": 3,
-"k": "f",
-"s": "eat-out-food",
-"c": "دوستت گفت: «من هفته‌ای یک بار بیرون غذا می‌خورم.»",
-"q": [
-[
-"بپرس بیرون که غذا می‌خورد چه می‌خورد",
-"بپرس همیشه همان",
-"What do you eat when you eat out?",
-"Always the same?",
-[],
-[
-[
-"What you eat when you eat out?",
-"بعد از «What»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس چه غذایی سفارش می‌دهد و چقدر طول می‌کشد",
-"بپرس گران",
-"What do you order, and how long is the meal?",
-"Is it expensive?",
-[],
-[
-[
-"What do you order and how long the meal is?",
-"ترتیب سؤال: how long is the meal."
-]
-]
-],
-[
-"بپرس برنج و مرغ می‌خورد یا چیز دیگر",
-"بپرس کدام بهتر",
-"Do you eat rice and chicken, or something different?",
-"Which is better?",
-[],
-[
-[
-"Do you eat rice and chicken or you eat something different?",
-"درست است؛ با «or» جمله را کوتاه می‌شود گفت."
-]
-]
-]
-],
-"a": [
-[
-"بگو کباب",
-"بگو همیشه",
-"Chicken.",
-"Always.",
-[
-"I eat chicken."
-],
-[
-[
-"I eat a kebab always.",
-"«always» قبل از فعل: always eat."
-]
-]
-],
-[
-"بگو معمولاً کباب سفارش می‌دهم",
-"بگو با نوشیدنی",
-"I usually order chicken.",
-"With a drink.",
-[],
-[
-[
-"I order usually kebab.",
-"«usually» قبل از فعل: usually order."
-]
-]
-],
-[
-"بگو غذای ایرانی چون بهتر از غذاهای دیگر است ولی گاهی پیتزا می‌خورم",
-"بگو برای تنوع",
-"Rice and chicken, because they are good for me, but sometimes I eat pizza.",
-"For a change.",
-[],
-[
-[
-"Rice and chicken because is good for me.",
-"بعد از «because» باید «it's» بیاید."
-]
-]
-]
-]
-},
-{
-"d": 3,
-"k": "f",
-"s": "stay-in-doing",
-"c": "دوستت گفت: «من امشب در خانه می‌مانم.»",
-"q": [
-[
-"بپرس معمولاً شب‌ها چه می‌کند",
-"بپرس فیلم",
-"What do you usually do at night?",
-"Films?",
-[],
-[
-[
-"What you usually do at night?",
-"بعد از «What»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس شب‌ها در خانه چه می‌کند و با کسی",
-"بپرس تنها",
-"What do you do at home at night, and who with?",
-"Alone?",
-[],
-[
-[
-"What do you do at home at night and who with you?",
-"کوتاه بپرس: and who with?"
-]
-]
-],
-[
-"بپرس در خانه ماندن را دوست دارد یا بیرون رفتن را",
-"بپرس چرا",
-"Do you like staying in, or do you like going out?",
-"Why?",
-[],
-[
-[
-"Do you like stay in or you like go out?",
-"بعد از «like» شکل «-ing» می‌آید."
-]
-]
-]
-],
-"a": [
-[
-"بگو فیلم می‌بینم",
-"بگو با خانواده",
-"I watch films.",
-"With my family.",
-[],
-[
-[
-"I am watch films.",
-"بعد از «I» فعل ساده: watch."
-]
-]
-],
-[
-"بگو فیلم می‌بینم و کتاب می‌خوانم",
-"بگو تنها",
-"I watch films and read books.",
-"Alone.",
-[],
-[
-[
-"I watch films and reading books.",
-"هر دو فعل ساده: watch and read."
-]
-]
-],
-[
-"بگو در خانه ماندن چون آرام است ولی گاهی هم دوست دارم بیرون بروم",
-"بگو آخر هفته",
-"I like staying in, because it's calm, but sometimes I like going out too.",
-"At the weekend.",
-[],
-[
-[
-"I like stay in because is calm.",
-"بعد از «like» شکل «-ing»؛ و «it's calm»."
-]
-]
-]
-]
-},
-{
-"d": 4,
-"k": "s",
-"s": "morning-routine",
-"c": null,
-"q": [
-[
-"بپرس صبح‌ها چه می‌کند",
-"بپرس اول چه",
-"What do you do in the morning?",
-"What first?",
-[],
-[
-[
-"What you do in the morning?",
-"بعد از «What»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس صبح‌ها از وقتی بلند می‌شود تا کار چه می‌کند",
-"بپرس چقدر طول می‌کشد",
-"What do you do in the morning before work?",
-"How long does it take?",
-[],
-[
-[
-"What do you do in the morning before the work?",
-"«before work» بدون the."
-]
-]
-],
-[
-"بپرس صبح‌ها همیشه همین کارها را می‌کند یا فرق می‌کند",
-"بپرس آخر هفته",
-"Do you always do the same things in the morning, or is it different?",
-"What about the weekend?",
-[],
-[
-[
-"Do you do always the same things?",
-"«always» قبل از فعل: always do."
-]
-]
-]
-],
-"a": [
-[
-"بگو بلند می‌شوم و دوش می‌گیرم",
-"بگو بعد صبحانه",
-"I get up and have a shower.",
-"Then breakfast.",
-[],
-[
-[
-"I get up and having a shower.",
-"هر دو فعل ساده: get up and have."
-]
-]
-],
-[
-"بگو بلند می‌شوم، دوش می‌گیرم، صبحانه می‌خورم و به سر کار می‌روم",
-"بگو ساعت هشت",
-"I get up, have a shower, have breakfast and go to work.",
-"At eight.",
-[],
-[
-[
-"I get up, have a shower, have a breakfast and go to work.",
-"قبل از «breakfast» «a» نمی‌آید."
-]
-]
-],
-[
-"بگو تقریباً همیشه همین است ولی آخر هفته آرام‌تر و دیرتر است",
-"بگو بدون عجله",
-"Almost always the same, but at the weekend it's slower and later.",
-"No hurry.",
-[],
-[
-[
-"Almost always the same but at the weekend is slower.",
-"فعل را فراموش نکن: it's slower."
-]
-]
-]
-]
-},
-{
-"d": 4,
-"k": "s",
-"s": "free-time-week",
-"c": null,
-"q": [
-[
-"بپرس وقت آزادش چه می‌کند",
-"بپرس با کی",
-"What do you do in your free time?",
-"Who with?",
-[],
-[
-[
-"What you do in your free time?",
-"بعد از «What»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس آخر هفته‌ها چه می‌کند و کجا می‌رود",
-"بپرس همیشه",
-"What do you do at the weekend, and where do you go?",
-"Always?",
-[],
-[
-[
-"What do you do at the weekend and where you go?",
-"بعد از «where»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس بیشتر در خانه می‌ماند یا بیرون می‌رود و چرا",
-"بپرس تنها",
-"Do you stay in more often, or do you go out? Why?",
-"Alone?",
-[],
-[
-[
-"Do you stay in more often or you go out?",
-"بخش دوم هم سؤال است."
-]
-]
-]
-],
-"a": [
-[
-"بگو فیلم می‌بینم",
-"بگو با دوستانم",
-"I watch films.",
-"With friends.",
-[],
-[
-[
-"I watch films in my free time.",
-"درست است؛ کوتاه‌تر هم می‌شود."
-]
-]
-],
-[
-"بگو آخر هفته با دوستانم به کافه می‌روم",
-"بگو شنبه‌ها",
-"At the weekend I go to a café with friends.",
-"On Saturdays.",
-[],
-[
-[
-"At weekend I go to a café with friends.",
-"«at the weekend» بگو."
-]
-]
-],
-[
-"بگو بیشتر در خانه می‌مانم چون هفته‌ی کاری سخت است ولی گاهی بیرون می‌روم",
-"بگو برای استراحت",
-"I stay in more often, because my week is hard, but sometimes I go out.",
-"To relax.",
-[],
-[
-[
-"I stay in more often because my week hard.",
-"فعل را فراموش نکن: my week is hard."
-]
-]
-]
-]
-},
-{
-"d": 4,
-"k": "s",
-"s": "how-often-eat",
-"c": null,
-"q": [
-[
-"بپرس چند بار در هفته بیرون غذا می‌خورد",
-"بپرس با کی",
-"How often do you eat out?",
-"Who with?",
-[],
-[
-[
-"How often you eat out?",
-"بعد از «How often»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس چند بار بیرون غذا می‌خورد و چند بار غذای بیرون‌بر می‌گیرد",
-"بپرس کدام بیشتر",
-"How often do you eat out, and how often do you get takeaway?",
-"Which more?",
-[],
-[
-[
-"How often do you eat out and how often you get takeaway?",
-"بعد از «how often»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس معمولاً بیرون غذا می‌خورد یا غذای بیرون‌بر می‌گیرد و چرا",
-"بپرس ارزان‌تر کدام",
-"Do you usually eat out or get takeaway? Why?",
-"Which is cheaper?",
-[],
-[
-[
-"Do you eat usually out or get takeaway?",
-"«usually» قبل از فعل: usually eat."
-]
-]
-]
-],
-"a": [
-[
-"بگو ماهی دو بار",
-"بگو با دوستانم",
-"Twice a month.",
-"With friends.",
-[],
-[
-[
-"Two times in month.",
-"بگو: twice a month."
-]
-]
-],
-[
-"بگو ماهی دو بار بیرون می‌خورم و هفته‌ای یک بار غذای بیرون‌بر می‌گیرم",
-"بگو بیشتر غذای بیرون‌بر",
-"Twice a month I eat out, and once a week I get takeaway.",
-"More takeaway.",
-[],
-[
-[
-"Twice a month I eat out and one time a week I get takeaway.",
-"بگو: once a week."
-]
-]
-],
-[
-"بگو معمولاً غذای بیرون‌بر چون ارزان‌تر است و وقت هم کمتر می‌برد",
-"بگو آخر هفته",
-"Usually takeaway, because it's cheaper and it takes less time.",
-"At the weekend.",
-[],
-[
-[
-"Usually takeaway because it cheaper.",
-"فعل را فراموش نکن: it's cheaper."
-]
-]
-]
-]
-},
-{
-"d": 4,
-"k": "s",
-"s": "weekday-vs-weekend",
-"c": null,
-"q": [
-[
-"بپرس روزهای کاری و آخر هفته‌اش فرق می‌کند",
-"بپرس چطور",
-"Is your weekend different from your week?",
-"How?",
-[],
-[
-[
-"Do your weekend different from your week?",
-"با صفت (different) از «Is» استفاده کن."
-]
-]
-],
-[
-"بپرس در طول هفته چه ساعتی بلند می‌شود و آخر هفته چه ساعتی",
-"بپرس چرا",
-"What time do you get up during the week, and what time at the weekend?",
-"Why?",
-[],
-[
-[
-"What time you get up during the week?",
-"بعد از «What time»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس کدام را بیشتر دوست دارد، روزهای کاری یا آخر هفته و چرا",
-"بپرس کدام آرام‌تر",
-"Which do you like more, the week or the weekend? Why?",
-"Which is calmer?",
-[],
-[
-[
-"Which you like more, the week or the weekend?",
-"بعد از «Which»، «do you» می‌آید."
-]
-]
-]
-],
-"a": [
-[
-"بگو بله خیلی",
-"بگو آخر هفته آرام است",
-"Yes, very.",
-"The weekend is calm.",
-[],
-[
-[
-"Yes, it different.",
-"فعل را فراموش نکن: Yes, it is."
-]
-]
-],
-[
-"بگو روزهای کاری ساعت هفت و آخر هفته ساعت ده",
-"بگو دیرتر می‌خوابم",
-"At seven during the week and at ten at the weekend.",
-"I sleep in.",
-[],
-[
-[
-"On seven during the week and ten at the weekend.",
-"برای ساعت از «at» استفاده کن."
-]
-]
-],
-[
-"بگو آخر هفته را بیشتر دوست دارم چون وقت آزاد دارم و استراحت می‌کنم",
-"بگو هفته سخت است",
-"I like the weekend more, because I have free time and I rest.",
-"The week is hard.",
-[],
-[
-[
-"I like weekend more because I have a free time.",
-"«the weekend» و «free time» بدون a."
-]
-]
-]
-]
-},
-{
-"d": 4,
-"k": "f",
-"s": "how-often-more",
-"c": "دوستت گفت: «من هر روز ورزش می‌کنم.»",
-"q": [
-[
-"بپرس چه ساعتی",
-"بپرس صبح یا شب",
-"What time?",
-"Morning or night?",
-[
-"What time do you do it?"
-],
-[
-[
-"What time you?",
-"جمله‌ی کامل: What time do you do it?"
-]
-]
-],
-[
-"بپرس چه ساعتی ورزش می‌کند و چند دقیقه",
-"بپرس با کسی",
-"What time do you exercise, and for how long?",
-"With someone?",
-[],
-[
-[
-"What time do you exercise and how long?",
-"بگو: and for how long?"
-]
-]
-],
-[
-"بپرس هیچ‌وقت ورزش را رد می‌کند یا هر روز",
-"بپرس وقتی خسته است",
-"Do you ever skip it, or do you do it every day?",
-"What if you're tired?",
-[],
-[
-[
-"Do you skip ever it?",
-"«ever» قبل از فعل: ever skip."
-]
-]
-]
-],
-"a": [
-[
-"بگو صبح",
-"بگو ساعت شش",
-"In the morning.",
-"At six.",
-[
-"At six."
-],
-[
-[
-"At the morning.",
-"صبح: in the morning."
-]
-]
-],
-[
-"بگو ساعت شش و حدود نیم ساعت",
-"بگو تنها",
-"At six, for about half an hour.",
-"Alone.",
-[],
-[
-[
-"At six, about half hour.",
-"بگو: half an hour."
-]
-]
-],
-[
-"بگو هر روز ولی وقتی خسته‌ام فقط ده دقیقه می‌کنم",
-"بگو هیچ‌وقت رد نمی‌کنم",
-"Every day, but when I'm tired I only do ten minutes.",
-"I never skip it.",
-[],
-[
-[
-"Every day but when I tired I do only ten minutes.",
-"بعد از «when I» باید «am» بیاید."
-]
-]
-]
-]
-},
-{
-"d": 4,
-"k": "f",
-"s": "tired-weekend",
-"c": "دوستت گفت: «آخر هفته‌ها خیلی خسته‌ام.»",
-"q": [
-[
-"بپرس چرا خسته است",
-"بپرس کار می‌کند",
-"Why are you tired?",
-"Do you work?",
-[],
-[
-[
-"Why you are tired?",
-"ترتیب سؤال: Why are you tired."
-]
-]
-],
-[
-"بپرس چرا خسته است و چه می‌کند",
-"بپرس استراحت می‌کند",
-"Why are you tired, and what do you do?",
-"Do you rest?",
-[],
-[
-[
-"Why you are tired?",
-"ترتیب سؤال: Why are you tired."
-]
-]
-],
-[
-"بپرس خسته است چون زیاد کار می‌کند یا کم می‌خوابد",
-"بپرس چه ساعتی می‌خوابد",
-"Are you tired because you work a lot, or because you sleep a little?",
-"What time do you sleep?",
-[],
-[
-[
-"Are you tired because of you work a lot?",
-"بعد از «because» جمله می‌آید."
-]
-]
-]
-],
-"a": [
-[
-"بگو چون کار می‌کنم",
-"بگو زیاد",
-"Because I work.",
-"A lot.",
-[
-"I work a lot."
-],
-[
-[
-"Because of I work.",
-"بعد از «because» جمله می‌آید."
-]
-]
-],
-[
-"بگو چون زیاد کار می‌کنم و شب‌ها دیر می‌خوابم",
-"بگو بله استراحت می‌کنم",
-"Because I work a lot and I go to bed late.",
-"Yes, I rest.",
-[],
-[
-[
-"Because I work a lot and I go bed late.",
-"«go to bed» را کامل بگو."
-]
-]
-],
-[
-"بگو چون هفته‌ی کاری سخت است و کم می‌خوابم برای همین آخر هفته می‌خوابم",
-"بگو تا ظهر",
-"Because my week is hard and I sleep a little, so at the weekend I sleep in.",
-"Until noon.",
-[],
-[
-[
-"Because my week hard and I sleep a little.",
-"فعل را فراموش نکن: my week is hard."
-]
-]
-]
-]
-},
-{
-"d": 4,
-"k": "f",
-"s": "free-time-who",
-"c": "دوستت گفت: «من وقت آزادم را با دوستانم می‌گذرانم.»",
-"q": [
-[
-"بپرس چند نفرند",
-"بپرس کجا",
-"How many of you are there?",
-"Where?",
-[],
-[
-[
-"How many you are?",
-"ترتیب سؤال: How many of you are there?"
-]
-]
-],
-[
-"بپرس چند نفرند و چه می‌کنند",
-"بپرس چه ساعتی",
-"How many of you meet, and what do you do?",
-"What time?",
-[],
-[
-[
-"How many of you meet and what you do?",
-"بعد از «what»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس همیشه با همان دوستان است یا گاهی با دوستان تازه",
-"بپرس چرا",
-"Is it always the same friends, or sometimes new friends?",
-"Why?",
-[],
-[
-[
-"Is always the same friends?",
-"بعد از «Is» باید «it» بیاید."
-]
-]
-]
-],
-"a": [
-[
-"بگو چهار نفر",
-"بگو در یک کافه",
-"Four of us.",
-"In a café.",
-[],
-[
-[
-"Four persons.",
-"بگو: four of us."
-]
-]
-],
-[
-"بگو چهار نفر، به کافه می‌رویم و چت می‌کنیم",
-"بگو ساعت هفت",
-"Four of us. We go to a café and chat.",
-"At seven.",
-[],
-[
-[
-"Four of us. We go to a café and chatting.",
-"هر دو فعل ساده: go and chat."
-]
-]
-],
-[
-"بگو معمولاً همان دوستان چون از قدیم دوستیم ولی گاهی یک دوست تازه هم می‌آید",
-"بگو تازه آشنا شده",
-"Usually the same friends, because we are old friends, but sometimes a new friend comes.",
-"A new friend.",
-[],
-[
-[
-"Usually same friends because we old friends.",
-"فعل را فراموش نکن: we are old friends."
-]
-]
-]
-]
-},
-{
-"d": 4,
-"k": "f",
-"s": "weekend-plan-check",
-"c": "دوستت گفت: «آخر هفته‌ام معمولاً شلوغ است.»",
-"q": [
-[
-"بپرس چرا شلوغ است",
-"بپرس کار دارد",
-"Why is it busy?",
-"Do you work?",
-[],
-[
-[
-"Why it is busy?",
-"ترتیب سؤال: Why is it busy."
-]
-]
-],
-[
-"بپرس چه کارهایی دارد و وقت آزاد هم دارد",
-"بپرس کدام سخت است",
-"What do you do, and do you have free time?",
-"Which one is hard?",
-[],
-[
-[
-"What you do and do you have free time?",
-"بعد از «What»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس آخر هفته‌اش شلوغ است و اصلاً استراحت می‌کند",
-"بپرس چرا",
-"Is your weekend busy, and do you rest at all?",
-"Why?",
-[],
-[
-[
-"Is your weekend busy and you rest at all?",
-"«busy» می‌شود «busier»."
-]
-]
-]
-],
-"a": [
-[
-"بگو کار خانه دارم",
-"بگو زیاد",
-"I have housework.",
-"A lot.",
-[
-"I do the housework."
-],
-[
-[
-"I have a housework.",
-"«housework» شمارش‌ناپذیر است."
-]
-]
-],
-[
-"بگو کار خانه دارم و خرید می‌کنم",
-"بگو وقت آزاد کم است",
-"I do the housework and the shopping.",
-"I have little free time.",
-[],
-[
-[
-"I do housework and shopping.",
-"با «the» طبیعی‌تر: the housework."
-]
-]
-],
-[
-"بگو بله چون کار خانه و خرید دارم برای همین وقت آزاد کمی دارم",
-"بگو دوست ندارم",
-"Yes, it is, because I do the housework and the shopping, so I have little free time.",
-"I don't like it.",
-[],
-[
-[
-"Yes, it is because I do housework and shopping.",
-"بعد از «because» جمله کامل با the."
-]
-]
-]
-]
-},
-{
-"d": 2,
-"k": "f",
-"s": "dinner-cook",
-"c": "دوستت گفت: «من امشب شام درست می‌کنم.»",
-"q": [
-[
-"بپرس چه درست می‌کند",
-"بپرس آسان است",
-"What do you cook?",
-"Is it easy?",
-[],
-[
-[
-"What you cook?",
-"بعد از «What»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس چه درست می‌کند و چه کسی با او می‌خورد",
-"بپرس خوشمزه است",
-"What do you cook, and who eats with you?",
-"Is it nice?",
-[],
-[
-[
-"What do you cook and who eats you?",
-"برای «با تو» بگو: eats with you."
-]
-]
-],
-[
-"بپرس چه درست می‌کند و شب‌ها معمولاً غذا می‌پزد",
-"بپرس چرا",
-"What do you cook, and do you usually cook at night?",
-"Why do you?",
-[],
-[
-[
-"What do you cook and you usually cook at night?",
-"بخش دوم هم سؤال است: do you usually cook."
-]
-]
-]
-],
-"a": [
-[
-"بگو برنج",
-"بگو آسان است",
-"I cook rice.",
-"It's easy.",
-[],
-[
-[
-"I cooking rice.",
-"بعد از «I» فعل ساده: cook."
-]
-]
-],
-[
-"بگو برنج و مرغ",
-"بگو خانواده‌ام با من می‌خورد",
-"I cook rice and chicken.",
-"My family eats with me.",
-[],
-[
-[
-"I cook a rice and a chicken.",
-"«rice» و «chicken» اینجا شمارش‌ناپذیرند."
-]
-]
-],
-[
-"بگو برنج و مرغ چون خانواده‌ام دوست دارد ولی گاهی خسته‌ام",
-"بگو بعد غذای بیرون‌بر می‌گیریم",
-"I cook rice and chicken, because my family likes it, but sometimes I'm too tired.",
-"Then we get takeaway.",
-[],
-[
-[
-"I cook rice and chicken because my family like it.",
-"با «family» فعل s می‌گیرد: likes."
-]
-]
-]
-]
-},
-{
-"d": 3,
-"k": "f",
-"s": "clean-how-long",
-"c": "دوستت گفت: «شنبه‌ها خانه را تمیز می‌کنم.»",
-"q": [
-[
-"بپرس چقدر طول می‌کشد",
-"بپرس دوست دارد",
-"How long does it take?",
-"Do you like it?",
-[],
-[
-[
-"How long it takes?",
-"بعد از «How long»، «does it take» می‌آید."
-]
-]
-],
-[
-"بپرس چقدر طول می‌کشد و تنها انجام می‌دهد",
-"بپرس چه کسی کمک می‌کند",
-"How long does it take, and do you do it alone?",
-"Who helps you?",
-[],
-[
-[
-"How long does it take and you do it alone?",
-"بخش دوم هم سؤال است: do you do it alone."
-]
-]
-],
-[
-"بپرس چقدر طول می‌کشد و هر شنبه این کار را می‌کند",
-"بپرس چرا",
-"How long does it take, and do you clean every Saturday?",
-"Why?",
-[],
-[
-[
-"How long does it take and you clean every Saturday?",
-"بخش دوم هم سؤال است: do you clean."
-]
-]
-]
-],
-"a": [
-[
-"بگو حدود دو ساعت",
-"بگو زیاد است",
-"About two hours.",
-"It's a lot.",
-[],
-[
-[
-"About of two hours.",
-"بعد از «about» «of» نمی‌آید."
-]
-]
-],
-[
-"بگو حدود دو ساعت طول می‌کشد و تنها انجام می‌دهم",
-"بگو گاهی خواهرم کمک می‌کند",
-"It takes about two hours, and I do it alone.",
-"Sometimes my sister helps.",
-[],
-[
-[
-"It take about two hours.",
-"با «it» فعل s می‌گیرد: takes."
-]
-]
-],
-[
-"بگو حدود دو ساعت ولی هر شنبه چون خانه بزرگ است",
-"بگو بعد استراحت می‌کنم",
-"It takes about two hours, but I clean every Saturday because the house is big.",
-"Then I rest.",
-[],
-[
-[
-"I clean every Saturday because house is big.",
-"قبل از «house» باید «the» بیاید."
-]
-]
-]
-]
-},
-{
-"d": 4,
-"k": "s",
-"s": "evening-routine",
-"c": null,
-"q": [
-[
-"بپرس عصرها چه می‌کند",
-"بپرس با کی",
-"What do you do in the evening?",
-"Who with?",
-[],
-[
-[
-"What you do in the evening?",
-"بعد از «What»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس عصرها چه می‌کند و چه ساعتی شام می‌خورد",
-"بپرس در خانه",
-"What do you do in the evening, and what time do you eat?",
-"At home?",
-[],
-[
-[
-"What do you do in the evening and what time you eat?",
-"بعد از «what time»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس عصرها چه می‌کند و گاهی بیرون می‌رود",
-"بپرس کجا",
-"What do you do in the evening, and do you ever go out?",
-"Where?",
-[],
-[
-[
-"What do you do in the evening and you ever go out?",
-"بخش دوم هم سؤال است: do you ever go out."
-]
-]
-]
-],
-"a": [
-[
-"بگو تلویزیون می‌بینم",
-"بگو با خانواده",
-"I watch TV.",
-"With my family.",
-[],
-[
-[
-"I watching TV.",
-"بعد از «I» فعل ساده: watch."
-]
-]
-],
-[
-"بگو شام می‌خورم و بعد تلویزیون می‌بینم",
-"بگو ساعت نه",
-"I eat dinner, and then I watch TV.",
-"At nine.",
-[],
-[
-[
-"I eat the dinner and then I watch TV.",
-"قبل از «dinner» «the» نمی‌آید."
-]
-]
-],
-[
-"بگو معمولاً شام و تلویزیون ولی گاهی بیرون می‌روم چون می‌خواهم دوستانم را ببینم",
-"بگو چای می‌خوریم",
-"I usually eat dinner and watch TV, but sometimes I go out because I want to see friends.",
-"We drink tea.",
-[],
-[
-[
-"I usually eat dinner and watch TV but sometimes I go out because I want see friends.",
-"بعد از «want» باید «to» بیاید."
-]
-]
-]
-]
-},
-{
-"d": 4,
-"k": "f",
-"s": "come-home-late",
-"c": "دوستت گفت: «آخر هفته‌ها دیر به خانه می‌آیم.»",
-"q": [
-[
-"بپرس چه ساعتی به خانه می‌آید",
-"بپرس دیر است",
-"What time do you come home?",
-"Is it late?",
-[],
-[
-[
-"What time you come home?",
-"بعد از «What time»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس چه ساعتی به خانه می‌آید و چطور می‌رسد",
-"بپرس با تاکسی",
-"What time do you come home, and how do you get there?",
-"By taxi?",
-[],
-[
-[
-"What time do you come home and how you get there?",
-"بعد از «how»، «do you» می‌آید."
-]
-]
-],
-[
-"بپرس همیشه دیر می‌آید یا فقط جمعه‌ها",
-"بپرس چرا",
-"Do you always come home late, or only on Fridays?",
-"Why?",
-[],
-[
-[
-"Do you come always home late?",
-"«always» قبل از فعل: always come."
-]
-]
-]
-],
-"a": [
-[
-"بگو نیمه‌شب",
-"بگو گاهی دیرتر",
-"At midnight.",
-"Sometimes later.",
-[],
-[
-[
-"In midnight.",
-"برای ساعت از «at» استفاده کن."
-]
-]
-],
-[
-"بگو نیمه‌شب و با تاکسی",
-"بگو گران است",
-"I come home at midnight, by taxi.",
-"It's expensive.",
-[],
-[
-[
-"I come home at midnight with taxi.",
-"برای وسیله از «by» استفاده کن."
-]
-]
-],
-[
-"بگو فقط جمعه‌ها چون آن شب با دوستانم بیرون می‌روم",
-"بگو روزهای دیگر در خانه می‌مانم",
-"Only on Fridays, because that's the night I go out with friends.",
-"On other days I stay in.",
-[],
-[
-[
-"Only in Fridays because that night I go out.",
-"برای روز هفته از «on» استفاده کن."
-]
-]
-]
-]
-}
-]
+ "mission": 1,
+ "items": [
+  {
+   "d": 1,
+   "k": "s",
+   "s": "get-up-time",
+   "c": null,
+   "q": [
+    [
+     "بپرس چه ساعتی از خواب بلند می‌شود",
+     "بپرس هر روز",
+     "What time do you get up?",
+     "Every day?",
+     [],
+     [
+      [
+       "What time you get up?",
+       "بعد از «What time»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه ساعتی بلند می‌شود و اول چه می‌کند",
+     "بپرس دوش می‌گیرد",
+     "What time do you get up, and what do you do first?",
+     "Do you have a shower?",
+     [],
+     [
+      [
+       "What time do you get up and what you do first?",
+       "برای بخش دوم هم «do» لازم است."
+      ]
+     ]
+    ],
+    [
+     "بپرس در طول هفته چه ساعتی بلند می‌شود و آخر هفته فرق می‌کند",
+     "بپرس دیرتر می‌خوابد",
+     "What time do you get up during the week, and is it different at the weekend?",
+     "Do you sleep in?",
+     [],
+     [
+      [
+       "What time do you get up on weekdays and is different at the weekend?",
+       "بعد از «is» باید «it» بیاید: is it different."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو ساعت هفت",
+     "بگو هر روز",
+     "I get up at seven.",
+     "Every day.",
+     [],
+     [
+      [
+       "I get up in seven.",
+       "برای ساعت از «at» استفاده کن."
+      ]
+     ]
+    ],
+    [
+     "بگو ساعت هفت و دوش می‌گیرم",
+     "بگو بعد صبحانه",
+     "I get up at seven, and I have a shower.",
+     "Then I have breakfast.",
+     [],
+     [
+      [
+       "I gets up at seven.",
+       "با «I» فعل بدون s می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بگو معمولاً هفت ولی آخر هفته دیر بلند می‌شوم",
+     "بگو ساعت ده",
+     "I usually get up at seven during the week, but at the weekend I sleep in.",
+     "I get up at ten.",
+     [],
+     [
+      [
+       "I am usually get up at seven.",
+       "بعد از «usually» فعل ساده می‌آید، نه «am»."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "s",
+   "s": "morning-person",
+   "c": null,
+   "q": [
+    [
+     "بپرس آدم صبح‌هاست",
+     "بپرس چرا",
+     "Are you a morning person?",
+     "Why?",
+     [],
+     [
+      [
+       "You are a morning person?",
+       "سؤال با «Are» شروع می‌شود: Are you…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس آدم صبح‌هاست یا آدم شب‌ها",
+     "بپرس چه ساعتی بلند می‌شود",
+     "Are you a morning person, or a night person?",
+     "What time do you get up?",
+     [],
+     [
+      [
+       "You are a morning person, or a night person?",
+       "سؤال با «Are» شروع می‌شود: Are you…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس آدم صبح‌هاست و گاهی خواب می‌ماند",
+     "بپرس بعد چه می‌کند",
+     "Are you a morning person, and do you ever oversleep?",
+     "What do you do then?",
+     [],
+     [
+      [
+       "You are a morning person, and do you ever oversleep?",
+       "سؤال با «Are» شروع می‌شود: Are you…؟"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو صبح‌ها را دوست دارم",
+     "Yes, I am.",
+     "I love the morning.",
+     [],
+     [
+      [
+       "Yes, I do.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I am."
+      ]
+     ]
+    ],
+    [
+     "بگو آدم صبح‌هام",
+     "بگو ساعت شش بلند می‌شوم",
+     "I'm a morning person.",
+     "I get up at six.",
+     [],
+     [
+      [
+       "I'm morning person.",
+       "قبل از «morning» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو نه، آدم شب‌هام برای همین گاهی خواب می‌مانم",
+     "بگو همیشه دیر می‌کنم",
+     "No, I'm not. I'm a night person, so I sometimes oversleep.",
+     "I'm always late.",
+     [],
+     [
+      [
+       "No, I'm not. I'm a night person, so I oversleep sometimes.",
+       "«sometimes» قبل از فعل می‌آید: I sometimes oversleep."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "s",
+   "s": "breakfast",
+   "c": null,
+   "q": [
+    [
+     "بپرس صبحانه می‌خورد",
+     "بپرس هر روز",
+     "Do you have breakfast?",
+     "Every day?",
+     [],
+     [
+      [
+       "Have you breakfast?",
+       "با «have» به معنی خوردن از «Do you have» استفاده کن."
+      ]
+     ]
+    ],
+    [
+     "بپرس صبحانه چه می‌خورد",
+     "بپرس در خانه",
+     "What do you have for breakfast?",
+     "At home?",
+     [],
+     [
+      [
+       "What you have for breakfast?",
+       "بعد از «What»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس صبحانه چه می‌خورد و گاهی صبحانه را رد می‌کند",
+     "بپرس چرا",
+     "What do you have for breakfast, and do you ever skip it?",
+     "Why?",
+     [],
+     [
+      [
+       "What do you have for breakfast and you ever skip it?",
+       "بخش دوم هم سؤال است: do you ever skip it."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو هر صبح",
+     "Yes, I do.",
+     "Every morning.",
+     [],
+     [
+      [
+       "Yes, I have.",
+       "جواب «Do you…؟» با «do» است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو چای و نان می‌خورم",
+     "بگو در خانه",
+     "I have tea and bread.",
+     "At home.",
+     [],
+     [
+      [
+       "I have breakfast tea and bread.",
+       "ساده بگو: I have tea and bread."
+      ]
+     ]
+    ],
+    [
+     "بگو معمولاً چای و نان ولی گاهی صبحانه نمی‌خورم چون دیرم می‌شود",
+     "بگو گرسنه‌ام",
+     "I usually have tea and bread, but sometimes I skip breakfast because I'm late.",
+     "Then I'm hungry.",
+     [],
+     [
+      [
+       "I usually have tea and bread but sometimes I skip breakfast because I late.",
+       "بعد از «because I» باید «am» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "s",
+   "s": "sleep-in-weekend",
+   "c": null,
+   "q": [
+    [
+     "بپرس آخر هفته دیر بلند می‌شود",
+     "بپرس تا چه ساعتی",
+     "Do you sleep in at the weekend?",
+     "Until what time?",
+     [],
+     [
+      [
+       "You sleep in at the weekend?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس آخر هفته دیر بلند می‌شود و چه ساعتی بلند می‌شود",
+     "بپرس دوست دارد",
+     "Do you sleep in at the weekend, and what time do you get up?",
+     "Do you like it?",
+     [],
+     [
+      [
+       "Do you sleep in at the weekend, and what time you get up?",
+       "بعد از «what» و اسم، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس آخر هفته دیر بلند می‌شود یا زود",
+     "بپرس چرا",
+     "Do you sleep in at the weekend, or do you get up early?",
+     "Why?",
+     [],
+     [
+      [
+       "You sleep in at the weekend, or do you get up early?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو خیلی دوستش دارم",
+     "Yes, I do.",
+     "I love it.",
+     [],
+     [
+      [
+       "Yes, I am.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و ساعت ده بلند می‌شوم",
+     "بگو بهترین قسمت هفته است",
+     "Yes, I do. I get up at ten.",
+     "It's the best part of the week.",
+     [],
+     [
+      [
+       "Yes, I do. I get up in ten.",
+       "ساعت با «at» می‌آید: at ten."
+      ]
+     ]
+    ],
+    [
+     "بگو دیر بلند می‌شوم چون بعد از کار خسته‌ام",
+     "بگو ولی یکشنبه‌ها زود بلند می‌شوم",
+     "I sleep in, because I'm tired after work.",
+     "But on Sundays I get up early.",
+     [],
+     [
+      [
+       "I sleep in, because I tired after work.",
+       "بعد از «because» باید «I'm» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "s",
+   "s": "bedtime",
+   "c": null,
+   "q": [
+    [
+     "بپرس چه ساعتی می‌خوابد",
+     "بپرس هر شب",
+     "What time do you go to bed?",
+     "Every night?",
+     [],
+     [
+      [
+       "What time you go to bed?",
+       "بعد از «What time»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه ساعتی می‌خوابد و بعد از آن چه می‌کند",
+     "بپرس موبایل نگاه می‌کند",
+     "What time do you go to bed, and what do you do before that?",
+     "Do you use your phone?",
+     [],
+     [
+      [
+       "What time do you go to bed and what you do before?",
+       "بعد از «what»، «do you» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس معمولاً چه ساعتی می‌خوابد و هیچ‌وقت دیر می‌خوابد",
+     "بپرس چرا",
+     "What time do you usually go to bed, and do you ever go to bed late?",
+     "Why?",
+     [],
+     [
+      [
+       "What time you usually go to bed?",
+       "بعد از «What time»، «do you» می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو ساعت یازده",
+     "بگو معمولاً",
+     "I go to bed at eleven.",
+     "Usually.",
+     [],
+     [
+      [
+       "I go to the bed at eleven.",
+       "«go to bed» بدون «the» است."
+      ]
+     ]
+    ],
+    [
+     "بگو ساعت یازده و قبلش کتاب می‌خوانم",
+     "بگو ده دقیقه",
+     "I go to bed at eleven, and before that I read a book.",
+     "For ten minutes.",
+     [],
+     [
+      [
+       "I go to bed at eleven and before that I reading a book.",
+       "بعد از «I» فعل ساده: I read."
+      ]
+     ]
+    ],
+    [
+     "بگو معمولاً یازده ولی گاهی دیر می‌خوابم چون فیلم می‌بینم",
+     "بگو بعد خسته‌ام",
+     "I usually go to bed at eleven, but sometimes I go to bed late because I watch a film.",
+     "Then I'm tired.",
+     [],
+     [
+      [
+       "I go usually to bed at eleven.",
+       "«usually» قبل از فعل اصلی می‌آید: I usually go."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "oversleep-late",
+   "c": "دوستت گفت: «امروز خواب ماندم.»",
+   "q": [
+    [
+     "بپرس دیر رسید",
+     "بپرس چقدر",
+     "Are you late?",
+     "How late?",
+     [],
+     [
+      [
+       "You are late?",
+       "سؤال با «Are» شروع می‌شود: Are you…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس دیر رسید و رئیس ناراحت است",
+     "بپرس چه گفت",
+     "Are you late, and is your boss angry?",
+     "What does your boss say?",
+     [],
+     [
+      [
+       "You are late, and is your boss angry?",
+       "سؤال با «Are» شروع می‌شود: Are you…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس همیشه خواب می‌ماند یا فقط گاهی",
+     "بپرس چرا",
+     "Do you always oversleep, or only sometimes?",
+     "Why?",
+     [],
+     [
+      [
+       "You always oversleep, or only sometimes?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو بیست دقیقه",
+     "Yes, I am.",
+     "Twenty minutes.",
+     [],
+     [
+      [
+       "Yes, I do.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I am."
+      ]
+     ]
+    ],
+    [
+     "بگو بله بیست دقیقه دیر شدم و رئیسم ناراحت نیست",
+     "بگو فقط یک نگاه کرد",
+     "Yes, I'm twenty minutes late, and my boss isn't angry.",
+     "He just looks at me.",
+     [],
+     [
+      [
+       "Yes, I'm twenty minutes late, and my boss no angry.",
+       "منفی با «isn't» ساخته می‌شود: boss isn't angry."
+      ]
+     ]
+    ],
+    [
+     "بگو فقط گاهی چون شب‌ها دیر می‌خوابم",
+     "بگو باید زود بخوابم",
+     "Only sometimes, because I go to bed late.",
+     "I have to go to bed early.",
+     [],
+     [
+      [
+       "Only sometimes, because go to bed late.",
+       "بعد از «because» فاعل لازم است: because I go."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "skip-breakfast-why",
+   "c": "دوستت گفت: «من معمولاً صبحانه نمی‌خورم.»",
+   "q": [
+    [
+     "بپرس چرا",
+     "بپرس وقت ندارد",
+     "Why?",
+     "Do you have no time?",
+     [],
+     []
+    ],
+    [
+     "بپرس چرا صبحانه نمی‌خورد و ظهر گرسنه است",
+     "بپرس میان‌وعده می‌خورد",
+     "Why don't you have breakfast, and are you hungry at lunch?",
+     "Do you have a snack?",
+     [],
+     [
+      [
+       "Why you don't have breakfast, and are you hungry at lunch?",
+       "بعد از «Why» اول «don't» می‌آید: Why don't you…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس چون وقت ندارد صبحانه نمی‌خورد یا چون دوست ندارد",
+     "بپرس قبلاً می‌خورد",
+     "Is it because you have no time, or because you don't like it?",
+     "Did you have it before?",
+     [],
+     [
+      [
+       "It is because you have no time, or because you don't like it?",
+       "سؤال با «Is» شروع می‌شود: Is it…؟"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو وقت ندارم",
+     "بگو صبح‌ها شلوغ است",
+     "I have no time.",
+     "The morning is busy.",
+     [],
+     [
+      [
+       "I has no time.",
+       "با «I» فعل «have» می‌آید، نه «has»."
+      ]
+     ]
+    ],
+    [
+     "بگو چون وقت ندارم و ظهر خیلی گرسنه‌ام",
+     "بگو بله یک میان‌وعده",
+     "I have no time, and I'm very hungry at lunch.",
+     "Yes, I have a snack.",
+     [],
+     [
+      [
+       "I has no time, and I'm very hungry at lunch.",
+       "با «I» فعل «have» می‌آید، نه «has»."
+      ]
+     ]
+    ],
+    [
+     "بگو چون وقت ندارم ولی ظهر گرسنه‌ام و یک میان‌وعده می‌خورم",
+     "بگو نان و پنیر",
+     "It's because I have no time, but I'm hungry at lunch, so I have a snack.",
+     "Bread and cheese.",
+     [],
+     [
+      [
+       "It's because I have no time, but I'm hungry at lunch, so I have snack.",
+       "قبل از «snack» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "night-person-work",
+   "c": "دوستت گفت: «من آدم شب‌هام.»",
+   "q": [
+    [
+     "بپرس شب‌ها کار می‌کند",
+     "بپرس تا کی",
+     "Do you work at night?",
+     "Until when?",
+     [],
+     [
+      [
+       "Do you working at night?",
+       "بعد از «Do you» فعل ساده: work."
+      ]
+     ]
+    ],
+    [
+     "بپرس شب‌ها کار می‌کند و صبح تا کی می‌خوابد",
+     "بپرس مشکل نیست",
+     "Do you work at night, and what time do you wake up?",
+     "Is that a problem?",
+     [],
+     [
+      [
+       "Do you work at night and what time you wake up?",
+       "بعد از «what time»، «do you» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس همیشه شب‌ها بیدار می‌ماند یا فقط آخر هفته",
+     "بپرس چه کار می‌کند",
+     "Do you always stay up late, or only at the weekend?",
+     "What do you do?",
+     [],
+     [
+      [
+       "Do you stay always up late?",
+       "«always» قبل از فعل می‌آید: always stay up."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو برای کارم",
+     "Yes, I do.",
+     "For my job.",
+     [],
+     [
+      [
+       "Yes, I work.",
+       "جواب «Do you…؟» با «do» است."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و ساعت یازده بیدار می‌شوم",
+     "بگو مشکلی نیست",
+     "Yes, I do, and I wake up at eleven.",
+     "It's not a problem.",
+     [],
+     [
+      [
+       "Yes, I do and I wake up in eleven.",
+       "برای ساعت از «at» استفاده کن."
+      ]
+     ]
+    ],
+    [
+     "بگو فقط آخر هفته چون روزهای دیگر باید زود بلند شوم",
+     "بگو فیلم می‌بینم",
+     "Only at the weekend, because on other days I have to get up early.",
+     "I watch films.",
+     [],
+     [
+      [
+       "Only at weekend because other days I have to get up early.",
+       "«at the weekend» بگو."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "gets-up-early",
+   "c": "دوستت گفت: «من ساعت پنج بلند می‌شوم.»",
+   "q": [
+    [
+     "بپرس چرا این‌قدر زود",
+     "بپرس خسته نیست",
+     "Why so early?",
+     "Are you tired?",
+     [],
+     []
+    ],
+    [
+     "بپرس چرا این‌قدر زود بلند می‌شود و چه ساعتی می‌خوابد",
+     "بپرس کافی می‌خوابد",
+     "Why do you get up so early, and what time do you go to bed?",
+     "Do you sleep enough?",
+     [],
+     [
+      [
+       "Why you get up so early, and what time do you go to bed?",
+       "بعد از «why»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس زود بلند می‌شود چون کار دارد یا چون دوست دارد",
+     "بپرس بعدش چه می‌کند",
+     "Do you get up early because of work, or because you like it?",
+     "What do you do then?",
+     [],
+     [
+      [
+       "You get up early because of work, or because you like it?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو برای کار",
+     "بگو راهش دور است",
+     "For work.",
+     "It's far.",
+     [],
+     []
+    ],
+    [
+     "بگو برای کار بلند می‌شوم و ساعت ده می‌خوابم",
+     "بگو بله کافی است",
+     "I get up early for work, and I go to bed at ten.",
+     "Yes, it's enough.",
+     [],
+     [
+      [
+       "I get up early for work, and I go to bed in ten.",
+       "ساعت با «at» می‌آید: at ten."
+      ]
+     ]
+    ],
+    [
+     "بگو برای کار چون راهش دور است ولی صبح‌ها را هم دوست دارم",
+     "بگو خیلی ساکت است",
+     "Because of work, because it's far, but I also like the morning.",
+     "It's very quiet.",
+     [],
+     [
+      [
+       "Because of work, because it far, but I also like the morning.",
+       "بعد از «because» باید «it's» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "sleep-in-until",
+   "c": "دوستت گفت: «آخر هفته تا ظهر می‌خوابم.»",
+   "q": [
+    [
+     "بپرس تا ظهر می‌خوابد",
+     "بپرس همیشه",
+     "Do you sleep until noon?",
+     "Always?",
+     [],
+     [
+      [
+       "Do you sleeping until noon?",
+       "بعد از «Do you» فعل ساده."
+      ]
+     ]
+    ],
+    [
+     "بپرس تا ظهر می‌خوابد و بعد صبحانه می‌خورد",
+     "بپرس تنها",
+     "Do you sleep until noon, and then have breakfast?",
+     "Alone?",
+     [],
+     [
+      [
+       "Do you sleep until noon and then you have breakfast?",
+       "بعد از «and then» جمله‌ی دوم بدون فاعل: and then have."
+      ]
+     ]
+    ],
+    [
+     "بپرس تا ظهر می‌خوابد یا فقط یکشنبه‌ها",
+     "بپرس چرا",
+     "Do you sleep until noon every weekend, or only on Sundays?",
+     "Why?",
+     [],
+     [
+      [
+       "Do you sleep until noon every weekend or only in Sundays?",
+       "برای روز هفته از «on» استفاده کن."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو خیلی خسته‌ام",
+     "Yes, I do.",
+     "I'm very tired.",
+     [],
+     [
+      [
+       "Yes, I sleep.",
+       "جواب «Do you…؟» با «do» است."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و بعد صبحانه می‌خورم",
+     "بگو کنار پنجره",
+     "Yes, I do, and then I have breakfast.",
+     "Near the window.",
+     [],
+     [
+      [
+       "Yes, I do and then I having breakfast.",
+       "بعد از «I» فعل ساده: I have."
+      ]
+     ]
+    ],
+    [
+     "بگو فقط یکشنبه‌ها چون شنبه‌ها کار دارم",
+     "بگو بعد استراحت می‌کنم",
+     "Only on Sundays, because I work on Saturdays.",
+     "Then I rest.",
+     [],
+     [
+      [
+       "Only on Sundays because I work in Saturdays.",
+       "برای روز هفته از «on» استفاده کن."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "cereal",
+   "c": null,
+   "q": [
+    [
+     "بپرس غلات صبحانه دوست دارد",
+     "بپرس با شیر",
+     "Do you like cereal?",
+     "With milk?",
+     [],
+     [
+      [
+       "You like cereal?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس غلات دوست دارد یا نان",
+     "بپرس صبحانه کدام را می‌خورد",
+     "Do you like cereal, or bread?",
+     "Which do you have for breakfast?",
+     [],
+     [
+      [
+       "You like cereal, or bread?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس غلات می‌خورد و چند بار در هفته",
+     "بپرس چه نوعی",
+     "Do you eat cereal, and how often do you eat it?",
+     "What kind?",
+     [],
+     [
+      [
+       "Do you eat cereal, and how often you eat it?",
+       "بعد از «how often»، «do» می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو با شیر",
+     "Yes, I do.",
+     "With milk.",
+     [],
+     [
+      [
+       "Yes, I am.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو نان را دوست دارم",
+     "بگو نان و پنیر",
+     "I like bread.",
+     "Bread and cheese.",
+     [],
+     [
+      [
+       "I am like bread.",
+       "بعد از «I» فعل ساده می‌آید، نه «am»: I like."
+      ]
+     ]
+    ],
+    [
+     "بگو بله دو بار در هفته چون وقت ندارم و غلات سریع است",
+     "بگو شکلاتی",
+     "Yes, I do. I eat it twice a week, because I have no time and it's quick.",
+     "Chocolate cereal.",
+     [],
+     [
+      [
+       "Yes, I do. I eat it twice week, because I have no time and it's quick.",
+       "قبل از «week» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "shower",
+   "c": null,
+   "q": [
+    [
+     "بپرس چه ساعتی دوش می‌گیرد",
+     "بپرس صبح یا شب",
+     "What time do you have a shower?",
+     "In the morning or at night?",
+     [],
+     [
+      [
+       "What time you have a shower?",
+       "بعد از «what time»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس صبح دوش می‌گیرد یا شب",
+     "بپرس چرا",
+     "Do you have a shower in the morning, or at night?",
+     "Why?",
+     [],
+     [
+      [
+       "You have a shower in the morning, or at night?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس هر روز دوش می‌گیرد و چند دقیقه",
+     "بپرس آب گرم",
+     "Do you have a shower every day, and how long does it take?",
+     "Hot water?",
+     [],
+     [
+      [
+       "Do you have a shower every day, and how long it take?",
+       "بعد از «how long»، «does» می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو ساعت هفت",
+     "بگو صبح",
+     "I have a shower at seven.",
+     "In the morning.",
+     [],
+     [
+      [
+       "I have a shower in seven.",
+       "ساعت با «at» می‌آید: at seven."
+      ]
+     ]
+    ],
+    [
+     "بگو صبح دوش می‌گیرم چون بیدارم می‌کند",
+     "بگو آب گرم",
+     "I have a shower in the morning, because it wakes me up.",
+     "Hot water.",
+     [],
+     [
+      [
+       "I have a shower at the morning, because it wakes me up.",
+       "«in the morning» می‌گوییم."
+      ]
+     ]
+    ],
+    [
+     "بگو بله هر روز و حدود ده دقیقه طول می‌کشد",
+     "بگو دوستش دارم",
+     "Yes, I do. Every day, and it takes about ten minutes.",
+     "I love it.",
+     [],
+     [
+      [
+       "Yes, I do. Every day, and it take about ten minutes.",
+       "با «it» فعل «s» می‌گیرد: takes."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "clean-teeth",
+   "c": null,
+   "q": [
+    [
+     "بپرس چند بار در روز دندان‌هایش را مسواک می‌زند",
+     "بپرس صبح و شب",
+     "How often do you clean your teeth?",
+     "Morning and night?",
+     [],
+     [
+      [
+       "How often you clean your teeth?",
+       "بعد از «how often»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چند بار مسواک می‌زند و بعد از ناهار هم",
+     "بپرس قبل از خواب",
+     "How often do you clean your teeth, and do you clean them after lunch?",
+     "Before bed?",
+     [],
+     [
+      [
+       "How often you clean your teeth, and do you clean them after lunch?",
+       "بعد از «how often»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس همیشه قبل از خواب مسواک می‌زند یا گاهی فراموش می‌کند",
+     "بپرس بعد چه می‌کند",
+     "Do you always clean your teeth before bed, or do you sometimes forget?",
+     "What do you do then?",
+     [],
+     [
+      [
+       "You always clean your teeth before bed, or do you sometimes forget?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو دو بار در روز",
+     "بگو صبح و شب",
+     "Twice a day.",
+     "Morning and night.",
+     [],
+     [
+      [
+       "Twice day.",
+       "قبل از «day» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو دو بار در روز و بعد از ناهار نه",
+     "بگو صبح و قبل از خواب",
+     "Twice a day, and not after lunch.",
+     "In the morning and before bed.",
+     [],
+     [
+      [
+       "Twice day, and not after lunch.",
+       "قبل از «day» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو همیشه قبل از خواب ولی گاهی خسته‌ام و فراموش می‌کنم",
+     "بگو فردا صبح دو بار مسواک می‌زنم",
+     "I always clean them before bed, but sometimes I'm tired and I forget.",
+     "Then I clean them twice in the morning.",
+     [],
+     [
+      [
+       "I clean always them before bed, but sometimes I'm tired and I forget.",
+       "«always» قبل از فعل می‌آید: I always clean."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "snack",
+   "c": null,
+   "q": [
+    [
+     "بپرس میان‌وعده می‌خورد",
+     "بپرس چه ساعتی",
+     "Do you have a snack?",
+     "What time?",
+     [],
+     [
+      [
+       "Do you have snack?",
+       "قبل از «snack» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بپرس بین غذاها چه میان‌وعده‌ای می‌خورد",
+     "بپرس سالم",
+     "What snack do you have between meals?",
+     "Is it healthy?",
+     [],
+     [
+      [
+       "What snack you have between meals?",
+       "بعد از «What snack»، «do you» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس معمولاً چه میان‌وعده‌ای می‌خورد و گاهی شیرینی هم",
+     "بپرس چرا",
+     "What do you usually have as a snack, and do you ever have sweets?",
+     "Why?",
+     [],
+     [
+      [
+       "What do you usually have for snack?",
+       "بگو: as a snack یا for a snack."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو ساعت چهار",
+     "Yes, I do.",
+     "At four.",
+     [],
+     [
+      [
+       "Yes, I have.",
+       "جواب «Do you…؟» با «do» است."
+      ]
+     ]
+    ],
+    [
+     "بگو میوه می‌خورم",
+     "بگو سیب",
+     "I have some fruit.",
+     "An apple.",
+     [],
+     [
+      [
+       "I have a fruit.",
+       "«fruit» شمارش‌ناپذیر است: some fruit."
+      ]
+     ]
+    ],
+    [
+     "بگو معمولاً میوه ولی گاهی شیرینی هم می‌خورم چون دوستش دارم",
+     "بگو شکلات",
+     "I usually have fruit, but sometimes I have sweets because I love them.",
+     "Chocolate.",
+     [],
+     [
+      [
+       "I usually have fruit but sometimes I have sweet.",
+       "جمع: sweets."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "takeaway",
+   "c": null,
+   "q": [
+    [
+     "بپرس غذای بیرون‌بر می‌گیرد",
+     "بپرس چند بار",
+     "Do you get takeaway?",
+     "How often?",
+     [],
+     [
+      [
+       "You get takeaway?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس غذای بیرون‌بر می‌گیرد و معمولاً چه می‌گیرد",
+     "بپرس پیتزا",
+     "Do you get takeaway, and what do you usually get?",
+     "Pizza?",
+     [],
+     [
+      [
+       "Do you get takeaway, and what you usually get?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس غذای بیرون‌بر می‌گیرد یا خودش در خانه می‌پزد",
+     "بپرس کدام را بیشتر دوست دارد",
+     "Do you get takeaway, or do you cook at home?",
+     "Which do you like?",
+     [],
+     [
+      [
+       "You get takeaway, or do you cook at home?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو هفته‌ای یک بار",
+     "Yes, I do.",
+     "Once a week.",
+     [],
+     [
+      [
+       "Yes, I am.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و معمولاً پیتزا می‌گیرم",
+     "بگو جمعه‌ها",
+     "Yes, I do. I usually get pizza.",
+     "On Fridays.",
+     [],
+     [
+      [
+       "Yes, I do. I get usually pizza.",
+       "«usually» قبل از فعل می‌آید: I usually get."
+      ]
+     ]
+    ],
+    [
+     "بگو معمولاً در خانه می‌پزم چون ارزان است ولی گاهی خسته‌ام و غذا سفارش می‌دهم",
+     "بگو آخر هفته",
+     "I usually cook at home, because it's cheap, but sometimes I'm tired and I get takeaway.",
+     "At the weekend.",
+     [],
+     [
+      [
+       "I usually cook at home, because it cheap, but sometimes I'm tired and I get takeaway.",
+       "بعد از «because» باید «it's» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "cook-or-takeaway",
+   "c": "دوستت گفت: «من هیچ‌وقت غذا نمی‌پزم.»",
+   "q": [
+    [
+     "بپرس پس چه می‌خورد",
+     "بپرس هر روز",
+     "So what do you eat?",
+     "Every day?",
+     [],
+     [
+      [
+       "So what you eat?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس پس غذا را از کجا می‌گیرد و چه می‌خورد",
+     "بپرس گران نیست",
+     "So where do you get food, and what do you eat?",
+     "Isn't it expensive?",
+     [],
+     [
+      [
+       "So where you get food, and what do you eat?",
+       "بعد از «where»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس غذای بیرون‌بر می‌گیرد یا بیرون غذا می‌خورد",
+     "بپرس کدام را بیشتر",
+     "Do you get takeaway, or do you eat out?",
+     "Which do you eat?",
+     [],
+     [
+      [
+       "You get takeaway, or do you eat out?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو غذای بیرون‌بر",
+     "بگو معمولاً",
+     "Takeaway.",
+     "Usually.",
+     [],
+     []
+    ],
+    [
+     "بگو از یک رستوران نزدیک خانه غذای بیرون‌بر می‌گیرم",
+     "بگو بیشتر مرغ",
+     "I get takeaway from a restaurant near my home.",
+     "Mostly chicken.",
+     [],
+     [
+      [
+       "I get takeaway from restaurant near my home.",
+       "قبل از «restaurant» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو بیشتر غذای بیرون‌بر چون وقت ندارم ولی گاهی با دوستانم بیرون غذا می‌خورم",
+     "بگو آخر هفته",
+     "Mostly takeaway, because I have no time, but sometimes I eat out with friends.",
+     "At the weekend.",
+     [],
+     [
+      [
+       "Mostly takeaway, because have no time, but sometimes I eat out with friends.",
+       "بعد از «because» فاعل لازم است: because I have."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "shopping-day",
+   "c": "دوستت گفت: «من فردا خرید می‌کنم.»",
+   "q": [
+    [
+     "بپرس کجا خرید می‌کند",
+     "بپرس هر هفته",
+     "Where do you do the shopping?",
+     "Every week?",
+     [
+      "Where do you shop?"
+     ],
+     [
+      [
+       "Where you do the shopping?",
+       "بعد از «Where»، «do you» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس کجا خرید می‌کند و چه می‌خرد",
+     "بپرس لیست دارد",
+     "Where do you do the shopping, and what do you buy?",
+     "Do you have a list?",
+     [],
+     [
+      [
+       "Where do you do the shopping and what you buy?",
+       "بعد از «what»، «do you» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس تنها خرید می‌کند یا با کسی",
+     "بپرس چه کسی",
+     "Do you do the shopping alone, or does someone help you?",
+     "Who?",
+     [],
+     [
+      [
+       "Do you do the shopping alone or someone helps you?",
+       "بخش دوم هم سؤال است: or does someone help you."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو سوپرمارکت",
+     "بگو نزدیک خانه",
+     "At the supermarket.",
+     "Near my home.",
+     [
+      "In the supermarket."
+     ],
+     [
+      [
+       "To the supermarket.",
+       "مکان: at/in the supermarket."
+      ]
+     ]
+    ],
+    [
+     "بگو در سوپرمارکت، نان و میوه می‌خرم",
+     "بگو لیست دارم",
+     "At the supermarket. I buy bread and fruit.",
+     "I have a list.",
+     [],
+     [
+      [
+       "At the supermarket. I buy a bread and fruits.",
+       "«bread» شمارش‌ناپذیر است."
+      ]
+     ]
+    ],
+    [
+     "بگو تنها چون دوست دارم خودم انتخاب کنم ولی گاهی برادرم کمک می‌کند",
+     "بگو کیف‌ها سنگین است",
+     "Alone, because I like to choose, but sometimes my brother helps me.",
+     "The bags are heavy.",
+     [],
+     [
+      [
+       "Alone because I like choose.",
+       "بعد از «like» باید «to» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "love-shower",
+   "c": "دوستت گفت: «من هر صبح دوش آب سرد می‌گیرم.»",
+   "q": [
+    [
+     "بپرس چرا آب سرد",
+     "بپرس سرد نیست",
+     "Why cold water?",
+     "Isn't it cold?",
+     [],
+     []
+    ],
+    [
+     "بپرس چرا آب سرد و دوستش دارد",
+     "بپرس چند دقیقه",
+     "Why cold water, and do you like it?",
+     "How long?",
+     [],
+     [
+      [
+       "Why cold water, and you like it?",
+       "بخش دوم هم سؤال است: and do you like it?"
+      ]
+     ]
+    ],
+    [
+     "بپرس آب سرد را دوست دارد یا فقط عادت است",
+     "بپرس زمستان هم",
+     "Do you like cold water, or is it just a habit?",
+     "In winter too?",
+     [],
+     [
+      [
+       "You like cold water, or is it just a habit?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بیدارم می‌کند",
+     "بگو خیلی",
+     "It wakes me up.",
+     "A lot.",
+     [],
+     [
+      [
+       "It wake me up.",
+       "با «It» فعل «s» می‌گیرد: wakes."
+      ]
+     ]
+    ],
+    [
+     "بگو بیدارم می‌کند و دوستش دارم",
+     "بگو پنج دقیقه",
+     "It wakes me up, and I love it.",
+     "Five minutes.",
+     [],
+     [
+      [
+       "It wake me up, and I love it.",
+       "با «It» فعل «s» می‌گیرد: wakes."
+      ]
+     ]
+    ],
+    [
+     "بگو دوستش دارم چون سرحال می‌شوم و زمستان هم همین کار را می‌کنم",
+     "بگو کمی سخت است",
+     "I like it, because I feel fresh, and I do it in winter too.",
+     "It's a bit hard.",
+     [],
+     [
+      [
+       "I like it, because feel fresh, and I do it in winter too.",
+       "بعد از «because» فاعل لازم است: because I feel."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "snack-time",
+   "c": "دوستت گفت: «من همیشه گرسنه‌ام.»",
+   "q": [
+    [
+     "بپرس میان‌وعده می‌خورد",
+     "بپرس چه ساعتی",
+     "Do you have snacks?",
+     "What time?",
+     [],
+     [
+      [
+       "Are you have snacks?",
+       "«have» فعل است؛ با «Do» بپرس."
+      ]
+     ]
+    ],
+    [
+     "بپرس میان‌وعده می‌خورد و چه",
+     "بپرس سالم است",
+     "Do you have snacks, and what do you eat?",
+     "Is it healthy?",
+     [],
+     [
+      [
+       "Do you have snacks and what you eat?",
+       "بعد از «what»، «do you» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چند بار در روز غذا می‌خورد",
+     "بپرس زیاد",
+     "How many times a day do you eat?",
+     "Is it too much?",
+     [],
+     [
+      [
+       "How many times a day you eat?",
+       "بعد از «How many times a day»، «do you» می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو ساعت یازده",
+     "Yes, I do.",
+     "At eleven.",
+     [],
+     [
+      [
+       "Yes, I am.",
+       "جواب «Do you…؟» با «do» است."
+      ]
+     ]
+    ],
+    [
+     "بگو بله، میوه یا آجیل می‌خورم",
+     "بگو سالم است",
+     "Yes, I do. I eat fruit or nuts.",
+     "It's healthy.",
+     [],
+     [
+      [
+       "Yes, I do. I eat a fruit or a nuts.",
+       "«fruit» شمارش‌ناپذیر و «nuts» جمع."
+      ]
+     ]
+    ],
+    [
+     "بگو پنج بار در روز چون کم کم می‌خورم و گاهی میان‌وعده هم می‌خورم",
+     "بگو زیاد نیست",
+     "I eat five times a day, because I eat small meals, and sometimes I have a snack.",
+     "It isn't too much.",
+     [],
+     [
+      [
+       "I eat five times in day.",
+       "بگو: five times a day."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "housework",
+   "c": null,
+   "q": [
+    [
+     "بپرس کارهای خانه را انجام می‌دهد",
+     "بپرس هر روز",
+     "Do you do the housework?",
+     "Every day?",
+     [],
+     [
+      [
+       "You do the housework?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه کارهای خانه‌ای می‌کند",
+     "بپرس کدام را دوست ندارد",
+     "What housework do you do?",
+     "Which one do you hate?",
+     [],
+     [
+      [
+       "What housework you do?",
+       "بعد از «what» و اسم، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس کارهای خانه را تنها می‌کند و چقدر طول می‌کشد",
+     "بپرس آخر هفته",
+     "Do you do the housework alone, and how long does it take?",
+     "At the weekend?",
+     [],
+     [
+      [
+       "Do you do the housework alone, and how long it take?",
+       "بعد از «how long»، «does» می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو هر روز کمی",
+     "Yes, I do.",
+     "A little every day.",
+     [],
+     [
+      [
+       "Yes, I am.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو ظرف‌ها را می‌شویم و اتاق را جارو می‌کنم",
+     "بگو از شستن ظرف‌ها بدم می‌آید",
+     "I wash the dishes and clean the room.",
+     "I hate washing the dishes.",
+     [],
+     [
+      [
+       "I am wash the dishes and clean the room.",
+       "بعد از «I» فعل ساده می‌آید، نه «am»: I wash."
+      ]
+     ]
+    ],
+    [
+     "بگو بله تنها چون تنها زندگی می‌کنم و حدود یک ساعت طول می‌کشد",
+     "بگو شنبه‌ها",
+     "Yes, I do, because I live alone. It takes about an hour.",
+     "On Saturdays.",
+     [],
+     [
+      [
+       "Yes, I do, because I live alone. It takes about hour.",
+       "قبل از «hour» باید «an» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "washing",
+   "c": null,
+   "q": [
+    [
+     "بپرس چه روزی لباس می‌شوید",
+     "بپرس با ماشین",
+     "What day do you do the washing?",
+     "With a machine?",
+     [],
+     [
+      [
+       "What day you do the washing?",
+       "بعد از «What day»، «do you» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس لباس‌ها را چند بار در هفته می‌شوید",
+     "بپرس خودش",
+     "How often do you do the washing?",
+     "Do you do it yourself?",
+     [],
+     [
+      [
+       "How often you do the washing?",
+       "بعد از «How often»، «do you» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس لباس‌ها را خودش می‌شوید یا کسی کمک می‌کند",
+     "بپرس اتو هم",
+     "Do you do the washing yourself, or does someone help you?",
+     "What about ironing?",
+     [],
+     [
+      [
+       "Do you do the washing yourself or someone helps you?",
+       "بخش دوم هم سؤال است: or does someone help you."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو جمعه‌ها",
+     "بگو صبح",
+     "On Fridays.",
+     "In the morning.",
+     [],
+     [
+      [
+       "In Fridays.",
+       "برای روز هفته: on Fridays."
+      ]
+     ]
+    ],
+    [
+     "بگو هفته‌ای دو بار",
+     "بگو با ماشین",
+     "Twice a week.",
+     "With a machine.",
+     [],
+     [
+      [
+       "Two times in a week.",
+       "بگو: twice a week."
+      ]
+     ]
+    ],
+    [
+     "بگو خودم می‌شوم چون ماشین دارم ولی اتو را مامانم می‌کند",
+     "بگو دوست ندارم",
+     "I do it myself, because I have a machine, but my mum does the ironing.",
+     "I don't like ironing.",
+     [],
+     [
+      [
+       "I do it myself because I have machine.",
+       "قبل از «machine» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "stay-in",
+   "c": null,
+   "q": [
+    [
+     "بپرس شب‌ها در خانه می‌ماند",
+     "بپرس چه می‌کند",
+     "Do you stay in at night?",
+     "What do you do?",
+     [],
+     [
+      [
+       "You stay in at night?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس آخر هفته در خانه می‌ماند یا بیرون می‌رود",
+     "بپرس با کی",
+     "Do you stay in at the weekend, or do you go out?",
+     "Who with?",
+     [],
+     [
+      [
+       "You stay in at the weekend, or do you go out?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس معمولاً شب‌ها چه می‌کند و با کی",
+     "بپرس تلویزیون می‌بیند",
+     "What do you usually do in the evening, and who with?",
+     "Do you watch TV?",
+     [],
+     [
+      [
+       "What you usually do in the evening, and who with?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو فیلم می‌بینم",
+     "Yes, I do.",
+     "I watch films.",
+     [],
+     [
+      [
+       "Yes, I am.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو معمولاً در خانه می‌مانم",
+     "بگو با خانواده",
+     "I usually stay in.",
+     "With my family.",
+     [],
+     [
+      [
+       "I stay usually in.",
+       "«usually» قبل از فعل می‌آید: I usually stay."
+      ]
+     ]
+    ],
+    [
+     "بگو شب‌ها در خانه می‌مانم چون خسته‌ام ولی آخر هفته با دوستانم بیرون می‌روم",
+     "بگو گاهی",
+     "I stay in in the evening, because I'm tired, but at the weekend I go out with friends.",
+     "Sometimes.",
+     [],
+     [
+      [
+       "I stay in in the evening, because I tired, but at the weekend I go out with friends.",
+       "بعد از «because» باید «I'm» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "eat-out",
+   "c": null,
+   "q": [
+    [
+     "بپرس بیرون غذا می‌خورد",
+     "بپرس چند بار",
+     "Do you eat out?",
+     "How often?",
+     [],
+     [
+      [
+       "You eat out?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس کجا بیرون غذا می‌خورد",
+     "بپرس با کی",
+     "Where do you eat out?",
+     "Who with?",
+     [],
+     [
+      [
+       "Where you eat out?",
+       "بعد از «where»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس بیرون غذا می‌خورد یا در خانه غذا می‌خورد",
+     "بپرس چرا",
+     "Do you eat out, or do you eat at home?",
+     "Why?",
+     [],
+     [
+      [
+       "You eat out, or do you eat at home?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو ماهی یک بار",
+     "Yes, I do.",
+     "Once a month.",
+     [],
+     [
+      [
+       "Yes, I am.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو یک رستوران کوچک نزدیک خانه",
+     "بگو با دوستانم",
+     "A small restaurant near my home.",
+     "With friends.",
+     [],
+     [
+      [
+       "small restaurant near my home.",
+       "قبل از «small» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو در خانه چون ارزان است ولی گاهی با خانواده بیرون می‌خوریم",
+     "بگو تولد",
+     "At home, because it's cheap, but sometimes we eat out with my family.",
+     "On birthdays.",
+     [],
+     [
+      [
+       "At home, because it cheap, but sometimes we eat out with my family.",
+       "بعد از «because» باید «it's» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "chat-friends",
+   "c": null,
+   "q": [
+    [
+     "بپرس با دوستانش چت می‌کند",
+     "بپرس چند بار",
+     "Do you chat with your friends?",
+     "How often?",
+     [],
+     [
+      [
+       "You chat with your friends?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس آنلاین چت می‌کند یا تلفنی حرف می‌زند",
+     "بپرس چه ساعتی",
+     "Do you chat online, or do you talk on the phone?",
+     "What time?",
+     [],
+     [
+      [
+       "You chat online, or do you talk on the phone?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس معمولاً درباره‌ی چه چیزی چت می‌کنند و هر شب",
+     "بپرس تا کی",
+     "What do you usually chat about, and do you chat every night?",
+     "Until when?",
+     [],
+     [
+      [
+       "What you usually chat about, and do you chat every night?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو هر روز",
+     "Yes, I do.",
+     "Every day.",
+     [],
+     [
+      [
+       "Yes, I am.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو آنلاین چت می‌کنیم",
+     "بگو شب‌ها",
+     "We chat online.",
+     "In the evening.",
+     [],
+     [
+      [
+       "We are chat online.",
+       "بعد از «We» فعل ساده می‌آید، نه «are»: We chat."
+      ]
+     ]
+    ],
+    [
+     "بگو درباره‌ی کار و فیلم چت می‌کنیم ولی هر شب نه چون گاهی خسته‌ام",
+     "بگو آخر هفته‌ها زیاد",
+     "We chat about work and films, but not every night, because sometimes I'm tired.",
+     "A lot at the weekend.",
+     [],
+     [
+      [
+       "We are chat about work and films, but not every night, because sometimes I'm tired.",
+       "بعد از «We» فعل ساده می‌آید، نه «are»: We chat."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "washing-who",
+   "c": "دوستت گفت: «من از شستن لباس بدم می‌آید.»",
+   "q": [
+    [
+     "بپرس چه کسی می‌شوید",
+     "بپرس هر هفته",
+     "Who does it?",
+     "Every week?",
+     [],
+     [
+      [
+       "Who it?",
+       "بعد از «who»، «does» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه کسی لباس‌ها را می‌شوید و چه روزی",
+     "بپرس ماشین دارند",
+     "Who does the washing, and which day?",
+     "Do you have a machine?",
+     [],
+     [
+      [
+       "Who the washing, and which day?",
+       "بعد از «who»، «does» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس همیشه خودش می‌شوید یا کسی کمک می‌کند",
+     "بپرس اتو هم",
+     "Do you always do it yourself, or does someone help you?",
+     "What about ironing?",
+     [],
+     [
+      [
+       "You always do it yourself, or does someone help you?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو خودم",
+     "بگو جمعه‌ها",
+     "I do.",
+     "On Fridays.",
+     [],
+     []
+    ],
+    [
+     "بگو خودم و جمعه‌ها",
+     "بگو بله ماشین دارم",
+     "I do it, and I do it on Fridays.",
+     "Yes, I have a machine.",
+     [],
+     [
+      [
+       "I do it, and I do it in Fridays.",
+       "روز هفته با «on» می‌آید: on Fridays."
+      ]
+     ]
+    ],
+    [
+     "بگو همیشه خودم چون تنها زندگی می‌کنم ولی گاهی دوستم کمک می‌کند",
+     "بگو اتو را نه",
+     "I always do it myself, because I live alone, but sometimes my friend helps me.",
+     "Not the ironing.",
+     [],
+     [
+      [
+       "I do always it myself, because I live alone, but sometimes my friend helps me.",
+       "«always» قبل از فعل می‌آید: I always do."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "go-out-where",
+   "c": "دوستت گفت: «من آخر هفته بیرون می‌روم.»",
+   "q": [
+    [
+     "بپرس کجا",
+     "بپرس با کی",
+     "Where do you go?",
+     "Who with?",
+     [
+      "Where do you go out?"
+     ],
+     [
+      [
+       "Where you go?",
+       "بعد از «Where»، «do you» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس کجا می‌رود و چه ساعتی برمی‌گردد",
+     "بپرس دیر",
+     "Where do you go, and what time do you come back?",
+     "Is it late?",
+     [],
+     [
+      [
+       "Where do you go and what time you come back?",
+       "بعد از «what time»، «do you» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس همیشه همان‌جا می‌رود یا هر بار جای دیگر",
+     "بپرس چرا",
+     "Do you always go to the same place, or to a different place?",
+     "Why?",
+     [],
+     [
+      [
+       "Do you go always to the same place?",
+       "«always» قبل از فعل: always go."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو کافه",
+     "بگو با دوستانم",
+     "To a café.",
+     "With friends.",
+     [
+      "A café."
+     ],
+     [
+      [
+       "In a café.",
+       "برای رفتن: to a café."
+      ]
+     ]
+    ],
+    [
+     "بگو به یک کافه می‌روم و ساعت ده برمی‌گردم",
+     "بگو زیاد دیر نیست",
+     "I go to a café, and I come back at ten.",
+     "It isn't late.",
+     [],
+     [
+      [
+       "I go to a café and I come back in ten.",
+       "برای ساعت از «at» استفاده کن."
+      ]
+     ]
+    ],
+    [
+     "بگو معمولاً همان کافه چون دوستش دارم ولی گاهی جای دیگر می‌رویم",
+     "بگو برای تنوع",
+     "I usually go to the same café, because I like it, but sometimes we go somewhere else.",
+     "For a change.",
+     [],
+     [
+      [
+       "I go usually to the same café.",
+       "«usually» قبل از فعل: usually go."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "eat-out-food",
+   "c": "دوستت گفت: «من هفته‌ای یک بار بیرون غذا می‌خورم.»",
+   "q": [
+    [
+     "بپرس بیرون که غذا می‌خورد چه می‌خورد",
+     "بپرس همیشه همان",
+     "What do you eat when you eat out?",
+     "Always the same?",
+     [],
+     [
+      [
+       "What you eat when you eat out?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه غذایی سفارش می‌دهد و چقدر طول می‌کشد",
+     "بپرس گران است",
+     "What do you order, and how long does it take?",
+     "Is it expensive?",
+     [],
+     [
+      [
+       "What you order, and how long does it take?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس برنج و مرغ می‌خورد یا چیز دیگر",
+     "بپرس چرا",
+     "Do you eat rice and chicken, or something different?",
+     "Why?",
+     [],
+     [
+      [
+       "You eat rice and chicken, or something different?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو مرغ",
+     "بگو همیشه",
+     "Chicken.",
+     "Always.",
+     [],
+     []
+    ],
+    [
+     "بگو معمولاً مرغ سفارش می‌دهم و حدود یک ساعت طول می‌کشد",
+     "بگو با نوشابه",
+     "I usually order chicken, and it takes about an hour.",
+     "With a drink.",
+     [],
+     [
+      [
+       "I order usually chicken, and it takes about an hour.",
+       "«usually» قبل از فعل می‌آید: I usually order."
+      ]
+     ]
+    ],
+    [
+     "بگو برنج و مرغ چون دوستش دارم ولی گاهی پیتزا می‌خورم",
+     "بگو برای تنوع",
+     "Rice and chicken, because I like it, but sometimes I eat pizza.",
+     "For a change.",
+     [],
+     [
+      [
+       "Rice and chicken, because like it, but sometimes I eat pizza.",
+       "بعد از «because» فاعل لازم است: because I like."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "stay-in-doing",
+   "c": "دوستت گفت: «من امشب در خانه می‌مانم.»",
+   "q": [
+    [
+     "بپرس معمولاً شب‌ها چه می‌کند",
+     "بپرس فیلم",
+     "What do you usually do at night?",
+     "Films?",
+     [],
+     [
+      [
+       "What you usually do at night?",
+       "بعد از «What»، «do you» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس شب‌ها در خانه چه می‌کند و با کسی",
+     "بپرس تنها",
+     "What do you do at home at night, and who with?",
+     "Alone?",
+     [],
+     [
+      [
+       "What do you do at home at night and who with you?",
+       "کوتاه بپرس: and who with?"
+      ]
+     ]
+    ],
+    [
+     "بپرس در خانه ماندن را دوست دارد یا بیرون رفتن را",
+     "بپرس چرا",
+     "Do you like staying in, or do you like going out?",
+     "Why?",
+     [],
+     [
+      [
+       "Do you like stay in or you like go out?",
+       "بعد از «like» شکل «-ing» می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو فیلم می‌بینم",
+     "بگو با خانواده",
+     "I watch films.",
+     "With my family.",
+     [],
+     [
+      [
+       "I am watch films.",
+       "بعد از «I» فعل ساده: watch."
+      ]
+     ]
+    ],
+    [
+     "بگو فیلم می‌بینم و کتاب می‌خوانم",
+     "بگو تنها",
+     "I watch films and read books.",
+     "Alone.",
+     [],
+     [
+      [
+       "I watch films and reading books.",
+       "هر دو فعل ساده: watch and read."
+      ]
+     ]
+    ],
+    [
+     "بگو در خانه ماندن چون آرام است ولی گاهی هم دوست دارم بیرون بروم",
+     "بگو آخر هفته",
+     "I like staying in, because it's calm, but sometimes I like going out too.",
+     "At the weekend.",
+     [],
+     [
+      [
+       "I like stay in because is calm.",
+       "بعد از «like» شکل «-ing»؛ و «it's calm»."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "morning-routine",
+   "c": null,
+   "q": [
+    [
+     "بپرس صبح‌ها چه می‌کند",
+     "بپرس اول چه",
+     "What do you do in the morning?",
+     "What first?",
+     [],
+     [
+      [
+       "What you do in the morning?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس صبح‌ها قبل از کار چه می‌کند",
+     "بپرس چقدر طول می‌کشد",
+     "What do you do in the morning before work?",
+     "How long does it take?",
+     [],
+     [
+      [
+       "What you do in the morning before work?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس صبح‌ها همیشه همین کارها را می‌کند یا فرق می‌کند",
+     "بپرس آخر هفته",
+     "Do you always do the same things in the morning, or is it different?",
+     "What about the weekend?",
+     [],
+     [
+      [
+       "You always do the same things in the morning, or is it different?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بلند می‌شوم و دوش می‌گیرم",
+     "بگو بعد صبحانه",
+     "I get up and have a shower.",
+     "Then breakfast.",
+     [],
+     [
+      [
+       "I get up and have shower.",
+       "قبل از «shower» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو بلند می‌شوم، دوش می‌گیرم، صبحانه می‌خورم و به سر کار می‌روم",
+     "بگو حدود یک ساعت",
+     "I get up, have a shower, have breakfast and go to work.",
+     "About an hour.",
+     [],
+     [
+      [
+       "I get up, have shower, have breakfast and go to work.",
+       "قبل از «shower» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو تقریباً همیشه همین است ولی آخر هفته فرق می‌کند چون عجله ندارم",
+     "بگو بیشتر می‌خوابم",
+     "Almost always the same, but at the weekend it's different, because I'm not in a hurry.",
+     "I sleep in.",
+     [],
+     [
+      [
+       "Almost always the same, but at the weekend it's different, because I not in a hurry.",
+       "بعد از «because» باید «I'm» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "free-time-week",
+   "c": null,
+   "q": [
+    [
+     "بپرس وقت آزادش چه می‌کند",
+     "بپرس با کی",
+     "What do you do in your free time?",
+     "Who with?",
+     [],
+     [
+      [
+       "What you do in your free time?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس آخر هفته‌ها چه می‌کند و کجا می‌رود",
+     "بپرس همیشه",
+     "What do you do at the weekend, and where do you go?",
+     "Always?",
+     [],
+     [
+      [
+       "What you do at the weekend, and where do you go?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس در خانه می‌ماند یا بیرون می‌رود و چرا",
+     "بپرس تنها",
+     "Do you stay in, or do you go out? Why?",
+     "Alone?",
+     [],
+     [
+      [
+       "You stay in, or do you go out? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو فیلم می‌بینم",
+     "بگو با دوستانم",
+     "I watch films.",
+     "With friends.",
+     [],
+     [
+      [
+       "I am watch films.",
+       "بعد از «I» فعل ساده می‌آید، نه «am»: I watch."
+      ]
+     ]
+    ],
+    [
+     "بگو آخر هفته با دوستانم به کافه می‌روم",
+     "بگو شنبه‌ها",
+     "At the weekend I go to a café with friends.",
+     "On Saturdays.",
+     [],
+     [
+      [
+       "In the weekend I go to a café with friends.",
+       "می‌گوییم «at the weekend»."
+      ]
+     ]
+    ],
+    [
+     "بگو معمولاً در خانه می‌مانم چون هفته‌ی کاری سخت است ولی گاهی بیرون می‌روم",
+     "بگو برای استراحت",
+     "I usually stay in, because my week is hard, but sometimes I go out.",
+     "To relax.",
+     [],
+     [
+      [
+       "I stay usually in, because my week is hard, but sometimes I go out.",
+       "«usually» قبل از فعل می‌آید: I usually stay."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "how-often-eat",
+   "c": null,
+   "q": [
+    [
+     "بپرس چند بار در ماه بیرون غذا می‌خورد",
+     "بپرس با کی",
+     "How often do you eat out?",
+     "Who with?",
+     [],
+     [
+      [
+       "How often you eat out?",
+       "بعد از «how often»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چند بار بیرون غذا می‌خورد و چند بار غذای بیرون‌بر می‌گیرد",
+     "بپرس کدام را بیشتر دوست دارد",
+     "How often do you eat out, and how often do you get takeaway?",
+     "Which do you like?",
+     [],
+     [
+      [
+       "How often you eat out, and how often do you get takeaway?",
+       "بعد از «how often»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس معمولاً بیرون غذا می‌خورد یا غذای بیرون‌بر می‌گیرد و چرا",
+     "بپرس ارزان است",
+     "Do you usually eat out or get takeaway? Why?",
+     "Is it cheap?",
+     [],
+     [
+      [
+       "You usually eat out or get takeaway? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو ماهی دو بار",
+     "بگو با دوستانم",
+     "Twice a month.",
+     "With friends.",
+     [],
+     [
+      [
+       "Twice month.",
+       "قبل از «month» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو ماهی دو بار بیرون می‌خورم و هفته‌ای یک بار غذای بیرون‌بر می‌گیرم",
+     "بگو غذای بیرون‌بر",
+     "Twice a month I eat out, and once a week I get takeaway.",
+     "Takeaway.",
+     [],
+     [
+      [
+       "Twice month I eat out, and once a week I get takeaway.",
+       "قبل از «month» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو معمولاً غذای بیرون‌بر چون ارزان است و وقت زیادی نمی‌گیرد",
+     "بگو آخر هفته",
+     "Usually takeaway, because it's cheap and it's quick.",
+     "At the weekend.",
+     [],
+     [
+      [
+       "Usually takeaway, because it cheap and it's quick.",
+       "بعد از «because» باید «it's» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "weekday-vs-weekend",
+   "c": null,
+   "q": [
+    [
+     "بپرس آخر هفته‌اش با روزهای کاری فرق دارد",
+     "بپرس چطور",
+     "Is your weekend different from your week?",
+     "How?",
+     [],
+     [
+      [
+       "Your is weekend different from your week?",
+       "سؤال با «Is» شروع می‌شود: Is your…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس در روزهای کاری چه ساعتی بلند می‌شود و آخر هفته چه ساعتی",
+     "بپرس چرا",
+     "What time do you get up during the week, and what time at the weekend?",
+     "Why?",
+     [],
+     [
+      [
+       "What time you get up during the week, and what time at the weekend?",
+       "بعد از «what time»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس روزهای کاری را دوست دارد یا آخر هفته را و چرا",
+     "بپرس کدام آرام است",
+     "Do you like the week, or do you like the weekend? Why?",
+     "Which one is calm?",
+     [],
+     [
+      [
+       "You like the week, or do you like the weekend? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله خیلی",
+     "بگو آخر هفته آرام است",
+     "Yes, very.",
+     "The weekend is calm.",
+     [],
+     []
+    ],
+    [
+     "بگو روزهای کاری ساعت هفت و آخر هفته ساعت ده",
+     "بگو دیر می‌خوابم",
+     "At seven during the week and at ten at the weekend.",
+     "I sleep in.",
+     [],
+     [
+      [
+       "in seven during the week and at ten at the weekend.",
+       "ساعت با «at» می‌آید: at seven."
+      ]
+     ]
+    ],
+    [
+     "بگو آخر هفته را دوست دارم چون وقت آزاد دارم و استراحت می‌کنم",
+     "بگو هفته سخت است",
+     "I like the weekend, because I have free time and I rest.",
+     "The week is hard.",
+     [],
+     [
+      [
+       "I like the weekend, because have free time and I rest.",
+       "بعد از «because» فاعل لازم است: because I have."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "how-often-more",
+   "c": "دوستت گفت: «من هر روز ورزش می‌کنم.»",
+   "q": [
+    [
+     "بپرس چه ساعتی",
+     "بپرس صبح یا شب",
+     "What time?",
+     "Morning or night?",
+     [
+      "What time do you do it?"
+     ],
+     [
+      [
+       "What time you?",
+       "جمله‌ی کامل: What time do you do it?"
+      ]
+     ]
+    ],
+    [
+     "بپرس چه ساعتی ورزش می‌کند و چند دقیقه",
+     "بپرس با کسی",
+     "What time do you exercise, and for how long?",
+     "With someone?",
+     [],
+     [
+      [
+       "What time do you exercise and how long?",
+       "بگو: and for how long?"
+      ]
+     ]
+    ],
+    [
+     "بپرس هیچ‌وقت ورزش را رد می‌کند یا هر روز",
+     "بپرس وقتی خسته است",
+     "Do you ever skip it, or do you do it every day?",
+     "What if you're tired?",
+     [],
+     [
+      [
+       "Do you skip ever it?",
+       "«ever» قبل از فعل: ever skip."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو صبح",
+     "بگو ساعت شش",
+     "In the morning.",
+     "At six.",
+     [
+      "At six."
+     ],
+     [
+      [
+       "At the morning.",
+       "صبح: in the morning."
+      ]
+     ]
+    ],
+    [
+     "بگو ساعت شش و حدود نیم ساعت",
+     "بگو تنها",
+     "At six, for about half an hour.",
+     "Alone.",
+     [],
+     [
+      [
+       "At six, about half hour.",
+       "بگو: half an hour."
+      ]
+     ]
+    ],
+    [
+     "بگو هر روز ولی وقتی خسته‌ام فقط ده دقیقه می‌کنم",
+     "بگو هیچ‌وقت رد نمی‌کنم",
+     "Every day, but when I'm tired I only do ten minutes.",
+     "I never skip it.",
+     [],
+     [
+      [
+       "Every day but when I tired I do only ten minutes.",
+       "بعد از «when I» باید «am» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "tired-weekend",
+   "c": "دوستت گفت: «آخر هفته‌ها خیلی خسته‌ام.»",
+   "q": [
+    [
+     "بپرس چرا خسته است",
+     "بپرس کار می‌کند",
+     "Why are you tired?",
+     "Do you work?",
+     [],
+     [
+      [
+       "Why you are tired?",
+       "ترتیب سؤال: Why are you tired."
+      ]
+     ]
+    ],
+    [
+     "بپرس چرا خسته است و چه می‌کند",
+     "بپرس استراحت می‌کند",
+     "Why are you tired, and what do you do?",
+     "Do you rest?",
+     [],
+     [
+      [
+       "Why you are tired?",
+       "ترتیب سؤال: Why are you tired."
+      ]
+     ]
+    ],
+    [
+     "بپرس خسته است چون زیاد کار می‌کند یا کم می‌خوابد",
+     "بپرس چه ساعتی می‌خوابد",
+     "Are you tired because you work a lot, or because you sleep a little?",
+     "What time do you sleep?",
+     [],
+     [
+      [
+       "Are you tired because of you work a lot?",
+       "بعد از «because» جمله می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو چون کار می‌کنم",
+     "بگو زیاد",
+     "Because I work.",
+     "A lot.",
+     [
+      "I work a lot."
+     ],
+     [
+      [
+       "Because of I work.",
+       "بعد از «because» جمله می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بگو چون زیاد کار می‌کنم و شب‌ها دیر می‌خوابم",
+     "بگو بله استراحت می‌کنم",
+     "Because I work a lot and I go to bed late.",
+     "Yes, I rest.",
+     [],
+     [
+      [
+       "Because I work a lot and I go bed late.",
+       "«go to bed» را کامل بگو."
+      ]
+     ]
+    ],
+    [
+     "بگو چون هفته‌ی کاری سخت است و کم می‌خوابم برای همین آخر هفته می‌خوابم",
+     "بگو تا ظهر",
+     "Because my week is hard and I sleep a little, so at the weekend I sleep in.",
+     "Until noon.",
+     [],
+     [
+      [
+       "Because my week hard and I sleep a little.",
+       "فعل را فراموش نکن: my week is hard."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "free-time-who",
+   "c": "دوستت گفت: «من وقت آزادم را با دوستانم می‌گذرانم.»",
+   "q": [
+    [
+     "بپرس چند نفرند",
+     "بپرس کجا",
+     "How many of you are there?",
+     "Where?",
+     [],
+     [
+      [
+       "How many you are?",
+       "ترتیب سؤال: How many of you are there?"
+      ]
+     ]
+    ],
+    [
+     "بپرس چند نفرند و چه می‌کنند",
+     "بپرس چه ساعتی",
+     "How many of you meet, and what do you do?",
+     "What time?",
+     [],
+     [
+      [
+       "How many of you meet and what you do?",
+       "بعد از «what»، «do you» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس همیشه با همان دوستان است یا گاهی با دوستان تازه",
+     "بپرس چرا",
+     "Is it always the same friends, or sometimes new friends?",
+     "Why?",
+     [],
+     [
+      [
+       "Is always the same friends?",
+       "بعد از «Is» باید «it» بیاید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو چهار نفر",
+     "بگو در یک کافه",
+     "Four of us.",
+     "In a café.",
+     [],
+     [
+      [
+       "Four persons.",
+       "بگو: four of us."
+      ]
+     ]
+    ],
+    [
+     "بگو چهار نفر، به کافه می‌رویم و چت می‌کنیم",
+     "بگو ساعت هفت",
+     "Four of us. We go to a café and chat.",
+     "At seven.",
+     [],
+     [
+      [
+       "Four of us. We go to a café and chatting.",
+       "هر دو فعل ساده: go and chat."
+      ]
+     ]
+    ],
+    [
+     "بگو معمولاً همان دوستان چون از قدیم دوستیم ولی گاهی یک دوست تازه هم می‌آید",
+     "بگو تازه آشنا شده",
+     "Usually the same friends, because we are old friends, but sometimes a new friend comes.",
+     "A new friend.",
+     [],
+     [
+      [
+       "Usually same friends because we old friends.",
+       "فعل را فراموش نکن: we are old friends."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "weekend-plan-check",
+   "c": "دوستت گفت: «آخر هفته‌ام معمولاً شلوغ است.»",
+   "q": [
+    [
+     "بپرس چرا شلوغ است",
+     "بپرس کار دارد",
+     "Why is it busy?",
+     "Do you work?",
+     [],
+     [
+      [
+       "Why it busy?",
+       "بعد از «why»، «is» می‌آید و بعد فاعل."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه کارهایی دارد و وقت آزاد هم دارد",
+     "بپرس کدام سخت است",
+     "What do you do, and do you have free time?",
+     "Which one is hard?",
+     [],
+     [
+      [
+       "What you do, and do you have free time?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس آخر هفته‌اش شلوغ است و اصلاً استراحت می‌کند",
+     "بپرس چرا",
+     "Is your weekend busy, and do you rest at all?",
+     "Why?",
+     [],
+     [
+      [
+       "Your is weekend busy, and do you rest at all?",
+       "سؤال با «Is» شروع می‌شود: Is your…؟"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو کار خانه دارم",
+     "بگو زیاد",
+     "I have housework.",
+     "A lot.",
+     [],
+     [
+      [
+       "I has housework.",
+       "با «I» فعل «have» می‌آید، نه «has»."
+      ]
+     ]
+    ],
+    [
+     "بگو کار خانه و خرید دارم و وقت آزاد کمی دارم",
+     "بگو شستن لباس",
+     "I do the housework and the shopping, and I have a little free time.",
+     "Washing clothes.",
+     [],
+     [
+      [
+       "I do the housework and the shopping, and I have little free time.",
+       "قبل از «little» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو بله چون کار خانه و خرید دارم برای همین وقت آزاد کمی دارم",
+     "بگو دوست ندارم",
+     "Yes, it is, because I do the housework and the shopping, so I have little free time.",
+     "I don't like it.",
+     [],
+     [
+      [
+       "Yes, it is, because do the housework and the shopping, so I have little free time.",
+       "بعد از «because» فاعل لازم است: because I do."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "dinner-cook",
+   "c": "دوستت گفت: «من امشب شام درست می‌کنم.»",
+   "q": [
+    [
+     "بپرس چه درست می‌کند",
+     "بپرس آسان است",
+     "What do you cook?",
+     "Is it easy?",
+     [],
+     [
+      [
+       "What you cook?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه درست می‌کند و چه کسی با او می‌خورد",
+     "بپرس خوشمزه است",
+     "What do you cook, and who eats with you?",
+     "Is it nice?",
+     [],
+     [
+      [
+       "What you cook, and who eats with you?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه درست می‌کند و شب‌ها معمولاً غذا می‌پزد",
+     "بپرس چرا",
+     "What do you cook, and do you usually cook at night?",
+     "Why?",
+     [],
+     [
+      [
+       "What you cook, and do you usually cook at night?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو برنج",
+     "بگو آسان است",
+     "I cook rice.",
+     "It's easy.",
+     [],
+     [
+      [
+       "I am cook rice.",
+       "بعد از «I» فعل ساده می‌آید، نه «am»: I cook."
+      ]
+     ]
+    ],
+    [
+     "بگو برنج و مرغ درست می‌کنم و خانواده‌ام با من می‌خورد",
+     "بگو بله خیلی",
+     "I cook rice and chicken, and my family eats with me.",
+     "Yes, very.",
+     [],
+     [
+      [
+       "I cook rice and chicken, and my family eat with me.",
+       "با «my family» فعل «s» می‌گیرد: eats."
+      ]
+     ]
+    ],
+    [
+     "بگو برنج و مرغ درست می‌کنم چون خانواده‌ام دوست دارد ولی گاهی خسته‌ام",
+     "بگو بعد غذای بیرون‌بر می‌گیریم",
+     "I cook rice and chicken, because my family likes it, but sometimes I'm tired.",
+     "Then we get takeaway.",
+     [],
+     [
+      [
+       "I cook rice and chicken, because my family like it, but sometimes I'm tired.",
+       "با «my family» فعل «s» می‌گیرد: likes."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "clean-how-long",
+   "c": "دوستت گفت: «شنبه‌ها خانه را تمیز می‌کنم.»",
+   "q": [
+    [
+     "بپرس چقدر طول می‌کشد",
+     "بپرس دوست دارد",
+     "How long does it take?",
+     "Do you like it?",
+     [],
+     [
+      [
+       "How long it takes?",
+       "بعد از «How long»، «does it take» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چقدر طول می‌کشد و تنها انجام می‌دهد",
+     "بپرس چه کسی کمک می‌کند",
+     "How long does it take, and do you do it alone?",
+     "Who helps you?",
+     [],
+     [
+      [
+       "How long does it take and you do it alone?",
+       "بخش دوم هم سؤال است: do you do it alone."
+      ]
+     ]
+    ],
+    [
+     "بپرس چقدر طول می‌کشد و هر شنبه این کار را می‌کند",
+     "بپرس چرا",
+     "How long does it take, and do you clean every Saturday?",
+     "Why?",
+     [],
+     [
+      [
+       "How long does it take and you clean every Saturday?",
+       "بخش دوم هم سؤال است: do you clean."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو حدود دو ساعت",
+     "بگو زیاد است",
+     "About two hours.",
+     "It's a lot.",
+     [],
+     [
+      [
+       "About of two hours.",
+       "بعد از «about» «of» نمی‌آید."
+      ]
+     ]
+    ],
+    [
+     "بگو حدود دو ساعت طول می‌کشد و تنها انجام می‌دهم",
+     "بگو گاهی خواهرم کمک می‌کند",
+     "It takes about two hours, and I do it alone.",
+     "Sometimes my sister helps.",
+     [],
+     [
+      [
+       "It take about two hours.",
+       "با «it» فعل s می‌گیرد: takes."
+      ]
+     ]
+    ],
+    [
+     "بگو حدود دو ساعت ولی هر شنبه چون خانه بزرگ است",
+     "بگو بعد استراحت می‌کنم",
+     "It takes about two hours, but I clean every Saturday because the house is big.",
+     "Then I rest.",
+     [],
+     [
+      [
+       "I clean every Saturday because house is big.",
+       "قبل از «house» باید «the» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "evening-routine",
+   "c": null,
+   "q": [
+    [
+     "بپرس عصرها چه می‌کند",
+     "بپرس با کی",
+     "What do you do in the evening?",
+     "Who with?",
+     [],
+     [
+      [
+       "What you do in the evening?",
+       "بعد از «What»، «do you» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس عصرها چه می‌کند و چه ساعتی شام می‌خورد",
+     "بپرس در خانه",
+     "What do you do in the evening, and what time do you eat?",
+     "At home?",
+     [],
+     [
+      [
+       "What do you do in the evening and what time you eat?",
+       "بعد از «what time»، «do you» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس عصرها چه می‌کند و گاهی بیرون می‌رود",
+     "بپرس کجا",
+     "What do you do in the evening, and do you ever go out?",
+     "Where?",
+     [],
+     [
+      [
+       "What do you do in the evening and you ever go out?",
+       "بخش دوم هم سؤال است: do you ever go out."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو تلویزیون می‌بینم",
+     "بگو با خانواده",
+     "I watch TV.",
+     "With my family.",
+     [],
+     [
+      [
+       "I watching TV.",
+       "بعد از «I» فعل ساده: watch."
+      ]
+     ]
+    ],
+    [
+     "بگو شام می‌خورم و بعد تلویزیون می‌بینم",
+     "بگو ساعت نه",
+     "I eat dinner, and then I watch TV.",
+     "At nine.",
+     [],
+     [
+      [
+       "I eat the dinner and then I watch TV.",
+       "قبل از «dinner» «the» نمی‌آید."
+      ]
+     ]
+    ],
+    [
+     "بگو معمولاً شام و تلویزیون ولی گاهی بیرون می‌روم چون می‌خواهم دوستانم را ببینم",
+     "بگو چای می‌خوریم",
+     "I usually eat dinner and watch TV, but sometimes I go out because I want to see friends.",
+     "We drink tea.",
+     [],
+     [
+      [
+       "I usually eat dinner and watch TV but sometimes I go out because I want see friends.",
+       "بعد از «want» باید «to» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "come-home-late",
+   "c": "دوستت گفت: «آخر هفته‌ها دیر به خانه می‌آیم.»",
+   "q": [
+    [
+     "بپرس چه ساعتی به خانه می‌آید",
+     "بپرس دیر است",
+     "What time do you come home?",
+     "Is it late?",
+     [],
+     [
+      [
+       "What time you come home?",
+       "بعد از «what time»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه ساعتی به خانه می‌آید و چطور می‌رسد",
+     "بپرس با تاکسی",
+     "What time do you come home, and how do you get there?",
+     "By taxi?",
+     [],
+     [
+      [
+       "What time you come home, and how do you get there?",
+       "بعد از «what time»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس همیشه دیر می‌آید یا فقط جمعه‌ها",
+     "بپرس چرا",
+     "Do you always come home late, or only on Fridays?",
+     "Why?",
+     [],
+     [
+      [
+       "You always come home late, or only on Fridays?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو نیمه‌شب",
+     "بگو گاهی یک ساعت دیر",
+     "At midnight.",
+     "Sometimes at one.",
+     [],
+     [
+      [
+       "in midnight.",
+       "ساعت با «at» می‌آید: at midnight."
+      ]
+     ]
+    ],
+    [
+     "بگو نیمه‌شب و با تاکسی",
+     "بگو گران است",
+     "I come home at midnight, by taxi.",
+     "It's expensive.",
+     [],
+     [
+      [
+       "I come home in midnight, by taxi.",
+       "ساعت با «at» می‌آید: at midnight."
+      ]
+     ]
+    ],
+    [
+     "بگو فقط جمعه‌ها چون آن شب با دوستانم بیرون می‌روم",
+     "بگو روزهای دیگر در خانه می‌مانم",
+     "Only on Fridays, because that's the night I go out with friends.",
+     "On other days I stay in.",
+     [],
+     [
+      [
+       "Only on Fridays, because that the night I go out with friends.",
+       "بعد از «because» باید «that's» بیاید."
+      ]
+     ]
+    ]
+   ]
+  }
+ ]
 }

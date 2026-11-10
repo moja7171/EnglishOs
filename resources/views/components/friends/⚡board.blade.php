@@ -10,6 +10,9 @@ new class extends Component
     /** "Last week" tab instead of this week. */
     public bool $lastWeek = false;
 
+    /** What the table is ranked by: practice days or points in the competitive games. */
+    public string $by = 'days';
+
     public string $pinnedHighlight = '';
 
     public bool $pinnedHighlightSaved = false;
@@ -41,12 +44,19 @@ new class extends Component
         unset($this->ranked);
     }
 
+    public function rankBy(string $by): void
+    {
+        $this->by = $by === 'games' ? 'games' : 'days';
+        unset($this->ranked);
+    }
+
     /**
      * Everyone on one table, me included: most practice days this week
      * (Saturday to Friday) first, then the most done, then the longer
-     * streak. Counts and dates only, never an answer.
+     * streak — or, on the Games tab, the most points in the competitive
+     * games first. Counts and dates only, never an answer.
      *
-     * @return list<array{user: User, me: bool, days: int, amount: int, week: list<array<string, mixed>>, streak: int, mission: ?string}>
+     * @return list<array{user: User, me: bool, days: int, amount: int, games: int, week: list<array<string, mixed>>, streak: int, mission: ?string}>
      */
     #[Computed]
     public function ranked(): array
@@ -66,11 +76,12 @@ new class extends Component
                     'user' => $user,
                     'me' => $user->is($me),
                     ...$activity->weekRow($user, $start, $today),
+                    'games' => $activity->gamePoints($user, $start),
                     'streak' => $user->currentStreak(),
                     'mission' => $run ? $run->mission->code.($currentDay !== false ? ' · D'.($currentDay + 1) : '') : null,
                 ];
             })
-            ->sortBy([['days', 'desc'], ['amount', 'desc'], ['streak', 'desc']])
+            ->sortBy($this->by === 'games' ? [['games', 'desc'], ['days', 'desc'], ['streak', 'desc']] : [['days', 'desc'], ['amount', 'desc'], ['streak', 'desc']])
             ->values()
             ->all();
     }
@@ -129,6 +140,16 @@ new class extends Component
         @endforeach
     </div>
 
+    <div class="mt-2 grid grid-cols-2 gap-1 rounded-2xl bg-surface-sunken p-1 dark:bg-surface-sunken-dark" role="tablist" aria-label="Rank by">
+        @foreach (['days' => 'Practice days', 'games' => 'Game points'] as $key => $tab)
+            <button type="button" role="tab" aria-selected="{{ $by === $key ? 'true' : 'false' }}" wire:key="by-{{ $key }}" wire:click="rankBy('{{ $key }}')" @class([
+                'h-10 cursor-pointer rounded-xl text-[15px]',
+                'bg-surface font-extrabold text-ink shadow-sm dark:bg-surface-dark dark:text-ink-dark' => $by === $key,
+                'font-bold text-ink-soft dark:text-ink-soft-dark' => $by !== $key,
+            ])>{{ $tab }}</button>
+        @endforeach
+    </div>
+
     <div class="mt-3 flex items-baseline justify-between text-sm font-bold text-ink-soft dark:text-ink-soft-dark">
         <span>{{ $start->format('D j M') }} – {{ $start->copy()->addDays(6)->format('D j M') }}</span>
         @unless ($lastWeek)
@@ -175,7 +196,11 @@ new class extends Component
                         </span>
                     </span>
                     <span class="flex shrink-0 flex-col items-end gap-0.5">
-                        <span class="text-xl font-extrabold text-ink tabular-nums dark:text-ink-dark">{{ $row['days'] }}<span class="text-sm text-ink-faint dark:text-ink-faint-dark">/7</span></span>
+                        @if ($by === 'games')
+                            <span class="text-xl font-extrabold text-ink tabular-nums dark:text-ink-dark">{{ App\Models\PairGame::formatPoints($row['games']) }}<span class="text-sm text-ink-faint dark:text-ink-faint-dark"> pts</span></span>
+                        @else
+                            <span class="text-xl font-extrabold text-ink tabular-nums dark:text-ink-dark">{{ $row['days'] }}<span class="text-sm text-ink-faint dark:text-ink-faint-dark">/7</span></span>
+                        @endif
                         <span @class(['flex items-center gap-0.5 text-xs font-extrabold', 'text-accent-ink dark:text-accent-ink-dark' => $row['streak'] > 0, 'text-ink-faint dark:text-ink-faint-dark' => $row['streak'] === 0])>@svg('heroicon-s-fire', 'h-3.5 w-3.5'){{ $row['streak'] }}</span>
                     </span>
                 @if ($row['me'])

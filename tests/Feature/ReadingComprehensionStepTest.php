@@ -8,6 +8,7 @@ use App\Models\MissionRun;
 use App\Models\User;
 use App\Services\GeminiClient;
 use App\Services\PexelsClient;
+use Database\Seeders\MissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -75,6 +76,80 @@ class ReadingComprehensionStepTest extends TestCase
         $this->actingAs($learner);
 
         return MissionRun::findOrStart($learner, $mission);
+    }
+
+    private function makeRunWithChoiceQuestions(): MissionRun
+    {
+        $learner = User::factory()->create();
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [[
+                'phase' => 'practice',
+                'steps' => [
+                    [
+                        'key' => 'reading_comprehension',
+                        'passage' => 'Aisha lives in Manchester and works at a hospital. She wakes up at six and feels exhausted after a long shift.',
+                        'highlighted_phrases' => [['phrase' => 'exhausted', 'type' => 'new', 'definition' => 'very tired', 'pos' => 'adjective', 'example' => 'I was exhausted after the long shift.']],
+                        'comprehension_check' => [['statement' => 'Aisha works at a hospital.', 'correct' => true]],
+                        'questions' => ['What is Aisha like?'],
+                        'choice_questions' => [
+                            ['prompt' => 'What time does Aisha wake up?', 'options' => ['At seven', 'At six', 'At ten'], 'correct' => 1, 'difficulty' => 'easy'],
+                            ['prompt' => 'Where does Aisha work?', 'options' => ['At a school', 'At a cafe', 'At a hospital'], 'correct' => 2, 'difficulty' => 'medium'],
+                        ],
+                    ],
+                    ['key' => 'writing'],
+                ],
+            ]],
+        ]);
+        $this->actingAs($learner);
+
+        return MissionRun::findOrStart($learner, $mission);
+    }
+
+    public function test_a_mission_with_choice_questions_asks_them_as_multiple_choice_not_as_written_answers(): void
+    {
+        $run = $this->makeRunWithChoiceQuestions();
+
+        Livewire::test('missions.steps.reading-comprehension', ['run' => $run])
+            ->assertSee('What time does Aisha wake up?')
+            ->assertSee('At six')
+            ->assertSee('Choose the answer')
+            ->assertDontSee('Answer in a full sentence')
+            ->assertDontSee('What is Aisha like?');
+    }
+
+    public function test_finishing_the_multiple_choice_round_saves_the_score_and_moves_on_without_asking_the_ai(): void
+    {
+        $run = $this->makeRunWithChoiceQuestions();
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldNotReceive('chat'));
+
+        Livewire::test('missions.steps.reading-comprehension', ['run' => $run])
+            ->call('finishChoices', 2, 2)
+            ->assertRedirect(route('missions.show', $run->mission));
+
+        $content = json_decode(Evidence::where('phase', 'reading_comprehension')->sole()->content_ref, true);
+        $this->assertSame(['correct' => 2, 'total' => 2], $content['choices']);
+        $this->assertSame('writing', $run->fresh()->currentStepKey());
+    }
+
+    public function test_every_built_mission_asks_its_reading_questions_as_well_formed_multiple_choice(): void
+    {
+        $this->seed(MissionSeeder::class);
+
+        foreach (Mission::orderBy('code')->get() as $mission) {
+            $questions = $mission->stepContent('reading_comprehension')['choice_questions'] ?? [];
+
+            $this->assertCount(3, $questions, "{$mission->code} has three multiple-choice questions");
+
+            foreach ($questions as $question) {
+                $this->assertCount(3, $question['options'], "{$mission->code}: {$question['prompt']}");
+                $this->assertCount(3, array_unique($question['options']), "{$mission->code}: options differ");
+                $this->assertArrayHasKey($question['correct'], $question['options'], "{$mission->code}: the right answer is one of the options");
+            }
+        }
     }
 
     public function test_it_shows_the_passage(): void

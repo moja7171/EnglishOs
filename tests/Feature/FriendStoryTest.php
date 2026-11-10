@@ -209,7 +209,7 @@ class FriendStoryTest extends TestCase
 
         $story = app(FriendStory::class)->for($me, $friend);
 
-        $this->assertSame(['صحبت با Pi', 'مرور'], collect($story['week']['days'][2]['kinds'])->sort()->values()->all());
+        $this->assertSame(['مرور', 'گفتگوی روزانه'], collect($story['week']['days'][2]['kinds'])->sort()->values()->all());
         $this->assertSame(['مأموریت'], $story['week']['days'][4]['kinds']);
         $this->assertSame(['current', 'todo'], $story['overall']['missionDays']);
         $this->assertSame(2, $story['overall']['practiceDays']);

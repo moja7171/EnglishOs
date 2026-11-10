@@ -203,7 +203,7 @@ class AskAnswerGameTest extends TestCase
         $this->assertSame(PairGame::POINTS_WORD + PairGame::POINTS_EXTRA, $game->refresh()->currentTurn()['current']['qa']['question']['points']);
     }
 
-    public function test_each_player_picks_their_own_levels_and_the_speaker_sees_their_own_level(): void
+    public function test_each_player_picks_the_level_of_their_questions_and_the_answer_follows_the_question(): void
     {
         [$me, $friend] = $this->twoFriendsWhoFinishedM11Day1();
         $game = $this->startedGame($me, $friend);
@@ -220,7 +220,8 @@ class AskAnswerGameTest extends TestCase
         $this->assertSame($game->currentCard()['questions'][3]['en'], $game->askLevel()['en']);
 
         $game->recordSpoken($asker, 'x', $this->ok());
-        $this->assertSame($game->refresh()->currentCard()['answers'][2]['en'], $game->askLevel()['en']);
+        // The answer is the one written for the question that was asked, whatever level the friend picked for answers.
+        $this->assertSame($game->refresh()->currentCard()['answers'][3]['en'], $game->askLevel()['en']);
     }
 
     public function test_a_finished_game_remembers_what_each_friend_played_and_missed(): void
@@ -355,6 +356,25 @@ class AskAnswerGameTest extends TestCase
         $practice->refresh();
 
         $this->assertFalse($practice->isLearnersGameTurn());
+        $this->assertSame($practice->currentCard()['questions'][1]['en'], $practice->askTeddyLine());
+        $this->assertSame($practice->currentCard()['answers'][1]['en'], $practice->askTarget()['en']);
+    }
+
+    public function test_teddys_reply_belongs_to_the_question_that_was_asked_at_any_level(): void
+    {
+        [$me] = $this->twoFriendsWhoFinishedM11Day1();
+        $me->update(['ask_question_level' => 3, 'ask_answer_level' => 1]);
+
+        $practice = app(AiPractices::class)->start($me, PairGame::GAME_ASK);
+
+        // The learner asks the level 3 question, so Teddy gives the level 3 answer, not the level the learner picked for answering.
+        $this->assertSame($practice->currentCard()['questions'][3]['en'], $practice->askTarget()['en']);
+        $this->assertSame($practice->currentCard()['answers'][3]['en'], $practice->askTeddyLine());
+
+        $practice->update(['position' => 1]);
+        $practice->refresh();
+
+        // Teddy asks the question of the level the learner answers at.
         $this->assertSame($practice->currentCard()['questions'][1]['en'], $practice->askTeddyLine());
         $this->assertSame($practice->currentCard()['answers'][1]['en'], $practice->askTarget()['en']);
     }

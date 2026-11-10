@@ -39,7 +39,7 @@
                         <span class="{{ $tile }}"><b class="block">⚡ Review</b>۲ دقیقه، اول کار</span>
                         <span class="{{ $tile }}"><b class="block">📖 Lesson</b>۵ مرحله‌ی امروز</span>
                         <span class="{{ $tile }}"><b class="block">🎧 Listening</b>یکی از ۳ فایل</span>
-                        <span class="{{ $tile }}"><b class="block">🎙 Daily talk</b>۱۰ دقیقه با Pi</span>
+                        <span class="{{ $tile }}"><b class="block">🎙 Daily talk</b>۱۰ دقیقه حرف زدن</span>
                     </div>
                 @else
                     <div class="space-y-2 font-bold">

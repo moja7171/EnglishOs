@@ -223,13 +223,15 @@ new class extends Component
 ?>
 
 <div class="mx-auto max-w-2xl space-y-5 p-6">
+    <livewire:usage-guide :guide="$this->hasGame ? 'game_ask' : 'daily_talk'" :key="'pi-guide-'.($this->hasGame ? 'ask' : 'pi')" />
+
     {{-- The mission's photo banner, the same as /listening: the way back
          to this day on the mission's page (where Daily talk sits beside
          the day's Lesson and Listening), the four days, and whether
          this day's practice is done. --}}
     <x-mission-banner
         :mission-code="$missionCode"
-        title="Daily talk"
+        :title="$this->hasGame ? 'Ask & Answer' : 'Daily talk'"
         icon="heroicon-o-microphone"
         :back-href="app(App\Services\MissionGrid::class)->pageUrl($missionCode, $day)"
         :back-label="$missionCode.' · '.$this->missionTitle.' · Day '.$day"
@@ -238,7 +240,7 @@ new class extends Component
         <x-slot:actions>
             <x-usage-guide-button on-photo />
         </x-slot:actions>
-        <p class="mt-0.5 text-sm text-white/80">{{ $this->task['title'] }} · {{ App\Services\PiPractice::MINUTES }} min</p>
+        <p class="mt-0.5 text-sm text-white/80">{{ $this->hasGame ? 'With Teddy or a friend' : $this->task['title'] }} · {{ App\Services\PiPractice::MINUTES }} min</p>
         <x-mission-day-pills :mission-code="$missionCode" route-name="pi.practice" :days="$this->missionDays" />
     </x-mission-banner>
 

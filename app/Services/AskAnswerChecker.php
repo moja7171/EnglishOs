@@ -151,11 +151,14 @@ class AskAnswerChecker
                 [['role' => 'user', 'text' => "Task (Persian): {$level['fa']}\nTarget sentence: \"{$level['en']}\"\nLearner's spoken sentence (automatic transcript): \"{$heard}\""]],
                 systemPrompt: 'You are a warm English speaking coach for '.($learnerDescription !== '' ? $learnerDescription : 'a Persian-speaking learner').'. '
                     .'The learner was asked (in Persian) to say something in English; a target sentence is given. Judge the learner\'s sentence: '
-                    .'it is correct if it is natural, grammatical English that does what the task asks, even when the words differ from the target. '
+                    .'it is correct only if it is natural, grammatical English that says the SAME thing as the target: the same topic, the same question or '
+                    .'statement and the same details, even when the words differ a little (other order, a contraction, a synonym). A different sentence is '
+                    .'NOT correct even when it is good English: another question, another topic, an extra question, or a missing part of the task. '
+                    .'In that case set ok to false, give the target sentence as "correct" and say in "why" that it does not do what the task asks. '
                     .'Judge GRAMMAR and WORD ORDER like question forms, auxiliaries, tenses and prepositions. The transcript is automatic speech-to-text: '
                     .'ignore capital letters, punctuation and anything that looks like a mishearing. Use only simple words in your correction. '
                     .'Reply with ONLY valid JSON, no markdown fences: {"ok": true or false, "correct": "if not ok: the fixed sentence the learner should say, '
-                    .'close to what they tried, in simple English; else the learner\'s sentence", "why": "if not ok: one short line in simple Persian '
+                    .'close to what they tried when it is the same idea, otherwise the target sentence; else the learner\'s sentence", "why": "if not ok: one short line in simple Persian '
                     .'saying what to fix, English words in Latin letters inside «»; else null", "extra": true or false}. "extra" is true only when the '
                     .'learner added a real extra detail on top of what the task asked. Never use double quote characters inside any text value.',
                 profile: GeminiClient::PROFILE_JUDGE,

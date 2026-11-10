@@ -434,6 +434,28 @@ class PiPracticePageTest extends TestCase
         $this->get(route('missions.index'))->assertOk();
     }
 
+    public function test_a_day_with_cards_never_calls_its_daily_talk_pi(): void
+    {
+        $this->seed(AskAnswerSeeder::class);
+        $this->actingAs($this->learnerWhoFinishedDay1());
+
+        Livewire::test('pi-practice.index')
+            ->assertSee('Ask & Answer')
+            ->assertSee('With Teddy or a friend')
+            ->assertDontSee('Daily talk');
+    }
+
+    public function test_a_day_without_cards_keeps_the_daily_talk_name_and_pi(): void
+    {
+        AskAnswerItem::query()->delete();
+        $this->actingAs($this->learnerWhoFinishedDay1());
+
+        Livewire::test('pi-practice.index')
+            ->assertSee('Daily talk')
+            ->assertSee('Talk with Pi')
+            ->assertDontSee('Ask & Answer');
+    }
+
     public function test_a_day_without_cards_stays_a_plain_pi_page(): void
     {
         AskAnswerItem::query()->delete();
