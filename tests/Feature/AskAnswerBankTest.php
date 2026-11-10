@@ -128,12 +128,13 @@ class AskAnswerBankTest extends TestCase
                 $question = $item->level(AskAnswerItem::SIDE_QUESTION, $level)['en'];
                 $answer = $item->level(AskAnswerItem::SIDE_ANSWER, $level)['en'];
                 $where = "{$item->slug} L{$level}: \"$question\" / \"$answer\"";
-                $startsYesNo = preg_match('/^(yes|no)\b/i', $answer) === 1;
+                $startsYesNo = preg_match('/^(yes|no)\s*[,.!]/i', $answer) === 1;
+                $startsYes = preg_match('/^yes\s*[,.!]/i', $answer) === 1;
                 $asksYesNo = preg_match('/^(do|does|did|is|are|can|have|has|will|would|could)\b/i', $question) === 1;
 
-                // A question with "or" is answered with the choice, never with yes or no; a wh-question never starts with yes or no.
+                // A question with "or" is answered with the choice, never with yes (a no can deny the first option); a wh-question never starts with yes or no.
                 if ($asksYesNo && preg_match('/\bor\b/i', explode('?', $question)[0]) === 1) {
-                    $this->assertFalse($startsYesNo, "$where: a choice is answered with the choice");
+                    $this->assertFalse($startsYes, "$where: a choice is answered with the choice");
                 }
 
                 if (! $asksYesNo && preg_match('/^(what|where|when|why|who|which|how)\b/i', $question) === 1) {

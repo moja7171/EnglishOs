@@ -1,0 +1,3425 @@
+{
+ "mission": 10,
+ "items": [
+  {
+   "d": 1,
+   "k": "s",
+   "s": "maintain-friendship",
+   "c": null,
+   "q": [
+    [
+     "بپرس دوستی‌اش را چطور حفظ می‌کند",
+     "بپرس با تماس",
+     "How do you maintain a friendship?",
+     "By calling?",
+     [],
+     [
+      [
+       "How you maintain a friendship?",
+       "بعد از «how»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس دوستی‌اش را چطور حفظ می‌کند و چند سال است دوستش را می‌شناسد",
+     "بپرس سال‌ها",
+     "How do you maintain a friendship, and how long have you known your friend?",
+     "Years?",
+     [],
+     [
+      [
+       "How you maintain a friendship, and how long have you known your friend?",
+       "بعد از «how»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس دوستی‌اش عوض شده یا همان است و چرا",
+     "بپرس چطور",
+     "Has your friendship changed, or is it the same? Why?",
+     "How?",
+     [],
+     [
+      [
+       "Has your friendship chang, or is it the same? Why?",
+       "داستان گذشته است: «changed»."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو اغلب زنگ می‌زنم",
+     "بگو و دیدار",
+     "I call often.",
+     "And visit.",
+     [],
+     [
+      [
+       "I am call often.",
+       "بعد از «I» فعل ساده می‌آید، نه «am»: I call."
+      ]
+     ]
+    ],
+    [
+     "بگو اغلب زنگ می‌زنم و ده سال است دوستم را می‌شناسم",
+     "بگو از مدرسه",
+     "I call often, and I have known my friend for ten years.",
+     "Since school.",
+     [],
+     [
+      [
+       "I am call often, and I have known my friend for ten years.",
+       "بعد از «I» فعل ساده می‌آید، نه «am»: I call."
+      ]
+     ]
+    ],
+    [
+     "بگو کمی عوض شده چون شلوغیم ولی هنوز هر هفته حرف می‌زنیم",
+     "بگو کمتر",
+     "It has changed a bit, because we are busy, but we still talk every week.",
+     "Less often.",
+     [],
+     [
+      [
+       "It has changed bit, because we are busy, but we still talk every week.",
+       "قبل از «bit» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "s",
+   "s": "grain-of-salt",
+   "c": null,
+   "q": [
+    [
+     "بپرس نصیحت را با احتیاط می‌شنود",
+     "بپرس همیشه",
+     "Do you take advice with a grain of salt?",
+     "Always?",
+     [],
+     [
+      [
+       "You take advice with a grain of salt?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس نصیحت را با احتیاط می‌شنود و چه کسی نصیحت می‌کند",
+     "بپرس دوستان",
+     "Do you take advice with a grain of salt, and who gives it?",
+     "Friends?",
+     [],
+     [
+      [
+       "You take advice with a grain of salt, and who gives it?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس هیچ‌وقت نصیحت بدی را از یک دوست قبول کرده و چه شد",
+     "بپرس کی",
+     "Have you ever taken bad advice from a friend? What happened?",
+     "When?",
+     [],
+     [
+      [
+       "Have you ever taken bad advice from friend? What happened?",
+       "قبل از «friend» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو گاهی",
+     "Yes, I do.",
+     "Sometimes.",
+     [],
+     [
+      [
+       "Yes, I am.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و دوستانم نصیحت می‌کنند",
+     "بگو و رئیسم",
+     "Yes, I do, and my friends give it.",
+     "And my boss.",
+     [],
+     [
+      [
+       "Yes, I am, and my friends give it.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو بله چون زود اعتماد کردم ولی از آن یاد گرفتم",
+     "بگو پارسال",
+     "Yes, I have, because I trusted too fast, but I learned from it.",
+     "Last year.",
+     [],
+     [
+      [
+       "Yes, I do, because I trusted too fast, but I learned from it.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I have."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "s",
+   "s": "rush-into",
+   "c": null,
+   "q": [
+    [
+     "بپرس در تصمیم‌ها عجله می‌کند",
+     "بپرس اغلب",
+     "Do you rush into decisions?",
+     "Often?",
+     [],
+     [
+      [
+       "You rush into decisions?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس در تصمیم‌ها عجله می‌کند و از دوستانش می‌پرسد",
+     "بپرس همیشه",
+     "Do you rush into decisions, and do you ask friends?",
+     "Always?",
+     [],
+     [
+      [
+       "You rush into decisions, and do you ask friends?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس هیچ‌وقت در چیزی عجله کرده و چه شد",
+     "بپرس چه حسی داشت",
+     "Have you ever rushed into something? What happened?",
+     "How did you feel?",
+     [],
+     [
+      [
+       "Have you ever rush into something? What happened?",
+       "داستان گذشته است: «rushed»."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو نه",
+     "بگو هیچ‌وقت",
+     "No, I don't.",
+     "Never.",
+     [],
+     [
+      [
+       "No, I am not.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: No, I don't."
+      ]
+     ]
+    ],
+    [
+     "بگو نه و از دوستانم می‌پرسم",
+     "بگو اول",
+     "No, I don't, and I ask my friends.",
+     "First.",
+     [],
+     [
+      [
+       "No, I am not, and I ask my friends.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: No, I don't."
+      ]
+     ]
+    ],
+    [
+     "بگو بله چون هیجان‌زده بودم ولی اشتباه بود",
+     "بگو یک اشتباه بزرگ",
+     "Yes, I have, because I was excited, but it was a mistake.",
+     "A big one.",
+     [],
+     [
+      [
+       "Yes, I have, because I was excited, but it was mistake.",
+       "قبل از «mistake» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "s",
+   "s": "have-a-temper",
+   "c": null,
+   "q": [
+    [
+     "بپرس زود عصبانی می‌شود",
+     "بپرس خیلی",
+     "Do you have a temper?",
+     "A bad one?",
+     [],
+     [
+      [
+       "You have a temper?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس زود عصبانی می‌شود و چطور آرام می‌شود",
+     "بپرس موسیقی",
+     "Do you have a temper, and how do you calm down?",
+     "Music?",
+     [],
+     [
+      [
+       "You have a temper, and how do you calm down?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس عصبانیتش هیچ‌وقت مشکلی ایجاد کرده و چه شد",
+     "بپرس کی",
+     "Has your temper ever caused a problem? What happened?",
+     "When?",
+     [],
+     [
+      [
+       "Has your temper ever caused problem? What happened?",
+       "قبل از «problem» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو کمی",
+     "بگو گاهی",
+     "A little.",
+     "Sometimes.",
+     [],
+     [
+      [
+       "little.",
+       "قبل از «little» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو کمی و قدم می‌زنم تا آرام شوم",
+     "بگو در پارک",
+     "A little, and I walk to calm down.",
+     "In the park.",
+     [],
+     [
+      [
+       "little, and I walk to calm down.",
+       "قبل از «little» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو بله چون با یک دوست عصبانی شدم ولی عذرخواهی کردم",
+     "بگو پارسال",
+     "Yes, it has, because I got angry with a friend, but I said sorry.",
+     "Last year.",
+     [],
+     [
+      [
+       "Yes, it have, because I got angry with a friend, but I said sorry.",
+       "با «it» فعل «s» می‌گیرد: has."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "s",
+   "s": "build-up-trust",
+   "c": null,
+   "q": [
+    [
+     "بپرس اعتماد را چطور می‌سازد",
+     "بپرس کم‌کم",
+     "How do you build up trust?",
+     "Slowly?",
+     [],
+     [
+      [
+       "How you build up trust?",
+       "بعد از «how»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس اعتماد را چطور می‌سازد و چقدر طول می‌کشد",
+     "بپرس سال‌ها",
+     "How do you build up trust, and how long does it take?",
+     "Years?",
+     [],
+     [
+      [
+       "How you build up trust, and how long does it take?",
+       "بعد از «how»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس با کسی سال‌ها اعتماد ساخته و چه کسی",
+     "بپرس چطور",
+     "Have you built up trust with someone for years? Who?",
+     "How?",
+     [],
+     [
+      [
+       "Have you build up trust with someone for years? Who?",
+       "بعد از «have» اسم مفعول می‌آید: built."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو کم‌کم",
+     "بگو با زمان",
+     "Slowly.",
+     "With time.",
+     [],
+     []
+    ],
+    [
+     "بگو کم‌کم و زمان زیادی می‌برد",
+     "بگو سال‌ها",
+     "Slowly, and it takes a long time.",
+     "Years.",
+     [],
+     [
+      [
+       "Slowly, and it take a long time.",
+       "با «it» فعل «s» می‌گیرد: takes."
+      ]
+     ]
+    ],
+    [
+     "بگو بله با بهترین دوستم چون همیشه صادقیم",
+     "بگو با حرف زدن",
+     "Yes, I have, with my best friend, because we are always honest.",
+     "By talking.",
+     [],
+     [
+      [
+       "Yes, I do, with my best friend, because we are always honest.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I have."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "maintain-do",
+   "c": "دوستت گفت: «من دوستی‌ام را حفظ می‌کنم.»",
+   "q": [
+    [
+     "بپرس چطور این کار را می‌کند",
+     "بپرس با تماس",
+     "How do you do it?",
+     "By calling?",
+     [],
+     [
+      [
+       "How you do it?",
+       "بعد از «how»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چطور این کار را می‌کند و چند وقت است دوست هستند",
+     "بپرس سال‌ها",
+     "How do you do it, and how long have you been friends?",
+     "Years?",
+     [],
+     [
+      [
+       "How you do it, and how long have you been friends?",
+       "بعد از «how»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس همیشه آسان بوده یا مشکل داشته‌اند و چرا",
+     "بپرس چه مشکلی",
+     "Has it always been easy, or have you had problems? Why?",
+     "What problems?",
+     [],
+     [
+      [
+       "Has it alway been easy, or have you had problems? Why?",
+       "با «it» فعل «s» می‌گیرد: always."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو اغلب زنگ می‌زنم",
+     "بگو هر هفته",
+     "I call often.",
+     "Every week.",
+     [],
+     [
+      [
+       "I am call often.",
+       "بعد از «I» فعل ساده می‌آید، نه «am»: I call."
+      ]
+     ]
+    ],
+    [
+     "بگو اغلب زنگ می‌زنم و ده سال است دوستیم",
+     "بگو از مدرسه",
+     "I call often, and we have been friends for ten years.",
+     "Since school.",
+     [],
+     [
+      [
+       "I am call often, and we have been friends for ten years.",
+       "بعد از «I» فعل ساده می‌آید، نه «am»: I call."
+      ]
+     ]
+    ],
+    [
+     "بگو مشکل داشته‌ایم چون شلوغ بودیم ولی درباره‌اش حرف زدیم",
+     "بگو یک بار",
+     "We have had problems, because we were busy, but we talked about them.",
+     "Once.",
+     [],
+     [
+      [
+       "We have had problems, because we were busy, but we talk about them.",
+       "داستان گذشته است: «talked»."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "advice-why",
+   "c": "دوستت گفت: «من نصیحت دیگران را با احتیاط می‌شنوم.»",
+   "q": [
+    [
+     "بپرس چرا",
+     "بپرس همیشه غلط است",
+     "Why?",
+     "Is it always wrong?",
+     [],
+     []
+    ],
+    [
+     "بپرس چرا و چه کسی بیشتر نصیحت می‌کند",
+     "بپرس دوستان",
+     "Why, and who gives you advice?",
+     "Friends?",
+     [],
+     [
+      [
+       "Why, and who give you advice?",
+       "بعد از «who» فعل «s» می‌گیرد: who gives you advice."
+      ]
+     ]
+    ],
+    [
+     "بپرس همه‌ی نصیحت‌ها را با احتیاط می‌شنود یا فقط بعضی و چرا",
+     "بپرس کدام",
+     "Do you take all advice with a grain of salt, or only some? Why?",
+     "Which?",
+     [],
+     [
+      [
+       "You take all advice with a grain of salt, or only some? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو آدم‌ها همه‌چیز را نمی‌دانند",
+     "بگو نه همیشه",
+     "People don't know everything.",
+     "Not always.",
+     [],
+     [
+      [
+       "People doesn't know everything.",
+       "با «people» از «don't» استفاده می‌کنیم."
+      ]
+     ]
+    ],
+    [
+     "بگو آدم‌ها همه‌چیز را نمی‌دانند و دوستانم بیشتر نصیحت می‌کنند",
+     "بگو و رئیسم",
+     "People don't know everything, and my friends give most of it.",
+     "And my boss.",
+     [],
+     [
+      [
+       "People don't know everything, and my friends gives most of it.",
+       "با «friends» (جمع) فعل «s» نمی‌گیرد: give."
+      ]
+     ]
+    ],
+    [
+     "بگو فقط بعضی چون به خانواده‌ام اعتماد دارم ولی بقیه را چک می‌کنم",
+     "بگو از غریبه‌ها",
+     "Only some, because I trust my family, but I check other advice.",
+     "From strangers.",
+     [],
+     [
+      [
+       "Only some, because trust my family, but I check other advice.",
+       "بعد از «because» فاعل لازم است: because I trust."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "rush-result",
+   "c": "دوستت گفت: «من عجله کردم.»",
+   "q": [
+    [
+     "بپرس چه شد",
+     "بپرس بد بود",
+     "What happened?",
+     "Was it bad?",
+     [],
+     [
+      [
+       "What happen?",
+       "داستان گذشته است: «happened»."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه شد و چه کار کرد",
+     "بپرس درستش کرد",
+     "What happened, and what did you do?",
+     "Did you fix it?",
+     [],
+     [
+      [
+       "What happened, and what you do?",
+       "بعد از «what»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس از آن یاد گرفته یا هنوز عجله می‌کند و چرا",
+     "بپرس چطور",
+     "Have you learned from it, or do you still rush? Why?",
+     "How?",
+     [],
+     [
+      [
+       "Have you learn from it, or do you still rush? Why?",
+       "داستان گذشته است: «learned»."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو اشتباه بود",
+     "بگو کوچک",
+     "It was a mistake.",
+     "A small one.",
+     [],
+     [
+      [
+       "It was mistake.",
+       "قبل از «mistake» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو اشتباه بود و درستش کردم",
+     "بگو سریع",
+     "It was a mistake, and I fixed it.",
+     "Quickly.",
+     [],
+     [
+      [
+       "It was mistake, and I fixed it.",
+       "قبل از «mistake» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو یاد گرفته‌ام چون حالا وقت بیشتری می‌گذارم ولی گاهی هنوز عجله می‌کنم",
+     "بگو اول فکر می‌کنم",
+     "I have learned from it, because I take more time now, but sometimes I still rush.",
+     "I think first.",
+     [],
+     [
+      [
+       "I have learned from it, because take more time now, but sometimes I still rush.",
+       "بعد از «because» فاعل لازم است: because I take."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "temper-what",
+   "c": "دوستت گفت: «من زود عصبانی می‌شوم.»",
+   "q": [
+    [
+     "بپرس چه کار می‌کند",
+     "بپرس قدم می‌زند",
+     "What do you do?",
+     "Do you walk?",
+     [],
+     [
+      [
+       "What you do?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه کار می‌کند و کمک می‌کند",
+     "بپرس همیشه",
+     "What do you do, and does it help?",
+     "Always?",
+     [],
+     [
+      [
+       "What you do, and does it help?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس هیچ‌وقت سر کار عصبانی شده و چه شد",
+     "بپرس کی",
+     "Have you ever lost your temper at work? What happened?",
+     "When?",
+     [],
+     [
+      [
+       "Have you ever lost your temper at work? What happen?",
+       "داستان گذشته است: «happened»."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو قدم می‌زنم",
+     "بگو بیرون",
+     "I walk.",
+     "Outside.",
+     [],
+     []
+    ],
+    [
+     "بگو قدم می‌زنم و کمک می‌کند",
+     "بگو معمولاً",
+     "I walk, and it helps.",
+     "Mostly.",
+     [],
+     [
+      [
+       "I walk, and it help.",
+       "با «it» فعل «s» می‌گیرد: helps."
+      ]
+     ]
+    ],
+    [
+     "بگو بله چون خسته بودم ولی عذرخواهی کردم",
+     "بگو یک بار",
+     "Yes, I have, because I was tired, but I said sorry.",
+     "Once.",
+     [],
+     [
+      [
+       "Yes, I do, because I was tired, but I said sorry.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I have."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "trust-slowly",
+   "c": "دوستت گفت: «اعتماد کم‌کم ساخته می‌شود.»",
+   "q": [
+    [
+     "بپرس موافق است",
+     "بپرس چرا",
+     "Do you agree?",
+     "Why?",
+     [],
+     [
+      [
+       "You agree?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس موافق است و آن را با کسی ساخته",
+     "بپرس با چه کسی",
+     "Do you agree, and have you built it with someone?",
+     "Who?",
+     [],
+     [
+      [
+       "You agree, and have you built it with someone?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس از دست دادن اعتماد آسان است یا سخت و چرا",
+     "بپرس مثلاً",
+     "Is it easy to lose trust, or is it hard? Why?",
+     "Example?",
+     [],
+     [
+      [
+       "It is easy to lose trust, or is it hard? Why?",
+       "سؤال با «Is» شروع می‌شود: Is it…؟"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو زمان می‌برد",
+     "Yes, I do.",
+     "It takes time.",
+     [],
+     [
+      [
+       "Yes, I am.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و آن را با دوستم ساخته‌ام",
+     "بگو بهترین دوستم",
+     "Yes, I do, and I have built it with my friend.",
+     "My best friend.",
+     [],
+     [
+      [
+       "Yes, I am, and I have built it with my friend.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو آسان است چون یک دروغ کافی است ولی ساختنش سال‌ها طول می‌کشد",
+     "بگو یک دروغ کوچک",
+     "It's easy, because one lie is enough, but it takes years to build.",
+     "A small lie.",
+     [],
+     [
+      [
+       "It's easy, because one lie is enough, but it take years to build.",
+       "با «it» فعل «s» می‌گیرد: takes."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "go-out-friends",
+   "c": null,
+   "q": [
+    [
+     "بپرس با دوستانش بیرون می‌رود",
+     "بپرس اغلب",
+     "Do you go out with friends?",
+     "Often?",
+     [],
+     [
+      [
+       "You go out with friends?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس با دوستانش بیرون می‌رود و اخیراً کجا رفته",
+     "بپرس کافه",
+     "Do you go out with friends, and where have you been recently?",
+     "A café?",
+     [],
+     [
+      [
+       "You go out with friends, and where have you been recently?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس اخیراً با آدم‌های تازه بیرون رفته یا فقط با دوستان قدیمی و چرا",
+     "بپرس چه کسانی",
+     "Have you gone out with new people lately, or only old friends? Why?",
+     "Who?",
+     [],
+     [
+      [
+       "Have you went out with new people lately, or only old friends? Why?",
+       "اسم مفعول «go» می‌شود «gone»."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو هر آخر هفته",
+     "Yes, I do.",
+     "Every weekend.",
+     [],
+     [
+      [
+       "Yes, I am.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و اخیراً به یک کافه رفته‌ام",
+     "بگو هفته‌ی پیش",
+     "Yes, I do, and I have been to a café recently.",
+     "Last week.",
+     [],
+     [
+      [
+       "Yes, I am, and I have been to a café recently.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو اخیراً با آدم‌های تازه رفته‌ام چون کارم را عوض کردم ولی هنوز دوستان قدیمی را می‌بینم",
+     "بگو از سر کار",
+     "I have gone out with new people lately, because I changed jobs, but I still see old friends.",
+     "From work.",
+     [],
+     [
+      [
+       "I have gone out with new people lately, because changed jobs, but I still see old friends.",
+       "بعد از «because» فاعل لازم است: because I changed."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "couple-broke-up",
+   "c": null,
+   "q": [
+    [
+     "بپرس زوجی را می‌شناسد که از هم جدا شده باشند",
+     "بپرس اخیراً",
+     "Do you know a couple who broke up?",
+     "Recently?",
+     [],
+     [
+      [
+       "You know a couple who broke up?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس زوجی را می‌شناسد که جدا شده باشند و چرا",
+     "بپرس غمگین",
+     "Do you know a couple who broke up, and why?",
+     "Sad?",
+     [],
+     [
+      [
+       "You know a couple who broke up, and why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس هیچ‌وقت بعد از جدایی به دوستی کمک کرده و چطور",
+     "بپرس کمک کرد",
+     "Have you ever helped a friend after a break-up? How?",
+     "Did it help?",
+     [],
+     [
+      [
+       "Have you ever helped friend after a break-up? How?",
+       "قبل از «friend» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو پارسال",
+     "Yes, I do.",
+     "Last year.",
+     [],
+     [
+      [
+       "Yes, I am.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو بله چون همیشه ناراحت بودند",
+     "بگو خیلی",
+     "Yes, I do, and they were always angry.",
+     "Very.",
+     [],
+     [
+      [
+       "Yes, I am, and they were always angry.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو بله چون به او گوش دادم ولی خیلی طول کشید",
+     "بگو ماه‌ها",
+     "Yes, I have, because I listened to him, but it took a long time.",
+     "Months.",
+     [],
+     [
+      [
+       "Yes, I have, because I listened to him, but it took long time.",
+       "قبل از «long» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "get-engaged",
+   "c": null,
+   "q": [
+    [
+     "بپرس دوستی نامزد کرده",
+     "بپرس اخیراً",
+     "Has a friend of yours got engaged?",
+     "Recently?",
+     [],
+     [
+      [
+       "Has friend of yours got engaged?",
+       "قبل از «friend» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بپرس دوستی نامزد کرده و عروسی کی است",
+     "بپرس به‌زودی",
+     "Has a friend got engaged, and when is the wedding?",
+     "Soon?",
+     [],
+     [
+      [
+       "Has friend got engaged, and when is the wedding?",
+       "قبل از «friend» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بپرس به مراسم نامزدی رفته یا فقط عروسی و چرا",
+     "بپرس کدام",
+     "Have you been to an engagement party, or only a wedding? Why?",
+     "Which?",
+     [],
+     [
+      [
+       "Have you been to engagement party, or only a wedding? Why?",
+       "قبل از «engagement» باید «an» بیاید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو ماه پیش",
+     "Yes, one has.",
+     "Last month.",
+     [],
+     []
+    ],
+    [
+     "بگو بله و عروسی بهار است",
+     "بگو در فروردین",
+     "Yes, one has, and the wedding is in spring.",
+     "In April.",
+     [],
+     [
+      [
+       "Yes, one have, and the wedding is in spring.",
+       "با «one» از «has» استفاده می‌کنیم: Yes, one has."
+      ]
+     ]
+    ],
+    [
+     "بگو به عروسی رفته‌ام چون پسرعمویم ازدواج کرد ولی به نامزدی نه",
+     "بگو پارسال",
+     "I have been to a wedding, because my cousin got married, but not an engagement party.",
+     "Last year.",
+     [],
+     [
+      [
+       "I have been to wedding, because my cousin got married, but not an engagement party.",
+       "قبل از «wedding» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "been-wedding",
+   "c": null,
+   "q": [
+    [
+     "بپرس به عروسی رفته",
+     "بپرس کی",
+     "Have you been to a wedding?",
+     "When?",
+     [],
+     [
+      [
+       "Have you been to wedding?",
+       "قبل از «wedding» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بپرس به عروسی رفته و چه کسی ازدواج کرد",
+     "بپرس یک دوست",
+     "Have you been to a wedding, and who got married?",
+     "A friend?",
+     [],
+     [
+      [
+       "Have you been to wedding, and who got married?",
+       "قبل از «wedding» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بپرس عروسی بزرگ بهتر است یا کوچک و چرا",
+     "بپرس کدام",
+     "Is a big wedding better, or a small one? Why?",
+     "Which?",
+     [],
+     [
+      [
+       "A big is wedding better, or a small one? Why?",
+       "سؤال با «Is» شروع می‌شود: Is a big…؟"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو پارسال",
+     "Yes, I have.",
+     "Last year.",
+     [],
+     [
+      [
+       "Yes, I do.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I have."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و پسرعمویم ازدواج کرد",
+     "بگو در تابستان",
+     "Yes, I have, and my cousin got married.",
+     "In the summer.",
+     [],
+     [
+      [
+       "Yes, I do, and my cousin got married.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I have."
+      ]
+     ]
+    ],
+    [
+     "بگو کوچک بهتر است چون آرام است ولی بزرگ بامزه است",
+     "بگو کوچک",
+     "A small one is better, because it's calm, but a big one is fun.",
+     "A small one.",
+     [],
+     [
+      [
+       "A small one is better, because it calm, but a big one is fun.",
+       "بعد از «because» باید «it's» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "parents-anniversary",
+   "c": null,
+   "q": [
+    [
+     "بپرس پدر و مادرش سالگرد ازدواجشان را جشن می‌گیرند",
+     "بپرس هر سال",
+     "Do your parents celebrate their anniversary?",
+     "Every year?",
+     [],
+     [
+      [
+       "Your parents celebrate their anniversary?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس سالگرد را جشن می‌گیرند و چطور",
+     "بپرس شام",
+     "Do your parents celebrate their anniversary, and how?",
+     "A dinner?",
+     [],
+     [
+      [
+       "Your parents celebrate their anniversary, and how?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس پدر و مادرش مدت زیادی است ازدواج کرده‌اند و چقدر",
+     "بپرس خوشحال‌اند",
+     "Have your parents been married for a long time? How long?",
+     "Are they happy?",
+     [],
+     [
+      [
+       "Have your parents been married for long time? How long?",
+       "قبل از «long» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو هر سال",
+     "Yes, they do.",
+     "Every year.",
+     [],
+     [
+      [
+       "Yes, they are.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, they do."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و به شام می‌روند",
+     "بگو در یک رستوران",
+     "Yes, they do, and they go to dinner.",
+     "In a restaurant.",
+     [],
+     [
+      [
+       "Yes, they are, and they go to dinner.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, they do."
+      ]
+     ]
+    ],
+    [
+     "بگو بله سی سال است ازدواج کرده‌اند و خوشحال‌اند",
+     "بگو خیلی",
+     "Yes, they have been married for thirty years, and they are happy.",
+     "Very.",
+     [],
+     [
+      [
+       "Yes, they have been marri for thirty years, and they are happy.",
+       "داستان گذشته است: «married»."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "engaged-news",
+   "c": "دوستت گفت: «دوستم نامزد کرد.»",
+   "q": [
+    [
+     "بپرس کی",
+     "بپرس اخیراً",
+     "When?",
+     "Recently?",
+     [],
+     []
+    ],
+    [
+     "بپرس کی و چطور شنید",
+     "بپرس از خودش",
+     "When, and how did you hear?",
+     "From him?",
+     [],
+     [
+      [
+       "When, and how you heard?",
+       "بعد از «how» اول «did» می‌آید: how did you hear."
+      ]
+     ]
+    ],
+    [
+     "بپرس برایش خوشحال است یا تعجب کرده و چرا",
+     "بپرس چرا",
+     "Are you happy for him, or surprised? Why?",
+     "Why?",
+     [],
+     [
+      [
+       "You are happy for him, or surprised? Why?",
+       "سؤال با «Are» شروع می‌شود: Are you…؟"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو هفته‌ی پیش",
+     "بگو اخیراً",
+     "Last week.",
+     "Recently.",
+     [],
+     []
+    ],
+    [
+     "بگو هفته‌ی پیش و او به من زنگ زد",
+     "بگو هیجان‌زده بود",
+     "Last week, and he called me.",
+     "He was excited.",
+     [],
+     [
+      [
+       "Last week, and he call me.",
+       "داستان گذشته است: «called»."
+      ]
+     ]
+    ],
+    [
+     "بگو خوشحالم چون دوست خوبی است ولی تعجب هم کرده‌ام",
+     "بگو سریع بود",
+     "I'm happy, because he is a good friend, but I'm surprised too.",
+     "It was fast.",
+     [],
+     [
+      [
+       "I'm happy, because he is good friend, but I'm surprised too.",
+       "قبل از «good» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "wedding-where",
+   "c": "دوستت گفت: «پسرعمویم ماه پیش ازدواج کرد.»",
+   "q": [
+    [
+     "بپرس کجا",
+     "بپرس در یک تالار",
+     "Where?",
+     "In a hall?",
+     [],
+     []
+    ],
+    [
+     "بپرس کجا و چند مهمان",
+     "بپرس زیاد",
+     "Where, and how many guests?",
+     "A lot?",
+     [],
+     [
+      [
+       "Where, and how many guest?",
+       "بعد از «how many» اسم جمع می‌آید: guests."
+      ]
+     ]
+    ],
+    [
+     "بپرس از عروسی لذت برد یا خیلی طولانی بود و چرا",
+     "بپرس تا چه ساعتی",
+     "Did you enjoy the wedding, or was it too long? Why?",
+     "What time?",
+     [],
+     [
+      [
+       "You enjoy the wedding, or was it too long? Why?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو در یک باغ",
+     "بگو بزرگ",
+     "In a garden.",
+     "A big one.",
+     [],
+     [
+      [
+       "In garden.",
+       "قبل از «garden» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو در یک باغ و حدود صد مهمان",
+     "بگو زیاد",
+     "In a garden, and about a hundred guests.",
+     "A lot.",
+     [],
+     [
+      [
+       "In garden, and about a hundred guests.",
+       "قبل از «garden» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو لذت بردم چون موسیقی خوب بود ولی خیلی طولانی بود",
+     "بگو تا نیمه‌شب",
+     "I enjoyed it, because the music was good, but it was too long.",
+     "Until midnight.",
+     [],
+     [
+      [
+       "I am enjoyed it, because the music was good, but it was too long.",
+       "بعد از «I» فعل ساده می‌آید، نه «am»: I enjoyed."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "anniversary-gift",
+   "c": "دوستت گفت: «سالگرد ازدواج پدر و مادرم است.»",
+   "q": [
+    [
+     "بپرس چه هدیه‌ای می‌دهد",
+     "بپرس گل",
+     "What do you give?",
+     "Flowers?",
+     [],
+     [
+      [
+       "What you give?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه هدیه‌ای می‌دهد و چه کسی آن را می‌خرد",
+     "بپرس خودش",
+     "What do you give, and who buys it?",
+     "You?",
+     [],
+     [
+      [
+       "What you give, and who buys it?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس هدیه می‌خرد یا چیزی می‌سازد و چرا",
+     "بپرس چه",
+     "Do you buy a gift, or do you make something? Why?",
+     "What?",
+     [],
+     [
+      [
+       "You buy a gift, or do you make something? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو گل",
+     "بگو و یک کارت",
+     "Flowers.",
+     "And a card.",
+     [],
+     []
+    ],
+    [
+     "بگو گل و خواهرم می‌خرد",
+     "بگو هر سال",
+     "Flowers, and my sister buys them.",
+     "Every year.",
+     [],
+     [
+      [
+       "Flowers, and my sister buy them.",
+       "با «my sister» فعل «s» می‌گیرد: buys."
+      ]
+     ]
+    ],
+    [
+     "بگو یک کارت می‌سازم چون شخصی است ولی گل هم می‌خرم",
+     "بگو یک کارت کوچک",
+     "I make a card, because it's personal, but I also buy flowers.",
+     "A small one.",
+     [],
+     [
+      [
+       "I make a card, because it personal, but I also buy flowers.",
+       "بعد از «because» باید «it's» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "honeymoon-where",
+   "c": "دوستت گفت: «آن‌ها به ماه عسل رفتند.»",
+   "q": [
+    [
+     "بپرس کجا رفتند",
+     "بپرس کنار دریا",
+     "Where did they go?",
+     "By the sea?",
+     [],
+     [
+      [
+       "Where they go?",
+       "بعد از «where»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس کجا رفتند و چقدر ماندند",
+     "بپرس یک هفته",
+     "Where did they go, and for how long?",
+     "A week?",
+     [],
+     [
+      [
+       "Where they go, and for how long?",
+       "بعد از «where»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس خودش هم آنجا رفته یا فقط عکس دیده و چرا",
+     "بپرس کی",
+     "Have you been there too, or have you only seen photos? Why?",
+     "When?",
+     [],
+     [
+      [
+       "Have you been there too, or you have only seen photos? Why?",
+       "بخش دوم هم سؤال است: or have you only seen photos."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو کنار دریا",
+     "بگو یک هفته",
+     "By the sea.",
+     "A week.",
+     [],
+     []
+    ],
+    [
+     "بگو کنار دریا و یک هفته",
+     "بگو در تابستان",
+     "By the sea, for a week.",
+     "In summer.",
+     [],
+     [
+      [
+       "By the sea, for week.",
+       "قبل از «week» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو آنجا رفته‌ام چون خانواده‌ام رفت ولی کوچک بودم",
+     "بگو سال‌ها پیش",
+     "I have been there, because my family went, but I was small.",
+     "Years ago.",
+     [],
+     [
+      [
+       "I has been there, because my family went, but I was small.",
+       "با «I» فعل «have» می‌آید، نه «has»."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "split-news",
+   "c": "دوستت گفت: «دو نفر از دوستانم از هم جدا شدند.»",
+   "q": [
+    [
+     "بپرس چرا جدا شدند",
+     "بپرس ناراحت بودند",
+     "Why did they break up?",
+     "Were they angry?",
+     [],
+     [
+      [
+       "Why they break up?",
+       "بعد از «why»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چرا جدا شدند و چقدر با هم بودند",
+     "بپرس سال‌ها",
+     "Why did they break up, and how long were they together?",
+     "Years?",
+     [],
+     [
+      [
+       "Why they break up, and how long were they together?",
+       "بعد از «why»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس برایشان غمگین است یا بهتر است و چرا",
+     "بپرس برای چه کسی",
+     "Are you sad for them, or is it better? Why?",
+     "For whom?",
+     [],
+     [
+      [
+       "You are sad for them, or is it better? Why?",
+       "سؤال با «Are» شروع می‌شود: Are you…؟"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو همیشه ناراحت بودند",
+     "بگو اغلب",
+     "They were always angry.",
+     "Often.",
+     [],
+     [
+      [
+       "They are always angry.",
+       "داستان گذشته است؛ «were» بگو."
+      ]
+     ]
+    ],
+    [
+     "بگو همیشه ناراحت بودند و پنج سال با هم بودند",
+     "بگو پنج",
+     "They were always angry, and they were together for five years.",
+     "Five.",
+     [],
+     [
+      [
+       "They are always angry, and they were together for five years.",
+       "داستان گذشته است؛ «were» بگو."
+      ]
+     ]
+    ],
+    [
+     "بگو غمگینم چون دوستان خوبی بودند ولی برایشان بهتر است",
+     "بگو برای هر دو",
+     "I'm sad, because they were good friends, but it's better for them.",
+     "Both.",
+     [],
+     [
+      [
+       "I'm sad, because they are good friends, but it's better for them.",
+       "داستان گذشته است؛ «were» بگو."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "known-for-ages",
+   "c": null,
+   "q": [
+    [
+     "بپرس بهترین دوستش را خیلی وقت است می‌شناسد",
+     "بپرس چند سال",
+     "Have you known your best friend for ages?",
+     "How long?",
+     [],
+     [
+      [
+       "Do you know your best friend for ages?",
+       "برای مدت تا حالا «have known» بگو: Have you known."
+      ]
+     ]
+    ],
+    [
+     "بپرس دوستش را خیلی وقت است می‌شناسد و کجا آشنا شدند",
+     "بپرس مدرسه",
+     "Have you known your friend for ages, and where did you meet?",
+     "School?",
+     [],
+     [
+      [
+       "Have you known your friend for ages, and where you meet?",
+       "بعد از «where»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس همیشه صمیمی بوده‌اند یا از هم دور شده‌اند و چرا",
+     "بپرس کی",
+     "Have you and your friend always been close, or have you drifted apart? Why?",
+     "When?",
+     [],
+     [
+      [
+       "Have you and your friend always been close, or have you drift apart? Why?",
+       "داستان گذشته است: «drifted»."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو ده سال",
+     "Yes, I have.",
+     "Ten years.",
+     [],
+     [
+      [
+       "Yes, I do.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I have."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و در مدرسه آشنا شدیم",
+     "بگو خیلی وقت پیش",
+     "Yes, I have, and we met at school.",
+     "Ages ago.",
+     [],
+     [
+      [
+       "Yes, I do, and we met at school.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I have."
+      ]
+     ]
+    ],
+    [
+     "بگو همیشه صمیمی بوده‌ایم چون به هم اعتماد داریم ولی اخیراً شلوغ بوده‌ایم",
+     "بگو کمی",
+     "We have always been close, because we trust each other, but we have been busy lately.",
+     "A bit.",
+     [],
+     [
+      [
+       "We have always being close, because we trust each other, but we have been busy lately.",
+       "بعد از «have» اسم مفعول «been» می‌آید: have always been."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "met-ages-ago",
+   "c": null,
+   "q": [
+    [
+     "بپرس کی با بهترین دوستش آشنا شد",
+     "بپرس خیلی وقت پیش",
+     "When did you meet your best friend?",
+     "Ages ago?",
+     [],
+     [
+      [
+       "When you meet your best friend?",
+       "بعد از «when»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس کی آشنا شد و چند ساله بود",
+     "بپرس ده",
+     "When did you meet your best friend, and how old were you?",
+     "Ten?",
+     [],
+     [
+      [
+       "When you meet your best friend, and how old were you?",
+       "بعد از «when»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس اول او را دوست داشت یا نظرش عوض شد و چرا",
+     "بپرس چطور",
+     "Did you like your best friend at first, or did you change your mind? Why?",
+     "How?",
+     [],
+     [
+      [
+       "You like your best friend at first, or did you change your mind? Why?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو خیلی وقت پیش",
+     "بگو در مدرسه",
+     "Ages ago.",
+     "At school.",
+     [],
+     []
+    ],
+    [
+     "بگو خیلی وقت پیش و ده ساله بودم",
+     "بگو در مدرسه",
+     "Ages ago, and I was ten.",
+     "At school.",
+     [],
+     [
+      [
+       "Ages ago, and I is ten.",
+       "داستان گذشته است؛ «was» بگو."
+      ]
+     ]
+    ],
+    [
+     "بگو اول دوستش داشتم چون بامزه بود ولی بعد از یک سال به او اعتماد کردم",
+     "بگو کم‌کم",
+     "I liked him at first, because he was funny, but I trusted him after a year.",
+     "Slowly.",
+     [],
+     [
+      [
+       "I liked him at first, because he was funny, but I trusted him after year.",
+       "قبل از «year» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "done-recently",
+   "c": null,
+   "q": [
+    [
+     "بپرس اخیراً چه کار کرده",
+     "بپرس چیز تازه",
+     "What have you done recently?",
+     "Anything new?",
+     [],
+     [
+      [
+       "What you done recently?",
+       "بعد از «what»، «have» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس اخیراً چه کار کرده و با چه کسی",
+     "بپرس تنها",
+     "What have you done recently, and who did you do it with?",
+     "Alone?",
+     [],
+     [
+      [
+       "What you done recently, and who did you do it with?",
+       "بعد از «what»، «have» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس اخیراً چیز تازه‌ای امتحان کرده یا همان چیزهای قدیمی و چرا",
+     "بپرس چه",
+     "Have you tried something new recently, or the same things? Why?",
+     "What?",
+     [],
+     [
+      [
+       "Have you tri something new recently, or the same things? Why?",
+       "داستان گذشته است: «tried»."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو یک دوره شروع کرده‌ام",
+     "بگو یک دوره‌ی تازه",
+     "I have started a course.",
+     "A new one.",
+     [],
+     [
+      [
+       "I have started course.",
+       "قبل از «course» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو یک دوره شروع کرده‌ام با یک دوست",
+     "بگو هفته‌ی پیش",
+     "I have started a course, with a friend.",
+     "Last week.",
+     [],
+     [
+      [
+       "I have started course, with a friend.",
+       "قبل از «course» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو چیز تازه‌ای امتحان کرده‌ام چون حوصله‌ام سر رفته بود ولی سرگرمی‌های قدیمی را هم دوست دارم",
+     "بگو یک دوره‌ی تازه",
+     "I have tried something new, because I was bored, but I like my old hobbies too.",
+     "A new course.",
+     [],
+     [
+      [
+       "I have tried something new, because was bored, but I like my old hobbies too.",
+       "بعد از «because» فاعل لازم است: because I was."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "busy-lately",
+   "c": null,
+   "q": [
+    [
+     "بپرس اخیراً شلوغ بوده",
+     "بپرس خیلی",
+     "Have you been busy lately?",
+     "Very?",
+     [],
+     [
+      [
+       "Are you busy lately?",
+       "برای مدت تا حالا «Have you been» بگو."
+      ]
+     ]
+    ],
+    [
+     "بپرس اخیراً شلوغ بوده و چه کار کرده",
+     "بپرس کار",
+     "Have you been busy lately, and what have you done?",
+     "Work?",
+     [],
+     [
+      [
+       "Have you been busy lately, and what did you do?",
+       "برای کار تا حالا «what have you done» بگو."
+      ]
+     ]
+    ],
+    [
+     "بپرس اخیراً دوستانش را دیده یا خیلی شلوغ بوده و چرا",
+     "بپرس چند بار",
+     "Have you seen your friends lately, or have you been too busy? Why?",
+     "How many?",
+     [],
+     [
+      [
+       "Have you seen your friends lately, or you have been too busy? Why?",
+       "بخش دوم هم سؤال است: or have you been too busy."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو کمی",
+     "Yes, I have.",
+     "A bit.",
+     [],
+     [
+      [
+       "Yes, I do.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I have."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و زیاد کار کرده‌ام",
+     "بگو و درس خوانده‌ام",
+     "Yes, I have, and I have worked a lot.",
+     "And studied.",
+     [],
+     [
+      [
+       "Yes, I have, and I have worked lot.",
+       "قبل از «lot» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو زیاد ندیده‌ام چون شلوغ بوده‌ام ولی به آن‌ها زنگ زده‌ام",
+     "بگو دو بار",
+     "I haven't seen them much, because I have been busy, but I have called them.",
+     "Twice.",
+     [],
+     [
+      [
+       "I haven't seen them much, because have been busy, but I have called them.",
+       "بعد از «because» فاعل لازم است: because I have."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "other-day",
+   "c": null,
+   "q": [
+    [
+     "بپرس روز قبل چه کسی را دید",
+     "بپرس یک دوست",
+     "Who did you see the other day?",
+     "A friend?",
+     [],
+     [
+      [
+       "Who you see the other day?",
+       "بعد از «who»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس روز قبل چه کسی را دید و چه کار کردند",
+     "بپرس حرف زدند",
+     "Who did you see the other day, and what did you do?",
+     "Talk?",
+     [],
+     [
+      [
+       "Who you see the other day, and what did you do?",
+       "بعد از «who»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس قرار گذاشته بودند یا اتفاقی بود و چرا",
+     "بپرس چقدر",
+     "Did you plan to meet, or was it a surprise? Why?",
+     "How long?",
+     [],
+     [
+      [
+       "You plan to meet, or was it a surprise? Why?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو یک دوست را دیدم",
+     "بگو در یک مغازه",
+     "I saw a friend.",
+     "In a shop.",
+     [],
+     [
+      [
+       "I saw friend.",
+       "قبل از «friend» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو یک دوست را دیدم و چای خوردیم",
+     "بگو نزدیک محل کارم",
+     "I saw a friend, and we had tea.",
+     "Near my work.",
+     [],
+     [
+      [
+       "I saw friend, and we had tea.",
+       "قبل از «friend» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو اتفاقی بود چون هر دو در یک مغازه بودیم ولی یک ساعت حرف زدیم",
+     "بگو یک ساعت",
+     "It was a surprise, because we were both in the same shop, but we talked for an hour.",
+     "An hour.",
+     [],
+     [
+      [
+       "It was surprise, because we were both in the same shop, but we talked for an hour.",
+       "قبل از «surprise» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "known-how-long",
+   "c": "دوستت گفت: «ما سال‌هاست همدیگر را می‌شناسیم.»",
+   "q": [
+    [
+     "بپرس چقدر",
+     "بپرس ده سال",
+     "How long?",
+     "Ten years?",
+     [],
+     []
+    ],
+    [
+     "بپرس چقدر و کجا آشنا شدند",
+     "بپرس مدرسه",
+     "How long, and where did you meet?",
+     "School?",
+     [],
+     [
+      [
+       "How long, and where you meet?",
+       "بعد از «where»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس همیشه آسان بوده یا مشکل داشته‌اند و چرا",
+     "بپرس چه",
+     "Has it always been easy, or have you had problems? Why?",
+     "What?",
+     [],
+     [
+      [
+       "Has it alway been easy, or have you had problems? Why?",
+       "با «it» فعل «s» می‌گیرد: always."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو ده سال",
+     "بگو از مدرسه",
+     "For ten years.",
+     "Since school.",
+     [],
+     []
+    ],
+    [
+     "بگو ده سال و در مدرسه آشنا شدیم",
+     "بگو در کلاس",
+     "For ten years, and we met at school.",
+     "In class.",
+     [],
+     [
+      [
+       "For ten years, and we meet at school.",
+       "گذشته‌ی «meet» می‌شود «met»."
+      ]
+     ]
+    ],
+    [
+     "بگو آسان بوده چون صادقیم ولی یک مشکل داشتیم",
+     "بگو یک بار",
+     "It has been easy, because we are honest, but we had one problem.",
+     "Once.",
+     [],
+     [
+      [
+       "It has been easy, because we are honest, but we have one problem.",
+       "گذشته‌ی «have» می‌شود «had»."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "met-where",
+   "c": "دوستت گفت: «ما خیلی وقت پیش آشنا شدیم.»",
+   "q": [
+    [
+     "بپرس کجا آشنا شدند",
+     "بپرس مدرسه",
+     "Where did you meet?",
+     "School?",
+     [],
+     [
+      [
+       "Where you meet?",
+       "بعد از «where»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس کجا آشنا شدند و چه کسی آنجا بود",
+     "بپرس معلم",
+     "Where did you meet, and who was there?",
+     "A teacher?",
+     [],
+     [
+      [
+       "Where you meet, and who was there?",
+       "بعد از «where»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس خوب یادش هست یا فراموش کرده و چرا",
+     "بپرس چه چیزی",
+     "Do you remember it well, or did you forget? Why?",
+     "What?",
+     [],
+     [
+      [
+       "You remember it well, or did you forget? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو در مدرسه",
+     "بگو در کلاس",
+     "At school.",
+     "In class.",
+     [],
+     []
+    ],
+    [
+     "بگو در مدرسه و یک معلم آنجا بود",
+     "بگو مهربان",
+     "At school, and a teacher was there.",
+     "Kind.",
+     [],
+     [
+      [
+       "At school, and teacher was there.",
+       "قبل از «teacher» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو خوب یادم هست چون روز مهمی بود ولی اسم معلم را فراموش کرده‌ام",
+     "بگو کمی",
+     "I remember it well, because it was a big day, but I forgot the name of the teacher.",
+     "A bit.",
+     [],
+     [
+      [
+       "I remember it well, because it was big day, but I forgot the name of the teacher.",
+       "قبل از «big» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "recent-new",
+   "c": "دوستت گفت: «اخیراً یک چیز تازه شروع کردم.»",
+   "q": [
+    [
+     "بپرس چه چیزی",
+     "بپرس یک دوره",
+     "What?",
+     "A course?",
+     [],
+     []
+    ],
+    [
+     "بپرس چه چیزی و چقدر است انجامش می‌دهد",
+     "بپرس یک هفته",
+     "What, and how long have you been doing it?",
+     "A week?",
+     [],
+     [
+      [
+       "What, and how long you have been doing it?",
+       "بعد از «how long» اول «have» می‌آید: how long have you been doing it."
+      ]
+     ]
+    ],
+    [
+     "بپرس دوستش دارد یا سخت است و چرا",
+     "بپرس چقدر",
+     "Do you like it, or is it hard? Why?",
+     "For how long?",
+     [],
+     [
+      [
+       "You like it, or is it hard? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو یک دوره",
+     "بگو یک دوره‌ی تازه",
+     "A course.",
+     "A new one.",
+     [],
+     [
+      [
+       "course.",
+       "قبل از «course» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو یک دوره و یک ماه است انجامش می‌دهم",
+     "بگو هر روز",
+     "A course, and I have been doing it for a month.",
+     "Every day.",
+     [],
+     [
+      [
+       "course, and I have been doing it for a month.",
+       "قبل از «course» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو دوستش دارم چون تازه است ولی سخت است",
+     "بگو یک ماه",
+     "I like it, because it's new, but it's hard.",
+     "A month.",
+     [],
+     [
+      [
+       "I like it, because it new, but it's hard.",
+       "بعد از «because» باید «it's» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "busy-why",
+   "c": "دوستت گفت: «اخیراً خیلی شلوغ بودم.»",
+   "q": [
+    [
+     "بپرس چرا این‌قدر شلوغ",
+     "بپرس کار",
+     "Why so busy?",
+     "Work?",
+     [],
+     []
+    ],
+    [
+     "بپرس چرا این‌قدر شلوغ و استراحت کرده",
+     "بپرس کمی",
+     "Why so busy, and have you rested?",
+     "A little?",
+     [],
+     [
+      [
+       "Why so busy, and have you rest?",
+       "داستان گذشته است: «rested»."
+      ]
+     ]
+    ],
+    [
+     "بپرس همیشه این‌طور است یا فقط این روزها و چرا",
+     "بپرس چقدر",
+     "Is it always like this, or is it only these days? Why?",
+     "How long?",
+     [],
+     [
+      [
+       "It is always like this, or is it only these days? Why?",
+       "سؤال با «Is» شروع می‌شود: Is it…؟"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو کار",
+     "بگو و درس",
+     "Work.",
+     "And study.",
+     [],
+     []
+    ],
+    [
+     "بگو کار و کمی استراحت کرده‌ام",
+     "بگو یکشنبه",
+     "Work, and I have rested a little.",
+     "On Sunday.",
+     [],
+     [
+      [
+       "Work, and I have rested little.",
+       "قبل از «little» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو فقط این روزهاست چون امتحان دارم ولی قبلاً آرام بود",
+     "بگو یک ماه",
+     "It's only these days, because I have an exam, but it was calm before.",
+     "A month.",
+     [],
+     [
+      [
+       "It's only these days, because I have exam, but it was calm before.",
+       "قبل از «exam» باید «an» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "saw-the-other-day",
+   "c": "دوستت گفت: «روز قبل یک دوست قدیمی را دیدم.»",
+   "q": [
+    [
+     "بپرس چه کسی",
+     "بپرس از مدرسه",
+     "Who?",
+     "From school?",
+     [],
+     []
+    ],
+    [
+     "بپرس چه کسی و چه گفتی",
+     "بپرس سلام",
+     "Who, and what did you say?",
+     "Hello?",
+     [],
+     [
+      [
+       "Who, and what you say?",
+       "بعد از «what»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس مدت زیادی حرف زدند یا فقط یک دقیقه و چرا",
+     "بپرس درباره‌ی چه",
+     "Did you talk for a long time, or only for a minute? Why?",
+     "About what?",
+     [],
+     [
+      [
+       "You talk for a long time, or only for a minute? Why?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو یک دوست",
+     "بگو از مدرسه",
+     "A friend.",
+     "From school.",
+     [],
+     [
+      [
+       "friend.",
+       "قبل از «friend» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو یک دوست و سلام کردم",
+     "بگو خوشحال بودم",
+     "A friend, and I said hello.",
+     "I was happy.",
+     [],
+     [
+      [
+       "friend, and I said hello.",
+       "قبل از «friend» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو یک ساعت حرف زدیم چون حرف زیاد داشتیم ولی باید می‌رفتم",
+     "بگو درباره‌ی روزهای قدیم",
+     "We talked for an hour, because we had a lot to say, but I had to go.",
+     "About old days.",
+     [],
+     [
+      [
+       "We talked for hour, because we had a lot to say, but I had to go.",
+       "قبل از «hour» باید «an» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "ever-abroad",
+   "c": null,
+   "q": [
+    [
+     "بپرس هیچ‌وقت خارج از کشور بوده",
+     "بپرس کجا",
+     "Have you ever been abroad?",
+     "Where?",
+     [],
+     [
+      [
+       "Did you ever be abroad?",
+       "برای تجربه «Have you ever been» بگو."
+      ]
+     ]
+    ],
+    [
+     "بپرس هیچ‌وقت خارج از کشور بوده یا می‌خواهد برود",
+     "بپرس کجا",
+     "Have you ever been abroad, or do you want to go?",
+     "Where?",
+     [],
+     [
+      [
+       "Have you ever been abroad, or do you want go?",
+       "بعد از «want» باید «to» بیاید: want to go."
+      ]
+     ]
+    ],
+    [
+     "بپرس هیچ‌وقت تنها سفر کرده یا همیشه با دوستان و چرا",
+     "بپرس کجا",
+     "Have you ever gone alone, or always with friends? Why?",
+     "Where?",
+     [],
+     [
+      [
+       "Have you ever went alone, or always with friends? Why?",
+       "اسم مفعول «go» می‌شود «gone»."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو نه",
+     "بگو هیچ‌وقت",
+     "No, I haven't.",
+     "Never.",
+     [],
+     [
+      [
+       "No, I am haven't.",
+       "بعد از «I» فعل ساده می‌آید، نه «am»: I haven."
+      ]
+     ]
+    ],
+    [
+     "بگو نه ولی می‌خواهم بروم",
+     "بگو کنار دریا",
+     "No, I haven't, but I want to go.",
+     "To the sea.",
+     [],
+     [
+      [
+       "No, I haven't, but I want go.",
+       "بعد از «want» باید «to» بیاید: want to go."
+      ]
+     ]
+    ],
+    [
+     "بگو همیشه با دوستان رفته‌ام چون بامزه‌تر است ولی می‌خواهم تنها امتحان کنم",
+     "بگو یک بار",
+     "I have always gone with friends, because it's more fun, but I want to try alone.",
+     "Once.",
+     [],
+     [
+      [
+       "I have always gone with friends, because it more fun, but I want to try alone.",
+       "بعد از «because» باید «it's» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "ever-cooked",
+   "c": null,
+   "q": [
+    [
+     "بپرس هیچ‌وقت برای آدم زیادی آشپزی کرده",
+     "بپرس چند نفر",
+     "Have you ever cooked for a lot of people?",
+     "How many?",
+     [],
+     [
+      [
+       "Have you ever cooked for lot of people?",
+       "قبل از «lot» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بپرس برای آدم زیادی آشپزی کرده و چه پخته",
+     "بپرس برنج",
+     "Have you ever cooked for a lot of people, and what did you make?",
+     "Rice?",
+     [],
+     [
+      [
+       "Have you ever cooked for a lot of people, and what you make?",
+       "بعد از «what»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس غذای تازه‌ای پخته یا همان غذای همیشگی و چرا",
+     "بپرس کدام",
+     "Have you ever cooked a new dish, or only the same food? Why?",
+     "Which?",
+     [],
+     [
+      [
+       "Have you ever cooked new dish, or only the same food? Why?",
+       "قبل از «new» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو ده نفر",
+     "Yes, I have.",
+     "Ten.",
+     [],
+     [
+      [
+       "Yes, I do.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I have."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و برنج و مرغ پختم",
+     "بگو برای ده نفر",
+     "Yes, I have, and I made rice and chicken.",
+     "For ten.",
+     [],
+     [
+      [
+       "Yes, I do, and I made rice and chicken.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I have."
+      ]
+     ]
+    ],
+    [
+     "بگو غذای تازه‌ای پخته‌ام چون می‌خواستم امتحان کنم ولی خانواده‌ام غذای قدیمی را دوست داشت",
+     "بگو پاستا",
+     "I have cooked a new dish, because I wanted to try, but my family liked the old one.",
+     "Pasta.",
+     [],
+     [
+      [
+       "I have cooked new dish, because I wanted to try, but my family liked the old one.",
+       "قبل از «new» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "never-done",
+   "c": null,
+   "q": [
+    [
+     "بپرس چه کاری را هیچ‌وقت نکرده",
+     "بپرس چرا",
+     "What have you never done?",
+     "Why?",
+     [],
+     [
+      [
+       "What you never done?",
+       "بعد از «what»، «have» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه کاری را هیچ‌وقت نکرده و می‌خواهد انجامش دهد",
+     "بپرس کی",
+     "What have you never done, and do you want to do it?",
+     "When?",
+     [],
+     [
+      [
+       "What you never done, and do you want to do it?",
+       "بعد از «what»، «have» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس کاری هست که هیچ‌وقت نکرده و چرا نه",
+     "بپرس چه",
+     "Is there something you have never done, and why not?",
+     "What?",
+     [],
+     [
+      [
+       "There is something you have never done, and why not?",
+       "سؤال با «Is» شروع می‌شود: Is there…؟"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو هیچ‌وقت کوه نرفته‌ام",
+     "بگو ترسناک است",
+     "I have never climbed a mountain.",
+     "It's scary.",
+     [],
+     [
+      [
+       "I have never climbed mountain.",
+       "قبل از «mountain» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو هیچ‌وقت کوه نرفته‌ام و می‌خواهم بروم",
+     "بگو این تابستان",
+     "I have never climbed a mountain, and I want to.",
+     "This summer.",
+     [],
+     [
+      [
+       "I have never climbed mountain, and I want to.",
+       "قبل از «mountain» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو هیچ‌وقت سوار هواپیما نشده‌ام چون می‌ترسم ولی می‌خواهم امتحان کنم",
+     "بگو یک روز",
+     "I have never been on a plane, because I'm afraid, but I want to try.",
+     "One day.",
+     [],
+     [
+      [
+       "I have never been on a plane, because I afraid, but I want to try.",
+       "بعد از «because» باید «I'm» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "how-long-here",
+   "c": null,
+   "q": [
+    [
+     "بپرس چند وقت است اینجا زندگی می‌کند",
+     "بپرس از کی",
+     "How long have you lived here?",
+     "Since when?",
+     [],
+     [
+      [
+       "How long you lived here?",
+       "بعد از «how long»، «have» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چند وقت است اینجا زندگی می‌کند و دوستش دارد",
+     "بپرس چرا",
+     "How long have you lived here, and do you like it?",
+     "Why?",
+     [],
+     [
+      [
+       "How long you lived here, and do you like it?",
+       "بعد از «how long»، «have» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس همیشه اینجا زندگی کرده یا آمده و چرا",
+     "بپرس کی",
+     "Have you lived here all your life, or did you move? Why?",
+     "When?",
+     [],
+     [
+      [
+       "Have you liv here all your life, or did you move? Why?",
+       "داستان گذشته است: «lived»."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو ده سال",
+     "بگو از سال ۲۰۱۵",
+     "For ten years.",
+     "Since 2015.",
+     [],
+     []
+    ],
+    [
+     "بگو ده سال و دوستش دارم",
+     "بگو آرام است",
+     "For ten years, and I like it.",
+     "It's calm.",
+     [],
+     [
+      [
+       "For ten years, and I am like it.",
+       "بعد از «I» فعل ساده می‌آید: I like."
+      ]
+     ]
+    ],
+    [
+     "بگو آمده‌ام چون کارم اینجا بود و ده سال است اینجا زندگی می‌کنم",
+     "بگو ده سال پیش",
+     "I moved here, because my work was here, and I have lived here for ten years.",
+     "Ten years ago.",
+     [],
+     [
+      [
+       "I am moved here, because my work was here, and I have lived here for ten years.",
+       "بعد از «I» فعل ساده می‌آید، نه «am»: I moved."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "how-long-job",
+   "c": null,
+   "q": [
+    [
+     "بپرس چند وقت است این کار را دارد",
+     "بپرس از کی",
+     "How long have you had your job?",
+     "Since when?",
+     [],
+     [
+      [
+       "How long you had your job?",
+       "بعد از «how long»، «have» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چند وقت است این کار را دارد و دوستش دارد",
+     "بپرس چرا",
+     "How long have you had your job, and do you like it?",
+     "Why?",
+     [],
+     [
+      [
+       "How long you had your job, and do you like it?",
+       "بعد از «how long»، «have» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس همیشه همین کار را کرده یا عوض کرده و چرا",
+     "بپرس کی",
+     "Have you always done this job, or did you change? Why?",
+     "When?",
+     [],
+     [
+      [
+       "Have you done always this job, or did you change? Why?",
+       "«always» قبل از فعل می‌آید: you always done."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو سه سال",
+     "بگو از سال ۲۰۲۳",
+     "For three years.",
+     "Since 2023.",
+     [],
+     []
+    ],
+    [
+     "بگو سه سال و دوستش دارم",
+     "بگو آدم‌هایش مهربان‌اند",
+     "For three years, and I like it.",
+     "The people are kind.",
+     [],
+     [
+      [
+       "For three years, and I am like it.",
+       "بعد از «I» فعل ساده می‌آید: I like."
+      ]
+     ]
+    ],
+    [
+     "بگو عوض کردم چون پول می‌خواستم ولی از اول این کار را دوست داشته‌ام",
+     "بگو سه سال پیش",
+     "I changed, because I wanted money, but I have liked this job since the start.",
+     "Three years ago.",
+     [],
+     [
+      [
+       "I changed, because wanted money, but I have liked this job since the start.",
+       "بعد از «because» فاعل لازم است: because I wanted."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "abroad-want",
+   "c": "دوستت گفت: «من هیچ‌وقت خارج از کشور نرفته‌ام.»",
+   "q": [
+    [
+     "بپرس می‌خواهد برود",
+     "بپرس کجا",
+     "Do you want to go?",
+     "Where?",
+     [],
+     [
+      [
+       "You want to go?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس می‌خواهد برود و با چه کسی",
+     "بپرس تنها",
+     "Do you want to go, and who with?",
+     "Alone?",
+     [],
+     [
+      [
+       "You want to go, and who with?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس به خاطر پول است یا وقت و چرا",
+     "بپرس هر دو",
+     "Is it because of money, or because of time? Why?",
+     "Both?",
+     [],
+     [
+      [
+       "It is because of money, or because of time? Why?",
+       "سؤال با «Is» شروع می‌شود: Is it…؟"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو کنار دریا",
+     "Yes, I do.",
+     "To the sea.",
+     [],
+     [
+      [
+       "Yes, I am.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و می‌خواهم با دوستانم بروم",
+     "بگو چهار نفر",
+     "Yes, I do, and I want to go with friends.",
+     "Four of us.",
+     [],
+     [
+      [
+       "Yes, I do, and I want go with friends.",
+       "بعد از «want» باید «to» بیاید: want to go."
+      ]
+     ]
+    ],
+    [
+     "بگو پول است چون بلیت گران است ولی وقت هم ندارم",
+     "بگو هر دو",
+     "It's money, because tickets are expensive, but I have no time too.",
+     "Both.",
+     [],
+     [
+      [
+       "It's money, because tickets are expensive, but I no have time too.",
+       "می‌گوییم «I have no time» یا «I don't have time»."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "cooked-ten",
+   "c": "دوستت گفت: «من برای ده نفر آشپزی کرده‌ام.»",
+   "q": [
+    [
+     "بپرس سخت بود",
+     "بپرس خیلی",
+     "Was it hard?",
+     "Very?",
+     [],
+     [
+      [
+       "It was hard?",
+       "سؤال با «Was» شروع می‌شود: Was it…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس سخت بود و دوست داشتند",
+     "بپرس همه",
+     "Was it hard, and did they like it?",
+     "All?",
+     [],
+     [
+      [
+       "It was hard, and did they like it?",
+       "سؤال با «Was» شروع می‌شود: Was it…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس دوباره این کار را کرده یا فقط یک بار و چرا",
+     "بپرس کی",
+     "Have you done it again, or only once? Why?",
+     "When?",
+     [],
+     [
+      [
+       "Have you do it again, or only once? Why?",
+       "بعد از «have» اسم مفعول می‌آید: done."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو کمی",
+     "بگو خسته‌کننده",
+     "A bit.",
+     "Tiring.",
+     [],
+     [
+      [
+       "bit.",
+       "قبل از «bit» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو کمی و دوست داشتند",
+     "بگو همه‌شان",
+     "A bit, and they liked it.",
+     "All of them.",
+     [],
+     [
+      [
+       "bit, and they liked it.",
+       "قبل از «bit» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو دو بار کرده‌ام چون از من خواستند ولی کار زیادی بود",
+     "بگو پارسال",
+     "I have done it twice, because they asked me, but it was a lot of work.",
+     "Last year.",
+     [],
+     [
+      [
+       "I have done it twice, because they asked me, but it was lot of work.",
+       "قبل از «lot» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "never-why",
+   "c": "دوستت گفت: «من هیچ‌وقت کوه نرفته‌ام.»",
+   "q": [
+    [
+     "بپرس چرا نه",
+     "بپرس می‌ترسد",
+     "Why not?",
+     "Afraid?",
+     [],
+     []
+    ],
+    [
+     "بپرس چرا نه و می‌خواهد برود",
+     "بپرس کی",
+     "Why not, and do you want to?",
+     "When?",
+     [],
+     [
+      [
+       "Why not, and do you wants to?",
+       "با «you» فعل «s» نمی‌گیرد: you want."
+      ]
+     ]
+    ],
+    [
+     "بپرس فکر می‌کند بامزه است یا می‌ترسد و چرا",
+     "بپرس از چه",
+     "Do you think it is fun, or are you afraid? Why?",
+     "Of what?",
+     [],
+     [
+      [
+       "You think it is fun, or are you afraid? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو وقت ندارم",
+     "بگو و دوست ندارم",
+     "I have no time.",
+     "And no friends.",
+     [],
+     [
+      [
+       "I has no time.",
+       "با «I» فعل «have» می‌آید، نه «has»."
+      ]
+     ]
+    ],
+    [
+     "بگو وقت ندارم و می‌خواهم بروم",
+     "بگو این تابستان",
+     "I have no time, and I want to.",
+     "This summer.",
+     [],
+     [
+      [
+       "I has no time, and I want to.",
+       "با «I» فعل «have» می‌آید، نه «has»."
+      ]
+     ]
+    ],
+    [
+     "بگو فکر می‌کنم بامزه است چون دوستانم دوستش دارند ولی کمی می‌ترسم",
+     "بگو از ارتفاع",
+     "I think it is fun, because my friends like it, but I'm a bit afraid.",
+     "Of height.",
+     [],
+     [
+      [
+       "I think it is fun, because my friends like it, but I'm bit afraid.",
+       "قبل از «bit» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "lived-like",
+   "c": "دوستت گفت: «ده سال است اینجا زندگی می‌کنم.»",
+   "q": [
+    [
+     "بپرس دوستش دارد",
+     "بپرس چرا",
+     "Do you like it?",
+     "Why?",
+     [],
+     [
+      [
+       "You like it?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس دوستش دارد و قبلاً کجا زندگی می‌کرد",
+     "بپرس شهر کوچک",
+     "Do you like it, and where did you live before?",
+     "A town?",
+     [],
+     [
+      [
+       "Do you like it, and where you live before?",
+       "بعد از «where»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس اینجا دوست پیدا کرده یا هنوز تنهاست و چرا",
+     "بپرس چند نفر",
+     "Have you made friends here, or are you still alone? Why?",
+     "How many?",
+     [],
+     [
+      [
+       "Have you make friends here, or are you still alone? Why?",
+       "بعد از «have» اسم مفعول می‌آید: made."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو آرام است",
+     "Yes, I do.",
+     "It's calm.",
+     [],
+     [
+      [
+       "Yes, I am.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و در یک شهر کوچک زندگی می‌کردم",
+     "بگو قبلاً",
+     "Yes, I do, and I lived in a small town.",
+     "Before.",
+     [],
+     [
+      [
+       "Yes, I do, and I lived in small town.",
+       "قبل از «small» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو دوستان زیادی پیدا کرده‌ام چون آدم‌ها را دوست دارم ولی دلم برای شهر قدیمی‌ام تنگ شده",
+     "بگو ده نفر",
+     "I have made many friends, because I like people, but I miss my old town.",
+     "Ten.",
+     [],
+     [
+      [
+       "I have made many friends, because like people, but I miss my old town.",
+       "بعد از «because» فاعل لازم است: because I like."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "job-dream",
+   "c": "دوستت گفت: «سه سال است این کار را دارم.»",
+   "q": [
+    [
+     "بپرس شغل رؤیایی‌اش است",
+     "بپرس چرا",
+     "Is it your dream job?",
+     "Why?",
+     [],
+     [
+      [
+       "It is your dream job?",
+       "سؤال با «Is» شروع می‌شود: Is it…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس شغل رؤیایی‌اش است و چه می‌خواهد",
+     "بپرس یک کار تازه",
+     "Is it your dream job, and what do you want?",
+     "A new one?",
+     [],
+     [
+      [
+       "Is it your dream job, and what you want?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس به عوض کردنش فکر کرده یا راضی است و چرا",
+     "بپرس چقدر",
+     "Have you thought about changing it, or are you happy? Why?",
+     "How long?",
+     [],
+     [
+      [
+       "Have you think about changing it, or are you happy? Why?",
+       "بعد از «have» اسم مفعول می‌آید: thought."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو نه",
+     "بگو ولی خوب است",
+     "No, it isn't.",
+     "But it's good.",
+     [],
+     [
+      [
+       "No, it doesn't.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: No, it isn't."
+      ]
+     ]
+    ],
+    [
+     "بگو نه و یک کار در بانک می‌خواهم",
+     "بگو نزدیک خانه",
+     "No, it isn't, and I want a job in a bank.",
+     "Near my home.",
+     [],
+     [
+      [
+       "No, it isn't, and I want job in a bank.",
+       "قبل از «job» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو به آن فکر کرده‌ام چون پول می‌خواهم ولی اینجا راضی‌ام",
+     "بگو یک سال",
+     "I have thought about it, because I want money, but I am happy here.",
+     "For a year.",
+     [],
+     [
+      [
+       "I have thought about it, because want money, but I am happy here.",
+       "بعد از «because» فاعل لازم است: because I want."
+      ]
+     ]
+    ]
+   ]
+  }
+ ]
+}
