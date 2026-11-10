@@ -2117,15 +2117,15 @@
      []
     ],
     [
-     "بگو بله برادرم که چیزها را گم می‌کند ولی مهربان است",
+     "بگو بله برادرم که چیزها را گم می‌کند و همه دنبالشان می‌گردیم ولی مهربان است",
      "بگو کلیدش را گم می‌کند",
-     "Yes, my brother, who loses things, but he is kind.",
+     "Yes, my brother, who loses things, and we all look for them, but he is kind.",
      "He loses his keys.",
      [],
      [
       [
-       "Yes, my brother, who forget things, but he is kind.",
-       "با «who» فعل «s» می‌گیرد: who forgets/loses."
+       "Yes, my brother, who lose things, and we all look for them, but he is kind.",
+       "با «who» فعل «s» می‌گیرد: loses."
       ]
      ]
     ]

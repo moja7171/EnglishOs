@@ -155,4 +155,20 @@ class AskAnswerBankTest extends TestCase
         $this->assertModelMissing($old);
         $this->assertSame(40, AskAnswerItem::where('mission_number', 4)->count());
     }
+
+    public function test_a_question_that_asks_two_things_in_a_row_is_answered_in_both_parts(): void
+    {
+        $this->seed(AskAnswerSeeder::class);
+
+        foreach (AskAnswerItem::all() as $item) {
+            foreach (AskAnswerItem::LEVELS as $level) {
+                $question = preg_replace('/\s*Why\?\s*$/', '', $item->level(AskAnswerItem::SIDE_QUESTION, $level)['en']);
+                $answer = $item->level(AskAnswerItem::SIDE_ANSWER, $level)['en'];
+
+                if (substr_count((string) $question, '?') >= 2) {
+                    $this->assertMatchesRegularExpression('/\b(and|but|so)\b|,|[.!?]\s+\S/', $answer, "{$item->slug} L{$level}: \"$question\" is answered with one part only: \"$answer\"");
+                }
+            }
+        }
+    }
 }

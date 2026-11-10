@@ -93,6 +93,12 @@ class AskAnswerFilter
             $problems[] = 'level 1 question is too long';
         }
 
+        foreach ([1, 2] as $index) {
+            if ($this->askedParts((string) ($item['q'][$index][2] ?? '')) >= 2 && ! $this->answersSeveralParts((string) ($item['a'][$index][2] ?? ''))) {
+                $problems[] = 'level '.($index + 1).': the question asks two things, the answer says only one';
+            }
+        }
+
         $question = AskAnswerChecker::normalize($item['q'][0][2] ?? '');
 
         if ($question !== '' && in_array($question, $takenQuestions, true)) {
@@ -163,6 +169,26 @@ class AskAnswerFilter
         }
 
         return $target === '' ? [...$problems, "$where: empty English"] : $problems;
+    }
+
+    /**
+     * How many separate questions are asked one after the other ("Does it
+     * take time? Does anyone help you?"), leaving out a closing "Why?".
+     */
+    private function askedParts(string $question): int
+    {
+        $core = trim((string) preg_replace('/\s*Why\?\s*$/u', '', $question));
+
+        return count(array_filter(explode('?', $core), fn (string $part) => trim($part) !== ''));
+    }
+
+    /**
+     * Whether an answer is more than one bare phrase: it joins parts with
+     * and / but / a comma, or it is more than one sentence.
+     */
+    private function answersSeveralParts(string $answer): bool
+    {
+        return preg_match('/\b(and|but|so)\b|,|[.!?]\s+\S/u', $answer) === 1 || str_word_count($answer) >= 9;
     }
 
     private function usesComparative(string $english): bool
