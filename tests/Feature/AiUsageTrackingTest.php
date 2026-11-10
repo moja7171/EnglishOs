@@ -118,7 +118,8 @@ class AiUsageTrackingTest extends TestCase
         $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode(['highlight' => 'خوب.', 'tip' => 'ادامه بده.'])));
 
         Livewire::test('missions.steps.ai-conversation1', ['run' => $run])
-            ->set('warmUpAudioFile', UploadedFile::fake()->create('speaking.webm', 500, 'audio/webm'))
+            ->set('warmUpAudioFiles.0', UploadedFile::fake()->create('speaking.webm', 500, 'audio/webm'))
+            ->call('keepWarmUpTake', 0)
             ->call('finishWarmUp');
 
         $this->assertSame(1, $run->fresh()->groq_calls);

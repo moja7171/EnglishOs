@@ -34,16 +34,36 @@ new class extends Component
 
     public bool $readOnly = false;
 
-    /** Only the upload slot — see updatedRecording(). */
-    public ?UploadedFile $recording = null;
+    /**
+     * One take per guiding question (the learner answers them one at a
+     * time): only the upload slot, keyed by the question's index — see
+     * keepTake().
+     *
+     * @var array<int, ?UploadedFile>
+     */
+    public array $recordings = [];
 
-    /** The kept recording's path on the public disk, until the step is saved. */
+    /**
+     * The kept takes' paths on the public disk, keyed by question index,
+     * until the step is saved.
+     *
+     * @var array<int, string>
+     */
     #[Locked]
-    public ?string $recordingPath = null;
+    public array $recordingPaths = [];
 
-    public ?string $savedAudioUrl = null;
+    /** @var list<string> */
+    public array $savedAudioUrls = [];
 
+    /** All the answers, joined. */
     public ?string $transcript = null;
+
+    /**
+     * What was said to each guiding question (set when the step is saved).
+     *
+     * @var list<array{question: ?string, text: string}>
+     */
+    public array $answers = [];
 
     /** Real duration (Groq/Whisper's own, not estimated) — null if unavailable. */
     public ?float $durationSeconds = null;
@@ -63,11 +83,28 @@ new class extends Component
 
         $data = json_decode($this->run->latestEvidence('picture_description')?->content_ref ?? '{}', true);
         $this->transcript = $data['transcript'] ?? null;
+        $this->answers = $data['answers'] ?? [];
         $this->feedback = $data['feedback'] ?? null;
         $this->durationSeconds = $data['duration'] ?? null;
 
-        $audioEvidence = $this->run->evidence()->where('phase', 'picture_description')->where('type', Evidence::TYPE_AUDIO)->latest()->first();
-        $this->savedAudioUrl = $audioEvidence?->content_ref;
+        $this->savedAudioUrls = $this->run->evidence()->where('phase', 'picture_description')->where('type', Evidence::TYPE_AUDIO)
+            ->oldest('id')->pluck('content_ref')->all();
+    }
+
+    /**
+     * The guiding questions, one take each (a step without any gets one
+     * open take).
+     *
+     * @return list<string>
+     */
+    public function questions(): array
+    {
+        return array_values($this->run->mission->stepContent('picture_description')['guiding_questions'] ?? []);
+    }
+
+    public function takeCount(): int
+    {
+        return max(count($this->questions()), 1);
     }
 
     /** A rough word count from the real transcript — the completion stat badge. */
@@ -101,40 +138,43 @@ new class extends Component
 
     protected function draftedProperties(): array
     {
-        return ['recordingPath'];
+        return ['recordingPaths'];
     }
 
     /**
-     * The take is stored (and kept in the step's draft) the moment its
+     * A take is stored (and kept in the step's draft) the moment its
      * upload finishes, so leaving before Continue never loses it; a new
-     * take replaces the old one, file included.
+     * take for the same question replaces the old one, file included.
      */
-    public function updatedRecording(): void
+    public function keepTake(int $index): void
     {
         $this->validate([
-            'recording' => ['required', 'file', 'extensions:webm,ogg,mp3,wav,m4a', 'max:20480'],
-        ]);
+            "recordings.{$index}" => ['required', 'file', 'extensions:webm,ogg,mp3,wav,m4a', 'max:20480'],
+        ], attributes: ["recordings.{$index}" => 'recording']);
 
-        $this->recordingPath = $this->keepDraftRecording($this->recording, $this->recordingPath);
-        $this->recording = null;
+        $this->recordingPaths[$index] = $this->keepDraftRecording($this->recordings[$index], $this->recordingPaths[$index] ?? null);
+        unset($this->recordings[$index]);
 
         $this->keepStepDraft();
     }
 
-    public function recordingUrl(): ?string
+    public function recordingUrl(int $index): ?string
     {
-        return $this->recordingPath === null ? null : Storage::disk('public')->url($this->recordingPath);
+        return isset($this->recordingPaths[$index]) ? Storage::disk('public')->url($this->recordingPaths[$index]) : null;
     }
 
     public function save(): void
     {
-        if ($this->recordingPath === null) {
-            $this->addError('recording', 'Record your answer first.');
+        foreach (range(0, $this->takeCount() - 1) as $index) {
+            if (! isset($this->recordingPaths[$index])) {
+                $this->addError('recordings', 'Answer every question first.');
 
-            return;
+                return;
+            }
         }
 
-        $path = $this->recordingPath;
+        $paths = $this->recordingPaths;
+        ksort($paths);
 
         $this->transcribeAndReview();
 
@@ -144,17 +184,20 @@ new class extends Component
             'type' => Evidence::TYPE_TEXT,
             'content_ref' => json_encode([
                 'transcript' => $this->transcript,
+                'answers' => $this->answers,
                 'feedback' => $this->feedback,
                 'duration' => $this->durationSeconds,
             ]),
         ]);
 
-        Evidence::create([
-            'mission_run_id' => $this->run->id,
-            'phase' => 'picture_description',
-            'type' => Evidence::TYPE_AUDIO,
-            'content_ref' => Storage::disk('public')->url($path),
-        ]);
+        foreach ($paths as $path) {
+            Evidence::create([
+                'mission_run_id' => $this->run->id,
+                'phase' => 'picture_description',
+                'type' => Evidence::TYPE_AUDIO,
+                'content_ref' => Storage::disk('public')->url($path),
+            ]);
+        }
 
         $this->forgetStepDraft();
         $this->completed = true;
@@ -169,16 +212,35 @@ new class extends Component
      */
     private function transcribeAndReview(): void
     {
-        try {
-            $result = app(GroqClient::class)->transcribeWithDuration(Storage::disk('public')->path($this->recordingPath));
-            $this->transcript = trim($result['text']);
-            $this->durationSeconds = $result['duration'];
-            $this->recordGroqCall();
+        $questions = $this->questions();
+        $this->answers = [];
+        $this->durationSeconds = 0.0;
 
-            if ($this->transcript === '') {
-                return;
+        foreach (range(0, $this->takeCount() - 1) as $index) {
+            try {
+                $result = app(GroqClient::class)->transcribeWithDuration(Storage::disk('public')->path($this->recordingPaths[$index]));
+                $this->recordGroqCall();
+            } catch (Throwable) {
+                continue;
             }
 
+            $this->durationSeconds += $result['duration'] ?? 0;
+
+            if (trim($result['text']) !== '') {
+                $this->answers[] = ['question' => $questions[$index] ?? null, 'text' => trim($result['text'])];
+            }
+        }
+
+        $this->transcript = collect($this->answers)->pluck('text')->implode(' ');
+        $this->durationSeconds = $this->durationSeconds > 0 ? $this->durationSeconds : null;
+
+        if ($this->transcript === '') {
+            $this->transcript = null;
+
+            return;
+        }
+
+        try {
             $vocabularyContext = app(AiFeedbackCard::class)->vocabularyContext($this->run->selectedVocabularyWords());
             $length = $this->durationSeconds
                 ? ' They spoke for '.(int) round($this->durationSeconds).' seconds ('.$this->wordCount().' words).'
@@ -186,8 +248,8 @@ new class extends Component
 
             $data = app(LearnerFeedback::class)->review(
                 $this->run->learner,
-                $this->transcript,
-                situation: 'the learner describing a picture out loud. Every sentence is theirs.',
+                '',
+                situation: 'the learner describing a picture out loud, one spoken answer per guiding question. Every sentence is theirs.',
                 source: 'picture_description',
                 spoken: true,
                 extraGuidance: 'This is a real IELTS/CEFR-style "describe what you see" task, not personal '
@@ -196,6 +258,7 @@ new class extends Component
                     .'present ("there is/are"); a present-continuous or preposition-of-place slip is the first '
                     .'thing to fix.'.$length.$vocabularyContext,
                 onCallSucceeded: fn () => $this->recordGeminiCall(),
+                answers: $this->answers,
             );
 
             $this->feedback = $data;
@@ -220,7 +283,9 @@ new class extends Component
 @php
     $content = $run->mission->stepContent('picture_description');
     $imageUrl = $this->imageUrl();
-    $questions = array_values($content['guiding_questions'] ?? []);
+    $questions = $this->questions();
+    $takeCount = $this->takeCount();
+    $allTaken = count(array_filter(range(0, $takeCount - 1), fn ($index) => isset($recordingPaths[$index]))) === $takeCount;
     $hotspots = $content['hotspots'] ?? [];
 @endphp
 
@@ -230,12 +295,12 @@ new class extends Component
         @if ($imageUrl)
             <x-zoomable-image :url="$imageUrl" alt="A picture to describe" class="h-52 w-full rounded-3xl object-cover" />
         @endif
-        @if ($savedAudioUrl)
-            <x-own-take :url="$savedAudioUrl" />
-        @endif
+        @foreach ($savedAudioUrls as $url)
+            <x-own-take :url="$url" />
+        @endforeach
         @if ($feedback)
-            <x-learner-feedback :feedback="$feedback">
-                @if ($transcript)
+            <x-learner-feedback :feedback="$feedback" :answers="$answers">
+                @if ($transcript && ! $answers)
                     <x-slot:more>
                         <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">What you said</p>
                         <p class="text-sm text-ink dark:text-ink-dark">{{ $transcript }}</p>
@@ -249,7 +314,7 @@ new class extends Component
 @else
 {{-- Lesson design 11: no start screen — the picture itself is the start.
      One guiding question at a time, its numbered dot lit on the picture
-     (‹ › or tap a dot to move on), ONE recording for all of them, then
+     (‹ › or tap a dot to move on), one recording for each of them, then
      the shared feedback screen. --}}
 <div
     wire:ignore.self x-data="{ screen: {{ $completed ? 1 : 0 }}, question: 0, count: {{ max(count($questions), 1) }} }"
@@ -291,27 +356,45 @@ new class extends Component
             </div>
         @endif
 
-        <div class="flex justify-center">
-            <x-voice-recorder big field="recording" :file="$this->recordingUrl()" file-name="picture-description.webm" />
-        </div>
-        @error('recording')
+        @for ($index = 0; $index < $takeCount; $index++)
+            <div x-show="question === {{ $index }}" @if ($index > 0) x-cloak @endif wire:key="take-{{ $index }}" class="flex justify-center">
+                <x-voice-recorder big field="recordings.{{ $index }}" :file="$this->recordingUrl($index)" file-name="picture-description.webm" on-recorded="keepTake" :on-recorded-param="$index" />
+            </div>
+            @error('recordings.'.$index)
+                <p x-show="question === {{ $index }}" class="text-sm text-danger-ink">{{ $message }}</p>
+            @enderror
+        @endfor
+        @error('recordings')
             <p class="text-sm text-danger-ink">{{ $message }}</p>
         @enderror
 
         <x-slot:actions>
-            <x-continue-button
-                on-click="screen = 1; $wire.save()"
-                wire-target="save"
-                ready-when="{{ $recordingPath ? 'true' : 'false' }}"
-            />
+            @for ($index = 0; $index < $takeCount - 1; $index++)
+                <div x-show="question === {{ $index }}" x-cloak wire:key="next-{{ $index }}">
+                    <x-continue-button
+                        on-click="question = {{ $index + 1 }}"
+                        wire-target="keepTake"
+                        ready-when="{{ isset($recordingPaths[$index]) ? 'true' : 'false' }}"
+                    />
+                </div>
+            @endfor
+            <div x-show="question >= {{ $takeCount - 1 }}" @if ($takeCount > 1) x-cloak @endif wire:key="save-step">
+                <x-continue-button
+                    on-click="screen = 1; $wire.save()"
+                    wire-target="save"
+                    ready-when="{{ $allTaken ? 'true' : 'false' }}"
+                />
+            </div>
         </x-slot:actions>
     </x-lesson-screen>
 
-    <x-feedback-screen when="screen === 1" :feedback="$feedback" :waiting="! $completed">
+    <x-feedback-screen when="screen === 1" :feedback="$feedback" :answers="$answers" :waiting="! $completed">
         @if ($transcript)
             <x-slot:said>
-                <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">What you said</p>
-                <p class="text-sm text-ink dark:text-ink-dark">{{ $transcript }}</p>
+                @unless ($answers)
+                    <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">What you said</p>
+                    <p class="text-sm text-ink dark:text-ink-dark">{{ $transcript }}</p>
+                @endunless
                 <p class="text-xs text-ink-faint dark:text-ink-faint-dark">
                     @if ($durationSeconds) {{ (int) round($durationSeconds) }}s · @endif{{ $this->wordCount() }} words
                 </p>

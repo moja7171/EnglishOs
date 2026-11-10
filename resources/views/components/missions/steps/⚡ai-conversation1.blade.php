@@ -51,17 +51,40 @@ new class extends Component
 
     // --- Warm-up round (was Activation) ---
 
-    public ?UploadedFile $warmUpAudioFile = null;
+    /**
+     * One take per warm-up question (the learner answers them one at a
+     * time): only the upload slot, keyed by the question's index — see
+     * keepWarmUpTake().
+     *
+     * @var array<int, ?UploadedFile>
+     */
+    public array $warmUpAudioFiles = [];
 
-    /** Stored to disk the moment the upload finishes — see updatedWarmUpAudioFile(). */
-    public ?string $warmUpAudioUrl = null;
+    /**
+     * The takes' URLs, keyed by question index — each stored to disk the
+     * moment its upload finishes, see keepWarmUpTake().
+     *
+     * @var array<int, string>
+     */
+    public array $warmUpAudioUrls = [];
 
-    /** The same recording's path on the public disk, for transcribing it. */
+    /**
+     * The same takes' paths on the public disk, for transcribing them.
+     *
+     * @var array<int, string>
+     */
     #[Locked]
-    public ?string $warmUpAudioPath = null;
+    public array $warmUpAudioPaths = [];
 
-    /** Groq transcript of the warm-up recording — see Activation's old transcribeAndReflect() docblock. */
+    /** Groq transcript of all the warm-up takes, joined — see Activation's old transcribeAndReflect() docblock. */
     public ?string $transcript = null;
+
+    /**
+     * What was said to each warm-up question (set when the warm-up ends).
+     *
+     * @var list<array{question: string, text: string}>
+     */
+    public array $warmUpAnswers = [];
 
     /** @var list<array{text: string, confidence: string}> */
     public array $segments = [];
@@ -124,6 +147,7 @@ new class extends Component
         $data = json_decode($textEvidence?->content_ref ?? '{}', true);
 
         $this->transcript = $data['transcript'] ?? null;
+        $this->warmUpAnswers = $data['warm_up'] ?? [];
         $this->segments = $data['segments'] ?? [];
         $this->reflection = $data['reflection'] ?? null;
         $this->turns = $data['turns'] ?? [];
@@ -133,8 +157,24 @@ new class extends Component
 
         $this->feedback = ($data['feedback'] ?? null) ?: null;
 
-        $audioEvidence = $this->run->evidence()->where('phase', 'ai_conversation_1')->where('type', Evidence::TYPE_AUDIO)->latest()->first();
-        $this->warmUpAudioUrl = $audioEvidence?->content_ref;
+        $this->warmUpAudioUrls = $this->run->evidence()->where('phase', 'ai_conversation_1')->where('type', Evidence::TYPE_AUDIO)
+            ->oldest('id')->pluck('content_ref')->all();
+    }
+
+    /**
+     * The warm-up questions of this mission (the ones Get Ready began
+     * with), one take each. A mission without any gets one open take.
+     *
+     * @return list<string>
+     */
+    public function getWarmUpQuestionsProperty(): array
+    {
+        $questions = array_values(array_filter(
+            $this->run->mission->stepContent('mission_brief')['warm_up_questions'] ?? [],
+            fn ($question) => filled($question),
+        ));
+
+        return $questions ?: [$this->run->mission->stepContent('ai_conversation_1')['warm_up_task'] ?? 'Tell me about your day.'];
     }
 
     public function getQuestionsProperty(): array
@@ -149,7 +189,7 @@ new class extends Component
 
     protected function draftedProperties(): array
     {
-        return ['warmUpDone', 'warmUpAudioUrl', 'warmUpAudioPath', 'transcript', 'segments', 'reflection', 'round', 'turns'];
+        return ['warmUpDone', 'warmUpAudioUrls', 'warmUpAudioPaths', 'transcript', 'warmUpAnswers', 'segments', 'reflection', 'round', 'turns'];
     }
 
     public function getCurrentQuestionProperty(): ?string
@@ -162,35 +202,38 @@ new class extends Component
     // ---------------------------------------------------------------
 
     /**
-     * The warm-up recording is stored to permanent disk storage (and the
-     * step's draft) the moment its upload finishes — a 2-minute take must
-     * survive the learner leaving before they press Continue.
+     * A warm-up take is stored to permanent disk storage (and the step's
+     * draft) the moment its upload finishes — a take must survive the
+     * learner leaving before they press Continue. Recording a question
+     * again replaces its earlier take.
      */
-    public function updatedWarmUpAudioFile(): void
+    public function keepWarmUpTake(int $index): void
     {
         $this->validate([
-            'warmUpAudioFile' => ['required', 'file', 'extensions:webm,ogg,mp3,wav,m4a', 'max:20480'],
-        ]);
+            "warmUpAudioFiles.{$index}" => ['required', 'file', 'extensions:webm,ogg,mp3,wav,m4a', 'max:20480'],
+        ], attributes: ["warmUpAudioFiles.{$index}" => 'recording']);
 
-        $this->warmUpAudioPath = $this->keepDraftRecording($this->warmUpAudioFile, $this->warmUpAudioPath);
-        $this->warmUpAudioUrl = Storage::disk('public')->url($this->warmUpAudioPath);
-        $this->warmUpAudioFile = null;
+        $this->warmUpAudioPaths[$index] = $this->keepDraftRecording($this->warmUpAudioFiles[$index], $this->warmUpAudioPaths[$index] ?? null);
+        $this->warmUpAudioUrls[$index] = Storage::disk('public')->url($this->warmUpAudioPaths[$index]);
+        unset($this->warmUpAudioFiles[$index]);
 
         $this->keepStepDraft();
     }
 
     /**
-     * Ends the warm-up round: transcribes the kept recording and asks for
-     * a Persian reflection — all BEFORE any Evidence exists, since this
+     * Ends the warm-up round: transcribes the kept takes and asks for a
+     * Persian reflection — all BEFORE any Evidence exists, since this
      * step isn't done yet. Never creates Evidence itself; see
      * finishInterview().
      */
     public function finishWarmUp(): void
     {
-        if ($this->warmUpAudioPath === null) {
-            $this->addError('warmUpAudioFile', 'Record your warm-up first.');
+        foreach (array_keys($this->warmUpQuestions) as $index) {
+            if (! isset($this->warmUpAudioPaths[$index])) {
+                $this->addError('warmUpAudioFiles', 'Answer every question first.');
 
-            return;
+                return;
+            }
         }
 
         $this->transcribeAndReflect();
@@ -202,7 +245,7 @@ new class extends Component
     }
 
     /**
-     * Transcribes the warm-up recording and asks Gemini for a short,
+     * Transcribes the warm-up takes and asks Gemini for a short,
      * warm, non-blocking reflection in Persian — never a grade, never
      * gates progress. Ported verbatim from the old Activation step; see
      * its docblock for why Persian is the deliberate exception here.
@@ -211,16 +254,38 @@ new class extends Component
      */
     private function transcribeAndReflect(): void
     {
-        try {
-            $result = app(GroqClient::class)->transcribeWithConfidence(Storage::disk('public')->path($this->warmUpAudioPath));
-            $this->recordGroqCall();
-            $this->transcript = trim($result['text']);
-            $this->segments = $result['segments'];
+        $this->warmUpAnswers = [];
+        $this->segments = [];
+        $duration = 0.0;
 
-            if ($this->transcript === '') {
-                return;
+        foreach ($this->warmUpQuestions as $index => $question) {
+            try {
+                $result = app(GroqClient::class)->transcribeWithConfidence(Storage::disk('public')->path($this->warmUpAudioPaths[$index]));
+                $this->recordGroqCall();
+            } catch (Throwable) {
+                continue;
             }
 
+            $text = trim($result['text']);
+            $duration += $result['duration'];
+
+            if ($text === '') {
+                continue;
+            }
+
+            $this->warmUpAnswers[] = ['question' => $question, 'text' => $text];
+            $this->segments = [...$this->segments, ...$result['segments']];
+        }
+
+        $this->transcript = collect($this->warmUpAnswers)->pluck('text')->implode(' ');
+
+        if ($this->transcript === '') {
+            $this->transcript = null;
+
+            return;
+        }
+
+        try {
             $vocabularyWords = $this->run->selectedVocabularyWords();
             $vocabularyContext = $vocabularyWords
                 ? ' The learner\'s target vocabulary words for this mission were: '
@@ -228,13 +293,13 @@ new class extends Component
                     .'. If any of these appear naturally in the transcript, you can mention that warmly.'
                 : '';
 
-            $paceContext = $this->paceContext($this->transcript, $result['duration']);
+            $paceContext = $this->paceContext($this->transcript, $duration);
 
             $raw = app(GeminiClient::class)->chat(
                 [['role' => 'user', 'text' => "Transcript: \"{$this->transcript}\""]],
                 systemPrompt: 'You are a supportive English speaking coach. '.ucfirst($this->run->learner->levelDescription())
                     .' just recorded about 2 '
-                    .'minutes of solo speaking in English about their daily life — this is low-pressure fluency '
+                    .'minutes of solo speaking in English about their daily life (a few short answers, one per question) — this is low-pressure fluency '
                     .'practice, not a graded test.'.$vocabularyContext.$paceContext.' Given the transcript, write a short, '
                     .'warm, simple reflection in PERSIAN (Farsi) — never English, and never grade it or use '
                     .'severity labels. Reply with ONLY valid JSON, no markdown fences: {"highlight": "...", '
@@ -396,6 +461,7 @@ new class extends Component
             'type' => Evidence::TYPE_TEXT,
             'content_ref' => json_encode([
                 'transcript' => $this->transcript,
+                'warm_up' => $this->warmUpAnswers,
                 'segments' => $this->segments,
                 'reflection' => $this->reflection,
                 'turns' => $this->turns,
@@ -403,12 +469,14 @@ new class extends Component
             ]),
         ]);
 
-        $audioEvidence = Evidence::create([
-            'mission_run_id' => $this->run->id,
-            'phase' => 'ai_conversation_1',
-            'type' => Evidence::TYPE_AUDIO,
-            'content_ref' => $this->warmUpAudioUrl,
-        ]);
+        foreach ($this->warmUpAudioUrls as $url) {
+            Evidence::create([
+                'mission_run_id' => $this->run->id,
+                'phase' => 'ai_conversation_1',
+                'type' => Evidence::TYPE_AUDIO,
+                'content_ref' => $url,
+            ]);
+        }
 
         if ($this->feedback) {
             $textEvidence = Evidence::where('mission_run_id', $this->run->id)
@@ -427,8 +495,6 @@ new class extends Component
                 'tone' => 'encouraging',
             ]);
         }
-
-        unset($audioEvidence);
 
         $this->forgetStepDraft();
         $this->completed = true;
@@ -465,14 +531,15 @@ new class extends Component
     }
 
     /**
-     * The warm-up talk and each interview answer, in order — what the
+     * The answer to each warm-up question and each interview answer, in order — what the
      * feedback is given on and what the recap shows one card for.
      *
      * @return list<array{question: ?string, text: string}>
      */
     public function answers(): array
     {
-        $warmUp = filled($this->transcript) ? [['question' => 'Warm-up', 'text' => $this->transcript]] : [];
+        // Older saves kept the warm-up as one talk (no per-question answers).
+        $warmUp = $this->warmUpAnswers ?: (filled($this->transcript) ? [['question' => 'Warm-up', 'text' => $this->transcript]] : []);
 
         return array_merge($warmUp, array_map(
             fn (array $turn) => ['question' => $turn['question'], 'text' => $turn['answer']],
@@ -498,9 +565,11 @@ new class extends Component
 
 @php
     $conversation = $run->mission->stepContent('ai_conversation_1');
-    $warmUpQuestions = $run->mission->stepContent('mission_brief')['warm_up_questions'] ?? [];
+    $warmUpQuestions = $this->warmUpQuestions;
+    $warmUpCount = count($warmUpQuestions);
     $questionCount = count($this->questions);
-    $startScreen = $completed ? 3 : ($warmUpDone ? 2 : ($warmUpAudioUrl ? 1 : 0));
+    $startScreen = $completed ? 3 : ($warmUpDone ? 2 : (count($warmUpAudioUrls) > 0 ? 1 : 0));
+    $startWarmUpQuestion = min(count(array_filter(array_keys($warmUpQuestions), fn ($index) => isset($warmUpAudioUrls[$index]))), $warmUpCount - 1);
 @endphp
 
 @if ($readOnly)
@@ -508,24 +577,26 @@ new class extends Component
         <x-step-intro kind="Talk It Out" :title="$conversation['hook'] ?? null" />
         @if ($completed)
             <x-learner-feedback :feedback="$feedback" :answers="$this->answers()">
-                @if ($warmUpAudioUrl)
+                @if ($warmUpAudioUrls)
                     <x-slot:more>
-                        <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Your warm-up recording</p>
-                        <x-own-take :url="$warmUpAudioUrl" />
+                        <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Your warm-up recordings</p>
+                        @foreach ($warmUpAudioUrls as $url)
+                            <x-own-take :url="$url" />
+                        @endforeach
                     </x-slot:more>
                 @endif
             </x-learner-feedback>
         @endif
     </div>
 @else
-{{-- Lesson design 8: the start, a short solo warm-up (the four Day 1
-     questions, one take), the interview as a real chat (the question read
+{{-- Lesson design 8: the start, a short solo warm-up (the Day 1 questions,
+     one screen and one take each), the interview as a real chat (the question read
      out, the answer as a bubble with its one-line check, the mic bottom
      centre, 💡 Idea for an example answer), then the shared feedback. --}}
 <div
-    wire:ignore.self x-data="{ screen: {{ $startScreen }}, idea: false }"
-    x-effect="$dispatch('step-progress', { share: screen === 2 ? (2 + {{ $questionCount ? $round / $questionCount : 0 }}) / 4 : (screen + 0.5) / 4 })"
-    x-back-close.step="{ open: screen === 1, close: () => screen-- }"
+    wire:ignore.self x-data="{ screen: {{ $startScreen }}, warmUp: {{ $startWarmUpQuestion }}, idea: false }"
+    x-effect="$dispatch('step-progress', { share: screen === 2 ? (2 + {{ $questionCount ? $round / $questionCount : 0 }}) / 4 : (screen === 1 ? (1 + (warmUp + 0.5) / {{ $warmUpCount }}) / 4 : (screen + 0.5) / 4) })"
+    x-back-close.step="{ open: screen === 1, close: () => { if (warmUp > 0) { warmUp-- } else { screen-- } } }"
 >
     <x-lesson-screen when="screen === 0">
         <x-step-intro kind="Talk It Out" :minutes="$run->mission->stepDuration('ai_conversation_1')" :title="$conversation['hook'] ?? null" />
@@ -535,49 +606,41 @@ new class extends Component
         </x-slot:actions>
     </x-lesson-screen>
 
-    <x-lesson-screen when="screen === 1">
-        <span class="inline-flex w-fit rounded-full bg-accent-soft px-3 py-1 text-xs font-extrabold tracking-wide text-accent-ink uppercase dark:bg-accent-soft-dark dark:text-accent-ink-dark">Talk alone · 2 min</span>
-        {{-- The four questions are read out one after the other when the screen opens (until there is a recording), and ▶ reads them again. --}}
-        <div
-            class="flex flex-col gap-2"
-            x-on:eos-heard-text-played.window="stopReading()"
-            x-data="{
-                questions: @js(array_values($warmUpQuestions)),
-                run: 0,
-                readAll() {
-                    const run = ++this.run;
-                    const next = (index) => {
-                        if (run !== this.run || index >= this.questions.length) return;
-                        window.eosVoice?.speak(this.questions[index], { onEnd: () => setTimeout(() => next(index + 1), 400) });
-                    };
-                    next(0);
-                },
-                stopReading() { this.run++; window.eosVoice?.stop(); },
-            }"
-            x-effect="if (screen === 1) { @if (! $warmUpAudioUrl) $nextTick(() => readAll()) @endif } else { stopReading() }"
-        >
-            @foreach ($warmUpQuestions as $question)
-                <x-heard-text :text="$question" :hint="false" :toggle="false" class="rounded-2xl bg-surface px-4 py-2.5 text-sm font-semibold text-ink dark:bg-surface-dark dark:text-ink-dark" />
-            @endforeach
-            <x-show-text-toggle class="self-center" />
-            <button type="button" x-on:click="readAll()" class="flex w-fit cursor-pointer items-center gap-1.5 self-center rounded-full bg-accent-soft px-4 py-2 text-sm font-extrabold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">@svg('heroicon-o-speaker-wave', 'h-4 w-4') Hear the questions again</button>
-        </div>
-        <div class="flex justify-center">
-            <x-voice-recorder big field="warmUpAudioFile" :file="$warmUpAudioUrl" file-name="warmup-speaking.webm" :target="120" />
-        </div>
-        @error('warmUpAudioFile')
-            <x-error-card>{{ str_replace('warmUpAudioFile', 'recording', $message) }}</x-error-card>
-        @enderror
+    {{-- One question per screen, read out when it opens, its text blurred until tapped, one take each. --}}
+    @foreach ($warmUpQuestions as $index => $question)
+        <x-lesson-screen when="screen === 1 && warmUp === {{ $index }}" wire:key="warm-up-{{ $index }}">
+            <span class="inline-flex w-fit rounded-full bg-accent-soft px-3 py-1 text-xs font-extrabold tracking-wide text-accent-ink uppercase dark:bg-accent-soft-dark dark:text-accent-ink-dark">Talk alone · {{ $index + 1 }} / {{ $warmUpCount }}</span>
+            <x-heard-text :text="$question" auto-when="screen === 1 && warmUp === {{ $index }}" class="font-display lesson-title text-ink dark:text-ink-dark" />
+            <div class="flex justify-center">
+                <x-voice-recorder big field="warmUpAudioFiles.{{ $index }}" :file="$warmUpAudioUrls[$index] ?? null" file-name="warmup-speaking.webm" on-recorded="keepWarmUpTake" :on-recorded-param="$index" :target="30" />
+            </div>
+            @error('warmUpAudioFiles.'.$index)
+                <x-error-card>{{ $message }}</x-error-card>
+            @enderror
+            @if ($loop->last)
+                @error('warmUpAudioFiles')
+                    <x-error-card>{{ $message }}</x-error-card>
+                @enderror
+            @endif
 
-        <x-slot:actions>
-            <x-continue-button
-                on-click="$wire.finishWarmUp().then(() => { if ($wire.warmUpDone) screen = 2 })"
-                wire-target="finishWarmUp"
-                loading-label="Getting ready…"
-                ready-when="{{ $warmUpAudioUrl ? 'true' : 'false' }}"
-            />
-        </x-slot:actions>
-    </x-lesson-screen>
+            <x-slot:actions>
+                @if ($loop->last)
+                    <x-continue-button
+                        on-click="$wire.finishWarmUp().then(() => { if ($wire.warmUpDone) screen = 2 })"
+                        wire-target="finishWarmUp"
+                        loading-label="Getting ready…"
+                        ready-when="{{ isset($warmUpAudioUrls[$index]) ? 'true' : 'false' }}"
+                    />
+                @else
+                    <x-continue-button
+                        on-click="warmUp = {{ $index + 1 }}"
+                        wire-target="keepWarmUpTake"
+                        ready-when="{{ isset($warmUpAudioUrls[$index]) ? 'true' : 'false' }}"
+                    />
+                @endif
+            </x-slot:actions>
+        </x-lesson-screen>
+    @endforeach
 
     <section x-show="screen === 2" x-cloak class="animate-lesson-screen-in flex min-h-[calc(100dvh-11rem)] flex-col pt-2">
         {{-- The chat starts at the top (bottom-anchored, the first question sat under an empty screen). --}}
@@ -639,10 +702,12 @@ new class extends Component
     </section>
 
     <x-feedback-screen when="screen === 3" :feedback="$feedback" :answers="$this->answers()" :waiting="! $completed">
-        @if ($warmUpAudioUrl)
+        @if ($warmUpAudioUrls)
             <x-slot:said>
-                <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Your warm-up recording</p>
-                <x-own-take :url="$warmUpAudioUrl" />
+                <p class="text-xs font-semibold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Your warm-up recordings</p>
+                @foreach ($warmUpAudioUrls as $url)
+                    <x-own-take :url="$url" />
+                @endforeach
             </x-slot:said>
         @endif
 

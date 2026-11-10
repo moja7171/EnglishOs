@@ -7,8 +7,7 @@
     @param string $say The words to speak, plain text.
     @param string|null $label The small line over his words (default "Teddy").
     @param bool $blur His words are heard first and stay blurred until tapped
-        (see <x-heard-text>); "Always show text" and a phone with no English
-        voice show them at once.
+        (see <x-heard-text>); a phone with no English voice shows them at once.
 --}}
 @props(['say', 'label' => null, 'blur' => false])
 
@@ -31,7 +30,6 @@
                 <div x-data="heardReveal" class="flex flex-col gap-1">
                     <div x-on:click="reveal()" x-bind:class="visible ? '' : 'cursor-pointer blur-md select-none'" class="transition">{{ $slot }}</div>
                     <button type="button" x-show="! visible" x-on:click="reveal()" class="cursor-pointer self-center text-xs font-bold text-accent-ink dark:text-accent-ink-dark">Tap to read the text</button>
-                    <div x-show="visible" x-cloak class="flex justify-center"><x-show-text-toggle /></div>
                 </div>
             @else
                 {{ $slot }}

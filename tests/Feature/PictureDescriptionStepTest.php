@@ -45,14 +45,31 @@ class PictureDescriptionStepTest extends TestCase
         return MissionRun::findOrStart($learner, $mission);
     }
 
-    public function test_a_recording_is_required(): void
+    /**
+     * Records a take for each of the two guiding questions.
+     */
+    private function recordBothTakes($component)
+    {
+        return $component
+            ->set('recordings.0', UploadedFile::fake()->create('one.webm', 400, 'audio/webm'))
+            ->call('keepTake', 0)
+            ->set('recordings.1', UploadedFile::fake()->create('two.webm', 400, 'audio/webm'))
+            ->call('keepTake', 1);
+    }
+
+    public function test_every_question_needs_its_own_recording(): void
     {
         Storage::fake('public');
         $run = $this->makeRun();
 
         Livewire::test('missions.steps.picture-description', ['run' => $run])
             ->call('save')
-            ->assertHasErrors(['recording']);
+            ->assertHasErrors(['recordings'])
+            ->set('recordings.0', UploadedFile::fake()->create('one.webm', 400, 'audio/webm'))
+            ->call('keepTake', 0)
+            ->call('save')
+            ->assertHasErrors(['recordings'])
+            ->assertSet('completed', false);
 
         $this->assertDatabaseCount('evidences', 0);
     }
@@ -80,29 +97,29 @@ class PictureDescriptionStepTest extends TestCase
 
         $this->mock(PexelsClient::class, fn ($mock) => $mock->shouldReceive('imageUrlFor')->andReturn(null));
         $this->mock(GroqClient::class, function ($mock) {
-            $mock->shouldReceive('transcribeWithDuration')->once()
-                ->andReturn(['text' => 'There is a family eating breakfast together.', 'duration' => 24.5]);
+            $mock->shouldReceive('transcribeWithDuration')->twice()
+                ->andReturn(
+                    ['text' => 'There is a family.', 'duration' => 10.0],
+                    ['text' => 'They are eating breakfast together.', 'duration' => 14.5],
+                );
         });
         $this->mock(GeminiClient::class, function ($mock) {
             $mock->shouldReceive('chat')->once()->andReturn($this->learnerFeedbackReply(['severity' => 'minor']));
         });
 
-        Livewire::test('missions.steps.picture-description', ['run' => $run])
-            ->set('recording', UploadedFile::fake()->create('description.webm', 400, 'audio/webm'))
+        $this->recordBothTakes(Livewire::test('missions.steps.picture-description', ['run' => $run]))
             ->call('save')
             ->assertSet('completed', true)
             ->assertSet('durationSeconds', 24.5)
             ->assertSee('I work in a hospital.')
-            ->assertSee('25s') // rounded from the real 24.5s Whisper duration
-            ->assertSee('7 words') // real word count of the transcript
+            ->assertSee('25s') // rounded from the two real Whisper durations added up
+            ->assertSee('9 words') // real word count of both answers
             ->call('proceed')
             ->assertRedirect(route('missions.show', $run->mission));
 
-        $this->assertDatabaseHas('evidences', [
-            'mission_run_id' => $run->id,
-            'phase' => 'picture_description',
-            'type' => Evidence::TYPE_AUDIO,
-        ]);
+        $this->assertSame(2, Evidence::where('mission_run_id', $run->id)->where('phase', 'picture_description')->where('type', Evidence::TYPE_AUDIO)->count());
+        $saved = json_decode(Evidence::where('phase', 'picture_description')->where('type', Evidence::TYPE_TEXT)->value('content_ref'), true);
+        $this->assertSame('What is each person doing?', $saved['answers'][1]['question']);
 
         $this->assertSame('reading_comprehension', $run->fresh()->currentStepKey());
     }
@@ -114,15 +131,14 @@ class PictureDescriptionStepTest extends TestCase
 
         $this->mock(PexelsClient::class, fn ($mock) => $mock->shouldReceive('imageUrlFor')->andReturn(null));
         $this->mock(GroqClient::class, function ($mock) {
-            $mock->shouldReceive('transcribeWithDuration')->once()
+            $mock->shouldReceive('transcribeWithDuration')->twice()
                 ->andReturn(['text' => 'A woman pour coffee.', 'duration' => 5.0]);
         });
         $this->mock(GeminiClient::class, function ($mock) {
             $mock->shouldReceive('chat')->once()->andReturn($this->learnerFeedbackReply(['severity' => 'major']));
         });
 
-        Livewire::test('missions.steps.picture-description', ['run' => $run])
-            ->set('recording', UploadedFile::fake()->create('description.webm', 400, 'audio/webm'))
+        $this->recordBothTakes(Livewire::test('missions.steps.picture-description', ['run' => $run]))
             ->call('save');
 
         $this->assertSame(1, $run->fresh()->struggle_signal_count);
@@ -135,11 +151,10 @@ class PictureDescriptionStepTest extends TestCase
 
         $this->mock(PexelsClient::class, fn ($mock) => $mock->shouldReceive('imageUrlFor')->andReturn(null));
         $this->mock(GroqClient::class, function ($mock) {
-            $mock->shouldReceive('transcribeWithDuration')->once()->andThrow(new \RuntimeException('AI unavailable'));
+            $mock->shouldReceive('transcribeWithDuration')->twice()->andThrow(new \RuntimeException('AI unavailable'));
         });
 
-        Livewire::test('missions.steps.picture-description', ['run' => $run])
-            ->set('recording', UploadedFile::fake()->create('description.webm', 400, 'audio/webm'))
+        $this->recordBothTakes(Livewire::test('missions.steps.picture-description', ['run' => $run]))
             ->call('save')
             ->assertSet('completed', true)
             ->assertSet('feedback', null)
@@ -158,11 +173,16 @@ class PictureDescriptionStepTest extends TestCase
         // Present from the start (so the learner can see where this step
         // leads) but not clickable until there's something to save — see
         // <x-continue-button>.
-        Livewire::test('missions.steps.picture-description', ['run' => $run])
+        $component = Livewire::test('missions.steps.picture-description', ['run' => $run])
             ->assertSeeHtml('x-on:click="screen = 1; $wire.save()"')
             ->assertSeeHtml('x-bind:disabled="! (false)"')
-            ->set('recording', UploadedFile::fake()->create('description.webm', 400, 'audio/webm'))
-            ->assertSeeHtml('x-bind:disabled="! (true)"');
+            ->set('recordings.0', UploadedFile::fake()->create('one.webm', 400, 'audio/webm'))
+            ->call('keepTake', 0)
+            ->assertSeeHtml('x-on:click="question = 1"')
+            ->assertSeeHtml('x-bind:disabled="! (true)"') // the first question's own Continue
+            ->assertSeeHtml('x-bind:disabled="! (false)"'); // saving still waits for the second take
+
+        $this->recordBothTakes($component)->assertSeeHtml('x-bind:disabled="! (true)"');
     }
 
     public function test_read_only_mode_reloads_the_saved_transcript_and_feedback(): void
@@ -341,19 +361,23 @@ class PictureDescriptionStepTest extends TestCase
         $run = $this->makeRun();
         $this->mock(PexelsClient::class, fn ($mock) => $mock->shouldReceive('imageUrlFor')->andReturn(null));
 
-        Livewire::test('missions.steps.picture-description', ['run' => $run])
-            ->set('recording', UploadedFile::fake()->create('take.webm', 400, 'audio/webm'));
+        $this->recordBothTakes(Livewire::test('missions.steps.picture-description', ['run' => $run]));
 
-        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribeWithDuration')->once()->andReturn(['text' => 'There is a family.', 'duration' => 10.0]));
+        $this->mock(GroqClient::class, fn ($mock) => $mock->shouldReceive('transcribeWithDuration')->twice()->andReturn(['text' => 'There is a family.', 'duration' => 10.0]));
         $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn($this->learnerFeedbackReply(['severity' => 'minor'])));
 
         $returned = Livewire::test('missions.steps.picture-description', ['run' => $run]);
-        $keptPath = $returned->get('recordingPath');
-        Storage::disk('public')->assertExists($keptPath);
+        $keptPaths = $returned->get('recordingPaths');
+        $this->assertCount(2, $keptPaths);
+        Storage::disk('public')->assertExists($keptPaths[0]);
+        Storage::disk('public')->assertExists($keptPaths[1]);
 
         $returned->call('save')->assertSet('completed', true);
 
-        $this->assertSame(Storage::disk('public')->url($keptPath), Evidence::where('type', Evidence::TYPE_AUDIO)->value('content_ref'));
+        $this->assertSame(
+            [Storage::disk('public')->url($keptPaths[0]), Storage::disk('public')->url($keptPaths[1])],
+            Evidence::where('type', Evidence::TYPE_AUDIO)->orderBy('id')->pluck('content_ref')->all(),
+        );
         $this->assertDatabaseCount('step_drafts', 0);
     }
 }

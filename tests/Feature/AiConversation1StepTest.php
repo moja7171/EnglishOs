@@ -82,7 +82,8 @@ class AiConversation1StepTest extends TestCase
             $mock->shouldReceive('chat')->once()->andReturn(json_encode(['highlight' => $reflectionHighlight, 'tip' => $reflectionTip]));
         });
 
-        $component->set('warmUpAudioFile', UploadedFile::fake()->create('speaking.webm', 500, 'audio/webm'))
+        $component->set('warmUpAudioFiles.0', UploadedFile::fake()->create('speaking.webm', 500, 'audio/webm'))
+            ->call('keepWarmUpTake', 0)
             ->call('finishWarmUp');
     }
 
@@ -96,7 +97,7 @@ class AiConversation1StepTest extends TestCase
         $run = $this->makeRun();
 
         $component = Livewire::test('missions.steps.ai-conversation1', ['run' => $run]);
-        $component->call('finishWarmUp')->assertHasErrors(['warmUpAudioFile']);
+        $component->call('finishWarmUp')->assertHasErrors(['warmUpAudioFiles']);
 
         $this->assertDatabaseCount('evidences', 0);
         $component->assertSet('warmUpDone', false);
@@ -118,11 +119,71 @@ class AiConversation1StepTest extends TestCase
             ->assertDontSee('Words you picked');
     }
 
-    public function test_the_two_minute_talk_alone_recorder_counts_towards_two_minutes(): void
+    public function test_each_talk_alone_question_has_its_own_screen_and_recorder_counting_towards_thirty_seconds(): void
     {
-        Livewire::test('missions.steps.ai-conversation1', ['run' => $this->makeRun()])
-            ->assertSee('Talk alone · 2 min')
-            ->assertSeeHtml('TARGET_SECONDS: 120,');
+        $run = $this->makeRunWithWarmUpQuestions(['What time do you usually wake up?', 'What do you eat for breakfast?', 'How do you get to work?']);
+
+        Livewire::test('missions.steps.ai-conversation1', ['run' => $run])
+            ->assertSee('Talk alone · 1 / 3')
+            ->assertSee('Talk alone · 3 / 3')
+            ->assertSeeHtml('warmUpAudioFiles.0')
+            ->assertSeeHtml('warmUpAudioFiles.2')
+            ->assertSeeHtml('TARGET_SECONDS: 30,');
+    }
+
+    public function test_the_warm_up_cannot_finish_until_every_question_has_its_take_and_each_answer_is_kept_under_its_question(): void
+    {
+        Storage::fake('public');
+        $run = $this->makeRunWithWarmUpQuestions(['What time do you usually wake up?', 'What do you eat for breakfast?']);
+
+        $component = Livewire::test('missions.steps.ai-conversation1', ['run' => $run])
+            ->set('warmUpAudioFiles.0', UploadedFile::fake()->create('one.webm', 500, 'audio/webm'))
+            ->call('keepWarmUpTake', 0)
+            ->call('finishWarmUp')
+            ->assertHasErrors(['warmUpAudioFiles'])
+            ->assertSet('warmUpDone', false);
+
+        $this->mock(GroqClient::class, function ($mock) {
+            $mock->shouldReceive('transcribeWithConfidence')->twice()->andReturn(
+                ['text' => 'At seven.', 'duration' => 20.0, 'segments' => []],
+                ['text' => 'Eggs and bread.', 'duration' => 25.0, 'segments' => []],
+            );
+        });
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode(['highlight' => 'خوب بود.', 'tip' => 'ادامه بده.'])));
+
+        $component->set('warmUpAudioFiles.1', UploadedFile::fake()->create('two.webm', 500, 'audio/webm'))
+            ->call('keepWarmUpTake', 1)
+            ->call('finishWarmUp')
+            ->assertHasNoErrors()
+            ->assertSet('warmUpDone', true)
+            ->assertSet('transcript', 'At seven. Eggs and bread.');
+
+        $this->assertSame(
+            [['question' => 'What time do you usually wake up?', 'text' => 'At seven.'], ['question' => 'What do you eat for breakfast?', 'text' => 'Eggs and bread.']],
+            $component->get('warmUpAnswers'),
+        );
+        $this->assertCount(2, $component->get('warmUpAudioUrls'));
+    }
+
+    /**
+     * @param  list<string>  $warmUpQuestions
+     */
+    private function makeRunWithWarmUpQuestions(array $warmUpQuestions): MissionRun
+    {
+        $learner = User::factory()->create();
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [
+                ['phase' => 'foundation', 'steps' => [['key' => 'mission_brief', 'warm_up_questions' => $warmUpQuestions]]],
+                ['phase' => 'mission', 'steps' => [['key' => 'ai_conversation_1', 'interview_questions' => ['Q1']]]],
+            ],
+        ]);
+        $this->actingAs($learner);
+
+        return MissionRun::findOrStart($learner, $mission);
     }
 
     public function test_the_warm_up_does_not_show_a_pi_practice_card(): void
@@ -162,7 +223,8 @@ class AiConversation1StepTest extends TestCase
         $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldNotReceive('chat'));
 
         $component = Livewire::test('missions.steps.ai-conversation1', ['run' => $run]);
-        $component->set('warmUpAudioFile', UploadedFile::fake()->create('speaking.webm', 500, 'audio/webm'))
+        $component->set('warmUpAudioFiles.0', UploadedFile::fake()->create('speaking.webm', 500, 'audio/webm'))
+            ->call('keepWarmUpTake', 0)
             ->call('finishWarmUp')
             ->assertSet('warmUpDone', true)
             ->assertSet('transcript', null)
@@ -191,7 +253,8 @@ class AiConversation1StepTest extends TestCase
         });
 
         $component = Livewire::test('missions.steps.ai-conversation1', ['run' => $run]);
-        $component->set('warmUpAudioFile', UploadedFile::fake()->create('speaking.webm', 500, 'audio/webm'))
+        $component->set('warmUpAudioFiles.0', UploadedFile::fake()->create('speaking.webm', 500, 'audio/webm'))
+            ->call('keepWarmUpTake', 0)
             ->call('finishWarmUp');
     }
 
@@ -213,8 +276,7 @@ class AiConversation1StepTest extends TestCase
 
         Livewire::test('missions.steps.ai-conversation1', ['run' => $run])
             ->assertSee('What time do you usually wake up?')
-            ->assertSeeHtml('heardText(')
-            ->assertSee('Hear the questions again');
+            ->assertSeeHtml('heardText(');
     }
 
     public function test_finishing_the_warm_up_dispatches_a_clear_draft_event(): void
@@ -272,7 +334,7 @@ class AiConversation1StepTest extends TestCase
             ->call('submitAnswer')
             ->assertSet('completed', true)
             ->assertSee('Feedback')
-            ->assertSee('Warm-up')
+            ->assertSee('Record 2 minutes of solo speaking about your daily life, without reading.')
             ->assertSee('I have breakfast and go to work.')
             ->assertSee('نقطه قوت تو این بود که واضح جواب دادی.')
             ->assertSee('I usually wake up at seven.')
@@ -332,13 +394,14 @@ class AiConversation1StepTest extends TestCase
         $run = $this->makeRun();
 
         Livewire::test('missions.steps.ai-conversation1', ['run' => $run])
-            ->set('warmUpAudioFile', UploadedFile::fake()->create('speaking.webm', 500, 'audio/webm'));
+            ->set('warmUpAudioFiles.0', UploadedFile::fake()->create('speaking.webm', 500, 'audio/webm'))
+            ->call('keepWarmUpTake', 0);
 
         $component = Livewire::test('missions.steps.ai-conversation1', ['run' => $run])
             ->assertSet('warmUpDone', false);
 
-        Storage::disk('public')->assertExists($component->get('warmUpAudioPath'));
-        $this->assertNotNull($component->get('warmUpAudioUrl'));
+        Storage::disk('public')->assertExists($component->get('warmUpAudioPaths')[0]);
+        $this->assertNotNull($component->get('warmUpAudioUrls')[0]);
         $this->assertDatabaseCount('evidences', 0);
     }
 
@@ -362,7 +425,7 @@ class AiConversation1StepTest extends TestCase
             ->assertSee('What do you normally do in the morning?');
 
         $this->assertSame('At seven.', $returned->get('turns')[0]['answer']);
-        $this->assertNotNull($returned->get('warmUpAudioUrl'));
+        $this->assertNotEmpty($returned->get('warmUpAudioUrls'));
     }
 
     public function test_a_major_feedback_severity_records_a_struggle_signal(): void
@@ -638,7 +701,7 @@ class AiConversation1StepTest extends TestCase
             ->assertDontSee('خیلی روان صحبت کردی.') // the warm-up reflection no longer repeats in the recap
             ->assertDontSee('Every day?') // nor the old follow-up questions
             ->assertDontSeeHtml('data-text=')
-            ->assertDontSeeHtml('field="warmUpAudioFile"');
+            ->assertDontSeeHtml('keepWarmUpTake');
     }
 
     /**
