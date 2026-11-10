@@ -280,15 +280,49 @@ new class extends Component
         $passage = $this->run->mission->stepContent('reading_comprehension')['passage'] ?? '';
         $phrases = $this->run->mission->stepContent('reading_comprehension')['highlighted_phrases'] ?? [];
 
-        if ($passage === '' || empty($phrases)) {
-            return e($passage);
+        if ($passage === '') {
+            return '';
         }
 
         $sorted = collect($phrases)->sortByDesc(fn ($p) => mb_strlen($p['phrase']))->values();
         $byPhrase = $sorted->keyBy('phrase');
-        $pattern = '/('.$sorted->map(fn ($p) => preg_quote($p['phrase'], '/'))->implode('|').')/u';
+        $pattern = $sorted->isEmpty()
+            ? null
+            : '/('.$sorted->map(fn ($p) => preg_quote($p['phrase'], '/'))->implode('|').')/u';
 
-        $parts = preg_split($pattern, $passage, -1, PREG_SPLIT_DELIM_CAPTURE) ?: [$passage];
+        return collect($this->passageSentences($passage))
+            ->map(fn (string $sentence, int $index) => '<span data-sentence="'.$index.'" class="box-decoration-clone">'
+                .$this->markPhrases($sentence, $pattern, $byPhrase).'</span>')
+            ->implode('');
+    }
+
+    /**
+     * The passage cut into sentences the same way window.eosVoice.speak()
+     * cuts it, so sentence N here is the sentence being read aloud (the
+     * follow-along highlight in the passage screen).
+     *
+     * @return list<string>
+     */
+    public function passageSentences(string $passage): array
+    {
+        $found = preg_match_all('/[^.!?]+[.!?]+["”’)]*\s*|[^.!?]+$/u', $passage, $matches) ? $matches[0] : [];
+
+        return implode('', $found) === $passage ? array_values($found) : [$passage];
+    }
+
+    /**
+     * One sentence with its phrases wrapped in a <mark> — a soft colour
+     * behind the word, no underline.
+     *
+     * @param  \Illuminate\Support\Collection<string, array{phrase: string, type?: string, definition?: string}>  $byPhrase
+     */
+    private function markPhrases(string $sentence, ?string $pattern, $byPhrase): string
+    {
+        if ($pattern === null) {
+            return e($sentence);
+        }
+
+        $parts = preg_split($pattern, $sentence, -1, PREG_SPLIT_DELIM_CAPTURE) ?: [$sentence];
 
         return collect($parts)->map(function (string $part) use ($byPhrase) {
             $match = $byPhrase->get($part);
@@ -302,8 +336,8 @@ new class extends Component
                 ? ($match['definition'] ?? '')
                 : 'این کلمه رو توی New Words دیدی';
             $classes = $isNew
-                ? 'rounded-md bg-accent/25 px-1 py-0.5 font-bold text-accent-ink underline decoration-accent decoration-2 underline-offset-4 dark:bg-accent-dark/35 dark:text-accent-ink-dark dark:decoration-accent-dark'
-                : 'rounded-md bg-success/25 px-1 py-0.5 font-bold text-ink underline decoration-success decoration-2 underline-offset-4 dark:bg-success-dark/35 dark:text-ink-dark dark:decoration-success-dark';
+                ? 'rounded-md bg-accent/25 px-1 py-0.5 font-bold text-accent-ink dark:bg-accent-dark/35 dark:text-accent-ink-dark'
+                : 'rounded-md bg-success/25 px-1 py-0.5 font-bold text-ink dark:bg-success-dark/35 dark:text-ink-dark';
 
             return '<mark class="'.$classes.'" title="'.e($tooltip).'">'.e($part).'</mark>';
         })->implode('');
@@ -417,6 +451,7 @@ new class extends Component
     $reading = $run->mission->stepContent('reading_comprehension');
     $passageHtml = $this->highlightedPassageHtml();
     $highlightTypes = collect($reading['highlighted_phrases'] ?? [])->map(fn (array $phrase) => $phrase['type'] ?? 'reused')->unique();
+    $passagePhoto = $readOnly ? null : ($this->passageImageUrl ?: app(\App\Services\MissionGrid::class)->coverUrl($run->mission->code));
     $draftPrefix = $this->draftPrefix();
     $questions = $this->questions();
     $cards = $readOnly ? [] : $this->comprehensionCards();
@@ -463,19 +498,45 @@ new class extends Component
         </x-slot:actions>
     </x-lesson-screen>
 
-    {{-- The only screen that scrolls: the passage, a tap on any word for its meaning. --}}
+    {{-- The only screen that scrolls: the passage on a solid card over the mission photo, a tap on any word for its meaning, the sentence being read aloud lit as it goes. --}}
     <x-lesson-screen when="screen === 1">
-        <h2 class="font-display lesson-title text-ink dark:text-ink-dark">{{ $reading['passage_title'] ?? 'Reading' }}</h2>
-        <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
-            <x-listen-aloud :text="$reading['passage'] ?? ''" />
-            @if ($highlightTypes->contains('reused'))
-                <span class="inline-flex items-center gap-1.5 text-xs font-bold text-ink-soft dark:text-ink-soft-dark"><span class="rounded-md bg-success/25 px-1.5 text-ink underline decoration-success decoration-2 underline-offset-4 dark:bg-success-dark/35 dark:text-ink-dark dark:decoration-success-dark">word</span>From New Words</span>
+        <div
+            x-data="{
+                follow(index) {
+                    const sentences = this.$refs.passage.querySelectorAll('[data-sentence]');
+                    const lit = ['bg-dusk/25', 'dark:bg-dusk/40', 'rounded-md'];
+                    sentences.forEach((sentence, i) => sentence.classList[i === index ? 'add' : 'remove'](...lit));
+                    sentences[index]?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                },
+            }"
+            x-on:eos-follow="follow($event.detail.index)"
+            @class(['relative isolate flex flex-col gap-3', 'overflow-hidden rounded-3xl p-3' => $passagePhoto])
+        >
+            @if ($passagePhoto)
+                <img src="{{ $passagePhoto }}" alt="" class="absolute inset-0 -z-30 h-full w-full scale-125 object-cover blur-2xl">
+                <div class="absolute inset-0 -z-20 bg-ground/55 dark:bg-ground-dark/65"></div>
+                <div class="relative -mx-3 -mt-3 flex h-48 items-end overflow-hidden px-4 pb-14">
+                    <div class="absolute inset-0 -z-10 [mask-image:linear-gradient(to_bottom,black_72%,transparent)]">
+                        <img src="{{ $passagePhoto }}" alt="" class="h-full w-full object-cover">
+                        <div class="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-black/25"></div>
+                    </div>
+                    <h2 class="font-display lesson-title text-white drop-shadow">{{ $reading['passage_title'] ?? 'Reading' }}</h2>
+                </div>
+            @else
+                <h2 class="font-display lesson-title text-ink dark:text-ink-dark">{{ $reading['passage_title'] ?? 'Reading' }}</h2>
             @endif
-            @if ($highlightTypes->contains('new'))
-                <span class="inline-flex items-center gap-1.5 text-xs font-bold text-ink-soft dark:text-ink-soft-dark"><span class="rounded-md bg-accent/25 px-1.5 text-accent-ink underline decoration-accent decoration-2 underline-offset-4 dark:bg-accent-dark/35 dark:text-accent-ink-dark dark:decoration-accent-dark">word</span>New word</span>
-            @endif
+
+            <div @class(['relative flex flex-wrap items-center gap-x-4 gap-y-2', '-mt-8 gap-2' => $passagePhoto])>
+                <x-listen-aloud :text="$reading['passage'] ?? ''" :follow="true" :class="$passagePhoto ? 'bg-surface text-ink shadow-sm dark:bg-surface-dark' : ''" />
+                @if ($highlightTypes->contains('reused'))
+                    <span @class(['inline-flex items-center gap-1.5 text-xs font-bold text-ink-soft dark:text-ink-soft-dark', 'rounded-full bg-surface px-3 py-1 text-ink shadow-sm dark:bg-surface-dark dark:text-ink-dark' => $passagePhoto])><span class="rounded-md bg-success/25 px-1.5 text-ink dark:bg-success-dark/35 dark:text-ink-dark">word</span>From New Words</span>
+                @endif
+                @if ($highlightTypes->contains('new'))
+                    <span @class(['inline-flex items-center gap-1.5 text-xs font-bold text-ink-soft dark:text-ink-soft-dark', 'rounded-full bg-surface px-3 py-1 text-ink shadow-sm dark:bg-surface-dark dark:text-ink-dark' => $passagePhoto])><span class="rounded-md bg-accent/25 px-1.5 text-accent-ink dark:bg-accent-dark/35 dark:text-accent-ink-dark">word</span>New word</span>
+                @endif
+            </div>
+            <p x-ref="passage" x-lookup class="relative rounded-3xl bg-surface p-5 text-lg leading-loose text-ink shadow-lg ring-1 ring-line dark:bg-surface-dark dark:text-ink-dark dark:ring-line-dark">{!! $passageHtml !!}</p>
         </div>
-        <p x-lookup class="rounded-3xl bg-surface p-5 text-lg leading-loose text-ink shadow-sm dark:bg-surface-dark dark:text-ink-dark">{!! $passageHtml !!}</p>
 
         <x-slot:actions>
             <x-continue-button on-click="screen = {{ $quizScreen ?? $firstQuestionScreen }}" wire-target="save" />

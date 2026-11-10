@@ -5,8 +5,10 @@
     speech support, same as <x-speak-button>.
 
     @param string $text The plain text to read.
+    @param bool $follow Tell the page which sentence is being read: the button
+        fires `eos-follow` ({ index }, -1 when it stops) so the text can light it.
 --}}
-@props(['text'])
+@props(['text', 'follow' => false])
 
 <button
     type="button"
@@ -17,10 +19,11 @@
             window.eosVoice?.stop();
             this.playing = false;
             clearInterval(this.watcher);
+            @if ($follow) this.$dispatch('eos-follow', { index: -1 }); @endif
         },
         start() {
             this.playing = true;
-            window.eosVoice?.speak(this.$el.dataset.text, { onEnd: () => this.stop() });
+            window.eosVoice?.speak(this.$el.dataset.text, { onEnd: () => this.stop()@if ($follow), onSentence: (index) => this.$dispatch('eos-follow', { index })@endif });
             {{-- Leaving the screen (Continue, Back) hides the button — stop reading then. --}}
             this.watcher = setInterval(() => { if (this.$el.offsetParent === null) this.stop() }, 500);
         },

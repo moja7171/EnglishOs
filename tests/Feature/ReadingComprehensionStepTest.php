@@ -201,7 +201,10 @@ class ReadingComprehensionStepTest extends TestCase
     {
         $run = $this->makeRun();
 
-        $this->mock(PexelsClient::class, fn ($mock) => $mock->shouldNotReceive('imageUrlFor'));
+        $this->mock(PexelsClient::class, function ($mock) {
+            $mock->shouldNotReceive('imageUrlFor');
+            $mock->shouldReceive('cachedImageUrl')->andReturn(null);
+        });
 
         Livewire::test('missions.steps.reading-comprehension', ['run' => $run])
             ->assertDontSeeHtml('<img');
@@ -211,7 +214,10 @@ class ReadingComprehensionStepTest extends TestCase
     {
         $run = $this->makeRunWithImageQuery();
 
-        $this->mock(PexelsClient::class, fn ($mock) => $mock->shouldReceive('imageUrlFor')->andReturn(null));
+        $this->mock(PexelsClient::class, function ($mock) {
+            $mock->shouldReceive('imageUrlFor')->andReturn(null);
+            $mock->shouldReceive('cachedImageUrl')->andReturn(null);
+        });
 
         Livewire::test('missions.steps.reading-comprehension', ['run' => $run])
             ->assertOk()
@@ -430,6 +436,57 @@ class ReadingComprehensionStepTest extends TestCase
             ->assertSee('New word')
             ->assertSee('Listen')
             ->assertSeeHtml('data-text="Aisha wakes up at six and feels exhausted after a long shift."');
+    }
+
+    public function test_the_passage_is_cut_into_sentences_for_the_follow_along_and_marks_have_no_underline(): void
+    {
+        $run = $this->makeRunWithNewWords();
+
+        Livewire::test('missions.steps.reading-comprehension', ['run' => $run])
+            ->assertSeeHtml('data-sentence="0"')
+            ->assertSeeHtml('Aisha <mark')
+            ->assertDontSeeHtml('underline decoration-accent')
+            ->assertDontSeeHtml('underline decoration-success');
+    }
+
+    public function test_a_phrase_stays_inside_its_own_sentence(): void
+    {
+        $learner = User::factory()->create();
+        $mission = Mission::create([
+            'code' => 'M01',
+            'title' => 'My Daily Life',
+            'module' => 'Me',
+            'outcome' => 'I can talk about my daily routine.',
+            'phases' => [[
+                'phase' => 'practice',
+                'steps' => [[
+                    'key' => 'reading_comprehension',
+                    'passage' => 'Aisha wakes up at six. She feels exhausted! Is she tired?',
+                    'highlighted_phrases' => [['phrase' => 'exhausted', 'type' => 'new', 'definition' => 'very tired']],
+                    'questions' => ['What is Aisha like?'],
+                ]],
+            ]],
+        ]);
+        $this->actingAs($learner);
+        $run = MissionRun::findOrStart($learner, $mission);
+
+        Livewire::test('missions.steps.reading-comprehension', ['run' => $run])
+            ->assertSeeHtml('data-sentence="2"')
+            ->assertDontSeeHtml('data-sentence="3"')
+            ->assertSeeHtml('<span data-sentence="1" class="box-decoration-clone">She feels <mark');
+    }
+
+    public function test_a_passage_without_its_own_photo_falls_back_to_the_mission_photo_behind_the_card(): void
+    {
+        $run = $this->makeRun();
+
+        $this->mock(PexelsClient::class, fn ($mock) => $mock->shouldReceive('cachedImageUrl')
+            ->with('M01-brief')
+            ->andReturn('http://localhost/storage/vocabulary-images/m01-brief.jpg'));
+
+        Livewire::test('missions.steps.reading-comprehension', ['run' => $run])
+            ->assertSeeHtml('http://localhost/storage/vocabulary-images/m01-brief.jpg')
+            ->assertSeeHtml('x-on:eos-follow="follow($event.detail.index)"');
     }
 
     private function makeRunWithNewWords(): MissionRun

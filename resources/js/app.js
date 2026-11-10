@@ -493,6 +493,8 @@ window.eosConnectionNotice = {
 window.eosVoice = {
     // options.rate: slower for the dictation card's 🐢 (default 0.95).
     // options.onEnd: called once the whole text has been read (or stopped).
+    // options.onSentence: called with the piece's number as each one starts
+    // (the reading passage lights the sentence being read).
     // A long text (a reading passage, a story) is queued sentence by
     // sentence — some browsers cut one long utterance off after ~15 s.
     speak(text, options = {}) {
@@ -502,7 +504,7 @@ window.eosVoice = {
                 return;
             }
             window.speechSynthesis.cancel();
-            const pieces = text.length > 180 ? text.match(/[^.!?]+[.!?]+["”’)]*\s*|[^.!?]+$/g) ?? [text] : [text];
+            const pieces = text.length > 180 || options.onSentence ? text.match(/[^.!?]+[.!?]+["”’)]*\s*|[^.!?]+$/g) ?? [text] : [text];
             pieces.forEach((piece, i) => {
                 const utterance = new SpeechSynthesisUtterance(piece.trim());
                 utterance.lang = 'en-US';
@@ -513,6 +515,9 @@ window.eosVoice = {
                 }
                 if (options.pitch) {
                     utterance.pitch = options.pitch;
+                }
+                if (options.onSentence) {
+                    utterance.onstart = () => options.onSentence(i);
                 }
                 if (i === pieces.length - 1 && options.onEnd) {
                     utterance.onend = () => options.onEnd();
@@ -2371,22 +2376,15 @@ Alpine.data('dictionarySheet', (urls) => ({
 
 /**
  * Audio first, text second: a question or an answer is heard, and its text
- * stays blurred until the learner taps it (see <x-heard-text>, <x-teddy-says
- * blur> and <x-show-text-toggle>). "Always show text" is the learner's own
- * choice, kept in this browser. A phone with no English voice has nothing to
+ * stays blurred until the learner taps it (see <x-heard-text> and
+ * <x-teddy-says blur>). There is no "always show" switch: every text is
+ * tapped open, every time. A phone with no English voice has nothing to
  * hear, so its texts open by themselves.
  */
 document.addEventListener('alpine:init', () => {
     const englishVoices = () => (window.speechSynthesis?.getVoices() ?? []).filter((voice) => /^en/i.test(voice.lang));
 
     Alpine.store('heardText', {
-        always: (() => {
-            try {
-                return localStorage.getItem('eos-show-text') === '1';
-            } catch (e) {
-                return false;
-            }
-        })(),
         noVoice: !('speechSynthesis' in window),
 
         init() {
@@ -2403,14 +2401,6 @@ document.addEventListener('alpine:init', () => {
                 if (englishVoices().length === 0) this.noVoice = true;
             }, 2500);
         },
-
-        set(on) {
-            this.always = on;
-
-            try {
-                localStorage.setItem('eos-show-text', on ? '1' : '0');
-            } catch (e) {}
-        },
     });
 
     /** The blurred-until-tapped state of one text. */
@@ -2420,7 +2410,7 @@ document.addEventListener('alpine:init', () => {
         get visible() {
             const store = Alpine.store('heardText');
 
-            return this.revealed || store.always || store.noVoice;
+            return this.revealed || store.noVoice;
         },
 
         reveal() {
@@ -2436,7 +2426,7 @@ document.addEventListener('alpine:init', () => {
         get visible() {
             const store = Alpine.store('heardText');
 
-            return this.revealed || store.always || store.noVoice;
+            return this.revealed || store.noVoice;
         },
 
         reveal() {
