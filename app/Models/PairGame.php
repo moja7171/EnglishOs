@@ -122,6 +122,16 @@ class PairGame extends Model
     public const PLAYABLE = [self::GAME_ASK, self::GAME_TABOO, self::GAME_WHO, self::GAME_MINUTE, self::GAME_STORY, self::GAME_ROLE, self::GAME_TRUTHS, self::GAME_RATHER];
 
     /** @var list<int> */
+    /**
+     * The games where the result is objective, so each player also gets a
+     * personal score and a place on the weekly board. The others stay
+     * team-only.
+     */
+    public const COMPETITIVE = [self::GAME_ASK, self::GAME_TRUTHS, self::GAME_MINUTE, self::GAME_WHO];
+
+    /** Ask & Answer: what a sentence is worth by the level it was said at. */
+    public const LEVEL_MULTIPLIER = [1 => 1.0, 2 => 1.5, 3 => 2.0];
+
     public const LENGTHS = [5, 10];
 
     /**
@@ -173,7 +183,7 @@ class PairGame extends Model
             self::GAME_ASK => [
                 'فارسی می‌گه چی بپرسی یا چی بگی؛ همون رو به انگلیسی بلند بگو. اشتباه بود، جمله‌ی درست رو می‌بینی و تکرارش می‌کنی.',
                 'دوستت انگلیسیِ درستِ جمله‌ت رو (تار، با یک ضربه باز می‌شه) می‌بینه و کمکت می‌کنه. بعد نقش‌ها عوض می‌شه.',
-                'بار اول درست +۱، بعد از یک اصلاح نصف. خط کم‌رنگِ «بیشتر بگو» اختیاریه؛ بگی +½.',
+                'بار اول درست +۱، بعد از یک اصلاح نصف. خط کم‌رنگِ «بیشتر بگو» اختیاریه؛ بگی +½. سطح ۲ ×۱٫۵ و سطح ۳ ×۲ حساب می‌شه و امتیاز شخصیت می‌ره توی «Game points» برد هفته.',
             ],
             self::GAME_TABOO => [
                 'نوبت توست: کلمه رو فقط تو می‌بینی؛ بدون گفتن خودِ کلمه و بدون فارسی توضیحش بده.',
@@ -183,12 +193,12 @@ class PairGame extends Model
             self::GAME_WHO => [
                 'یکی راز رو می‌بینه (شغل، حیوان، غذا…) و فقط Yes / No / Sometimes جواب می‌ده.',
                 'اون یکی با سؤال بله/خیر حدس می‌زنه: Am I…? Do I…? Can I…?',
-                'حدس درست +۱، با ۵ سؤال یا کمتر +۱ جایزه. ۱۰ سؤال یا ۹۰ ثانیه، بعد جاها عوض.',
+                'حدس درست +۱، با ۵ سؤال یا کمتر +۱ جایزه؛ سؤال کمتر یعنی امتیاز شخصی بیشتر در «Game points» برد هفته. ۱۰ سؤال یا ۹۰ ثانیه، بعد جاها عوض.',
             ],
             self::GAME_MINUTE => [
                 'گوینده درباره‌ی موضوع حرف می‌زنه و سعی می‌کنه ۴ کلمه‌ی کارت رو به کار ببره.',
                 'شنونده هر کلمه رو که شنید روی گوشیش می‌زنه؛ هر کلمه +۱.',
-                'بعد شنونده یک سؤال می‌پرسه (+۱) و جاها عوض می‌شه.',
+                'بعد شنونده یک سؤال می‌پرسه (+۱) و جاها عوض می‌شه. امتیاز شخصی هر کدوم توی «Game points» برد هفته می‌ره.',
             ],
             self::GAME_STORY => [
                 'داستان با جمله‌ی اول شروع می‌شه؛ هر نوبت یکی‌تون ۱ یا ۲ جمله ادامه می‌ده.',
@@ -203,7 +213,7 @@ class PairGame extends Model
             self::GAME_TRUTHS => [
                 'نوبت توست: درباره‌ی موضوع ۳ جمله بگو — ۲ تا راست، ۱ دروغ — و شماره‌ی دروغ رو روی گوشیت بزن.',
                 'دوستت می‌تونه ۲ سؤال بپرسه، بعد دروغ رو از بین ۱، ۲، ۳ انتخاب می‌کنه.',
-                'دروغ پیدا شد +۱. بعد جاها عوض می‌شه.',
+                'دروغ پیدا شد +۱ برای کسی که حدس زده. بعد جاها عوض می‌شه. امتیاز شخصی توی «Game points» برد هفته می‌ره.',
             ],
             self::GAME_RATHER => [
                 'یک سؤال «Would you rather…?» میاد؛ مخفیانه برای خودت A یا B رو بزن و حدس بزن دوستت کدوم رو انتخاب می‌کنه.',
@@ -1425,6 +1435,72 @@ class PairGame extends Model
         }
 
         return collect($this->playedCards())->where('explainer_id', '!=', $user->id)->where('result', self::RESULT_GOT)->count();
+    }
+
+    public function isCompetitive(): bool
+    {
+        return in_array($this->game, self::COMPETITIVE, true);
+    }
+
+    /**
+     * Each player's own points, in half points, worked out from the turns
+     * played — the team score split by who earned it: Ask & Answer, what
+     * each said right times the level it was said at (x1 / x1.5 / x2);
+     * Two Truths, the lie the listener found; Just a Minute, the target
+     * words the talker got heard and the question the listener asked;
+     * Who am I, the secrets the guesser guessed (quicker is worth more).
+     * Games that are not competitive give 0 to both.
+     *
+     * @return array<int, int> user id => half points
+     */
+    public function personalPoints(): array
+    {
+        $points = [$this->user_a_id => 0, $this->user_b_id => 0];
+
+        if (! $this->isCompetitive()) {
+            return $points;
+        }
+
+        foreach ($this->turns ?? [] as $turn) {
+            $holder = (int) $turn['explainer_id'];
+            $other = $this->otherPlayerId($holder);
+
+            foreach ($turn['cards'] ?? [] as $card) {
+                match ($this->game) {
+                    self::GAME_ASK => $this->addAskPoints($points, $holder, $other, $card),
+                    self::GAME_TRUTHS => $points[$other] += $card['result'] === self::RESULT_GOT ? self::POINTS_WORD : 0,
+                    self::GAME_MINUTE => $this->addMinutePoints($points, $holder, $other, $card),
+                    default => $points[$other] += $card['result'] === self::RESULT_GOT ? (int) $card['points'] : 0,
+                };
+            }
+        }
+
+        return $points;
+    }
+
+    /**
+     * @param  array<int, int>  $points
+     * @param  array<string, mixed>  $card
+     */
+    private function addAskPoints(array &$points, int $asker, int $answerer, array $card): void
+    {
+        foreach ([self::PHASE_QUESTION => $asker, self::PHASE_ANSWER => $answerer] as $step => $userId) {
+            $played = $card['qa'][$step] ?? null;
+
+            if ($played !== null) {
+                $points[$userId] += (int) round(((int) ($played['points'] ?? 0)) * (self::LEVEL_MULTIPLIER[(int) ($played['level'] ?? 1)] ?? 1.0));
+            }
+        }
+    }
+
+    /**
+     * @param  array<int, int>  $points
+     * @param  array<string, mixed>  $card
+     */
+    private function addMinutePoints(array &$points, int $talker, int $listener, array $card): void
+    {
+        $points[$talker] += count($card['heard'] ?? []) * self::POINTS_WORD;
+        $points[$listener] += $card['result'] === self::RESULT_GOT ? self::POINTS_WORD : 0;
     }
 
     /**

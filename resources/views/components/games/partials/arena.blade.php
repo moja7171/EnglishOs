@@ -92,7 +92,7 @@
                     <span x-data="{ rec: false, timer: null, init() { this.timer = setInterval(() => this.rec = !! window.eosGameVoice?.isRecording(), 500) }, destroy() { clearInterval(this.timer) } }" x-show="rec" x-cloak class="flex items-center gap-1.5 text-accent-ink dark:text-accent-ink-dark">
                         <span class="h-2 w-2 animate-pulse rounded-full bg-accent dark:bg-accent-dark"></span>REC
                     </span>
-                    <span wire:key="score-{{ $pairGame->score }}" class="animate-badge-pop">Team {{ App\Models\PairGame::formatPoints($pairGame->score) }}{{ $best !== null ? ' · Best '.App\Models\PairGame::formatPoints($best) : '' }}</span>
+                    <span wire:key="score-{{ $pairGame->score }}-{{ $pairGame->isCompetitive() ? ($pairGame->personalPoints()[$me->id] ?? 0) : 0 }}" class="animate-badge-pop">Team {{ App\Models\PairGame::formatPoints($pairGame->score) }}{{ $pairGame->isCompetitive() ? ' · You '.App\Models\PairGame::formatPoints($pairGame->personalPoints()[$me->id] ?? 0) : '' }}{{ $best !== null ? ' · Best '.App\Models\PairGame::formatPoints($best) : '' }}</span>
                 </span>
             </div>
 

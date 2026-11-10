@@ -31,6 +31,9 @@
                 <div wire:key="explained-{{ $player->id }}" class="rounded-2xl bg-surface-sunken p-3 dark:bg-surface-sunken-dark">
                     <p class="truncate text-xs font-bold text-ink-soft dark:text-ink-soft-dark">{{ $player->is($me) ? 'You' : $player->name }} {{ match ($pairGame->game) { App\Models\PairGame::GAME_ASK => 'said right', App\Models\PairGame::GAME_WHO => 'guessed', App\Models\PairGame::GAME_TRUTHS => 'found (lies)', App\Models\PairGame::GAME_RATHER => 'guessed right', App\Models\PairGame::GAME_ROLE => 'reached (goals)', App\Models\PairGame::GAME_MINUTE, App\Models\PairGame::GAME_STORY => 'used (words)', default => 'explained' } }}</p>
                     <p class="text-xl font-extrabold text-ink tabular-nums dark:text-ink-dark">{{ $pairGame->creditFor($player) }}</p>
+                    @if ($pairGame->isCompetitive())
+                        <p class="mt-0.5 text-xs font-extrabold text-accent-ink dark:text-accent-ink-dark">{{ App\Models\PairGame::formatPoints($pairGame->personalPoints()[$player->id] ?? 0) }} pts{{ $pairGame->isAskAnswer() ? ' · level bonus counted' : '' }}</p>
+                    @endif
                 </div>
             @endforeach
         </div>
