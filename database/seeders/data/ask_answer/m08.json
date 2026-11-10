@@ -122,7 +122,7 @@
      ]
     ],
     [
-     "بپرس نگه داشتن دوست حالا سخت‌تر است یا وقتی جوان بودی و چرا",
+     "بپرس نگه داشتن دوست حالا سخت‌تر است یا وقتی جوان بود و چرا",
      "بپرس چطور این کار را می‌کند",
      "Is it harder to keep a friend now, or when you were young? Why?",
      "How do you do it?",
@@ -628,7 +628,7 @@
     ],
     [
      "بپرس عادلانه است و دوستش می‌داند",
-     "بپرس گفتی",
+     "بپرس به او گفت",
      "Is it fair, and does your friend know?",
      "Did you say?",
      [],
@@ -3009,15 +3009,15 @@
      ]
     ],
     [
-     "بگو نه به اندازه‌ی آن خوب نیست",
+     "بگو نه، به اندازه‌ی گوشی دوستم خوب نیست",
      "بگو دوربین",
-     "No, it isn't, and it's not as good.",
+     "No, it isn't. It's not as good as my friend's.",
      "The camera.",
      [],
      [
       [
-       "No, it doesn't, and it's not as good.",
-       "جواب کوتاه با همان فعل کمکیِ سؤال است: No, it isn't."
+       "No, it isn't. It's not as good as my friend.",
+       "با «as … as» اسم مالکیت می‌آید: as good as my friend's."
       ]
      ]
     ],

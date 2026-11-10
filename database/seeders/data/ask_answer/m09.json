@@ -2425,13 +2425,13 @@
     [
      "بپرس او هم به همسایه کمک می‌کند یا فقط همسایه به او کمک می‌کند و چرا",
      "بپرس چطور",
-     "Do you help her too, or only she helps you? Why?",
+     "Do you help her too, or does she only help you? Why?",
      "How?",
      [],
      [
       [
-       "You help her too, or only she helps you? Why?",
-       "سؤال با «Do» شروع می‌شود."
+       "Do you help her too, or she only helps you? Why?",
+       "بخش دوم هم سؤال است: or does she only help you."
       ]
      ]
     ]
@@ -2612,14 +2612,14 @@
      []
     ],
     [
-     "بگو خواهرم کسی است که به من کمک می‌کند",
-     "بگو در تکلیف",
-     "My sister is a person who helps me.",
-     "With my homework.",
+     "بگو خواهرم کسی است که در تکلیف به من کمک می‌کند",
+     "بگو هر هفته",
+     "My sister is a person who helps me with my homework.",
+     "Every week.",
      [],
      [
       [
-       "My sister is a person who help me.",
+       "My sister is a person who help me with my homework.",
        "با «who» فعل «s» می‌گیرد: helps."
       ]
      ]
