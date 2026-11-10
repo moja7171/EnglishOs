@@ -1,0 +1,3455 @@
+{
+ "mission": 8,
+ "items": [
+  {
+   "d": 1,
+   "k": "s",
+   "s": "stay-close",
+   "c": null,
+   "q": [
+    [
+     "بپرس با دوستانش صمیمی می‌ماند",
+     "بپرس چطور",
+     "Do you stay close to your friends?",
+     "How?",
+     [],
+     [
+      [
+       "You stay close to your friends?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس با دوستانش صمیمی می‌ماند و چند بار حرف می‌زنند",
+     "بپرس آنلاین",
+     "Do you stay close to your friends, and how often do you talk?",
+     "Online?",
+     [],
+     [
+      [
+       "Do you stay close to your friends, and how often you talk?",
+       "بعد از «how often»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس صمیمی ماندن آنلاین آسان‌تر است یا حضوری و چرا",
+     "بپرس کدام را دوست دارد",
+     "Is it easier to stay close online, or in person? Why?",
+     "Which do you prefer?",
+     [],
+     [
+      [
+       "It is easier to stay close online, or in person? Why?",
+       "سؤال با «Is» شروع می‌شود: Is it…؟"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو هر هفته زنگ می‌زنیم",
+     "Yes, I do.",
+     "We call every week.",
+     [],
+     [
+      [
+       "Yes, I am.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و هر روز حرف می‌زنیم",
+     "بگو تلفنی",
+     "Yes, I do, and we talk every day.",
+     "On the phone.",
+     [],
+     [
+      [
+       "Yes, I am, and we talk every day.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو آنلاین آسان‌تر است چون شلوغیم ولی دیدار حضوری بهتر است",
+     "بگو هر دو خوب‌اند",
+     "It's easier online, because we are busy, but meeting in person is better.",
+     "Both are good.",
+     [],
+     [
+      [
+       "It's more easy online, because we are busy, but meeting in person is more good.",
+       "با «easy» می‌گوییم «easier» و بعد «better»؛ «more easy» و «more good» غلط است."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "s",
+   "s": "drift-apart",
+   "c": null,
+   "q": [
+    [
+     "بپرس هیچ‌وقت از دوستی دور شد",
+     "بپرس چرا",
+     "Did you ever drift apart from a friend?",
+     "Why?",
+     [],
+     [
+      [
+       "You ever drift apart from a friend?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس از دوستی دور شد و چرا",
+     "بپرس وقت نداشتند",
+     "Did you drift apart from a friend, and why?",
+     "No time?",
+     [],
+     [
+      [
+       "You drift apart from a friend, and why?",
+       "سؤال با «Did» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس نگه داشتن دوست حالا سخت‌تر است یا وقتی جوان بودی و چرا",
+     "بپرس چطور این کار را می‌کند",
+     "Is it harder to keep a friend now, or when you were young? Why?",
+     "How do you do it?",
+     [],
+     [
+      [
+       "It is harder to keep a friend now, or when you were young? Why?",
+       "سؤال با «Is» شروع می‌شود: Is it…؟"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو اسباب‌کشی کردیم",
+     "Yes, I did.",
+     "We moved.",
+     [],
+     [
+      [
+       "Yes, I do.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I did."
+      ]
+     ]
+    ],
+    [
+     "بگو بله چون وقت نداشتیم",
+     "بگو و دور از هم بودیم",
+     "Yes, I did, because we had no time.",
+     "And we lived far.",
+     [],
+     [
+      [
+       "Yes, I do, because we had no time.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I did."
+      ]
+     ]
+    ],
+    [
+     "بگو حالا سخت‌تر است چون کار زیاد دارم ولی هنوز به دوستانم زنگ می‌زنم",
+     "بگو جمعه‌ها",
+     "It's harder now, because I have a lot of work, but I still call my friends.",
+     "On Fridays.",
+     [],
+     [
+      [
+       "It's harder now, because I have lot of work, but I still call my friends.",
+       "قبل از «lot» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "s",
+   "s": "put-effort",
+   "c": null,
+   "q": [
+    [
+     "بپرس برای دوستانش تلاش می‌کند",
+     "بپرس چطور",
+     "Do you put the effort in with friends?",
+     "How?",
+     [],
+     [
+      [
+       "You put the effort in with friends?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس برای دوستانش تلاش می‌کند و چه کسی اول زنگ می‌زند",
+     "بپرس خودش",
+     "Do you put the effort in, and who calls first?",
+     "You?",
+     [],
+     [
+      [
+       "You put the effort in, and who calls first?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه کسی بیشتر تلاش می‌کند او یا دوستش و چرا",
+     "بپرس همیشه",
+     "Who puts in more effort, you or your friend? Why?",
+     "Always?",
+     [],
+     [
+      [
+       "Who puts in more effort, you or your friend is? Why?",
+       "بخش دوم کوتاه است: «you or your friend?»"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو به آن‌ها زنگ می‌زنم",
+     "Yes, I do.",
+     "I call them.",
+     [],
+     [
+      [
+       "Yes, I am.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و معمولاً من اول زنگ می‌زنم",
+     "بگو هر هفته",
+     "Yes, I do, and I often call first.",
+     "Every week.",
+     [],
+     [
+      [
+       "Yes, I do, and I call often first.",
+       "«often» قبل از فعل می‌آید: I often call."
+      ]
+     ]
+    ],
+    [
+     "بگو دوستم بیشتر چون کمتر شلوغ است ولی من هم سعی می‌کنم",
+     "بگو معمولاً",
+     "My friend puts in more effort, because she is less busy, but I try too.",
+     "Usually.",
+     [],
+     [
+      [
+       "My friend puts in more effort, because she is less busy, but I trying too.",
+       "بعد از «I» فعل ساده می‌آید: I try."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "s",
+   "s": "lifelong-friend",
+   "c": null,
+   "q": [
+    [
+     "بپرس یک دوست همیشگی دارد",
+     "بپرس چه کسی",
+     "Do you have a lifelong friend?",
+     "Who?",
+     [],
+     [
+      [
+       "You have a lifelong friend?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس یک دوست همیشگی دارد و کجا با هم آشنا شدند",
+     "بپرس بیست سال پیش",
+     "Do you have a lifelong friend, and where did you meet?",
+     "Twenty years ago?",
+     [],
+     [
+      [
+       "Do you have a lifelong friend, and where you meet?",
+       "بعد از «where»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس دوست همیشگی‌اش از او بزرگ‌تر است یا هم‌سن و چرا",
+     "بپرس چند ساله",
+     "Is your lifelong friend older than you, or the same age? Why?",
+     "How old?",
+     [],
+     [
+      [
+       "Your lifelong is friend older than you, or the same age? Why?",
+       "سؤال با «Is» شروع می‌شود: Is your lifelong…؟"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو از مدرسه",
+     "Yes, I do.",
+     "From school.",
+     [],
+     [
+      [
+       "Yes, I am.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و در مدرسه با هم آشنا شدیم",
+     "بگو بیست سال پیش",
+     "Yes, I do, and we met at school.",
+     "Twenty years ago.",
+     [],
+     [
+      [
+       "Yes, I am, and we met at school.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو هم‌سن است چون در یک کلاس بودیم ولی از من قدبلندتر است",
+     "بگو سی سال",
+     "My friend is the same age, because we were in the same class, but my friend is taller than me.",
+     "Thirty.",
+     [],
+     [
+      [
+       "My friend is the same age, because we are in the same class, but my friend is taller than me.",
+       "داستان گذشته است؛ «were» بگو."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "s",
+   "s": "introverted",
+   "c": null,
+   "q": [
+    [
+     "بپرس درون‌گراست",
+     "بپرس چرا",
+     "Are you introverted?",
+     "Why?",
+     [],
+     [
+      [
+       "You are introverted?",
+       "سؤال با «Are» شروع می‌شود: Are you…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس از دوستانش درون‌گراتر است",
+     "بپرس خیلی",
+     "Are you more introverted than your friends?",
+     "A lot?",
+     [],
+     [
+      [
+       "You are more introverted than your friends?",
+       "سؤال با «Are» شروع می‌شود: Are you…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس برای آدم‌های درون‌گرا دوست پیدا کردن سخت‌تر است و چرا",
+     "بپرس برای خودش",
+     "Is it harder for introverted people to make friends? Why?",
+     "For you?",
+     [],
+     [
+      [
+       "It is harder for introverted people to make friends? Why?",
+       "سؤال با «Is» شروع می‌شود: Is it…؟"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو سکوت را دوست دارم",
+     "Yes, I am.",
+     "I like quiet.",
+     [],
+     [
+      [
+       "Yes, I do.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I am."
+      ]
+     ]
+    ],
+    [
+     "بگو بله از دوستانم درون‌گراترم",
+     "بگو کمی",
+     "Yes, I am more introverted than my friends.",
+     "A bit.",
+     [],
+     [
+      [
+       "Yes, I do more introverted than my friends.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I am."
+      ]
+     ]
+    ],
+    [
+     "بگو کمی سخت‌تر است چون خجالتی‌اند ولی اغلب خوب گوش می‌دهند",
+     "بگو برای من هم",
+     "It's a bit harder, because they are shy, but they often listen well.",
+     "For me too.",
+     [],
+     [
+      [
+       "It's a bit harder, because they are shy, but they listen often well.",
+       "«often» قبل از فعل می‌آید: they often listen."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "stay-in-touch-how",
+   "c": "دوستت گفت: «من هر هفته با دوستانم حرف می‌زنم.»",
+   "q": [
+    [
+     "بپرس چطور",
+     "بپرس تلفنی",
+     "How?",
+     "By phone?",
+     [],
+     []
+    ],
+    [
+     "بپرس چطور و چه کسی اول زنگ می‌زند",
+     "بپرس خودش",
+     "How, and who calls first?",
+     "You?",
+     [],
+     [
+      [
+       "How, and who call first?",
+       "با «who» فعل «s» می‌گیرد: calls."
+      ]
+     ]
+    ],
+    [
+     "بپرس حرف زدن تلفنی آسان‌تر است یا پیام دادن و چرا",
+     "بپرس کدام را دوست دارد",
+     "Is it easier to talk by phone or by message? Why?",
+     "Which one do you prefer?",
+     [],
+     [
+      [
+       "It is easier to talk by phone or by message? Why?",
+       "سؤال با «Is» شروع می‌شود: Is it…؟"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو تلفنی",
+     "بگو و پیام",
+     "By phone.",
+     "And messages.",
+     [],
+     []
+    ],
+    [
+     "بگو تلفنی و من اول زنگ می‌زنم",
+     "بگو گاهی دوستم",
+     "By phone, and I call first.",
+     "Sometimes my friend.",
+     [],
+     [
+      [
+       "By phone, and I am call first.",
+       "بعد از «I» فعل ساده می‌آید: I call."
+      ]
+     ]
+    ],
+    [
+     "بگو پیام آسان‌تر است چون سریع است ولی تماس صمیمانه‌تر است",
+     "بگو تماس",
+     "It's easier by message, because it's quick, but a call is more friendly.",
+     "A call.",
+     [],
+     [
+      [
+       "It's easier by message, because it quick, but a call is more friendly.",
+       "بعد از «because» باید «it's» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "drift-why",
+   "c": "دوستت گفت: «از یک دوست دور شدم.»",
+   "q": [
+    [
+     "بپرس چرا دور شدند",
+     "بپرس وقت نداشتند",
+     "Why did you drift apart?",
+     "No time?",
+     [],
+     [
+      [
+       "Why you drift apart?",
+       "بعد از «why»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چرا دور شدند و کی",
+     "بپرس پارسال",
+     "Why did you drift apart, and when?",
+     "Last year?",
+     [],
+     [
+      [
+       "Why you drift apart, and when?",
+       "بعد از «why»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس غمگین است یا عادی است و چرا",
+     "بپرس دلش تنگ می‌شود",
+     "Is it sad, or is it normal? Why?",
+     "Do you miss him?",
+     [],
+     [
+      [
+       "It is sad, or is it normal? Why?",
+       "سؤال با «Is» شروع می‌شود: Is it…؟"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو وقت نداشتیم",
+     "بگو و دور بودیم",
+     "We had no time.",
+     "And we lived far.",
+     [],
+     [
+      [
+       "We are had no time.",
+       "بعد از «We» فعل ساده می‌آید، نه «are»: We had."
+      ]
+     ]
+    ],
+    [
+     "بگو وقت نداشتیم و پارسال بود",
+     "بگو در تابستان",
+     "We had no time, and it was last year.",
+     "In summer.",
+     [],
+     [
+      [
+       "We are had no time, and it was last year.",
+       "بعد از «We» فعل ساده می‌آید، نه «are»: We had."
+      ]
+     ]
+    ],
+    [
+     "بگو غمگین است چون صمیمی بودیم ولی عادی هم هست",
+     "بگو کمی",
+     "It's sad, because we were close, but it's normal too.",
+     "A little.",
+     [],
+     [
+      [
+       "It's sad, because we are close, but it's normal too.",
+       "داستان گذشته است؛ «were» بگو."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "effort-fair",
+   "c": "دوستت گفت: «من بیشتر تلاش می‌کنم.»",
+   "q": [
+    [
+     "بپرس عادلانه است",
+     "بپرس چرا",
+     "Is it fair?",
+     "Why?",
+     [],
+     [
+      [
+       "It is fair?",
+       "سؤال با «Is» شروع می‌شود: Is it…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس عادلانه است و دوستش می‌داند",
+     "بپرس گفتی",
+     "Is it fair, and does your friend know?",
+     "Did you say?",
+     [],
+     [
+      [
+       "It is fair, and does your friend know?",
+       "سؤال با «Is» شروع می‌شود: Is it…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس می‌خواهد با دوستش حرف بزند یا مشکلی نیست و چرا",
+     "بپرس کی",
+     "Do you want to talk to your friend, or is it OK? Why?",
+     "When?",
+     [],
+     [
+      [
+       "You want to talk to your friend, or is it OK? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو نه چندان",
+     "بگو من بیشتر می‌کنم",
+     "Not really.",
+     "I do more.",
+     [],
+     []
+    ],
+    [
+     "بگو نه چندان و دوستم نمی‌داند",
+     "بگو نگفتم",
+     "Not really, and my friend doesn't know.",
+     "I didn't say.",
+     [],
+     [
+      [
+       "Not really, and my friend don't know.",
+       "با «my friend» از «doesn't» استفاده می‌کنیم."
+      ]
+     ]
+    ],
+    [
+     "بگو می‌خواهم حرف بزنم چون بیشتر از او تلاش می‌کنم ولی سخت است",
+     "بگو فردا",
+     "I want to talk to my friend, because I try more than him, but it's hard.",
+     "Tomorrow.",
+     [],
+     [
+      [
+       "I want talk to my friend, because I try more than him, but it's hard.",
+       "بعد از «want» باید «to» بیاید: want to talk."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "lifelong-how",
+   "c": "دوستت گفت: «ما دوستان قدیمی هستیم.»",
+   "q": [
+    [
+     "بپرس چطور با هم آشنا شدند",
+     "بپرس در مدرسه",
+     "How did you meet?",
+     "At school?",
+     [],
+     [
+      [
+       "How you meet?",
+       "بعد از «how»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چطور آشنا شدند و چند ساله بودند",
+     "بپرس ده",
+     "How did you meet, and how old were you?",
+     "Ten?",
+     [],
+     [
+      [
+       "How you meet, and how old were you?",
+       "بعد از «how»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس هنوز مثل هم هستند یا فرق کرده‌اند و چرا",
+     "بپرس چطور",
+     "Are you the same now, or are you different? Why?",
+     "How?",
+     [],
+     [
+      [
+       "You are the same now, or are you different? Why?",
+       "سؤال با «Are» شروع می‌شود: Are you…؟"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو در مدرسه",
+     "بگو در کلاس",
+     "At school.",
+     "In class.",
+     [],
+     []
+    ],
+    [
+     "بگو در مدرسه و ده ساله بودیم",
+     "بگو در یک کلاس",
+     "At school, and we were ten.",
+     "In the same class.",
+     [],
+     [
+      [
+       "At school, and we are ten.",
+       "داستان گذشته است؛ «were» بگو."
+      ]
+     ]
+    ],
+    [
+     "بگو کمی فرق داریم چون شغل‌های متفاوت داریم ولی هنوز صمیمی هستیم",
+     "بگو زیاد حرف می‌زنیم",
+     "We are a bit different, because we have different jobs, but we are still close.",
+     "We talk a lot.",
+     [],
+     [
+      [
+       "We are bit different, because we have different jobs, but we are still close.",
+       "قبل از «bit» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "shy-friends",
+   "c": "دوستت گفت: «من خجالتی‌ام.»",
+   "q": [
+    [
+     "بپرس دوستان زیادی دارد",
+     "بپرس چند نفر",
+     "Do you have many friends?",
+     "How many?",
+     [],
+     [
+      [
+       "You have many friends?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس دوستان زیادی دارد و آن‌ها هم خجالتی‌اند",
+     "بپرس همه",
+     "Do you have many friends, and are they shy too?",
+     "All?",
+     [],
+     [
+      [
+       "You have many friends, and are they shy too?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس آشنا شدن با آدم‌ها سخت‌تر است یا مشکلی نیست و چرا",
+     "بپرس سر کار",
+     "Is it harder to meet people, or is it fine? Why?",
+     "At work?",
+     [],
+     [
+      [
+       "It is harder to meet people, or is it fine? Why?",
+       "سؤال با «Is» شروع می‌شود: Is it…؟"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو نه",
+     "بگو فقط چند نفر",
+     "No, I don't.",
+     "Only a few.",
+     [],
+     [
+      [
+       "No, I am not.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: No, I don't."
+      ]
+     ]
+    ],
+    [
+     "بگو نه و آن‌ها خجالتی نیستند",
+     "بگو بعضی",
+     "No, I don't, and they are not shy.",
+     "Some are.",
+     [],
+     [
+      [
+       "No, I am not, and they are not shy.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: No, I don't."
+      ]
+     ]
+    ],
+    [
+     "بگو کمی سخت‌تر است چون خجالتی‌ام ولی وقتی آن‌ها را می‌شناسم خوب است",
+     "بگو سر کار",
+     "It's a bit harder, because I'm shy, but it's fine when I know them.",
+     "At work.",
+     [],
+     [
+      [
+       "It's a bit harder, because I shy, but it's fine when I know them.",
+       "بعد از «because» باید «I'm» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "confident",
+   "c": null,
+   "q": [
+    [
+     "بپرس با اعتمادبه‌نفس است",
+     "بپرس همیشه",
+     "Are you confident?",
+     "Always?",
+     [],
+     [
+      [
+       "You are confident?",
+       "سؤال با «Are» شروع می‌شود: Are you…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس سر کار با اعتمادبه‌نفس‌تر است یا در مهمانی",
+     "بپرس کدام سخت است",
+     "Are you more confident at work, or at parties?",
+     "Which is hard?",
+     [],
+     [
+      [
+       "You are more confident at work, or at parties?",
+       "سؤال با «Are» شروع می‌شود: Are you…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس از دوستانش با اعتمادبه‌نفس‌تر است و چرا",
+     "بپرس خیلی",
+     "Are you more confident than your friends? Why?",
+     "A lot?",
+     [],
+     [
+      [
+       "You are more confident than your friends? Why?",
+       "سؤال با «Are» شروع می‌شود: Are you…؟"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو معمولاً",
+     "Yes, I am.",
+     "Mostly.",
+     [],
+     [
+      [
+       "Yes, I do.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I am."
+      ]
+     ]
+    ],
+    [
+     "بگو سر کار با اعتمادبه‌نفس‌ترم",
+     "بگو مهمانی سخت است",
+     "I'm more confident at work.",
+     "Parties are hard.",
+     [],
+     [
+      [
+       "I'm confident more at work.",
+       "ترتیب جمله: I'm more confident at work."
+      ]
+     ]
+    ],
+    [
+     "بگو به اندازه‌ی دوستانم ولی آن‌ها اجتماعی‌ترند چون هم‌شغلیم",
+     "بگو کمی",
+     "I'm as confident as my friends, because we have the same job, but they are more outgoing.",
+     "A bit.",
+     [],
+     [
+      [
+       "I'm as confident than my friends, because we have the same job, but they are more outgoing.",
+       "با «as … as» می‌گوییم نه «than»: as confident as."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "shy-friend",
+   "c": null,
+   "q": [
+    [
+     "بپرس دوستش خجالتی است",
+     "بپرس کمی",
+     "Is your friend shy?",
+     "A bit?",
+     [],
+     [
+      [
+       "Your friend is shy?",
+       "سؤال با «Is» شروع می‌شود: Is your friend…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس دوستش خجالتی است و دوستان زیادی دارد",
+     "بپرس چند نفر",
+     "Is your friend shy, and does she have many friends?",
+     "How many?",
+     [],
+     [
+      [
+       "Your friend is shy, and does she have many friends?",
+       "سؤال با «Is» شروع می‌شود: Is your friend…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس دوستش به اندازه‌ی او خجالتی است و چرا",
+     "بپرس کدام خجالتی‌تر است",
+     "Is your friend as shy as you? Why?",
+     "Who is more shy?",
+     [],
+     [
+      [
+       "Your friend is as shy as you? Why?",
+       "سؤال با «Is» شروع می‌شود: Is your friend…؟"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو کمی",
+     "Yes, she is.",
+     "A bit.",
+     [],
+     [
+      [
+       "Yes, she does.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, she is."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و چند دوست نزدیک دارد",
+     "بگو صمیمی",
+     "Yes, she is, and she has a few close friends.",
+     "Very close.",
+     [],
+     [
+      [
+       "Yes, she is, and she have a few close friends.",
+       "با «she» فعل «s» می‌گیرد: has."
+      ]
+     ]
+    ],
+    [
+     "بگو او به اندازه‌ی من خجالتی نیست چون با آدم‌ها کار می‌کند ولی در مهمانی ساکت است",
+     "بگو من",
+     "My friend is not as shy as me, because she works with people, but she is quiet at parties.",
+     "Me.",
+     [],
+     [
+      [
+       "My friend is not as shy as me, because she work with people, but she is quiet at parties.",
+       "با «she» فعل «s» می‌گیرد: works."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "hard-working",
+   "c": null,
+   "q": [
+    [
+     "بپرس سخت‌کوش است",
+     "بپرس سر کار",
+     "Are you hard-working?",
+     "At work?",
+     [],
+     [
+      [
+       "You are hard-working?",
+       "سؤال با «Are» شروع می‌شود: Are you…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس سخت‌کوش است و چه کسی سخت‌کوش‌تر است",
+     "بپرس دوستش",
+     "Are you hard-working, and who is more hard-working?",
+     "Your friend?",
+     [],
+     [
+      [
+       "You are hard-working, and who is more hard-working?",
+       "سؤال با «Are» شروع می‌شود: Are you…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس سخت‌کوش‌ترین آدمی که می‌شناسد کیست و چرا",
+     "بپرس در خانواده",
+     "Who is the most hard-working person you know? Why?",
+     "In your family?",
+     [],
+     [
+      [
+       "Who the most hard-working person you know? Why?",
+       "بعد از «who»، «is» می‌آید و بعد فاعل."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو خیلی",
+     "Yes, I am.",
+     "Very.",
+     [],
+     [
+      [
+       "Yes, I do.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I am."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و دوستم سخت‌کوش‌تر است",
+     "بگو کمی",
+     "Yes, I am, and my friend is more hard-working.",
+     "A bit.",
+     [],
+     [
+      [
+       "Yes, I do, and my friend is more hard-working.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I am."
+      ]
+     ]
+    ],
+    [
+     "بگو پدرم چون شش روز کار می‌کند ولی هیچ‌وقت شکایت نمی‌کند",
+     "بگو همیشه خسته است",
+     "My dad is the most hard-working person, because he works six days, but he never complains.",
+     "He is always tired.",
+     [],
+     [
+      [
+       "My dad is the most hard-working person, because he work six days, but he never complains.",
+       "با «he» فعل «s» می‌گیرد: works."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "patient",
+   "c": null,
+   "q": [
+    [
+     "بپرس صبور است",
+     "بپرس با بچه‌ها",
+     "Are you patient?",
+     "With children?",
+     [],
+     [
+      [
+       "You are patient?",
+       "سؤال با «Are» شروع می‌شود: Are you…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس صبور است یا عجله دارد",
+     "بپرس چرا",
+     "Are you patient, or are you in a hurry?",
+     "Why?",
+     [],
+     [
+      [
+       "You are patient, or are you in a hurry?",
+       "سؤال با «Are» شروع می‌شود: Are you…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس از دوستانش صبورتر است و چرا",
+     "بپرس در ترافیک",
+     "Are you more patient than your friends? Why?",
+     "In traffic?",
+     [],
+     [
+      [
+       "You are more patient than your friends? Why?",
+       "سؤال با «Are» شروع می‌شود: Are you…؟"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو بیشتر وقت‌ها",
+     "Yes, I am.",
+     "Most of the time.",
+     [],
+     [
+      [
+       "Yes, I do.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I am."
+      ]
+     ]
+    ],
+    [
+     "بگو صبورم",
+     "بگو عجله نمی‌کنم",
+     "I'm patient.",
+     "I don't rush.",
+     [],
+     []
+    ],
+    [
+     "بگو از دوستانم صبورترم چون با بچه‌ها کار می‌کنم ولی در ترافیک صبور نیستم",
+     "بگو اصلاً",
+     "I'm more patient than my friends, because I work with children, but I'm not patient in traffic.",
+     "Not at all.",
+     [],
+     [
+      [
+       "I'm more patient than my friends, because work with children, but I'm not patient in traffic.",
+       "بعد از «because» فاعل لازم است: because I work."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "generous",
+   "c": null,
+   "q": [
+    [
+     "بپرس دوستش بخشنده است",
+     "بپرس چطور",
+     "Is your friend generous?",
+     "In what way?",
+     [],
+     [
+      [
+       "Your friend is generous?",
+       "سؤال با «Is» شروع می‌شود: Is your friend…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس دوستش بخشنده است و چه چیزی را شریک می‌شود",
+     "بپرس پول",
+     "Is your friend generous, and what does he share?",
+     "Money?",
+     [],
+     [
+      [
+       "Is your friend generous, and what he share?",
+       "بعد از «what»، «does» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس بخشنده‌ترین آدمی که می‌شناسد کیست و چرا",
+     "بپرس یکی از اقوام",
+     "Who is the most generous person you know? Why?",
+     "A relative?",
+     [],
+     [
+      [
+       "Who the most generous person you know? Why?",
+       "بعد از «who»، «is» می‌آید و بعد فاعل."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو چیزها را شریک می‌شود",
+     "Yes, he is.",
+     "He shares.",
+     [],
+     [
+      [
+       "Yes, he does.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, he is."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و غذایش را شریک می‌شود",
+     "بگو و وقتش را",
+     "Yes, he is, and he shares his food.",
+     "And his time.",
+     [],
+     [
+      [
+       "Yes, he is, and he share his food.",
+       "با «he» فعل «s» می‌گیرد: shares."
+      ]
+     ]
+    ],
+    [
+     "بگو عمه‌ام چون به همه کمک می‌کند ولی هیچ‌وقت پول نمی‌خواهد",
+     "بگو مهربان است",
+     "My aunt is the most generous person, because she helps everyone, but she never asks for money.",
+     "She is kind.",
+     [],
+     [
+      [
+       "My aunt is the most generous person, because she help everyone, but she never asks for money.",
+       "با «she» فعل «s» می‌گیرد: helps."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "shy-meet",
+   "c": "دوستت گفت: «من خجالتی‌ام.»",
+   "q": [
+    [
+     "بپرس سخت است",
+     "بپرس همیشه",
+     "Is it hard?",
+     "Always?",
+     [],
+     [
+      [
+       "It is hard?",
+       "سؤال با «Is» شروع می‌شود: Is it…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس سخت است و چه کار می‌کند",
+     "بپرس لبخند می‌زند",
+     "Is it hard, and what do you do?",
+     "Do you smile?",
+     [],
+     [
+      [
+       "Is it hard, and what you do?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس با آدم‌های تازه سخت‌تر است یا با دوستان قدیمی و چرا",
+     "بپرس کدام",
+     "Is it harder with new people, or with old friends? Why?",
+     "Which?",
+     [],
+     [
+      [
+       "It is harder with new people, or with old friends? Why?",
+       "سؤال با «Is» شروع می‌شود: Is it…؟"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو کمی",
+     "بگو در مهمانی‌ها",
+     "A bit.",
+     "At parties.",
+     [],
+     [
+      [
+       "bit.",
+       "قبل از «bit» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو کمی و لبخند می‌زنم",
+     "بگو و سؤال می‌پرسم",
+     "A bit, and I smile.",
+     "And ask questions.",
+     [],
+     [
+      [
+       "bit, and I smile.",
+       "قبل از «bit» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو با آدم‌های تازه سخت‌تر است چون آن‌ها را نمی‌شناسم ولی با دوستان قدیمی آسان است",
+     "بگو آدم‌های تازه",
+     "It's harder with new people, because I don't know them, but easy with old friends.",
+     "New people.",
+     [],
+     [
+      [
+       "It's harder with new people, because I no know them, but easy with old friends.",
+       "منفی با «don't» ساخته می‌شود: I don't know."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "work-hard-why",
+   "c": "دوستت گفت: «من خیلی کار می‌کنم.»",
+   "q": [
+    [
+     "بپرس چرا زیاد کار می‌کند",
+     "بپرس پول",
+     "Why do you work a lot?",
+     "Money?",
+     [],
+     [
+      [
+       "Why you work a lot?",
+       "بعد از «why»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چرا زیاد کار می‌کند و چند ساعت",
+     "بپرس ده",
+     "Why do you work a lot, and how many hours?",
+     "Ten?",
+     [],
+     [
+      [
+       "Why you work a lot, and how many hours?",
+       "بعد از «why»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس کار زیاد را دوست دارد یا کار کمتر می‌خواهد و چرا",
+     "بپرس کی",
+     "Do you like working a lot, or do you want less work? Why?",
+     "When?",
+     [],
+     [
+      [
+       "You like working a lot, or do you want less work? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو پول لازم دارم",
+     "بگو و دوستش دارم",
+     "I need money.",
+     "And I like it.",
+     [],
+     [
+      [
+       "I am need money.",
+       "بعد از «I» فعل ساده می‌آید، نه «am»: I need."
+      ]
+     ]
+    ],
+    [
+     "بگو پول لازم دارم و ده ساعت کار می‌کنم",
+     "بگو هر روز",
+     "I need money, and I work ten hours.",
+     "Every day.",
+     [],
+     [
+      [
+       "I am need money, and I work ten hours.",
+       "بعد از «I» فعل ساده می‌آید، نه «am»: I need."
+      ]
+     ]
+    ],
+    [
+     "بگو دوستش دارم چون مشغولم ولی کار کمتر می‌خواهم",
+     "بگو آخر هفته",
+     "I like it, because I'm busy, but I want less work.",
+     "At the weekend.",
+     [],
+     [
+      [
+       "I like it, because I busy, but I want less work.",
+       "بعد از «because» باید «I'm» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "patient-how",
+   "c": "دوستت گفت: «من صبور هستم.»",
+   "q": [
+    [
+     "بپرس چطور این کار را می‌کند",
+     "بپرس با بچه‌ها",
+     "How do you do it?",
+     "With children?",
+     [],
+     [
+      [
+       "How you do it?",
+       "بعد از «how»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چطور این کار را می‌کند و کی سخت است",
+     "بپرس در ترافیک",
+     "How do you do it, and when is it hard?",
+     "In traffic?",
+     [],
+     [
+      [
+       "How you do it, and when is it hard?",
+       "بعد از «how»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس با دوستانش صبور است یا فقط با غریبه‌ها و چرا",
+     "بپرس همیشه",
+     "Are you patient with your friends, or only with strangers? Why?",
+     "Always?",
+     [],
+     [
+      [
+       "You are patient with your friends, or only with strangers? Why?",
+       "سؤال با «Are» شروع می‌شود: Are you…؟"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو آرام می‌مانم",
+     "بگو و صبر می‌کنم",
+     "I stay calm.",
+     "And wait.",
+     [],
+     [
+      [
+       "I am stay calm.",
+       "بعد از «I» فعل ساده می‌آید، نه «am»: I stay."
+      ]
+     ]
+    ],
+    [
+     "بگو آرام می‌مانم ولی در ترافیک سخت است",
+     "بگو هر روز",
+     "I stay calm, but it's hard in traffic.",
+     "Every day.",
+     [],
+     [
+      [
+       "I am stay calm, but it's hard in traffic.",
+       "بعد از «I» فعل ساده می‌آید، نه «am»: I stay."
+      ]
+     ]
+    ],
+    [
+     "بگو با دوستانم صبورم چون به آن‌ها اعتماد دارم ولی با غریبه‌ها کمتر",
+     "بگو گاهی",
+     "I'm patient with friends, because I trust them, but with strangers I'm less patient.",
+     "Sometimes.",
+     [],
+     [
+      [
+       "I'm patient with friends, because trust them, but with strangers I'm less patient.",
+       "بعد از «because» فاعل لازم است: because I trust."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "generous-example",
+   "c": "دوستت گفت: «دوستم خیلی بخشنده است.»",
+   "q": [
+    [
+     "بپرس چه کار می‌کند",
+     "بپرس مثلاً",
+     "What does she do?",
+     "For example?",
+     [],
+     [
+      [
+       "What she do?",
+       "بعد از «what»، «does» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه کار می‌کند و به چه کسی کمک می‌کند",
+     "بپرس دوستان",
+     "What does she do, and who does she help?",
+     "Friends?",
+     [],
+     [
+      [
+       "What she do, and who does she help?",
+       "بعد از «what»، «does» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس او را چون بخشنده است دوست دارد یا چون بامزه است و چرا",
+     "بپرس هر دو",
+     "Do you like her because she is generous, or because she is funny? Why?",
+     "Both?",
+     [],
+     [
+      [
+       "You like her because she is generous, or because she is funny? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو غذایش را شریک می‌شود",
+     "بگو هر روز",
+     "She shares her food.",
+     "Every day.",
+     [],
+     [
+      [
+       "She share her food.",
+       "با «She» فعل «s» می‌گیرد: shares."
+      ]
+     ]
+    ],
+    [
+     "بگو غذایش را شریک می‌شود و به همسایه‌هایش کمک می‌کند",
+     "بگو و به من",
+     "She shares her food, and she helps her neighbours.",
+     "And me.",
+     [],
+     [
+      [
+       "She shares her food, and she help her neighbours.",
+       "با «she» فعل «s» می‌گیرد: helps."
+      ]
+     ]
+    ],
+    [
+     "بگو چون بخشنده است چون به من کمک می‌کند ولی بامزه هم هست",
+     "بگو هر دو",
+     "Because she is generous, because she helps me, but she is funny too.",
+     "Both.",
+     [],
+     [
+      [
+       "Because she is generous, because she help me, but she is funny too.",
+       "با «she» فعل «s» می‌گیرد: helps."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "honest-friend",
+   "c": "دوستت گفت: «دوستم همیشه صادق است.»",
+   "q": [
+    [
+     "بپرس خوب است",
+     "بپرس همیشه",
+     "Is it good?",
+     "Always?",
+     [],
+     [
+      [
+       "It is good?",
+       "سؤال با «Is» شروع می‌شود: Is it…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس خوب است و شنیدنش سخت است",
+     "بپرس گاهی",
+     "Is it good, and is it hard to hear?",
+     "Sometimes?",
+     [],
+     [
+      [
+       "It is good, and is it hard to hear?",
+       "سؤال با «Is» شروع می‌شود: Is it…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس دوست صادق می‌خواهد یا دوست مهربان و چرا",
+     "بپرس هر دو",
+     "Do you want an honest friend, or a kind friend? Why?",
+     "Both?",
+     [],
+     [
+      [
+       "You want an honest friend, or a kind friend? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو معمولاً",
+     "Yes, it is.",
+     "Mostly.",
+     [],
+     [
+      [
+       "Yes, it does.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, it is."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و گاهی سخت است",
+     "بگو ولی مفید",
+     "Yes, it is, and it is sometimes hard.",
+     "But useful.",
+     [],
+     [
+      [
+       "Yes, it does, and it is sometimes hard.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, it is."
+      ]
+     ]
+    ],
+    [
+     "بگو دوست صادق چون به او اعتماد دارم ولی دوست مهربان هم می‌خواهم",
+     "بگو هر دو",
+     "I want an honest friend, because I trust him, but I want a kind friend too.",
+     "Both.",
+     [],
+     [
+      [
+       "I want honest friend, because I trust him, but I want a kind friend too.",
+       "قبل از «honest» باید «an» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "sensible",
+   "c": null,
+   "q": [
+    [
+     "بپرس عاقل است",
+     "بپرس همیشه",
+     "Are you sensible?",
+     "Always?",
+     [],
+     [
+      [
+       "You are sensible?",
+       "سؤال با «Are» شروع می‌شود: Are you…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس با پول عاقلانه رفتار می‌کند یا زیاد خرج می‌کند",
+     "بپرس چرا",
+     "Are you sensible with money, or do you spend a lot?",
+     "Why?",
+     [],
+     [
+      [
+       "You are sensible with money, or do you spend a lot?",
+       "سؤال با «Are» شروع می‌شود: Are you…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس چه کسی عاقل‌تر است او یا دوستش و چرا",
+     "بپرس در چه چیزی",
+     "Who is more sensible, you or your friend? Why?",
+     "In what?",
+     [],
+     [
+      [
+       "Who is sensible more, you or your friend? Why?",
+       "ترتیب جمله: Who is more sensible."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو معمولاً",
+     "Yes, I am.",
+     "Mostly.",
+     [],
+     [
+      [
+       "Yes, I do.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I am."
+      ]
+     ]
+    ],
+    [
+     "بگو با پول عاقلانه رفتار می‌کنم",
+     "بگو پس‌انداز می‌کنم",
+     "I'm sensible with money.",
+     "I save.",
+     [],
+     [
+      [
+       "I'm sensible in money.",
+       "می‌گوییم «sensible with money»."
+      ]
+     ]
+    ],
+    [
+     "بگو من عاقل‌ترم چون قبل از کار فکر می‌کنم ولی دوستم بامزه‌تر است",
+     "بگو در پول",
+     "I'm more sensible, because I think before I act, but my friend is more fun.",
+     "In money.",
+     [],
+     [
+      [
+       "I'm more sensible, because think before I act, but my friend is more fun.",
+       "بعد از «because» فاعل لازم است: because I think."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "silly",
+   "c": null,
+   "q": [
+    [
+     "بپرس گاهی بی‌عقلی می‌کند",
+     "بپرس کی",
+     "Are you silly sometimes?",
+     "When?",
+     [],
+     [
+      [
+       "You are silly sometimes?",
+       "سؤال با «Are» شروع می‌شود: Are you…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس گاهی بی‌عقلی می‌کند و چه کار می‌کند",
+     "بپرس جوک",
+     "Are you silly sometimes, and what do you do?",
+     "Jokes?",
+     [],
+     [
+      [
+       "Are you silly sometimes, and what you do?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس آدم‌های بی‌عقل را دوست دارد یا آدم‌های عاقل را و چرا",
+     "بپرس هر دو",
+     "Do you like silly people, or sensible people? Why?",
+     "Both?",
+     [],
+     [
+      [
+       "You like silly people, or sensible people? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو با دوستان",
+     "Yes, I am.",
+     "With friends.",
+     [],
+     [
+      [
+       "Yes, I do.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I am."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و جوک می‌گویم",
+     "بگو جوک‌های بی‌معنی",
+     "Yes, I am, and I tell jokes.",
+     "Silly ones.",
+     [],
+     [
+      [
+       "Yes, I do, and I tell jokes.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I am."
+      ]
+     ]
+    ],
+    [
+     "بگو آدم‌های بی‌عقل را چون مرا می‌خندانند ولی دوستان عاقل هم لازم دارم",
+     "بگو هر دو",
+     "I like silly people, because they make me laugh, but I need sensible friends too.",
+     "Both.",
+     [],
+     [
+      [
+       "I am like silly people, because they make me laugh, but I need sensible friends too.",
+       "بعد از «I» فعل ساده می‌آید، نه «am»: I like."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "trust",
+   "c": null,
+   "q": [
+    [
+     "بپرس به دوستانش اعتماد دارد",
+     "بپرس به همه",
+     "Do you trust your friends?",
+     "All?",
+     [],
+     [
+      [
+       "You trust your friends?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس به دوستانش اعتماد دارد و به چه کسی بیشتر",
+     "بپرس چرا",
+     "Do you trust your friends, and who do you trust most?",
+     "Why?",
+     [],
+     [
+      [
+       "Do you trust your friends, and who you trust most?",
+       "بعد از «who»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس اعتماد کردن آسان است یا سخت و چرا",
+     "بپرس برای خودش",
+     "Is it easy to trust people, or is it hard? Why?",
+     "For you?",
+     [],
+     [
+      [
+       "It is easy to trust people, or is it hard? Why?",
+       "سؤال با «Is» شروع می‌شود: Is it…؟"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو بیشترشان",
+     "Yes, I do.",
+     "Most.",
+     [],
+     [
+      [
+       "Yes, I am.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و به بهترین دوستم بیشتر",
+     "بگو صادق است",
+     "Yes, I do, and I trust my best friend most.",
+     "He is honest.",
+     [],
+     [
+      [
+       "Yes, I am, and I trust my best friend most.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو سخت است چون بعضی‌ها دروغ می‌گویند ولی به آدم‌های صادق اعتماد دارم",
+     "بگو برای من هم",
+     "It's hard, because some people lie, but I trust honest people.",
+     "For me too.",
+     [],
+     [
+      [
+       "It's hard, because some people lies, but I trust honest people.",
+       "با «some people» فعل «s» نمی‌گیرد: lie."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "creative",
+   "c": null,
+   "q": [
+    [
+     "بپرس خلاق است",
+     "بپرس در چه چیزی",
+     "Are you creative?",
+     "In what?",
+     [],
+     [
+      [
+       "You are creative?",
+       "سؤال با «Are» شروع می‌شود: Are you…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس خلاق است و چه چیزی می‌سازد",
+     "بپرس نقاشی",
+     "Are you creative, and what do you make?",
+     "Pictures?",
+     [],
+     [
+      [
+       "Are you creative, and what you make?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس خلاق‌ترین آدمی که می‌شناسد کیست و چرا",
+     "بپرس یک دوست",
+     "Who is the most creative person you know? Why?",
+     "A friend?",
+     [],
+     [
+      [
+       "Who the most creative person you know? Why?",
+       "بعد از «who»، «is» می‌آید و بعد فاعل."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو کمی",
+     "Yes, I am.",
+     "A bit.",
+     [],
+     [
+      [
+       "Yes, I do.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I am."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و نقاشی می‌کشم",
+     "بگو و داستان",
+     "Yes, I am, and I make pictures.",
+     "And stories.",
+     [],
+     [
+      [
+       "Yes, I do, and I make pictures.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I am."
+      ]
+     ]
+    ],
+    [
+     "بگو خواهرم چون نقاشی می‌کشد و می‌نویسد ولی خجالتی است",
+     "بگو با استعداد است",
+     "My sister is the most creative person, because she paints and writes, but she is shy.",
+     "She is talented.",
+     [],
+     [
+      [
+       "My sister is the most creative person, because she paint and writes, but she is shy.",
+       "با «she» فعل «s» می‌گیرد: paints."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "sense-of-humour",
+   "c": null,
+   "q": [
+    [
+     "بپرس حس شوخ‌طبعی خوبی دارد",
+     "بپرس واقعاً",
+     "Do you have a good sense of humour?",
+     "Really?",
+     [],
+     [
+      [
+       "You have a good sense of humour?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس حس شوخ‌طبعی خوبی دارد و چه کسی او را می‌خنداند",
+     "بپرس دوستش",
+     "Do you have a good sense of humour, and who makes you laugh?",
+     "Your friend?",
+     [],
+     [
+      [
+       "You have a good sense of humour, and who makes you laugh?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس حس شوخ‌طبعی‌اش مثل دوستانش است و چرا",
+     "بپرس چطور",
+     "Is your sense of humour the same as your friends'? Why?",
+     "How?",
+     [],
+     [
+      [
+       "Your sense is of humour the same as your friends'? Why?",
+       "سؤال با «Is» شروع می‌شود: Is your sense…؟"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو زیاد می‌خندم",
+     "Yes, I do.",
+     "I laugh a lot.",
+     [],
+     [
+      [
+       "Yes, I am.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, I do."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و برادرم مرا می‌خنداند",
+     "بگو هر روز",
+     "Yes, I do, and my brother makes me laugh.",
+     "Every day.",
+     [],
+     [
+      [
+       "Yes, I do, and my brother make me laugh.",
+       "با «my brother» فعل «s» می‌گیرد: makes."
+      ]
+     ]
+    ],
+    [
+     "بگو کمی فرق دارد چون جوک‌های آرام دوست دارم ولی دوستانم جوک‌های بلند",
+     "بگو بامزه",
+     "It's a bit different, because I like quiet jokes, but my friends like loud ones.",
+     "Funny ones.",
+     [],
+     [
+      [
+       "It's bit different, because I like quiet jokes, but my friends like loud ones.",
+       "قبل از «bit» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "sensible-advice",
+   "c": "دوستت گفت: «من آدم عاقلی هستم.»",
+   "q": [
+    [
+     "بپرس مردم از او نصیحت می‌خواهند",
+     "بپرس اغلب",
+     "Do people ask you for advice?",
+     "Often?",
+     [],
+     [
+      [
+       "People ask you for advice?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس مردم از او نصیحت می‌خواهند و درباره‌ی چه",
+     "بپرس پول",
+     "Do people ask you for advice, and about what?",
+     "Money?",
+     [],
+     [
+      [
+       "People ask you for advice, and about what?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس نصیحت می‌کند یا فقط گوش می‌دهد و چرا",
+     "بپرس چه می‌گوید",
+     "Do you give advice, or do you only listen? Why?",
+     "What do you say?",
+     [],
+     [
+      [
+       "You give advice, or do you only listen? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو گاهی",
+     "Yes, they do.",
+     "Sometimes.",
+     [],
+     [
+      [
+       "Yes, they are.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, they do."
+      ]
+     ]
+    ],
+    [
+     "بگو بله درباره‌ی کار",
+     "بگو و پول",
+     "Yes, they do, about work.",
+     "And money.",
+     [],
+     [
+      [
+       "Yes, they are, about work.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, they do."
+      ]
+     ]
+    ],
+    [
+     "بگو نصیحت می‌کنم چون کمک کردن را دوست دارم ولی بیشتر گوش می‌دهم",
+     "بگو اول فکر کن",
+     "I give advice, because I like helping, but I mostly listen.",
+     "Think first.",
+     [],
+     [
+      [
+       "I give advice, because like helping, but I mostly listen.",
+       "بعد از «because» فاعل لازم است: because I like."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "trust-who",
+   "c": "دوستت گفت: «من به دوستانم اعتماد دارم.»",
+   "q": [
+    [
+     "بپرس به چه کسی بیشتر اعتماد دارد",
+     "بپرس چرا",
+     "Who do you trust most?",
+     "Why?",
+     [],
+     [
+      [
+       "Who you trust most?",
+       "بعد از «who»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس به چه کسی بیشتر اعتماد دارد و کی با او آشنا شد",
+     "بپرس سال‌ها پیش",
+     "Who do you trust most, and when did you meet him?",
+     "Years ago?",
+     [],
+     [
+      [
+       "Who you trust most, and when did you meet him?",
+       "بعد از «who»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس اعتماد در دوست مهم‌تر است یا شوخ‌طبعی و چرا",
+     "بپرس کدام",
+     "Is trust more important than humour in a friend? Why?",
+     "Which?",
+     [],
+     [
+      [
+       "Trust is more important than humour in a friend? Why?",
+       "سؤال با «Is» شروع می‌شود: Is trust…؟"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بهترین دوستم",
+     "بگو صادق است",
+     "My best friend.",
+     "He is honest.",
+     [],
+     []
+    ],
+    [
+     "بگو بهترین دوستم و ده سال پیش آشنا شدیم",
+     "بگو در مدرسه",
+     "My best friend, and we met ten years ago.",
+     "At school.",
+     [],
+     [
+      [
+       "My best friend, and we meet ten years ago.",
+       "گذشته‌ی «meet» می‌شود «met»."
+      ]
+     ]
+    ],
+    [
+     "بگو اعتماد مهم‌تر است چون همه‌چیز را به دوستانم می‌گویم ولی شوخ‌طبعی هم خوب است",
+     "بگو اعتماد",
+     "Trust is more important, because I tell my friends everything, but humour is nice.",
+     "Trust.",
+     [],
+     [
+      [
+       "Trust is more important, because tell my friends everything, but humour is nice.",
+       "بعد از «because» فاعل لازم است: because I tell."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "creative-what",
+   "c": "دوستت گفت: «من خلاق هستم.»",
+   "q": [
+    [
+     "بپرس چه چیزی می‌سازد",
+     "بپرس نقاشی",
+     "What do you make?",
+     "Pictures?",
+     [],
+     [
+      [
+       "What you make?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه چیزی می‌سازد و کجا",
+     "بپرس در خانه",
+     "What do you make, and where do you do it?",
+     "At home?",
+     [],
+     [
+      [
+       "What you make, and where do you do it?",
+       "بعد از «what»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس برای تفریح می‌سازد یا برای کار و چرا",
+     "بپرس می‌فروشد",
+     "Do you make things for fun, or for work? Why?",
+     "Can you sell them?",
+     [],
+     [
+      [
+       "You make things for fun, or for work? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو نقاشی",
+     "بگو و داستان",
+     "Pictures.",
+     "And stories.",
+     [],
+     []
+    ],
+    [
+     "بگو نقاشی در خانه",
+     "بگو در اتاقم",
+     "Pictures, at home.",
+     "In my room.",
+     [],
+     []
+    ],
+    [
+     "بگو برای تفریح چون دوستش دارم ولی گاهی یکی را می‌فروشم",
+     "بگو آنلاین",
+     "For fun, because I love it, but sometimes I sell one.",
+     "Online.",
+     [],
+     [
+      [
+       "For fun, because love it, but sometimes I sell one.",
+       "بعد از «because» فاعل لازم است: because I love."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "talented-who",
+   "c": "دوستت گفت: «دوستم خیلی با استعداد است.»",
+   "q": [
+    [
+     "بپرس در چه چیزی خوب است",
+     "بپرس موسیقی",
+     "What is she good at?",
+     "Music?",
+     [],
+     [
+      [
+       "What she good at?",
+       "بعد از «what»، «is» می‌آید و بعد فاعل."
+      ]
+     ]
+    ],
+    [
+     "بپرس در چه چیزی خوب است و تمرین می‌کند",
+     "بپرس هر روز",
+     "What is she good at, and does she work on it?",
+     "Every day?",
+     [],
+     [
+      [
+       "What she good at, and does she work on it?",
+       "بعد از «what»، «is» می‌آید و بعد فاعل."
+      ]
+     ]
+    ],
+    [
+     "بپرس با استعداد است یا سخت کار می‌کند و چرا",
+     "بپرس هر دو",
+     "Is she talented, or does she work hard? Why?",
+     "Both?",
+     [],
+     [
+      [
+       "She is talented, or does she work hard? Why?",
+       "سؤال با «Is» شروع می‌شود: Is she…؟"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو موسیقی",
+     "بگو و نقاشی",
+     "Music.",
+     "And painting.",
+     [],
+     []
+    ],
+    [
+     "بگو موسیقی و هر روز می‌نوازد",
+     "بگو دو ساعت",
+     "Music, and she plays every day.",
+     "For two hours.",
+     [],
+     [
+      [
+       "Music, and she play every day.",
+       "با «she» فعل «s» می‌گیرد: plays."
+      ]
+     ]
+    ],
+    [
+     "بگو با استعداد است چون سریع یاد می‌گیرد ولی سخت هم کار می‌کند",
+     "بگو هر دو",
+     "She is talented, because she learns fast, but she works hard too.",
+     "Both.",
+     [],
+     [
+      [
+       "She is talented, because she learns fast, but she work hard too.",
+       "با «she» فعل «s» می‌گیرد: works."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "humour-friend",
+   "c": "دوستت گفت: «دوستم حس شوخ‌طبعی خوبی دارد.»",
+   "q": [
+    [
+     "بپرس او را می‌خنداند",
+     "بپرس زیاد",
+     "Does he make you laugh?",
+     "A lot?",
+     [],
+     [
+      [
+       "He make you laugh?",
+       "سؤال با «Does» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس او را می‌خنداند و چه می‌گوید",
+     "بپرس جوک",
+     "Does he make you laugh, and what does he say?",
+     "Jokes?",
+     [],
+     [
+      [
+       "Does he make you laugh, and what he say?",
+       "بعد از «what»، «does» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس بامزه است یا بی‌عقل و چرا",
+     "بپرس چطور",
+     "Is he funny, or is he silly? Why?",
+     "In what way?",
+     [],
+     [
+      [
+       "He is funny, or is he silly? Why?",
+       "سؤال با «Is» شروع می‌شود: Is he…؟"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو هر روز",
+     "Yes, he does.",
+     "Every day.",
+     [],
+     [
+      [
+       "Yes, he do.",
+       "با «he» فعل «s» می‌گیرد: does."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و جوک می‌گوید",
+     "بگو جوک‌های بامزه",
+     "Yes, he does, and he tells jokes.",
+     "Funny ones.",
+     [],
+     [
+      [
+       "Yes, he do, and he tells jokes.",
+       "با «he» فعل «s» می‌گیرد: does."
+      ]
+     ]
+    ],
+    [
+     "بگو بامزه است چون جوک‌هایش باهوش‌اند ولی گاهی بی‌عقلی می‌کند",
+     "بگو در مهمانی",
+     "He is funny, because his jokes are clever, but sometimes he is silly.",
+     "At parties.",
+     [],
+     [
+      [
+       "He is funny, because his jokes is clever, but sometimes he is silly.",
+       "با «jokes» (جمع) فعل «are» می‌آید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "compare-city",
+   "c": null,
+   "q": [
+    [
+     "بپرس شهرش بزرگ است",
+     "بپرس خیلی",
+     "Is your city big?",
+     "Very?",
+     [],
+     [
+      [
+       "Your city is big?",
+       "سؤال با «Is» شروع می‌شود: Is your city…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس شهرش از شهر دوستش بزرگ‌تر است",
+     "بپرس خیلی",
+     "Is your city bigger than your friend's city?",
+     "A lot?",
+     [],
+     [
+      [
+       "Your city is bigger than your friend's city?",
+       "سؤال با «Is» شروع می‌شود: Is your city…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس برای دوستی شهر بزرگ بهتر است یا شهر کوچک و چرا",
+     "بپرس برای خودش",
+     "Which is better for friends, a big city or a small town? Why?",
+     "For you?",
+     [],
+     [
+      [
+       "Which is better for friends, big city or a small town? Why?",
+       "قبل از «big» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو خیلی بزرگ",
+     "Yes, it is.",
+     "Very big.",
+     [],
+     [
+      [
+       "Yes, it does.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, it is."
+      ]
+     ]
+    ],
+    [
+     "بگو بله خیلی بزرگ‌تر است",
+     "بگو آدم‌های بیشتر",
+     "Yes, it is, and it is a lot bigger.",
+     "More people.",
+     [],
+     [
+      [
+       "Yes, it is, and it is lot bigger.",
+       "قبل از «lot» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو شهر کوچک بهتر است چون مردم همدیگر را می‌شناسند ولی شهر بزرگ هیجان‌انگیزتر است",
+     "بگو شهر کوچک",
+     "A small town is better, because people know each other, but a city is more exciting.",
+     "A town.",
+     [],
+     [
+      [
+       "small town is better, because people know each other, but a city is more exciting.",
+       "قبل از «small» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "compare-cook",
+   "c": null,
+   "q": [
+    [
+     "بپرس چه کسی بهتر می‌پزد او یا دوستش",
+     "بپرس چرا",
+     "Who cooks better, you or your friend?",
+     "Why?",
+     [],
+     [
+      [
+       "Who cooks more good, you or your friend?",
+       "مقایسه‌ی «good» می‌شود «better»."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه کسی بهتر می‌پزد و چه کسی سریع‌تر است",
+     "بپرس چقدر",
+     "Who cooks better, and who is faster?",
+     "How much?",
+     [],
+     [
+      [
+       "Who cooks better, and who is more fast?",
+       "مقایسه‌ی «fast» می‌شود «faster»."
+      ]
+     ]
+    ],
+    [
+     "بپرس بهترین آشپز خانواده کیست و چرا",
+     "بپرس از او بهتر",
+     "Who is the best cook in your family? Why?",
+     "Better than you?",
+     [],
+     [
+      [
+       "Who the best cook in your family? Why?",
+       "بعد از «who»، «is» می‌آید و بعد فاعل."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو دوستم بهتر می‌پزد",
+     "بگو هر روز می‌پزد",
+     "My friend cooks better.",
+     "He cooks every day.",
+     [],
+     [
+      [
+       "My friend cooks more good.",
+       "مقایسه‌ی «good» می‌شود «better»."
+      ]
+     ]
+    ],
+    [
+     "بگو دوستم بهتر می‌پزد و من سریع‌ترم",
+     "بگو کمی",
+     "My friend cooks better, and I am faster.",
+     "A bit.",
+     [],
+     [
+      [
+       "My friend cooks better, and I am more fast.",
+       "مقایسه‌ی «fast» می‌شود «faster»."
+      ]
+     ]
+    ],
+    [
+     "بگو مادرم چون هر روز می‌پزد ولی پدرم هم آشپز خوبی است",
+     "بگو از من بهتر",
+     "My mum is the best cook, because she cooks every day, but my dad is a good cook too.",
+     "Better than me.",
+     [],
+     [
+      [
+       "My mum is the best cook, because she cook every day, but my dad is a good cook too.",
+       "با «she» فعل «s» می‌گیرد: cooks."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "compare-job",
+   "c": null,
+   "q": [
+    [
+     "بپرس کارش آسان است",
+     "بپرس خیلی",
+     "Is your job easy?",
+     "Very?",
+     [],
+     [
+      [
+       "Your job is easy?",
+       "سؤال با «Is» شروع می‌شود: Is your job…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس کارش از کار دوستش آسان‌تر است",
+     "بپرس چرا",
+     "Is your job easier than your friend's job?",
+     "Why?",
+     [],
+     [
+      [
+       "Your job is easier than your friend's job?",
+       "سؤال با «Is» شروع می‌شود: Is your job…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس سخت‌ترین کار را او دارد یا دوستش و چرا",
+     "بپرس چطور",
+     "Who has the hardest job, you or your friend? Why?",
+     "In what way?",
+     [],
+     [
+      [
+       "Who the hardest job, you or your friend? Why?",
+       "بعد از «who»، «has» می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو کمی",
+     "Yes, it is.",
+     "A bit.",
+     [],
+     [
+      [
+       "Yes, it does.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, it is."
+      ]
+     ]
+    ],
+    [
+     "بگو بله کمی آسان‌تر است",
+     "بگو کار کمتری دارم",
+     "Yes, it is, and it is a bit easier.",
+     "I have less work.",
+     [],
+     [
+      [
+       "Yes, it is, and it is bit easier.",
+       "قبل از «bit» باید «a» بیاید."
+      ]
+     ]
+    ],
+    [
+     "بگو دوستم سخت‌ترین کار را دارد چون شب‌ها کار می‌کند ولی دوستش دارد",
+     "بگو پرستار است",
+     "My friend has the hardest job, because he works at night, but he likes it.",
+     "He is a nurse.",
+     [],
+     [
+      [
+       "My friend has the hardest job, because he work at night, but he likes it.",
+       "با «he» فعل «s» می‌گیرد: works."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "compare-season",
+   "c": null,
+   "q": [
+    [
+     "بپرس زمستان از تابستان سردتر است",
+     "بپرس خیلی",
+     "Is winter colder than summer?",
+     "A lot?",
+     [],
+     [
+      [
+       "Winter is colder than summer?",
+       "سؤال با «Is» شروع می‌شود: Is winter…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس کدام سردتر است زمستان یا پاییز و کدام را دوست دارد",
+     "بپرس چرا",
+     "Which is colder, winter or autumn, and which do you like?",
+     "Why?",
+     [],
+     [
+      [
+       "Which is colder, winter or autumn, and which you like?",
+       "بعد از «which»، «do» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس بهترین فصل برای دوستان کدام است و چرا",
+     "بپرس برای خودش",
+     "Which is the best season for friends? Why?",
+     "For you?",
+     [],
+     [
+      [
+       "Which the best season for friends? Why?",
+       "بعد از «which»، «is» می‌آید و بعد فاعل."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو خیلی سردتر",
+     "Yes, it is.",
+     "Much colder.",
+     [],
+     [
+      [
+       "Yes, it does.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, it is."
+      ]
+     ]
+    ],
+    [
+     "بگو زمستان سردتر است و پاییز را دوست دارم",
+     "بگو آرام است",
+     "Winter is colder, and I like autumn.",
+     "It's calm.",
+     [],
+     [
+      [
+       "Winter is more cold, and I like autumn.",
+       "مقایسه‌ی «cold» می‌شود «colder»."
+      ]
+     ]
+    ],
+    [
+     "بگو تابستان بهترین است چون زیاد بیرون می‌رویم ولی زمستان هم خوب است",
+     "بگو در خانه",
+     "Summer is the best, because we go out a lot, but winter is nice too.",
+     "At home.",
+     [],
+     [
+      [
+       "Summer is the best, because we go out lot, but winter is nice too.",
+       "قبل از «lot» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "compare-phone",
+   "c": null,
+   "q": [
+    [
+     "بپرس گوشی‌اش قدیمی است",
+     "بپرس چقدر",
+     "Is your phone old?",
+     "How old?",
+     [],
+     [
+      [
+       "Your phone is old?",
+       "سؤال با «Is» شروع می‌شود: Is your phone…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس گوشی‌اش از گوشی دوستش بهتر است",
+     "بپرس در چه چیزی",
+     "Is your phone better than your friend's phone?",
+     "In what?",
+     [],
+     [
+      [
+       "Your phone is better than your friend's phone?",
+       "سؤال با «Is» شروع می‌شود: Is your phone…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس گوشی تازه می‌خواهد یا گوشی‌اش به اندازه‌ی کافی خوب است و چرا",
+     "بپرس چند ساله است",
+     "Do you want a new phone, or is your phone good enough? Why?",
+     "How old is it?",
+     [],
+     [
+      [
+       "You want a new phone, or is your phone good enough? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو نه",
+     "بگو جدید است",
+     "No, it isn't.",
+     "It's new.",
+     [],
+     [
+      [
+       "No, it doesn't.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: No, it isn't."
+      ]
+     ]
+    ],
+    [
+     "بگو نه به اندازه‌ی آن خوب نیست",
+     "بگو دوربین",
+     "No, it isn't, and it's not as good.",
+     "The camera.",
+     [],
+     [
+      [
+       "No, it doesn't, and it's not as good.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: No, it isn't."
+      ]
+     ]
+    ],
+    [
+     "بگو گوشی‌ام به اندازه‌ی کافی خوب است چون برای تماس استفاده می‌کنم ولی گوشی تازه سریع‌تر است",
+     "بگو دو ساله",
+     "My phone is good enough, because I use it for calls, but a new one is faster.",
+     "Two years.",
+     [],
+     [
+      [
+       "My phone is good enough, because I use it for calls, but new one is faster.",
+       "قبل از «new» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "friend-taller",
+   "c": "دوستت گفت: «دوستم از من قدبلندتر است.»",
+   "q": [
+    [
+     "بپرس چقدر قدبلند است",
+     "بپرس خیلی",
+     "How tall is he?",
+     "Very?",
+     [],
+     [
+      [
+       "How is he tall?",
+       "ترتیب جمله: How tall is he?"
+      ]
+     ]
+    ],
+    [
+     "بپرس چقدر قدبلند است و چند ساله است",
+     "بپرس هم‌سن",
+     "How tall is he, and how old is he?",
+     "The same age?",
+     [],
+     [
+      [
+       "How tall is he, and how old he is?",
+       "بعد از «how old» اول «is» می‌آید: how old is he."
+      ]
+     ]
+    ],
+    [
+     "بپرس قدبلند بودن خوب است یا مشکل و چرا",
+     "بپرس برای او",
+     "Is it good to be tall, or is it a problem? Why?",
+     "For him?",
+     [],
+     [
+      [
+       "It is good to be tall, or is it a problem? Why?",
+       "سؤال با «Is» شروع می‌شود: Is it…؟"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو خیلی قدبلند",
+     "بگو از من قدبلندتر",
+     "Very tall.",
+     "Taller than me.",
+     [],
+     []
+    ],
+    [
+     "بگو خیلی قدبلند و بیست ساله",
+     "بگو هم‌سن هستیم",
+     "Very tall, and he is twenty.",
+     "The same age.",
+     [],
+     [
+      [
+       "Very tall, and he has twenty.",
+       "سن با «is» می‌آید: he is twenty."
+      ]
+     ]
+    ],
+    [
+     "بگو خوب است چون همه‌چیز را می‌بیند ولی گاهی پیدا کردن لباس سخت است",
+     "بگو برای او",
+     "It's good, because he sees everything, but sometimes it's hard to find clothes.",
+     "For him.",
+     [],
+     [
+      [
+       "It's good, because he see everything, but sometimes it's hard to find clothes.",
+       "با «he» فعل «s» می‌گیرد: sees."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "friend-funnier",
+   "c": "دوستت گفت: «دوستم از من بامزه‌تر است.»",
+   "q": [
+    [
+     "بپرس بامزه است",
+     "بپرس زیاد",
+     "Is he funny?",
+     "A lot?",
+     [],
+     [
+      [
+       "He is funny?",
+       "سؤال با «Is» شروع می‌شود: Is he…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس بامزه است و چه می‌گوید",
+     "بپرس جوک",
+     "Is he funny, and what does he say?",
+     "Jokes?",
+     [],
+     [
+      [
+       "Is he funny, and what he say?",
+       "بعد از «what»، «does» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس با او زیاد می‌خندد یا فقط گاهی و چرا",
+     "بپرس کجا",
+     "Do you laugh a lot with him, or only sometimes? Why?",
+     "Where?",
+     [],
+     [
+      [
+       "You laugh a lot with him, or only sometimes? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو از من بیشتر",
+     "Yes, he is.",
+     "More than me.",
+     [],
+     [
+      [
+       "Yes, he does.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: Yes, he is."
+      ]
+     ]
+    ],
+    [
+     "بگو بله و جوک می‌گوید",
+     "بگو همیشه",
+     "Yes, he is, and he tells jokes.",
+     "All the time.",
+     [],
+     [
+      [
+       "Yes, he is, and he tell jokes.",
+       "با «he» فعل «s» می‌گیرد: tells."
+      ]
+     ]
+    ],
+    [
+     "بگو زیاد می‌خندم چون خیلی بامزه است ولی گاهی خسته‌ام",
+     "بگو در مهمانی",
+     "I laugh a lot, because he is very funny, but sometimes I'm tired.",
+     "At parties.",
+     [],
+     [
+      [
+       "I laugh lot, because he is very funny, but sometimes I'm tired.",
+       "قبل از «lot» باید «a» بیاید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "more-patient",
+   "c": "دوستت گفت: «او از من صبورتر است.»",
+   "q": [
+    [
+     "بپرس چرا او صبورتر است",
+     "بپرس سر کار",
+     "Why is she more patient?",
+     "At work?",
+     [],
+     [
+      [
+       "Why she more patient?",
+       "بعد از «why»، «is» می‌آید و بعد فاعل."
+      ]
+     ]
+    ],
+    [
+     "بپرس چرا او صبورتر است و عصبانی می‌شود",
+     "بپرس هیچ‌وقت",
+     "Why is she more patient, and does she get angry?",
+     "Never?",
+     [],
+     [
+      [
+       "Why she more patient, and does she get angry?",
+       "بعد از «why»، «is» می‌آید و بعد فاعل."
+      ]
+     ]
+    ],
+    [
+     "بپرس می‌خواهد صبورتر باشد یا راضی است و چرا",
+     "بپرس چطور",
+     "Do you want to be more patient, or are you fine? Why?",
+     "How?",
+     [],
+     [
+      [
+       "You want to be more patient, or are you fine? Why?",
+       "سؤال با «Do» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو با بچه‌ها کار می‌کند",
+     "بگو هر روز",
+     "She works with children.",
+     "Every day.",
+     [],
+     [
+      [
+       "She work with children.",
+       "با «She» فعل «s» می‌گیرد: works."
+      ]
+     ]
+    ],
+    [
+     "بگو با بچه‌ها کار می‌کند و هیچ‌وقت عصبانی نمی‌شود",
+     "بگو تقریباً",
+     "She works with children, and she never gets angry.",
+     "Almost.",
+     [],
+     [
+      [
+       "She work with children, and she never gets angry.",
+       "با «She» فعل «s» می‌گیرد: works."
+      ]
+     ]
+    ],
+    [
+     "بگو می‌خواهم صبورتر باشم چون زود عصبانی می‌شوم ولی سخت است",
+     "بگو تمرین می‌کنم",
+     "I want to be more patient, because I get angry fast, but it's hard.",
+     "I practise.",
+     [],
+     [
+      [
+       "I want be more patient, because I get angry fast, but it's hard.",
+       "بعد از «want» باید «to» بیاید: want to be."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "as-good-as",
+   "c": "دوستت گفت: «او به اندازه‌ی من خوب است.»",
+   "q": [
+    [
+     "بپرس در چه چیزی",
+     "بپرس آشپزی",
+     "At what?",
+     "Cooking?",
+     [],
+     []
+    ],
+    [
+     "بپرس در چه چیزی و چه کسی سریع‌تر است",
+     "بپرس خودش",
+     "At what, and who is faster?",
+     "You?",
+     [],
+     [
+      [
+       "At what, and who is more fast?",
+       "مقایسه‌ی «fast» می‌شود «faster»."
+      ]
+     ]
+    ],
+    [
+     "بپرس در همه‌چیز به اندازه‌ی او خوب است یا فقط در بعضی چیزها و چرا",
+     "بپرس در کدام",
+     "Is she as good as you at everything, or only at some things? Why?",
+     "Which?",
+     [],
+     [
+      [
+       "She is as good as you at everything, or only at some things? Why?",
+       "سؤال با «Is» شروع می‌شود: Is she…؟"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو در آشپزی",
+     "بگو و ورزش",
+     "At cooking.",
+     "And sport.",
+     [],
+     []
+    ],
+    [
+     "بگو در آشپزی و او به اندازه‌ی من سریع است",
+     "بگو تقریباً",
+     "At cooking, and she is as fast as me.",
+     "Almost.",
+     [],
+     [
+      [
+       "At cooking, and she is as faster as me.",
+       "بعد از «as … as» صفت ساده می‌آید: as fast as."
+      ]
+     ]
+    ],
+    [
+     "بگو فقط در بعضی چیزها چون بیشتر کار می‌کند ولی من در ورزش بهترم",
+     "بگو آشپزی",
+     "Only at some things, because she works at it more, but I'm better at sport.",
+     "Cooking.",
+     [],
+     [
+      [
+       "Only at some things, because she work at it more, but I'm better at sport.",
+       "با «she» فعل «s» می‌گیرد: works."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "important-friend",
+   "c": "دوستت گفت: «او مهم‌ترین دوستم است.»",
+   "q": [
+    [
+     "بپرس چرا او",
+     "بپرس مهربان",
+     "Why him?",
+     "Is he kind?",
+     [],
+     []
+    ],
+    [
+     "بپرس چرا او و کی با او آشنا شد",
+     "بپرس سال‌ها پیش",
+     "Why him, and when did you meet him?",
+     "Years ago?",
+     [],
+     [
+      [
+       "Why him, and when you meet him?",
+       "بعد از «when»، «did» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس او مهم‌ترین دوستش است یا دوستان دیگر هم دارد و چرا",
+     "بپرس چه کسانی",
+     "Is he the most important friend, or are there others? Why?",
+     "Who?",
+     [],
+     [
+      [
+       "He is the most important friend, or are there others? Why?",
+       "سؤال با «Is» شروع می‌شود: Is he…؟"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو صادق است",
+     "بگو و بامزه",
+     "He is honest.",
+     "And funny.",
+     [],
+     []
+    ],
+    [
+     "بگو صادق است و در مدرسه آشنا شدیم",
+     "بگو ده سال پیش",
+     "He is honest, and we met at school.",
+     "Ten years ago.",
+     [],
+     [
+      [
+       "He is honest, and we meet at school.",
+       "گذشته‌ی «meet» می‌شود «met»."
+      ]
+     ]
+    ],
+    [
+     "بگو او مهم‌ترین است چون به او اعتماد دارم ولی دوستان خوب دیگری هم دارم",
+     "بگو سر کار",
+     "He is the most important, because I trust him, but I have other good friends.",
+     "At work.",
+     [],
+     [
+      [
+       "He is the most important, because trust him, but I have other good friends.",
+       "بعد از «because» فاعل لازم است: because I trust."
+      ]
+     ]
+    ]
+   ]
+  }
+ ]
+}
