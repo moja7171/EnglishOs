@@ -129,4 +129,41 @@ class AskAnswerCheckerTest extends TestCase
         $this->assertSame('ok', $result['status']);
         $this->assertSame('ai', $result['by']);
     }
+
+    public function test_the_ai_is_told_what_the_friend_said_and_which_question_is_answered(): void
+    {
+        $level = [...$this->level(), 'friend' => 'دوستت گفت: «دوستم خیلی کار می‌کند.»', 'asked' => 'Do you see your friend?'];
+
+        $checker = $this->checker(fn ($mock) => $mock->shouldReceive('chat')->once()->andReturnUsing(function (array $messages, string $systemPrompt) {
+            $this->assertStringContainsString('دوستم خیلی کار می‌کند', $messages[0]['text']);
+            $this->assertStringContainsString('Do you see your friend?', $messages[0]['text']);
+            $this->assertStringContainsString('does NOT have to use its words', $systemPrompt);
+
+            return json_encode(['ok' => true, 'correct' => 'Yes, I see him on Fridays.', 'why' => null, 'extra' => true]);
+        }));
+
+        $result = $checker->check($level, 'Yes, I see him on Fridays.');
+
+        $this->assertSame('ok', $result['status']);
+        $this->assertSame('ai', $result['by']);
+    }
+
+    public function test_the_extra_line_said_with_other_words_is_read_by_the_ai_not_taken_on_word_overlap(): void
+    {
+        $checker = $this->checker(fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode(
+            ['ok' => false, 'correct' => 'Are you working this weekend? On Saturday?', 'why' => 'بعد از «On» روز می‌آید.', 'extra' => false],
+        )));
+
+        $result = $checker->check($this->level(), 'Are you working this weekend? Saturday on');
+
+        $this->assertSame('wrong', $result['status']);
+    }
+
+    public function test_english_inside_a_persian_line_is_set_as_its_own_left_to_right_run(): void
+    {
+        $line = AskAnswerChecker::isolateEnglish('باید بگویید «Yes, I do.» و نه «بله»');
+
+        $this->assertSame("باید بگویید «\u{2066}Yes, I do.\u{2069}» و نه «بله»", $line);
+        $this->assertSame($line, AskAnswerChecker::isolateEnglish($line));
+    }
 }

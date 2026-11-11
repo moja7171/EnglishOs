@@ -516,28 +516,28 @@
    "c": "دوستت گفت: «سروصدا انرژی‌ام را می‌گیرد.»",
    "q": [
     [
-     "بپرس کجا",
+     "بپرس کجا اتفاق می‌افتد",
      "بپرس سر کار",
-     "Where is it?",
+     "Where does it happen?",
      "At work?",
      [],
      [
       [
-       "Where it?",
-       "بعد از «where»، «is» می‌آید و بعد فاعل."
+       "Where it happen?",
+       "بعد از «where»، «does» می‌آید."
       ]
      ]
     ],
     [
-     "بپرس کجا و چه کار می‌کند",
+     "بپرس کجا اتفاق می‌افتد و چه کار می‌کند",
      "بپرس بیرون می‌رود",
-     "Where is it, and what do you do?",
+     "Where does it happen, and what do you do?",
      "Do you go out?",
      [],
      [
       [
-       "Where it, and what do you do?",
-       "بعد از «where»، «is» می‌آید و بعد فاعل."
+       "Where it happen, and what do you do?",
+       "بعد از «where»، «does» می‌آید."
       ]
      ]
     ],
@@ -2397,28 +2397,28 @@
    "c": "دوستت گفت: «همسایه‌ام خیلی کمک می‌کند.»",
    "q": [
     [
-     "بپرس چه کار می‌کند",
+     "بپرس چطور کمک می‌کند",
      "بپرس مثلاً",
-     "What does she do?",
+     "How does she help?",
      "For example?",
      [],
      [
       [
-       "What she do?",
-       "بعد از «what»، «does» می‌آید."
+       "How she help?",
+       "بعد از «how»، «does» می‌آید."
       ]
      ]
     ],
     [
-     "بپرس چه کار می‌کند و کی",
+     "بپرس چطور کمک می‌کند و کی",
      "بپرس شب",
-     "What does she do, and when?",
+     "How does she help, and when?",
      "At night?",
      [],
      [
       [
-       "What she do, and when?",
-       "بعد از «what»، «does» می‌آید."
+       "How she help, and when?",
+       "بعد از «how»، «does» می‌آید."
       ]
      ]
     ],

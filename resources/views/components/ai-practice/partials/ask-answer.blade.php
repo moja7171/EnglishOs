@@ -45,7 +45,7 @@
                 <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">{{ $learnerAsks ? 'Ask in English' : 'Answer in English' }}</p>
                 <p dir="rtl" class="font-display text-2xl leading-snug font-extrabold text-ink dark:text-ink-dark">{{ $target['fa'] }}</p>
                 @if (filled($target['fa_extra']))
-                    <p dir="rtl" class="text-sm font-semibold text-ink-faint dark:text-ink-faint-dark">✨ {{ $target['fa_extra'] }} <span class="text-xs">(اختیاری)</span></p>
+                    <p dir="rtl" class="text-sm font-semibold text-ink-faint dark:text-ink-faint-dark">✨ اگر خواستی، بعدش: {{ $target['fa_extra'] }}</p>
                 @endif
             @endif
 

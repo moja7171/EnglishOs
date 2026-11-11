@@ -609,27 +609,27 @@
    "c": "دوستت گفت: «می‌خواهم دوباره با او تماس بگیرم.»",
    "q": [
     [
-     "بپرس چطور",
+     "بپرس چطور می‌خواهد تماس بگیرد",
      "بپرس با پیام",
-     "How do you do it?",
+     "How do you want to get in touch?",
      "By message?",
      [],
      [
       [
-       "How you do it?",
+       "How you want to get in touch?",
        "بعد از «how»، «do» می‌آید."
       ]
      ]
     ],
     [
-     "بپرس چطور و چه می‌نویسد",
+     "بپرس چطور می‌خواهد تماس بگیرد و چه می‌نویسد",
      "بپرس کوتاه",
-     "How do you do it, and what do you write?",
+     "How do you want to get in touch, and what do you write?",
      "A short one?",
      [],
      [
       [
-       "How you do it, and what do you write?",
+       "How you want to get in touch, and what do you write?",
        "بعد از «how»، «do» می‌آید."
       ]
      ]
@@ -3184,7 +3184,7 @@
    "c": "دوستت گفت: «دوستم این روزها خیلی کار می‌کند.»",
    "q": [
     [
-     "بپرس دوستش را می‌بیند",
+     "بپرس آن دوست را می‌بیند",
      "بپرس اغلب",
      "Do you see your friend?",
      "Often?",
@@ -3197,7 +3197,7 @@
      ]
     ],
     [
-     "بپرس دوستش را می‌بیند و چه ساعتی وقت دارد",
+     "بپرس آن دوست را می‌بیند و چه ساعتی وقت دارد",
      "بپرس عصر",
      "Do you see your friend, and what time is he free?",
      "In the evening?",
@@ -3210,7 +3210,7 @@
      ]
     ],
     [
-     "بپرس دوستش را می‌بیند یا فقط پیام می‌دهد و چرا",
+     "بپرس آن دوست را می‌بیند یا فقط پیام می‌دهد و چرا",
      "بپرس هر روز",
      "Do you see your friend, or do you only send messages? Why?",
      "Every day?",
@@ -3360,7 +3360,7 @@
    "c": "دوستت گفت: «دوستم خیلی مهربان است.»",
    "q": [
     [
-     "بپرس شوخ هم هست",
+     "بپرس دوستش شوخ هم هست",
      "بپرس خیلی",
      "Is your friend funny too?",
      "Very?",
@@ -3373,7 +3373,7 @@
      ]
     ],
     [
-     "بپرس شوخ هم هست و جوک می‌گوید",
+     "بپرس دوستش شوخ هم هست و جوک می‌گوید",
      "بپرس همیشه",
      "Is your friend funny too, and does he tell jokes?",
      "Always?",
@@ -3386,7 +3386,7 @@
      ]
     ],
     [
-     "بپرس شوخ هم هست یا بیشتر ساکت است و چرا",
+     "بپرس دوستش شوخ هم هست یا بیشتر ساکت است و چرا",
      "بپرس با دوستان دیگر",
      "Is your friend funny, or is he quiet? Why?",
      "With other friends?",

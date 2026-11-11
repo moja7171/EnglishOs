@@ -1408,26 +1408,26 @@
     [
      "بپرس شبیه هم هستند",
      "بپرس از نظر چهره",
-     "Are you the same?",
+     "Do you look the same?",
      "In looks?",
      [],
      [
       [
-       "You are the same?",
-       "سؤال با «Are» شروع می‌شود: Are you…؟"
+       "You look the same?",
+       "سؤال با «Do» شروع می‌شود."
       ]
      ]
     ],
     [
      "بپرس شبیه هم هستند و خوب کنار می‌آیند",
      "بپرس همیشه",
-     "Are you the same, and do you get on well?",
+     "Do you look the same, and do you get on well?",
      "Always?",
      [],
      [
       [
-       "You are the same, and do you get on well?",
-       "سؤال با «Are» شروع می‌شود: Are you…؟"
+       "You look the same, and do you get on well?",
+       "سؤال با «Do» شروع می‌شود."
       ]
      ]
     ],
@@ -1449,26 +1449,26 @@
     [
      "بگو نه",
      "بگو کمی",
-     "No, we aren't.",
+     "No, we don't.",
      "A bit.",
      [],
      [
       [
-       "No, we don't.",
-       "جواب کوتاه با همان فعل کمکیِ سؤال است: No, we aren't."
+       "No, we aren't.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: No, we don't."
       ]
      ]
     ],
     [
      "بگو نه ولی خوب کنار می‌آییم",
      "بگو معمولاً",
-     "No, we aren't, but we get on well.",
+     "No, we don't, but we get on well.",
      "Mostly.",
      [],
      [
       [
-       "No, we don't, but we get on well.",
-       "جواب کوتاه با همان فعل کمکیِ سؤال است: No, we aren't."
+       "No, we aren't, but we get on well.",
+       "جواب کوتاه با همان فعل کمکیِ سؤال است: No, we don't."
       ]
      ]
     ],

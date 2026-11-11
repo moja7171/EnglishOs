@@ -1567,28 +1567,28 @@
    "c": "دوستت گفت: «دوستم خیلی بخشنده است.»",
    "q": [
     [
-     "بپرس چه کار می‌کند",
+     "بپرس چطور بخشنده است",
      "بپرس مثلاً",
-     "What does she do?",
+     "How is she generous?",
      "For example?",
      [],
      [
       [
-       "What she do?",
-       "بعد از «what»، «does» می‌آید."
+       "How she is generous?",
+       "بعد از «how»، «is» می‌آید و بعد فاعل."
       ]
      ]
     ],
     [
-     "بپرس چه کار می‌کند و به چه کسی کمک می‌کند",
+     "بپرس چطور کمک می‌کند و به چه کسی",
      "بپرس دوستان",
-     "What does she do, and who does she help?",
+     "How does she help, and who does she help?",
      "Friends?",
      [],
      [
       [
-       "What she do, and who does she help?",
-       "بعد از «what»، «does» می‌آید."
+       "How she help, and who does she help?",
+       "بعد از «how»، «does» می‌آید."
       ]
      ]
     ],

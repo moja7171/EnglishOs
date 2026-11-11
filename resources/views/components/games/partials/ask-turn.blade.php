@@ -53,7 +53,7 @@
                 <p class="text-xs font-extrabold tracking-wider text-ink-faint uppercase dark:text-ink-faint-dark">{{ $isQuestion ? 'Ask' : 'Answer' }} in English</p>
                 <p dir="rtl" class="font-display text-2xl leading-snug font-extrabold">{{ $level['fa'] }}</p>
                 @if (filled($level['fa_extra']))
-                    <p dir="rtl" class="text-sm font-semibold text-ink-faint dark:text-ink-faint-dark">✨ {{ $level['fa_extra'] }} <span class="text-xs">(اختیاری)</span></p>
+                    <p dir="rtl" class="text-sm font-semibold text-ink-faint dark:text-ink-faint-dark">✨ اگر خواستی، بعدش: {{ $level['fa_extra'] }}</p>
                 @endif
             @endif
         </div>
