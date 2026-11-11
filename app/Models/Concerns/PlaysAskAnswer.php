@@ -132,7 +132,34 @@ trait PlaysAskAnswer
         $level = $this->askLevel();
         $step = $this->askStep();
 
-        return $level === null || $step === null ? $level : AskAnswerStep::levelToCheck($level, $step);
+        if ($level === null || $step === null) {
+            return $level;
+        }
+
+        return [...AskAnswerStep::levelToCheck($level, $step), ...$this->askCheckContext()];
+    }
+
+    /**
+     * What the checker needs to judge a sentence that is not the example:
+     * what the friend said (a follow-up) and, for an answer, the question
+     * that was asked.
+     *
+     * @return array{friend: ?string, asked: ?string}
+     */
+    private function askCheckContext(): array
+    {
+        $card = $this->currentCard();
+        $asked = null;
+
+        if ($card !== null && $this->phase() === self::PHASE_ANSWER) {
+            $levels = $card['questions'] ?? [];
+
+            for ($try = $this->askLevelNow(); $try >= 1 && $asked === null; $try--) {
+                $asked = $levels[$try]['en'] ?? null;
+            }
+        }
+
+        return ['friend' => $card['context_fa'] ?? null, 'asked' => $asked];
     }
 
     /**

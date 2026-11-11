@@ -274,7 +274,15 @@ class AiPractice extends Model
     {
         $target = $this->askTarget();
 
-        return $target === null ? null : AskAnswerStep::levelToCheck($target, $this->askStep());
+        if ($target === null) {
+            return null;
+        }
+
+        return [
+            ...AskAnswerStep::levelToCheck($target, $this->askStep()),
+            'friend' => $this->currentCard()['context_fa'] ?? null,
+            'asked' => $this->isLearnersGameTurn() ? null : $this->askTeddyLine(),
+        ];
     }
 
     /**

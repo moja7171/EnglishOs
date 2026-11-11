@@ -3154,27 +3154,27 @@
    "c": "دوستت گفت: «من روزی سه وعده می‌خورم.»",
    "q": [
     [
-     "بپرس کدام وعده بزرگ است",
+     "بپرس وعده‌ی اصلی‌اش کدام است",
      "بپرس شام",
-     "Which meal is big?",
+     "Which meal is your main meal?",
      "Dinner?",
      [],
      [
       [
-       "Which is the meal big?",
-       "ترتیب جمله: Which meal is big?"
+       "Which your meal is main?",
+       "ترتیب جمله: Which meal is your main meal?"
       ]
      ]
     ],
     [
-     "بپرس کدام وعده بزرگ است و چه می‌خورد",
+     "بپرس وعده‌ی اصلی‌اش کدام است و چه می‌خورد",
      "بپرس برنج",
-     "Which meal is big, and what do you eat?",
+     "Which meal is your main meal, and what do you eat?",
      "Rice?",
      [],
      [
       [
-       "Which meal is big, and what you eat?",
+       "Which meal is your main meal, and what you eat?",
        "بعد از «what»، «do» می‌آید."
       ]
      ]

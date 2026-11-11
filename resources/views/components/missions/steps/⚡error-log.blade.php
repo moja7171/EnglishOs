@@ -9,6 +9,7 @@ use App\Models\Evidence;
 use App\Models\MissionRun;
 use App\Services\AiFailure;
 use App\Services\GeminiClient;
+use App\Services\SentenceChecker;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -39,6 +40,23 @@ new class extends Component
     public bool $generated = false;
 
     public ?string $error = null;
+
+    /**
+     * What the AI said about each new sentence the learner wrote, by fix
+     * number: a "major" verdict shows its card under the box.
+     *
+     * @var array<int, array{severity: string, hint: string, corrected: ?string, why_fa: ?string}>
+     */
+    public array $exampleChecks = [];
+
+    /** @var array<int, int> How many times each new sentence was checked. */
+    public array $exampleTries = [];
+
+    /** @var array<int, string> Why a check could not run, by fix number. */
+    public array $exampleErrors = [];
+
+    /** A sentence that was checked this many times lets the learner on, right or not. */
+    private const EXAMPLE_TRIES = 2;
 
     /**
      * mount() used to call generate() unconditionally, so every page visit
@@ -100,6 +118,57 @@ new class extends Component
 
         $this->newExamples[$index] = $text;
         $this->keepStepDraft();
+    }
+
+    /**
+     * The learner's new sentence for fix $index is checked before the next
+     * screen: it must be real English that uses the corrected pattern, in
+     * any words. A real problem shows the fixed sentence and the Persian
+     * why and stays on the screen once; the second try always goes on, and
+     * so does a check that could not run — the learner is never stuck.
+     * Returns true when the screen may move on.
+     */
+    public function checkExample(int $index): bool
+    {
+        $text = trim((string) ($this->newExamples[$index] ?? ''));
+        $mistake = $this->mistakes[$index] ?? null;
+
+        if ($text === '' || $mistake === null) {
+            return false;
+        }
+
+        unset($this->exampleErrors[$index]);
+
+        if (($this->exampleTries[$index] ?? 0) >= self::EXAMPLE_TRIES) {
+            return true;
+        }
+
+        try {
+            $verdict = app(SentenceChecker::class)->check(
+                judgment: 'Judge whether the learner wrote a NEW, correct sentence of their own that uses the same pattern as the fix shown to them.',
+                majorCriteria: 'the sentence repeats the mistake, does not use the corrected pattern at all, or just copies the corrected example',
+                context: "The learner was shown the fix: wrong \"{$mistake['error']}\" -> right \"{$mistake['correction']}\". They were asked to write a new sentence of their own, the right way.",
+                text: $text,
+                extraGuidance: 'Any natural sentence that uses the pattern correctly is fine; it does not need the same words as the example.',
+            );
+            $this->recordGeminiCall();
+        } catch (Throwable $e) {
+            $this->exampleErrors[$index] = AiFailure::checkMessage($e);
+            $this->exampleTries[$index] = self::EXAMPLE_TRIES;
+
+            return false;
+        }
+
+        if ($verdict['severity'] !== 'major') {
+            unset($this->exampleChecks[$index], $this->exampleTries[$index]);
+
+            return true;
+        }
+
+        $this->exampleTries[$index] = ($this->exampleTries[$index] ?? 0) + 1;
+        $this->exampleChecks[$index] = $verdict;
+
+        return false;
     }
 
     public function generate(): void
@@ -298,6 +367,7 @@ new class extends Component
     @php $total = count($mistakes); @endphp
     <div
         wire:key="error-log-fixes"
+        wire:ignore.self
         x-data="{ screen: 0, filled: @js(collect($newExamples)->map(fn ($e) => trim((string) $e) !== '')->all()) }"
         x-effect="$dispatch('step-progress', { share: (screen + 0.5) / {{ $total + 1 }} })"
         x-back-close.step="{ open: screen > 0, close: () => screen-- }"
@@ -327,10 +397,25 @@ new class extends Component
                     :error="$dictationErrors[$i] ?? null"
                 />
 
+                @if (! empty($exampleErrors[$i]))
+                    <x-error-card>{{ $exampleErrors[$i] }}</x-error-card>
+                @elseif (! empty($exampleChecks[$i]))
+                    <div class="flex flex-col gap-1.5 rounded-2xl bg-warning-soft px-4 py-3 text-sm">
+                        <p class="font-bold text-ink dark:text-ink-dark">{{ $exampleChecks[$i]['hint'] }}</p>
+                        @if (filled($exampleChecks[$i]['corrected']))
+                            <p class="font-extrabold text-success dark:text-success-dark">{{ $exampleChecks[$i]['corrected'] }}</p>
+                        @endif
+                        @if (filled($exampleChecks[$i]['why_fa']))
+                            <p class="font-fa text-ink-soft dark:text-ink-soft-dark" dir="rtl">{{ $exampleChecks[$i]['why_fa'] }}</p>
+                        @endif
+                    </div>
+                @endif
+
                 <x-slot:actions>
                     <x-continue-button
-                        on-click="screen = {{ $i + 1 }}"
-                        wire-target="dictateExample"
+                        on-click="$wire.checkExample({{ $i }}).then((ok) => { if (ok) screen = {{ $i + 1 }} })"
+                        wire-target="checkExample, dictateExample"
+                        loading-label="Checking…"
                         ready-when="filled[{{ $i }}] || {{ filled($newExamples[$i] ?? null) ? 'true' : 'false' }}"
                     />
                 </x-slot:actions>

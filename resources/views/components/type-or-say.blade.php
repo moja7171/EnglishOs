@@ -25,12 +25,13 @@
         @if (filled($starter))
             <p class="px-4 pt-3 text-base font-extrabold text-ink dark:text-ink-dark">{{ $starter }} <span class="font-normal text-ink-faint dark:text-ink-faint-dark">…</span></p>
         @endif
-        {{-- Grows with its text (a long spoken answer stays readable), up to 20rem, then scrolls. --}}
+        {{-- Grows with its text (a long spoken answer stays readable), up to 20rem, then scrolls. A box on a screen that is not showing has no height to measure: it keeps its rows and is measured again when the screen opens. --}}
         <textarea
             wire:model="{{ $model }}"
             rows="{{ $rows }}"
             placeholder="{{ $placeholder }}"
-            x-data="{ fit() { this.$el.style.height = 'auto'; this.$el.style.height = Math.min(this.$el.scrollHeight, 320) + 'px' } }"
+            x-data="{ fit() { this.$el.style.height = 'auto'; if (this.$el.scrollHeight > 0) { this.$el.style.height = Math.min(this.$el.scrollHeight, 320) + 'px' } } }"
+            x-init="new ResizeObserver(() => { if ($el.offsetHeight > 0 && $el.style.height === 'auto') fit() }).observe($el)"
             x-effect="$wire.get('{{ $model }}'); $nextTick(() => fit())"
             x-on:input="fit(); {{ $onInput }}"
             @if ($draftKey) x-draft="{ key: '{{ $draftKey }}', field: '{{ $model }}' }" @endif

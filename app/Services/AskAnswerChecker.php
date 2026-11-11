@@ -10,11 +10,15 @@ use Throwable;
  * sentence is the target (or one of its accepted alternatives), or it is
  * one of the known wrong versions written for this level — which already
  * carries the Persian reason. Only a sentence that is neither goes to the
- * AI, which says if it is also correct English that does what the Persian
- * line asked, and if not, what to say instead.
+ * AI. The target is one example, not the only right sentence: any
+ * grammatical sentence of the right kind (a question to ask, a real answer
+ * to the question asked) on the topic of the task is right, with or
+ * without more detail; the AI says what to fix when it is not.
  *
  * A "level" is the array stored on AskAnswerItem: fa, fa_extra, en,
- * en_extra, alt and wrong.
+ * en_extra, alt and wrong — plus, when the call site knows them, `friend`
+ * (what the friend said, in Persian) and `asked` (for an answer, the
+ * question that was asked).
  */
 class AskAnswerChecker
 {
@@ -40,9 +44,6 @@ class AskAnswerChecker
 
     /** Words a speaker says before the real sentence; they never make it wrong. */
     private const FILLERS = ['um', 'uh', 'er', 'hmm', 'well', 'okay', 'ok', 'so'];
-
-    /** A sentence this much like the extra line counts as having said it. */
-    private const EXTRA_SHARE = 0.6;
 
     /** What is left after the target may be this long before the AI has to read it. */
     private const MAX_TRAILING_WORDS = 14;
@@ -73,8 +74,8 @@ class AskAnswerChecker
             if (str_starts_with($said, $form.' ')) {
                 $rest = trim(substr($said, strlen($form)));
 
-                // The target and then something more: the extra line, if it is that.
-                if ($extraWords !== [] && $this->saidMost($extraWords, $rest)) {
+                // The target and then exactly the extra line.
+                if ($extraWords !== [] && self::words($rest) === $extraWords) {
                     return $this->result('ok', true, $target, null, 'exact');
                 }
 
@@ -130,16 +131,6 @@ class AskAnswerChecker
     }
 
     /**
-     * @param  list<string>  $extraWords
-     */
-    private function saidMost(array $extraWords, string $rest): bool
-    {
-        $heard = self::words($rest);
-
-        return $heard !== [] && count(array_intersect($extraWords, $heard)) / count($extraWords) >= self::EXTRA_SHARE;
-    }
-
-    /**
      * @param  array{fa?: string, en: string, en_extra?: ?string}  $level
      * @param  list<string>  $extraWords
      * @return array{status: 'ok'|'wrong'|'unchecked', extra: bool, correct: string, why: ?string, by: 'exact'|'known'|'ai'|'none'}
@@ -148,17 +139,20 @@ class AskAnswerChecker
     {
         try {
             $raw = $this->gemini->chat(
-                [['role' => 'user', 'text' => "Task (Persian): {$level['fa']}\nTarget sentence: \"{$level['en']}\"\nLearner's spoken sentence (automatic transcript): \"{$heard}\""]],
+                [['role' => 'user', 'text' => $this->aiMessage($level, $heard)]],
                 systemPrompt: 'You are a warm English speaking coach for '.($learnerDescription !== '' ? $learnerDescription : 'a Persian-speaking learner').'. '
-                    .'The learner was asked (in Persian) to say something in English; a target sentence is given. Judge the learner\'s sentence: '
-                    .'it is correct only if it is natural, grammatical English that says the SAME thing as the target: the same topic, the same question or '
-                    .'statement and the same details, even when the words differ a little (other order, a contraction, a synonym). A different sentence is '
-                    .'NOT correct even when it is good English: another question, another topic, an extra question, or a missing part of the task. '
-                    .'In that case set ok to false, give the target sentence as "correct" and say in "why" that it does not do what the task asks. '
-                    .'Judge GRAMMAR and WORD ORDER like question forms, auxiliaries, tenses and prepositions. The transcript is automatic speech-to-text: '
-                    .'ignore capital letters, punctuation and anything that looks like a mishearing. Use only simple words in your correction. '
-                    .'Reply with ONLY valid JSON, no markdown fences: {"ok": true or false, "correct": "if not ok: the fixed sentence the learner should say, '
-                    .'close to what they tried when it is the same idea, otherwise the target sentence; else the learner\'s sentence", "why": "if not ok: one short line in simple Persian '
+                    .'The learner plays a speaking game: they are asked (in Persian) to ASK a question or to ANSWER one, and they say it in English. '
+                    .'You get the Persian task, one EXAMPLE sentence, sometimes what the friend said (Persian) and, for an answer, the question that was asked. '
+                    .'The example is only one way to say it: the learner does NOT have to use its words or its details. '
+                    .'Their sentence is correct when ALL of these are true: (1) it is natural, grammatical English, judged strictly — word order, question forms, '
+                    .'auxiliaries, tenses, prepositions, articles, word forms — for the WHOLE sentence, including anything extra they add; '
+                    .'(2) it is the right kind of sentence: a real question when they were asked to ask, a real answer to the given question when they were asked to answer; '
+                    .'(3) it is on the topic of the task and the situation. More detail than the example is welcome and is not a mistake. '
+                    .'It is NOT correct when there is a grammar or word-order mistake anywhere, when it is the wrong kind of sentence, '
+                    .'when it is off the topic, or when it answers a different question. Never say a good sentence is wrong just because it differs from the example. '
+                    .'The transcript is automatic speech-to-text: ignore capital letters, punctuation and anything that looks like a mishearing. Use only simple words. '
+                    .'Reply with ONLY valid JSON, no markdown fences: {"ok": true or false, "correct": "if not ok: the learner\'s own sentence fixed with the fewest changes when '
+                    .'it was close to the task, otherwise the example sentence; else the learner\'s sentence", "why": "if not ok: one short line in simple Persian '
                     .'saying what to fix, English words in Latin letters inside «»; else null", "extra": true or false}. "extra" is true only when the '
                     .'learner added a real extra detail on top of what the task asked. Never use double quote characters inside any text value.',
                 profile: GeminiClient::PROFILE_JUDGE,
@@ -184,12 +178,51 @@ class AskAnswerChecker
     }
 
     /**
+     * @param  array<string, mixed>  $level
+     */
+    private function aiMessage(array $level, string $heard): string
+    {
+        $lines = ["Task (Persian): {$level['fa']}"];
+
+        if (filled($level['friend'] ?? null)) {
+            $lines[] = "What the friend said (Persian): {$level['friend']}";
+        }
+
+        if (filled($level['asked'] ?? null)) {
+            $lines[] = "The question the learner is answering: \"{$level['asked']}\"";
+        }
+
+        $lines[] = "Example sentence: \"{$level['en']}\"";
+        $lines[] = "Learner's spoken sentence (automatic transcript): \"{$heard}\"";
+
+        return implode("\n", $lines);
+    }
+
+    /**
+     * English wrapped in « » inside a Persian line is set as its own
+     * left-to-right run, so the quotes, the full stop and a "?" stay where
+     * they belong instead of jumping to the wrong side of the phrase.
+     */
+    public static function isolateEnglish(?string $text): ?string
+    {
+        if ($text === null) {
+            return null;
+        }
+
+        return preg_replace_callback(
+            '/«([^»]*[A-Za-z][^»]*)»/u',
+            fn (array $match) => "«\u{2066}".trim($match[1])."\u{2069}»",
+            str_replace(["\u{2066}", "\u{2069}"], '', $text),
+        ) ?? $text;
+    }
+
+    /**
      * @param  'ok'|'wrong'|'unchecked'  $status
      * @param  'exact'|'known'|'ai'|'none'  $by
      * @return array{status: 'ok'|'wrong'|'unchecked', extra: bool, correct: string, why: ?string, by: 'exact'|'known'|'ai'|'none'}
      */
     private function result(string $status, bool $extra, string $correct, ?string $why, string $by): array
     {
-        return ['status' => $status, 'extra' => $extra, 'correct' => $correct, 'why' => $why, 'by' => $by];
+        return ['status' => $status, 'extra' => $extra, 'correct' => $correct, 'why' => self::isolateEnglish($why), 'by' => $by];
     }
 }

@@ -14,6 +14,7 @@ use App\Services\GroqClient;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\UploadedFile;
+use Livewire\Features\SupportTesting\Testable;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -423,5 +424,64 @@ class ErrorLogStepTest extends TestCase
             ->set('dictation', UploadedFile::fake()->create('answer.webm', 100, 'audio/webm'))
             ->call('dictateExample', 0)
             ->assertSet('newExamples.0', 'He goes to the gym on Mondays.');
+    }
+
+    private function reviewWithOneFix(MissionRun $run): Testable
+    {
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn(json_encode([
+            ['error' => 'I like patient.', 'correction' => 'I like patient people.', 'why' => 'صفت مفعول نمی‌شود.'],
+        ])));
+
+        return Livewire::test('missions.steps.error-log', ['run' => $run])->call('generate');
+    }
+
+    private function mockVerdicts(string ...$severities): void
+    {
+        $this->mock(GeminiClient::class, function ($mock) use ($severities) {
+            $replies = array_map(fn (string $severity) => json_encode([
+                'severity' => $severity,
+                'hint' => 'Use a noun after like.',
+                'corrected' => $severity === 'none' ? '' : 'They are drawing a picture.',
+                'why_fa' => $severity === 'none' ? '' : 'بعد از فعل اسم می‌آید.',
+            ]), $severities);
+            $mock->shouldReceive('chat')->times(count($replies))->andReturn(...$replies);
+        });
+    }
+
+    public function test_a_new_sentence_that_uses_the_pattern_goes_on_to_the_next_screen(): void
+    {
+        $run = $this->makeRunWithEvidence();
+        $step = $this->reviewWithOneFix($run)->set('newExamples.0', 'I like quiet people.');
+        $this->mockVerdicts('none');
+
+        $step->call('checkExample', 0)->assertReturned(true)->assertSet('exampleChecks', []);
+    }
+
+    public function test_a_wrong_new_sentence_shows_the_fix_and_the_second_try_goes_on(): void
+    {
+        $run = $this->makeRunWithEvidence();
+        $step = $this->reviewWithOneFix($run)->set('newExamples.0', 'They are driving a picture.');
+        $this->mockVerdicts('major', 'major');
+
+        $step->call('checkExample', 0)
+            ->assertReturned(false)
+            ->assertSee('They are drawing a picture.')
+            ->assertSee('بعد از فعل اسم می‌آید.');
+
+        $step->set('newExamples.0', 'They are driving a picture again.')
+            ->call('checkExample', 0)
+            ->assertReturned(false);
+
+        $step->call('checkExample', 0)->assertReturned(true);
+    }
+
+    public function test_a_check_that_cannot_run_never_traps_the_learner(): void
+    {
+        $run = $this->makeRunWithEvidence();
+        $step = $this->reviewWithOneFix($run)->set('newExamples.0', 'I like quiet people.');
+        $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andThrow(new ConnectionException('down')));
+
+        $step->call('checkExample', 0)->assertReturned(false)->assertSee('Connection problem');
+        $step->call('checkExample', 0)->assertReturned(true);
     }
 }
