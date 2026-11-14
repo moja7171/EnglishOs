@@ -490,7 +490,7 @@ new class extends Component
                                 </div>
                             </div>
 
-                            <div class="h-56 overflow-hidden rounded-3xl bg-linear-to-br from-hero to-hero-2">
+                            <div class="h-40 overflow-hidden rounded-3xl bg-linear-to-br from-hero to-hero-2">
                                 @if ($image)
                                     <img src="{{ $image }}" alt="" class="h-full w-full object-cover">
                                 @endif
@@ -525,7 +525,7 @@ new class extends Component
                             <template x-if="loaded">
                                 <x-audio-player
                                     podcast
-                                    text-panel-class="mt-4 max-h-[45dvh] text-base"
+                                    text-panel-class="mt-4 max-h-[60dvh] min-h-[35dvh] text-base"
                                     :url="$pick['local']['audioUrl']"
                                     :segments="$this->localSegments[$level] ?? []"
                                     :onListened="$this->isAhead ? null : '$wire.heardPick('.$level.'); listens++; counted = true; share = 1'"

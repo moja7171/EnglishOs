@@ -80,7 +80,9 @@
 ])
 
 @php
-    $panelClass = $textPanelClass;
+    // The text box takes most of the screen under the player; a caller can still pass its own size.
+    $panelClass = $textPanelClass ?? 'mt-4 max-h-[60dvh] min-h-[35dvh] text-base';
+    $hasTranslation = \App\Services\WebVttParser::hasTranslation($segments);
 @endphp
 
 @if (! empty($url))
@@ -461,6 +463,10 @@
                     <span x-text="showText ? 'Hide text' : 'Show text'">{{ $textHidden ? 'Show text' : 'Hide text' }}</span>
                 </button>
 
+                @if ($hasTranslation)
+                    <x-fa-toggle x-show="showText || focus" :cloak="$textHidden" />
+                @endif
+
                 @unless ($podcast)
                 <button
                     type="button"
@@ -524,7 +530,7 @@
                 x-show="showText || focus"
                 @if ($textHidden) x-cloak @endif
                 class="space-y-3 overflow-y-auto card-sunken p-3"
-                :class="focus ? 'order-1 mx-auto min-h-0 w-full max-w-3xl flex-1 text-lg leading-relaxed sm:text-xl' : '{{ $panelClass ?? 'mt-4 max-h-72 text-sm' }}'"
+                :class="focus ? 'order-1 mx-auto min-h-0 w-full max-w-3xl flex-1 text-lg leading-relaxed sm:text-xl' : '{{ $panelClass }}'"
             >
                 @foreach ($turns as $turn)
                     <div class="max-w-[90%] {{ $turn['alignRight'] ? 'ml-auto' : '' }}">
@@ -533,6 +539,7 @@
                         {{-- Chunks flow inside their sentence (a timing chunk often ends mid-sentence); a new line only where a sentence ends. --}}
                         <div class="space-y-1 rounded-2xl bg-surface p-1.5 leading-relaxed dark:bg-surface-dark">
                             @foreach (\App\Services\WebVttParser::sentences($turn['lines'], fn ($line) => $line['segment']['text']) as $sentence)
+                                <div>
                                 <p class="px-1">
                                     @foreach ($sentence as $line)
                                         <span
@@ -545,6 +552,10 @@
                                         >{{ $line['segment']['text'] }}</span>
                                     @endforeach
                                 </p>
+                                @if ($fa = \App\Services\WebVttParser::translation($sentence))
+                                    <x-fa-line :text="$fa" />
+                                @endif
+                                </div>
                             @endforeach
                         </div>
                     </div>
@@ -561,9 +572,10 @@
                 x-show="showText || focus"
                 @if ($textHidden) x-cloak @endif
                 class="space-y-1.5 overflow-y-auto card-sunken p-3"
-                :class="focus ? 'order-1 mx-auto min-h-0 w-full max-w-3xl flex-1 text-xl leading-relaxed sm:text-2xl' : '{{ $panelClass ?? 'mt-4 max-h-56 text-sm' }}'"
+                :class="focus ? 'order-1 mx-auto min-h-0 w-full max-w-3xl flex-1 text-xl leading-relaxed sm:text-2xl' : '{{ $panelClass }}'"
             >
                 @foreach (\App\Services\WebVttParser::sentences(collect($segments)->map(fn ($segment, $index) => ['index' => $index, 'segment' => $segment])->all(), fn ($line) => $line['segment']['text']) as $sentence)
+                    <div>
                     <p class="leading-relaxed">
                         @foreach ($sentence as $line)
                             <span
@@ -576,6 +588,10 @@
                             >{{ $line['segment']['text'] }}</span>
                         @endforeach
                     </p>
+                    @if ($fa = \App\Services\WebVttParser::translation($sentence))
+                        <x-fa-line :text="$fa" />
+                    @endif
+                    </div>
                 @endforeach
             </div>
         @endif
@@ -602,6 +618,9 @@
                                 class="inline-flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full border border-line text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-dark"
                             >@svg('heroicon-o-arrow-path', 'h-4 w-4')</button>
                         </div>
+                        @if (($point = $shadowTimestamps[$index] ?? null) && ($fa = \App\Services\WebVttParser::translationWithin($segments, (float) $point['start'], (float) $point['end'])))
+                            <x-fa-line :text="$fa" />
+                        @endif
                     </div>
                 @endforeach
 

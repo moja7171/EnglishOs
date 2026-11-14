@@ -18,10 +18,11 @@
     @param string|null $error
     @param string $next Raw Alpine statement for Continue.
     @param string $wireTarget
+    @param string|null $fa The line's Persian translation, shown under it when the learner turns "ترجمه فارسی" on.
     @param bool $finish The step's last line: the button reads Finish and saves.
     @slot media Optional picture/video above the line.
 --}}
-@props(['when', 'index', 'line', 'kind', 'hear', 'recordingUrl' => null, 'fileName', 'feedback' => null, 'error' => null, 'next', 'wireTarget' => 'save', 'finish' => false])
+@props(['when', 'index', 'line', 'kind', 'hear', 'recordingUrl' => null, 'fileName', 'feedback' => null, 'error' => null, 'next', 'wireTarget' => 'save', 'finish' => false, 'fa' => null])
 
 @php
     $isGood = ($feedback['severity'] ?? null) === 'none';
@@ -36,11 +37,17 @@
     {{ $media ?? '' }}
 
     <p x-lookup class="rounded-3xl bg-surface px-4 py-5 text-lg leading-relaxed font-semibold text-ink dark:bg-surface-dark dark:text-ink-dark">“<x-stress-marked-line :text="$line" />”</p>
+    @if ($fa)
+        <x-fa-line :text="$fa" class="-mt-3 text-base" />
+    @endif
 
     <button type="button" x-on:click="{{ $hear }}" class="inline-flex w-fit cursor-pointer items-center gap-2 rounded-full border-2 border-line bg-surface py-1.5 pr-4 pl-1.5 text-sm font-extrabold text-ink transition-colors hover:border-ink-faint dark:border-line-dark dark:bg-surface-dark dark:text-ink-dark">
         <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-accent-soft text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">@svg('heroicon-s-play', 'h-3.5 w-3.5')</span>
         Hear it
     </button>
+    @if ($fa)
+        <x-fa-toggle class="w-fit" />
+    @endif
 
     <div class="mt-2 flex justify-center">
         <x-voice-recorder big field="shadowRecordings.{{ $index }}" :file="$recordingUrl" :file-name="$fileName" on-recorded="checkShadowLine" :on-recorded-param="$index" />

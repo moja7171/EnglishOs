@@ -92,6 +92,7 @@
             when="screen === {{ $index + $firstLineScreen }}"
             :index="$index"
             :line="$line"
+            :fa="($point = $shadowTimestamps[$index] ?? null) ? \App\Services\WebVttParser::translationWithin($this->listeningSegments(), (float) $point['start'], (float) $point['end']) : null"
             kind="Say it · {{ $index + 1 }} of {{ $lineCount }}"
             hear="$refs.clip.pause(); hear({{ $index }}, {{ \Illuminate\Support\Js::from(strip_tags(str_replace('**', '', $line))) }})"
             :recording-url="$draftShadowUrls[$index] ?? null"

@@ -542,6 +542,7 @@ new class extends Component
             :title="$headline['title']"
             :done-label="$headline['doneLabel'] ?? null"
             :title-href="route('missions.show', [$bannerMission, 'overview', 'day' => $headline['dayNumber']])"
+            grammar
         >
             <x-slot:actions>
                 <x-usage-guide-button on-photo />

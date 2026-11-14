@@ -475,6 +475,10 @@
             <span x-text="showText ? 'Hide text' : 'Show text'">{{ $textHidden ? 'Show text' : 'Hide text' }}</span>
         </button>
 
+        @if (\App\Services\WebVttParser::hasTranslation($segments))
+            <x-fa-toggle x-show="mode !== 'video' && (showText || mode === 'focus')" :cloak="$textHidden" class="mt-3 ml-1.5" />
+        @endif
+
         {{-- Synced text panel, same idea as <x-audio-player>'s — inline
              while showText is on, and always in focus. --}}
         <div
@@ -482,11 +486,12 @@
             x-ref="segmentsPanel"
             x-show="showText || mode === 'focus'"
             @if ($textHidden) x-cloak @endif
-            :class="mode === 'focus' ? 'min-h-32 flex-1 text-base' : 'max-h-40 text-sm'"
+            :class="mode === 'focus' ? 'min-h-32 flex-1 text-lg' : 'max-h-[55dvh] min-h-[30dvh] text-base'"
             class="relative mt-3 space-y-1.5 overflow-y-auto card-sunken p-3"
         >
             {{-- Chunks flow inside their sentence; a new line only where a sentence ends. --}}
             @foreach (\App\Services\WebVttParser::sentences(collect($segments)->map(fn ($segment, $index) => ['index' => $index, 'segment' => $segment])->all(), fn ($line) => $line['segment']['text']) as $sentence)
+                <div>
                 <p class="leading-relaxed">
                     @foreach ($sentence as $line)
                         <span
@@ -499,6 +504,10 @@
                         >{{ $line['segment']['text'] }}</span>
                     @endforeach
                 </p>
+                @if ($fa = \App\Services\WebVttParser::translation($sentence))
+                    <x-fa-line :text="$fa" />
+                @endif
+                </div>
             @endforeach
         </div>
     @endif
@@ -524,6 +533,9 @@
                             class="inline-flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full border border-line text-ink-soft transition-colors hover:border-ink-faint hover:bg-surface dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-dark"
                         >@svg('heroicon-o-arrow-path', 'h-4 w-4')</button>
                     </div>
+                    @if (($point = $shadowTimestamps[$index] ?? null) && ($fa = \App\Services\WebVttParser::translationWithin($segments, (float) $point['start'], (float) $point['end'])))
+                        <x-fa-line :text="$fa" />
+                    @endif
                 </div>
             @endforeach
 

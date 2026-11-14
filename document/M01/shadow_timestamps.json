@@ -3,7 +3,8 @@
         {
             "text": "Hello and welcome to Real Easy English, the podcast where we have real conversations in",
             "start": 0.88,
-            "end": 7.44
+            "end": 7.44,
+            "fa": "سلام و خوش‌آمدید به ریل ایزی انگلیش، پادکستی که توش مکالمات واقعی به انگلیسی ساده داریم تا به شما کمک کنیم یاد بگیرید. من نیل."
         },
         {
             "text": "easy English to help you learn. I'm Neil.",
@@ -13,7 +14,8 @@
         {
             "text": "And I'm Georgie. You can read along with this podcast on our website,",
             "start": 10.719999,
-            "end": 14.799999
+            "end": 14.799999,
+            "fa": "و من جورجی. می‌تونید همزمان با این پادکست توی وب‌سایت ما بخونید، جایی که می‌تونید ورک‌شیت رایگان هم پیدا کنید."
         },
         {
             "text": "where you can also find a free worksheet.",
@@ -23,32 +25,38 @@
         {
             "text": "So, Georgie, how are you today?",
             "start": 23.519999,
-            "end": 25.279999
+            "end": 25.279999,
+            "fa": "خب جورجی، امروز چطوری؟"
         },
         {
             "text": "I'm very well, thank you. How are you?",
             "start": 25.92,
-            "end": 28.08
+            "end": 28.08,
+            "fa": "من خیلی خوبم، ممنون. تو چطوری؟"
         },
         {
             "text": "I'm well, thank you very much.",
             "start": 28.08,
-            "end": 29.679998
+            "end": 29.679998,
+            "fa": "من خوبم، خیلی ممنون."
         },
         {
             "text": "Good. What are we talking about today? Today we are talking about our morning routines.",
             "start": 29.679998,
-            "end": 35.96
+            "end": 35.96,
+            "fa": "خوب. امروز دربارهٔ چی صحبت می‌کنیم؟ امروز دربارهٔ روتین صبح‌مون صحبت می‌کنیم."
         },
         {
             "text": "That is what we usually do in the mornings before work. Okay, let's get started.",
             "start": 36.379997,
-            "end": 41.699997
+            "end": 41.699997,
+            "fa": "این‌یه کاری که معمولاً صبح‌ها قبل از کار انجام می‌دیم. خب، بزن بریم."
         },
         {
             "text": "So Neil, do you like to get up early or do you prefer to sleep in? It depends if I've had enough",
             "start": 42.5,
-            "end": 50.039997
+            "end": 50.039997,
+            "fa": "پس نیل، صبح زود بیدار شدن رو دوست داری یا ترجیح می‌دی بخوابی؟ بستگی داره که کافی خواب کرده باشم. اگه کافی خواب کرده باشم، می‌تونم زود بیدار شم. اگه نه، می‌خوام بخوابم. تو چطور؟ من گاهی صبح‌ها رو دوست دارم چون ساکت‌تره. آدم‌های زیادی بیدار نیستن."
         },
         {
             "text": "sleep. If I've had enough sleep, I can get up early. If I haven't, I want to sleep in. How about",
@@ -63,7 +71,8 @@
         {
             "text": "I also feel like my brain works better in the mornings. So that helps. But I do like",
             "start": 67.659996,
-            "end": 76.56
+            "end": 76.56,
+            "fa": "همچنین حس می‌کنم مغزم صبح‌ها بهتر کار می‌کنه، پس این کمک می‌کنه. ولی گاهی هم دوست دارم صبح‌ها بخوابم، مخصوصاً تو آخر هفته‌ها."
         },
         {
             "text": "sleeping in sometimes, especially at the weekends.",
@@ -73,7 +82,8 @@
         {
             "text": "So Georgie, you said that your brain works best in the morning. Does that mean that you're a",
             "start": 80.42,
-            "end": 86.14
+            "end": 86.14,
+            "fa": "پس جورجی، گفتی مغزت صبح‌ها بهتر کار می‌کنه. یعنی تو آدم صبح‌خواری هستی؟"
         },
         {
             "text": "morning person?",
@@ -83,22 +93,26 @@
         {
             "text": "Yes, I think it does.",
             "start": 87.5,
-            "end": 89.1
+            "end": 89.1,
+            "fa": "آره، فکر می‌کنم همینطوره."
         },
         {
             "text": "I'm a morning person.",
             "start": 89.22,
-            "end": 90.4
+            "end": 90.4,
+            "fa": "من آدم صبح‌خواری‌ام."
         },
         {
             "text": "That means someone that has a lot of energy at the start of the day.",
             "start": 90.4,
-            "end": 95.24
+            "end": 95.24,
+            "fa": "یعنی کسی که انرژی زیادی در ابتدای روز داره."
         },
         {
             "text": "Georgie do you eat breakfast That also depends And I have a different breakfast routine depending if I working in the office or at home",
             "start": 95.74,
-            "end": 106.14934
+            "end": 106.14934,
+            "fa": "جورجی، صبحانه می‌خوری؟ این هم بستگی داره. من روتین صبحانه‌ام بسته به این که تو دفتر کار می‌کنم یا خونه، فرق می‌کنه. اگه تو دفتر باشم، معمولاً صبح یک شیرینی یا کروسانت می‌خورم و اگر حالم خوب باشه، یک موز هم می‌گیرم."
         },
         {
             "text": "So if I'm in the office, and you know this,",
@@ -118,102 +132,122 @@
         {
             "text": "But if I'm at home, I usually have eggs a bit later, around 10.",
             "start": 116.50934,
-            "end": 122.529335
+            "end": 122.529335,
+            "fa": "اما اگه خونه باشم، معمولاً کمی دیرتر، حدود ساعت ۱۰، تخم‌مرغ می‌خورم."
         },
         {
             "text": "What about you?",
             "start": 123.08934,
-            "end": 124.10934
+            "end": 124.10934,
+            "fa": "شما چه فکر می‌کنید؟"
         },
         {
             "text": "I always have breakfast before I leave the house.",
             "start": 124.10934,
-            "end": 127.60934
+            "end": 127.60934,
+            "fa": "همیشه قبل از اینکه از خونه برم صبحانه می‌خورم."
         },
         {
             "text": "Wow.",
             "start": 128.00934,
-            "end": 128.18933
+            "end": 128.18933,
+            "fa": "وای."
         },
         {
             "text": "Otherwise, I'm very grumpy.",
             "start": 128.38934,
-            "end": 129.98933
+            "end": 129.98933,
+            "fa": "گرنه خیلی عصبانی می‌شم."
         },
         {
             "text": "So at the moment, I am having egg on toast for breakfast and then marmalade on toast as well, but not together.",
             "start": 130.80934,
-            "end": 142.66934
+            "end": 142.66934,
+            "fa": "حالا دارم تخم‌مرغ روی نان تست می‌خورم برای صبحانه و بعد هم مارمالاد روی نان تست، ولی جدا جدا."
         },
         {
             "text": "So you said you always have breakfast.",
             "start": 143.00934,
-            "end": 146.32935
+            "end": 146.32935,
+            "fa": "پس گفتی همیشه صبحانه می‌خوری."
         },
         {
             "text": "You never skip breakfast.",
             "start": 146.70934,
-            "end": 148.28934
+            "end": 148.28934,
+            "fa": "تو هیچ‌وقت صبحانه را نمی‌پرونی."
         },
         {
             "text": "Never, unless there's a very, very good reason.",
             "start": 148.80934,
-            "end": 152.86934
+            "end": 152.86934,
+            "fa": "هرگز، مگر اینکه دلیل خیلی، خیلی خوبی داشته باشی."
         },
         {
             "text": "Okay.",
             "start": 153.22934,
-            "end": 153.82935
+            "end": 153.82935,
+            "fa": "باشه."
         },
         {
             "text": "Like, I think the last time I skipped breakfast, I needed to get up at 3am to catch a flight.",
             "start": 154.10934,
-            "end": 162.24933
+            "end": 162.24933,
+            "fa": "مثلاً، فکر می‌کنم آخرین باری که صبحانه را نادیدم، مجبور شدم ساعت ۳ صبح بیدار شم تا پروازی بگیرم."
         },
         {
             "text": "Yes, it's very strange to wake up at that time.",
             "start": 163.10934,
-            "end": 166.76933
+            "end": 166.76933,
+            "fa": "آره، بیدار شدن تو این ساعت خیلی عجیبه."
         },
         {
             "text": "It changes your routine, doesn't it?",
             "start": 166.76933,
-            "end": 168.86934
+            "end": 168.86934,
+            "fa": "این روتینتو عوض می‌کنه، نه؟"
         },
         {
             "text": "Because you don't feel hungry then.",
             "start": 169.02933,
-            "end": 171.00934
+            "end": 171.00934,
+            "fa": "چون اون موقع حس گرسنگی نمی‌کنی."
         },
         {
             "text": "So how about you, Georgie?",
             "start": 171.58934,
-            "end": 173.06934
+            "end": 173.06934,
+            "fa": "پس تو چطور، جرجی؟"
         },
         {
             "text": "Do you skip breakfast?",
             "start": 173.16934,
-            "end": 175.00934
+            "end": 175.00934,
+            "fa": "آیا صبحانه می‌پرونی؟"
         },
         {
             "text": "Sometimes I skip breakfast because when I wake up, I'm not hungry.",
             "start": 176.16934,
-            "end": 182.48933
+            "end": 182.48933,
+            "fa": "گاهی صبحانه را نمی‌خورم چون وقتی بیدار می‌شم، گرسنه نیستم."
         },
         {
             "text": "So if I don't eat breakfast straight away, I sometimes forget to eat breakfast, but then I have an early lunch.",
             "start": 182.48933,
-            "end": 192.18933
+            "end": 192.18933,
+            "fa": "پس اگه فوراً صبحانه نخورم، گاهی فراموشش می‌کنم، اما بعداً یک ناهار زود می‌خورم."
         },
         {
             "text": "Right.",
             "start": 193.00934,
-            "end": 193.20934
+            "end": 193.20934,
+            "fa": "درسته."
         },
         {
             "text": "So Neil you said that it hard to get up when you haven slept well Does that mean you oversleep You sleep too long No Unfortunately I never oversleep In fact I usually wake up before my alarm Do you oversleep",
             "start": 193.52933,
-            "end": 211.63867
+            "end": 211.63867,
+            "fa": "پس نیل گفت که سخت است وقتی خوب نخوابی بیدار شدن. یعنی زیاد می‌خوابی؟ خیلی طول می‌کشی می‌خوابی؟ نه، متأسفانه من هرگز زیاد نمی‌خوابم. در واقع معمولاً قبل از زنگ ساعت بیدار می‌شم. تو زیاد می‌خوابی؟ خب، من معمولاً با زنگ ساعت بیدار می‌شم. هرگز قبل از زنگ ساعت بیدار نمی‌شم."
         },
         {
             "text": "Well, I usually wake up with my alarm. I never wake up before my alarm.",
@@ -223,47 +257,56 @@
         {
             "text": "So sometimes if I don't set my alarm, I oversleep.",
             "start": 219.09868,
-            "end": 224.37868
+            "end": 224.37868,
+            "fa": "پس گاهی اگر زنگ ساعت تنظیم نکنم، زیاد می‌خوابم."
         },
         {
             "text": "That actually happened this week, but it was OK because I woke up in time for work.",
             "start": 224.91867,
-            "end": 231.37868
+            "end": 231.37868,
+            "fa": "این واقعاً این هفته اتفاق افتاد، اما اوکی بود چون سر وقت برای کار بیدار شدم."
         },
         {
             "text": "I didn't oversleep that much.",
             "start": 231.73868,
-            "end": 233.71867
+            "end": 233.71867,
+            "fa": "خیلی زیاد نخوابیدم."
         },
         {
             "text": "Right. Have you ever overslept so much that you've missed work or missed the start of the working day?",
             "start": 234.11867,
-            "end": 242.61867
+            "end": 242.61867,
+            "fa": "درسته. تا حالا این‌قدر زیاد نخوابیدی که کار یا شروع روز کاری را از دست بدی؟"
         },
         {
             "text": "Never work, but yes to a flight.",
             "start": 243.19867,
-            "end": 247.09866
+            "end": 247.09866,
+            "fa": "هرگز برای کار نه، اما برای یک پرواز بله."
         },
         {
             "text": "That was one of the most stressful mornings I've had.",
             "start": 247.09866,
-            "end": 252.49867
+            "end": 252.49867,
+            "fa": "اون یکی از استرس‌زا‌ترین صبح‌های من بود."
         },
         {
             "text": "Is there anything else, Georgie, that you do in the morning regularly?",
             "start": 253.27867,
-            "end": 258.15866
+            "end": 258.15866,
+            "fa": "چیزی دیگه‌ای هست، جرجی، که تو صبح به‌طور منظم انجام می‌دی؟"
         },
         {
             "text": "Well, regularly, maybe not.",
             "start": 259.15866,
-            "end": 261.23868
+            "end": 261.23868,
+            "fa": "خب، منظماً، شاید نه."
         },
         {
             "text": "But sometimes if I feel motivated, I manage to do some exercise in the mornings,",
             "start": 261.35867,
-            "end": 267.35867
+            "end": 267.35867,
+            "fa": "اما گاهی اگر انگیزه داشته باشم، می‌تونم صبح ورزش کنم، یا دویدن یا واقعاً امروز صبح یک تمرین پیلاتس انجام دادم."
         },
         {
             "text": "either running or actually this morning, I did a Pilates workout.",
@@ -273,32 +316,38 @@
         {
             "text": "What about you, Neil?",
             "start": 273.05865,
-            "end": 274.33868
+            "end": 274.33868,
+            "fa": "نظرت چیه، نیل؟"
         },
         {
             "text": "No, I can't exercise until later because my body doesn't enjoy that, especially running.",
             "start": 274.33868,
-            "end": 282.7787
+            "end": 282.7787,
+            "fa": "نه، تا بعدش نمی‌تونم ورزش کنم، چون بدنم از این کار خوشش نمیاد، مخصوصاً دویدن."
         },
         {
             "text": "All of my joints hurt.",
             "start": 283.71866,
-            "end": 286.17865
+            "end": 286.17865,
+            "fa": "تمام مفاصل‌م درد می‌کنن."
         },
         {
             "text": "So what do you do in the mornings?",
             "start": 286.87866,
-            "end": 289.15866
+            "end": 289.15866,
+            "fa": "پس صبح‌ها چی کار می‌کنی؟"
         },
         {
             "text": "I like to know what the weather is going to be like.",
             "start": 289.65866,
-            "end": 292.29868
+            "end": 292.29868,
+            "fa": "دوست دارم بدونم هوا چطوری خواهد بود."
         },
         {
             "text": "So I check the forecast and I choose my clothes so that I wearing the right thing for the type of weather That very sensible especially in the United Kingdom because the weather can be different every day That very true Make sure you got your umbrella",
             "start": 292.37866,
-            "end": 308.728
+            "end": 308.728,
+            "fa": "من پیش‌بینی هوا رو چک می‌کنم و لباس‌هامو انتخاب می‌کنم تا مناسب نوع هوای روز باشه. این کار خیلی منطقیه، مخصوصاً تو بریتانیا چون هوا هر روز می‌تونه فرق کنه. درست می‌گی. مطمئن شو چترت رو برداری یا نه."
         },
         {
             "text": "Or not.",
@@ -308,12 +357,14 @@
         {
             "text": "OK, let's recap the language we heard during the conversation.",
             "start": 316.708,
-            "end": 320.368
+            "end": 320.368,
+            "fa": "خب، بزنیم سر خلاصه‌اش از زبان‌هایی که توی گفتگو شنیدیم."
         },
         {
             "text": "We heard a few ways to talk about what time we sleep until. We heard sleep in,",
             "start": 320.808,
-            "end": 326.688
+            "end": 326.688,
+            "fa": "چند تا روش برای گفتن تا چه ساعتی می‌خوابیم شنیدیم. «sleep in» یعنی تو تخت می‌مونیم و دیرتر از معمول می‌خوابیم."
         },
         {
             "text": "which means staying in bed and sleeping later than we usually do.",
@@ -323,27 +374,32 @@
         {
             "text": "And we also heard oversleep, which means sleeping longer than you should, accidentally.",
             "start": 331.948,
-            "end": 338.228
+            "end": 338.228,
+            "fa": "همچنین «oversleep» رو هم شنیدیم که یعنی به‌صورت تصادفی بیشتر از حد لازم می‌خوابیم."
         },
         {
             "text": "We had get up, which is a phrasal verb we use to say stand up and leave your bed.",
             "start": 338.748,
-            "end": 344.528
+            "end": 344.528,
+            "fa": "«get up» هم بود، یک فعل مرکب که یعنی از تخت بلند شدن."
         },
         {
             "text": "And we heard a morning person.",
             "start": 345.048,
-            "end": 347.008
+            "end": 347.008,
+            "fa": "و «morning person» رو هم شنیدیم."
         },
         {
             "text": "Like you, Georgie, you're a morning person.",
             "start": 347.188,
-            "end": 349.188
+            "end": 349.188,
+            "fa": "مثل تو، جورجی، تو یک صبح‌خوردی هستی."
         },
         {
             "text": "A morning person is someone who likes the mornings,",
             "start": 349.788,
-            "end": 352.448
+            "end": 352.448,
+            "fa": "صبح‌خوردی کسیه که صبح‌ها رو دوست داره و سر روز انرژی زیادی داره."
         },
         {
             "text": "has lots of energy at the start of the day.",
@@ -353,17 +409,20 @@
         {
             "text": "I'm not really a morning person.",
             "start": 355.148,
-            "end": 357.288
+            "end": 357.288,
+            "fa": "من واقعاً صبح‌خوردی نیستم."
         },
         {
             "text": "We had skip, not do something that you usually do or should do.",
             "start": 357.928,
-            "end": 362.308
+            "end": 362.308,
+            "fa": "«skip» هم بود، یعنی کاری که معمولاً انجام می‌دی یا باید انجام بدی رو نادیده گرفتن."
         },
         {
             "text": "For example, sometimes I forget to eat in the morning,",
             "start": 362.528,
-            "end": 365.728
+            "end": 365.728,
+            "fa": "مثلا گاهی صبح غذا خوردن رو فراموش می‌کنم، پس صبحانه رو می‌پرند و به‌جایش زودتر ناهار می‌خورم."
         },
         {
             "text": "so I skip breakfast and have an early lunch instead.",
@@ -373,22 +432,26 @@
         {
             "text": "That's it for this episode of Real Easy English.",
             "start": 370.268,
-            "end": 373.328
+            "end": 373.328,
+            "fa": "این هم تمام شد برای این قسمت از «Real Easy English»."
         },
         {
             "text": "You can test what you've learned with our worksheet on our website.",
             "start": 373.628,
-            "end": 377.568
+            "end": 377.568,
+            "fa": "می‌تونی با کاربرگ‌مون توی وب‌سایت، چیزی که یاد گرفتی رو تست کنی."
         },
         {
             "text": "Find a link in the notes and go there.",
             "start": 378.128,
-            "end": 380.228
+            "end": 380.228,
+            "fa": "یک لینک توی یادداشت‌ها پیدا کن و بزن سرش."
         },
         {
             "text": "And if you want to learn more language to talk about your morning routine,",
             "start": 380.608,
-            "end": 384.268
+            "end": 384.268,
+            "fa": "اگه می‌خوای بیشتر درباره‌ی زبان برای توصیف روتین صبح‌ات یاد بگیری، من یه ویدیو درباره‌ی افعال مرکب برای روتین صبح‌ات درست کردم."
         },
         {
             "text": "I've made a video all about phrasal verbs for your morning routine.",
@@ -398,12 +461,14 @@
         {
             "text": "You can also find it at bbclearningenglish.com.",
             "start": 388.388,
-            "end": 391.668
+            "end": 391.668,
+            "fa": "می‌تونی اون رو توی bbclearningenglish.com هم پیدا کنی."
         },
         {
             "text": "And next time we'll talk about our evening routines,",
             "start": 392.328,
-            "end": 395.748
+            "end": 395.748,
+            "fa": "و دفعه‌ی بعد درباره‌ی روتین‌های شبانه‌مون، چه کارهایی توی شب‌ها انجام می‌دیم، صحبت می‌کنیم."
         },
         {
             "text": "what we get up to in the evenings.",
@@ -413,12 +478,14 @@
         {
             "text": "See you next time.",
             "start": 398.348,
-            "end": 399.128
+            "end": 399.128,
+            "fa": "دفعهٔ بعد می‌بینمت."
         },
         {
             "text": "Goodbye.",
             "start": 399.288,
-            "end": 399.548
+            "end": 399.548,
+            "fa": "خداحافظ."
         }
     ],
     "daily_listen_2": [
@@ -435,12 +502,14 @@
         {
             "text": "Hi, Bob the Canadian here.",
             "start": 10.51,
-            "end": 12.01
+            "end": 12.01,
+            "fa": "سلام، باب کانادایی اینجا."
         },
         {
             "text": "As you continue to learn English,",
             "start": 12.01,
-            "end": 14
+            "end": 14,
+            "fa": "وقتی انگلیسی یاد می‌گیری، می‌خوای بتونی دربارهٔ روتین روزانه‌ات صحبت کنی."
         },
         {
             "text": "you want to be able to talk about your daily routine.",
@@ -450,7 +519,8 @@
         {
             "text": "In this English lesson, I will invite you along with me",
             "start": 17.44,
-            "end": 21.11
+            "end": 21.11,
+            "fa": "در این درس انگلیسی، تو رو دعوت می‌کنم که بخشی از روزم رو ببینی تا روتین روزانه‌ام را ببینی و در همین حین یاد بگیری چطور دربارهٔ روتین روزانه‌ات صحبت کنی."
         },
         {
             "text": "for part of my day so that you can see my daily routine",
@@ -470,7 +540,8 @@
         {
             "text": "So in this video, we'll go from the moment I wake up",
             "start": 29.54,
-            "end": 32.87
+            "end": 32.87,
+            "fa": "پس تو این ویدیو، از لحظه‌ای که بیدار می‌شم تا حدود پایان روز کاری‌ام پیش می‌ریم."
         },
         {
             "text": "until about the end of my work day.",
@@ -480,7 +551,8 @@
         {
             "text": "This is part one of two videos where you're going to learn",
             "start": 35.6,
-            "end": 39.1
+            "end": 39.1,
+            "fa": "این قسمت اول از دو ویدیوست که تو می‌خواهی یاد بگیری چطور دربارهٔ روتین روزانه‌ات صحبت کنی."
         },
         {
             "text": "to talk about your daily routine.",
@@ -490,7 +562,8 @@
         {
             "text": "The very first thing I do every day",
             "start": 44.72,
-            "end": 47.01
+            "end": 47.01,
+            "fa": "اولین کاری که هر روز انجام می‌دم اینه که بیدار می‌شم و بعد معمولاً دکمه اسنوز ساعت زنگ‌امو می‌زنم."
         },
         {
             "text": "is I wake up and then I usually press",
@@ -505,7 +578,8 @@
         {
             "text": "When you wake up, it means you go from",
             "start": 53.39,
-            "end": 55.84
+            "end": 55.84,
+            "fa": "وقتی بیدار می‌شی، یعنی از حالت خواب به بیداری می‌روی، اما وقتی ساعت زنگ‌ام اولین بار می‌زنه، معمولاً می‌خوام کمی دیگه بخوابم."
         },
         {
             "text": "being asleep to being awake,",
@@ -525,27 +599,32 @@
         {
             "text": "So I'm gonna do that right now.",
             "start": 62.3,
-            "end": 63.853
+            "end": 63.853,
+            "fa": "پس همین الان این کارو می‌کنم."
         },
         {
             "text": "So the second thing I do in the morning is I get up.",
             "start": 67.77,
-            "end": 71.58
+            "end": 71.58,
+            "fa": "دومین کاری که صبح انجام می‌دم اینه که از تخت بلند می‌شم."
         },
         {
             "text": "When you get up, it means you actually get out of bed.",
             "start": 71.58,
-            "end": 76.5
+            "end": 76.5,
+            "fa": "وقتی بلند می‌شوی، یعنی واقعاً از تخت بیرون می‌آیی."
         },
         {
             "text": "So I think it's time for me to get up.",
             "start": 76.5,
-            "end": 78.93299999999999
+            "end": 78.93299999999999,
+            "fa": "پس فکر می‌کنم وقتشه که من بلند شم."
         },
         {
             "text": "The first thing I like to do after I get up",
             "start": 79.77,
-            "end": 82.01
+            "end": 82.01,
+            "fa": "اولین کاری که بعد از بلند شدن دوست دارم انجام بدم اینه که تخت‌م رو مرتب کنم."
         },
         {
             "text": "is I like to make the bed.",
@@ -555,12 +634,14 @@
         {
             "text": "It's always nice when you have your bed made.",
             "start": 84.66,
-            "end": 87.6
+            "end": 87.6,
+            "fa": "همیشه خوبه وقتی تخت‌ات مرتب باشه."
         },
         {
             "text": "So after I get up and after I make the bed,",
             "start": 87.6,
-            "end": 90.74
+            "end": 90.74,
+            "fa": "پس بعد از اینکه بلند شدم و تخت‌م رو مرتب کردم، معمولاً به دستشویی می‌روم."
         },
         {
             "text": "I usually use the bathroom.",
@@ -570,7 +651,8 @@
         {
             "text": "This room behind me is our bathroom",
             "start": 93.3,
-            "end": 95.39
+            "end": 95.39,
+            "fa": "این اتاق پشت سر من حمام‌مون هست و به انگلیسی می‌تونی اینو چند راه بگی."
         },
         {
             "text": "and in English you can say this a number of ways.",
@@ -580,7 +662,8 @@
         {
             "text": "You can say, \"I use the bathroom,\"",
             "start": 98.05,
-            "end": 100.8
+            "end": 100.8,
+            "fa": "می‌تونی بگی «I use the bathroom»، یا «I go to the bathroom»، و حتی تو انگلیسی کانادایی می‌گی «I use the washroom» یا «I go to the washroom»."
         },
         {
             "text": "you can say, \"I go to the bathroom,\"",
@@ -600,7 +683,8 @@
         {
             "text": "This is the one part of the lesson though",
             "start": 109.92,
-            "end": 111.52000000000001
+            "end": 111.52000000000001,
+            "fa": "این بخشی از درس هست که دوربین رو با خودم نمی‌برم."
         },
         {
             "text": "where I'm not taking the camera with me.",
@@ -610,17 +694,20 @@
         {
             "text": "I'll be right back.",
             "start": 113.56,
-            "end": 114.513
+            "end": 114.513,
+            "fa": "همین الان برمی‌گردم."
         },
         {
             "text": "So the next thing I do every day is make breakfast.",
             "start": 117.28,
-            "end": 120.58
+            "end": 120.58,
+            "fa": "پس کار بعدی که هر روز انجام می‌دم اینه که صبحانه می‌دم."
         },
         {
             "text": "I usually fry two eggs in a frying pan,",
             "start": 120.58,
-            "end": 124.3
+            "end": 124.3,
+            "fa": "معمولاً دو تا تخم‌مرغ توی تابه سرخ می‌کنم، دو تا تست توی توستر می‌گیرم و یک فنجان قهوه می‌ریزم توی فنجون."
         },
         {
             "text": "I usually make myself two pieces of toast in the toaster,",
@@ -635,22 +722,26 @@
         {
             "text": "That is a pretty standard Bob the Canadian breakfast.",
             "start": 132.85,
-            "end": 136.64
+            "end": 136.64,
+            "fa": "این یه صبحانهٔ معمولی بابِ کاناداییه."
         },
         {
             "text": "So after I make breakfast, I eat breakfast.",
             "start": 136.64,
-            "end": 139.97
+            "end": 139.97,
+            "fa": "پس بعد از اینکه صبحانه رو آماده می‌کنم، صبحانه می‌خورم."
         },
         {
             "text": "There's actually two ways to say this, though, in English.",
             "start": 139.97,
-            "end": 142.53
+            "end": 142.53,
+            "fa": "در واقع دو تا راه برای گفتن این توی انگلیسی هست."
         },
         {
             "text": "You can say, \"I eat breakfast,\"",
             "start": 142.53,
-            "end": 144.75
+            "end": 144.75,
+            "fa": "می‌تونی بگی «I eat breakfast»، یا می‌تونی بگی «I have breakfast»."
         },
         {
             "text": "but you can also say, \"I have breakfast.\"",
@@ -660,7 +751,8 @@
         {
             "text": "So I eat my egg on toast",
             "start": 147.36,
-            "end": 149.85
+            "end": 149.85,
+            "fa": "پس تخم‌مرغم رو روی تست می‌خورم و قهوه‌ام رو از فنجون مورد علاقم می‌نوشم."
         },
         {
             "text": "and I drink my coffee from my favorite mug.",
@@ -670,27 +762,32 @@
         {
             "text": "This actually says, \"Love the World, Bob the Canadian.\"",
             "start": 152.4,
-            "end": 156.11
+            "end": 156.11,
+            "fa": "این واقعاً می‌گه «Love the World, Bob the Canadian»."
         },
         {
             "text": "This is from a friend of mine named Miroslav.",
             "start": 156.11,
-            "end": 157.98
+            "end": 157.98,
+            "fa": "این از دوستی به اسم میروسلاو است."
         },
         {
             "text": "Thanks again Miroslav for the mug.",
             "start": 157.98,
-            "end": 160.32999999999998
+            "end": 160.32999999999998,
+            "fa": "بازم ممنون میروسلاو برای فنجون."
         },
         {
             "text": "But again, every day I eat breakfast or I have breakfast.",
             "start": 160.32999999999998,
-            "end": 165.32999999999998
+            "end": 165.32999999999998,
+            "fa": "اما دوباره، هر روز صبحانه می‌خورم یا صبحانه می‌گیرم."
         },
         {
             "text": "The next thing I do is I use my computer",
             "start": 165.5,
-            "end": 167.81
+            "end": 167.81,
+            "fa": "کار بعدی که می‌کنم اینه که کامپیوترم رو روشن می‌کنم تا ایمیل‌هامو چک کنم و اخبار رو بخونم."
         },
         {
             "text": "to check my email and to read the news.",
@@ -700,7 +797,8 @@
         {
             "text": "I like to check my email every morning",
             "start": 170.81,
-            "end": 173.34
+            "end": 173.34,
+            "fa": "من هر صبح ایمیل‌هامو چک می‌کنم و اخبار رو هم هر صبح می‌خونم."
         },
         {
             "text": "and I like to read the news every morning.",
@@ -710,7 +808,8 @@
         {
             "text": "I also spend a little bit of time",
             "start": 175.91,
-            "end": 177.99
+            "end": 177.99,
+            "fa": "همچنین کمی وقت می‌گذارم تا حساب‌های شبکه‌های اجتماعی مثل فیس‌بوک، اینستاگرام و تیک‌تاک رو بررسی کنم."
         },
         {
             "text": "checking my social media accounts",
@@ -725,12 +824,14 @@
         {
             "text": "I probably spend a little bit too much time doing that.",
             "start": 183.56,
-            "end": 186.34
+            "end": 186.34,
+            "fa": "احتمالاً کمی بیش از حد وقت می‌گذارم برای این کار."
         },
         {
             "text": "So this next part of my day you are not invited to",
             "start": 186.34,
-            "end": 189.7
+            "end": 189.7,
+            "fa": "پس این بخش بعدی از روزم تو دعوت نیست چون هر روز دوش می‌گیرم."
         },
         {
             "text": "because every day I take a shower.",
@@ -740,27 +841,32 @@
         {
             "text": "There are two ways to say this, though, in English.",
             "start": 192.88,
-            "end": 195.21
+            "end": 195.21,
+            "fa": "دو تا راه برای گفتن این توی انگلیسی هست."
         },
         {
             "text": "You can say, \"Every day I take a shower.\"",
             "start": 195.21,
-            "end": 197.86
+            "end": 197.86,
+            "fa": "می‌تونی بگی «Every day I take a shower»."
         },
         {
             "text": "You can also say, \"Every day I have a shower.\"",
             "start": 197.86,
-            "end": 201.31
+            "end": 201.31,
+            "fa": "همچنین می‌تونی بگی «Every day I have a shower»."
         },
         {
             "text": "I usually take a shower every day before I go to work.",
             "start": 201.31,
-            "end": 205.6
+            "end": 205.6,
+            "fa": "معمولاً هر روز قبل از رفتن به کار دوش می‌گیرم."
         },
         {
             "text": "After my shower, I dry off with a towel",
             "start": 205.6,
-            "end": 209.48
+            "end": 209.48,
+            "fa": "بعد از دوش، با حوله خشک می‌شوم و بعد بادی‌م می‌زنم."
         },
         {
             "text": "and then I put on some deodorant.",
@@ -770,12 +876,14 @@
         {
             "text": "After that, I get dressed.",
             "start": 212.14,
-            "end": 214.84
+            "end": 214.84,
+            "fa": "بعد از اون، لباس می‌پوشم."
         },
         {
             "text": "I decide what I'm going to wear for the day",
             "start": 214.84,
-            "end": 217.8
+            "end": 217.8,
+            "fa": "تصمیم می‌گیرم امروز چه لباسی بپوشم، بعد لباس می‌پوشم و آماده می‌شوم برای رفتن به کار."
         },
         {
             "text": "and then I get dressed and I get ready to go to work.",
@@ -785,7 +893,8 @@
         {
             "text": "After I get dressed, I go back to the bathroom",
             "start": 221.46,
-            "end": 224.17000000000002
+            "end": 224.17000000000002,
+            "fa": "بعد از اینکه لباس پوشیدم، دوباره به سرویس بهداشتی می‌روم و اگر نیاز داشته باشم، ریش‌موهایم را می‌تراشم، اما هر روز ریش‌موهایم را نمی‌تراشم."
         },
         {
             "text": "and if I need to, I will shave,",
@@ -800,12 +909,14 @@
         {
             "text": "But if it's a day where I need to shave, I shave.",
             "start": 228.82,
-            "end": 231.99
+            "end": 231.99,
+            "fa": "اما اگر روزی نیاز به تراشیدن داشته باشم، تراش می‌کنم."
         },
         {
             "text": "After that, I get some toothpaste and my toothbrush",
             "start": 231.99,
-            "end": 235.01
+            "end": 235.01,
+            "fa": "بعدش، کمی خمیر دندان و مسواک می‌گیرم و دندونامو مسواک می‌زنم."
         },
         {
             "text": "and I will brush my teeth.",
@@ -815,7 +926,8 @@
         {
             "text": "So the next thing I do is I come back to the kitchen",
             "start": 237.3,
-            "end": 240.01
+            "end": 240.01,
+            "fa": "بعدی که می‌کنم اینه که برمی‌گردم به آشپزخونه و ناهار می‌پزم."
         },
         {
             "text": "and I make a lunch.",
@@ -825,17 +937,20 @@
         {
             "text": "I don't like to buy lunch every day.",
             "start": 241.29,
-            "end": 243.56
+            "end": 243.56,
+            "fa": "من دوست ندارم هر روز ناهار بخریم."
         },
         {
             "text": "I don't like to spend money.",
             "start": 243.56,
-            "end": 245.49
+            "end": 245.49,
+            "fa": "من دوست ندارم پول خرج کنم."
         },
         {
             "text": "So I usually make a sandwich and I grab a banana,",
             "start": 245.49,
-            "end": 249
+            "end": 249,
+            "fa": "پس معمولاً یک ساندویچ می‌سازم و یک موز می‌گیرم، این امروز ناهار من می‌شه."
         },
         {
             "text": "and this will be my lunch for today.",
@@ -845,17 +960,20 @@
         {
             "text": "So in English, we would say, \"Every day I make a lunch.\"",
             "start": 250.72,
-            "end": 254.52
+            "end": 254.52,
+            "fa": "پس به انگلیسی می‌گیم: \"Every day I make a lunch.\""
         },
         {
             "text": "We can also, though, say, \"Every day I pack a lunch.\"",
             "start": 254.52,
-            "end": 258.23
+            "end": 258.23,
+            "fa": "ولی می‌تونیم بگیم: \"Every day I pack a lunch.\""
         },
         {
             "text": "When you pack a lunch, it means that you",
             "start": 258.23,
-            "end": 260.6
+            "end": 260.6,
+            "fa": "وقتی می‌گیم pack a lunch، یعنی ناهار رو تو یک کیف ناهار قشنگ مثل این می‌ذاریم."
         },
         {
             "text": "put your lunch in a nice lunch bag like this one.",
@@ -865,17 +983,20 @@
         {
             "text": "So every day I make a lunch, and every day I pack a lunch.",
             "start": 263.82,
-            "end": 268.45
+            "end": 268.45,
+            "fa": "پس هر روز ناهار می‌سازم و هر روز ناهار رو تو کیف می‌گذارم."
         },
         {
             "text": "The next thing I do every day is I grab my things.",
             "start": 268.45,
-            "end": 271.3
+            "end": 271.3,
+            "fa": "بعدی که هر روز می‌کنم اینه که وسایلمو می‌گیرم."
         },
         {
             "text": "When I say I grab my things, it means that I grab my keys,",
             "start": 271.3,
-            "end": 276.05
+            "end": 276.05,
+            "fa": "وقتی می‌گم وسایلمو می‌گیرم، یعنی کلیدمو می‌گیرم، تلفنم رو می‌گیرم، کیف پولمو می‌گیرم، لپ‌تاپمو می‌گیرم و ناهاری که درست کردم رو هم می‌گیرم چون تقریباً آماده‌ام که از در بزنم بیرون و برم سر کار."
         },
         {
             "text": "I grab my phone, I grab my wallet, I grab my laptop,",
@@ -895,17 +1016,20 @@
         {
             "text": "So the next thing I do in my daily routine is I go to work.",
             "start": 287.52,
-            "end": 291.36
+            "end": 291.36,
+            "fa": "پس بعدی که تو روتین روزانه‌ام می‌کنم اینه که می‌رم سر کار."
         },
         {
             "text": "Every day at about 7:30 Monday through Friday, I go to work.",
             "start": 291.36,
-            "end": 296.36
+            "end": 296.36,
+            "fa": "هر روز حدود ساعت ۷:۳۰ دوشنبه تا جمعه می‌رم سر کار."
         },
         {
             "text": "If you were someone who was in school though,",
             "start": 297.45,
-            "end": 299.90999999999997
+            "end": 299.90999999999997,
+            "fa": "اگر تو دانش‌آموز بودی، می‌گفتی: \"I go to school.\""
         },
         {
             "text": "you would say, \"I go to school.\"",
@@ -915,7 +1039,8 @@
         {
             "text": "If you are someone who stays home,",
             "start": 302.5,
-            "end": 304.81
+            "end": 304.81,
+            "fa": "اگر تو کسی بودی که خونه می‌مونه، تو این مرحله از روتین می‌تونی خونه بمانی."
         },
         {
             "text": "at this point in your routine you might stay home.",
@@ -925,12 +1050,14 @@
         {
             "text": "But for me, every day at this time, I go to work.",
             "start": 308.09,
-            "end": 312.07
+            "end": 312.07,
+            "fa": "اما برای من، هر روز تو این ساعت می‌رم سر کار."
         },
         {
             "text": "One of the things I like about my drive to work",
             "start": 312.07,
-            "end": 314.35
+            "end": 314.35,
+            "fa": "یکی از چیزهایی که تو مسیر رانندگی به سر کار دوست دارم اینه که هیچ‌وقت ترافیک ندارم."
         },
         {
             "text": "is that there are no traffic jams, ever.",
@@ -940,7 +1067,8 @@
         {
             "text": "It takes me only 10 minutes to drive",
             "start": 317.24,
-            "end": 319.12
+            "end": 319.12,
+            "fa": "فقط ۱۰ دقیقه طول می‌کشه تا از خونه‌ام به مدرسه‌ای که توش کار می‌کنم برسم."
         },
         {
             "text": "from my house to the school that I work at.",
@@ -950,7 +1078,8 @@
         {
             "text": "When I get to work, I take off my jacket",
             "start": 322.39,
-            "end": 326.46
+            "end": 326.46,
+            "fa": "وقتی به سر کار می‌رسم، کت‌امو در می‌آورم و می‌چسبونم، بعد به همه معلم‌های دیگه تو اتاق استاف سلام می‌کنم."
         },
         {
             "text": "and I hang up my jacket,",
@@ -970,22 +1099,26 @@
         {
             "text": "Hi everybody.",
             "start": 334.24,
-            "end": 335.87
+            "end": 335.87,
+            "fa": "سلام همه."
         },
         {
             "text": "Hi.",
             "start": 335.87,
-            "end": 336.703
+            "end": 336.703,
+            "fa": "سلام."
         },
         {
             "text": "Hi, Bob.",
             "start": 336.703,
-            "end": 337.536
+            "end": 337.536,
+            "fa": "سلام باب."
         },
         {
             "text": "I put my lunch in the fridge,",
             "start": 338.7,
-            "end": 340.823
+            "end": 340.823,
+            "fa": "ناهارمو تو یخچال می‌گذارم، اولین کلاس روزم که کلاس نهم فرانسه است رو تدریس می‌کنم، این کتاب درسی ماست، به تعداد زیادی دانش‌آموز که معمولاً خیلی مشتاق یادگیری زبان جدید هستند."
         },
         {
             "text": "I teach my first class of the day,",
@@ -1010,7 +1143,8 @@
         {
             "text": "Every day after teaching my first class,",
             "start": 356.75,
-            "end": 359.19
+            "end": 359.19,
+            "fa": "هر روز بعد از تدریس اولین کلاس، می‌رم به محل کار معلمیم و کارهای دانش‌آموزها رو با خودکار قرمز تصحیح می‌کنم و برای دو کلاس بعدی‌ام برنامه‌ریزی می‌کنم."
         },
         {
             "text": "I go to my teacher work area",
@@ -1030,7 +1164,8 @@
         {
             "text": "After that it's lunch time,",
             "start": 368.72,
-            "end": 370.49
+            "end": 370.49,
+            "fa": "بعدش وقت ناهار می‌شود، پس ناهار می‌خورم و با معلم‌های دیگه‌ای که تو اتاق استاف ناهار می‌خورند صحبت می‌کنم."
         },
         {
             "text": "so I eat my lunch and I talk to the other teachers",
@@ -1045,12 +1180,14 @@
         {
             "text": "Hey, did you see that hockey game the other night?",
             "start": 377.43,
-            "end": 379.92
+            "end": 379.92,
+            "fa": "هی، اون بازی هاکی شب قبل را دیدی؟"
         },
         {
             "text": "I know this doesn't sound very Canadian",
             "start": 379.92,
-            "end": 382.41
+            "end": 382.41,
+            "fa": "می‌دونم این خیلی کانادایی به نظر نمیاد ولی من واقعاً هاکی تماشا نمی‌کنم."
         },
         {
             "text": "but I don't actually watch hockey.",
@@ -1060,7 +1197,8 @@
         {
             "text": "After lunch, I teach my next class of the day,",
             "start": 384.98,
-            "end": 387.52
+            "end": 387.52,
+            "fa": "بعد از ناهار، کلاس بعدی روزم که کلاس کامپیوتره را تدریس می‌کنم."
         },
         {
             "text": "which is computer class.",
@@ -1070,17 +1208,20 @@
         {
             "text": "In computer class, I teach students how to make video games.",
             "start": 389.04,
-            "end": 392.7
+            "end": 392.7,
+            "fa": "تو کلاس کامپیوتر، به دانش‌آموزان می‌گم چطور بازی‌های ویدئویی بسازند."
         },
         {
             "text": "It is a really, really fun class.",
             "start": 392.7,
-            "end": 395.08
+            "end": 395.08,
+            "fa": "این کلاس واقعاً، واقعاً سرگرم‌کننده است."
         },
         {
             "text": "And then I teach my last class of the day,",
             "start": 395.08,
-            "end": 397.22
+            "end": 397.22,
+            "fa": "بعدش آخرین کلاس روزم که فرانسه پایه ۱۰ است را تدریس می‌کنم."
         },
         {
             "text": "which is grade 10 French.",
@@ -1090,17 +1231,20 @@
         {
             "text": "This is our textbook.",
             "start": 399.63,
-            "end": 401.193
+            "end": 401.193,
+            "fa": "این کتاب درسی ماست."
         },
         {
             "text": "And that's pretty much the end of my workday.",
             "start": 403.59000000000003,
-            "end": 407.6
+            "end": 407.6,
+            "fa": "و تقریباً تمام روز کاری من همین‌جا تمام می‌شود."
         },
         {
             "text": "I usually put on my jacket at the end of the day",
             "start": 407.6,
-            "end": 410.58
+            "end": 410.58,
+            "fa": "معمولاً در پایان روز ژاکتم را می‌پوشم و می‌گویم خداحافظ به همه همکارانم."
         },
         {
             "text": "and I say bye, bye everybody, to all of my colleagues.",
@@ -1110,7 +1254,8 @@
         {
             "text": "Well hey, thanks for coming along",
             "start": 414.56,
-            "end": 416.1
+            "end": 416.1,
+            "fa": "خب، ممنون که با من تو بخشی از روزم همراه بودی."
         },
         {
             "text": "with me for part of my day.",
@@ -1120,7 +1265,8 @@
         {
             "text": "I hope you were able to learn",
             "start": 417.42,
-            "end": 419.40999999999997
+            "end": 419.40999999999997,
+            "fa": "امیدوارم توانستی چند کلمه و عبارت انگلیسی دیگه برای صحبت در مورد روتین روزانه‌ات یاد بگیری."
         },
         {
             "text": "a few more English words and phrases",
@@ -1135,7 +1281,8 @@
         {
             "text": "Don't forget that next week,",
             "start": 424.04,
-            "end": 425.72
+            "end": 425.72,
+            "fa": "فراموش نکن که هفتهٔ آینده، قسمت دوم این ویدیو منتشر می‌شود که در اون بیشتر دربارهٔ کارهایی که معمولاً شب‌ها انجام می‌دم صحبت می‌کنم."
         },
         {
             "text": "part two of this video will come out",
@@ -1155,7 +1302,8 @@
         {
             "text": "But I hope this English lesson",
             "start": 432.33,
-            "end": 434.3
+            "end": 434.3,
+            "fa": "اما امیدوارم این درس انگلیسی بهت کمک کرده باشد تا چند کلمه و عبارت انگلیسی دیگه برای صحبت دربارهٔ روتین روزانه‌ات یاد بگیری."
         },
         {
             "text": "helped you learn just a few more English words and phrases",
@@ -1170,12 +1318,14 @@
         {
             "text": "I'm Bob the Canadian and you're learning English with me.",
             "start": 439.61,
-            "end": 442.26
+            "end": 442.26,
+            "fa": "من باب کانادایی‌ام و تو با من انگلیسی یاد می‌گیری."
         },
         {
             "text": "Don't forget to subscribe if you are new here",
             "start": 442.26,
-            "end": 444.65
+            "end": 444.65,
+            "fa": "اگر تازه اینجا هستی حتماً سابسکرایب کن و اگر این ویدیو بهت کمک کرد لایک بده."
         },
         {
             "text": "and give me a thumbs up if this video",
@@ -1190,7 +1340,8 @@
         {
             "text": "Thanks for watching and have a great day.",
             "start": 448.93,
-            "end": 450.856
+            "end": 450.856,
+            "fa": "ممنون که تماشا کردید و روز خوبی داشته باشید."
         }
     ],
     "video_shadowing": [
@@ -1234,7 +1385,8 @@
             "speaker": "Neil",
             "text": "Hello and welcome to Real Easy English, the podcast where we have real conversations in",
             "start": 0.88,
-            "end": 7.44
+            "end": 7.44,
+            "fa": "سلام و خوش‌آمدید به ریل ایزی انگلیش، پادکستی که توش مکالمات واقعی به انگلیسی ساده داریم تا به شما کمک کنیم یاد بگیرید. من نیل."
         },
         {
             "speaker": "Neil",
@@ -1246,7 +1398,8 @@
             "speaker": "Georgie",
             "text": "And I'm Georgie. You can read along with this podcast on our website,",
             "start": 10.72,
-            "end": 14.8
+            "end": 14.8,
+            "fa": "و من جورجی. می‌تونید همزمان با این پادکست توی وب‌سایت ما بخونید، جایی که می‌تونید ورک‌شیت رایگان هم پیدا کنید."
         },
         {
             "speaker": "Georgie",
@@ -1258,61 +1411,71 @@
             "speaker": "Neil",
             "text": "So, Georgie, how are you today?",
             "start": 23.52,
-            "end": 25.28
+            "end": 25.28,
+            "fa": "خب جورجی، امروز چطوری؟"
         },
         {
             "speaker": "Georgie",
             "text": "I'm very well, thank you. How are you?",
             "start": 25.92,
-            "end": 28.08
+            "end": 28.08,
+            "fa": "من خیلی خوبم، ممنون. تو چطوری؟"
         },
         {
             "speaker": "Neil",
             "text": "I'm well, thank you very much.",
             "start": 28.08,
-            "end": 29.68
+            "end": 29.68,
+            "fa": "من خوبم، خیلی ممنون."
         },
         {
             "speaker": "Georgie",
             "text": "Good.",
             "start": 29.68,
-            "end": 30.04
+            "end": 30.04,
+            "fa": "خوب."
         },
         {
             "speaker": "Neil",
             "text": "What are we talking about today?",
             "start": 30.11,
-            "end": 32.42
+            "end": 32.42,
+            "fa": "امروز درباره چی صحبت می‌کنیم؟"
         },
         {
             "speaker": "Georgie",
             "text": "Today we are talking about our morning routines.",
             "start": 32.5,
-            "end": 35.96
+            "end": 35.96,
+            "fa": "امروز دربارهٔ روتین‌های صبح‌مون صحبت می‌کنیم."
         },
         {
             "speaker": "Georgie",
             "text": "That is what we usually do in the mornings before work.",
             "start": 36.38,
-            "end": 40.04
+            "end": 40.04,
+            "fa": "این کاریه که معمولاً صبح‌ها قبل از کار انجام می‌دیم."
         },
         {
             "speaker": "Neil",
             "text": "Okay, let's get started.",
             "start": 40.1,
-            "end": 41.7
+            "end": 41.7,
+            "fa": "باشه، بزن بریم."
         },
         {
             "speaker": "Georgie",
             "text": "So Neil, do you like to get up early or do you prefer to sleep in?",
             "start": 42.5,
-            "end": 47.68
+            "end": 47.68,
+            "fa": "خب نیل، صبح زود بیدار شدن رو دوست داری یا ترجیح می‌دی بخوابی تا دیر؟"
         },
         {
             "speaker": "Neil",
             "text": "It depends if I've had enough",
             "start": 47.76,
-            "end": 50.04
+            "end": 50.04,
+            "fa": "بستگی به این داره که کافی خوابیده باشم یا نه. اگه کافی خوابیده باشم می‌تونم زود بیدار شم، اگه نه می‌خوام بخوابم. تو چطور؟"
         },
         {
             "speaker": "Neil",
@@ -1330,13 +1493,15 @@
             "speaker": "Georgie",
             "text": "Well, I like the mornings sometimes because I feel like it's quieter. Not many people are up.",
             "start": 57.73,
-            "end": 67.66
+            "end": 67.66,
+            "fa": "خب، بعضی وقتا صبح‌ها رو دوست دارم چون ساکت‌تره. آدم‌های زیادی بیدار نیستن."
         },
         {
             "speaker": "Georgie",
             "text": "I also feel like my brain works better in the mornings. So that helps. But I do like",
             "start": 67.66,
-            "end": 76.56
+            "end": 76.56,
+            "fa": "همچنین حس می‌کنم مغزم صبح‌ها بهتر کار می‌کنه، پس این کمک می‌کنه. ولی گاهی هم دوست دارم صبح‌ها بخوابم، مخصوصاً تو آخر هفته‌ها."
         },
         {
             "speaker": "Georgie",
@@ -1348,7 +1513,8 @@
             "speaker": "Neil",
             "text": "So Georgie, you said that your brain works best in the morning. Does that mean that you're a",
             "start": 80.42,
-            "end": 86.14
+            "end": 86.14,
+            "fa": "پس جورجی، گفتی مغزت صبح‌ها بهتر کار می‌کنه. یعنی تو آدم صبح‌خواری هستی؟"
         },
         {
             "speaker": "Neil",
@@ -1360,31 +1526,36 @@
             "speaker": "Georgie",
             "text": "Yes, I think it does.",
             "start": 87.5,
-            "end": 89.1
+            "end": 89.1,
+            "fa": "آره، فکر می‌کنم همینطوره."
         },
         {
             "speaker": "Georgie",
             "text": "I'm a morning person.",
             "start": 89.22,
-            "end": 90.4
+            "end": 90.4,
+            "fa": "من آدم صبح‌خواری‌ام."
         },
         {
             "speaker": "Georgie",
             "text": "That means someone that has a lot of energy at the start of the day.",
             "start": 90.4,
-            "end": 95.24
+            "end": 95.24,
+            "fa": "یعنی کسی که انرژی زیادی در ابتدای روز داره."
         },
         {
             "speaker": "Neil",
             "text": "Georgie do you eat breakfast",
             "start": 95.74,
-            "end": 97.9
+            "end": 97.9,
+            "fa": "جورجی، صبحانه می‌خوری؟"
         },
         {
             "speaker": "Georgie",
             "text": "That also depends And I have a different breakfast routine depending if I working in the office or at home",
             "start": 97.98,
-            "end": 106.15
+            "end": 106.15,
+            "fa": "این هم بستگی داره. من روتین صبحانه‌ام بسته به این که تو دفتر کار می‌کنم یا خونه متفاوته. پس اگه تو دفتر باشم، معمولاً یک شیرینی یا کروسانت صبح می‌خورم و یه موز اگه حالم خوب باشه."
         },
         {
             "speaker": "Georgie",
@@ -1408,187 +1579,218 @@
             "speaker": "Georgie",
             "text": "But if I'm at home, I usually have eggs a bit later, around 10.",
             "start": 116.51,
-            "end": 122.53
+            "end": 122.53,
+            "fa": "اما اگه خونه باشم، معمولاً کمی دیرتر، حدود ساعت ۱۰، تخم‌مرغ می‌خورم."
         },
         {
             "speaker": "Georgie",
             "text": "What about you?",
             "start": 123.09,
-            "end": 124.11
+            "end": 124.11,
+            "fa": "شما چه فکر می‌کنید؟"
         },
         {
             "speaker": "Neil",
             "text": "I always have breakfast before I leave the house.",
             "start": 124.11,
-            "end": 127.61
+            "end": 127.61,
+            "fa": "همیشه قبل از اینکه از خونه برم صبحانه می‌خورم."
         },
         {
             "speaker": "Georgie",
             "text": "Wow.",
             "start": 128.01,
-            "end": 128.19
+            "end": 128.19,
+            "fa": "وای."
         },
         {
             "speaker": "Neil",
             "text": "Otherwise, I'm very grumpy.",
             "start": 128.39,
-            "end": 129.99
+            "end": 129.99,
+            "fa": "گرنه خیلی عصبانی می‌شم."
         },
         {
             "speaker": "Neil",
             "text": "So at the moment, I am having egg on toast for breakfast and then marmalade on toast as well, but not together.",
             "start": 130.81,
-            "end": 142.67
+            "end": 142.67,
+            "fa": "حالا دارم تخم‌مرغ روی نان تست می‌خورم برای صبحانه و بعد هم مارمالاد روی نان تست، ولی جدا جدا."
         },
         {
             "speaker": "Georgie",
             "text": "So you said you always have breakfast.",
             "start": 143.01,
-            "end": 146.33
+            "end": 146.33,
+            "fa": "پس گفتی همیشه صبحانه می‌خوری."
         },
         {
             "speaker": "Georgie",
             "text": "You never skip breakfast.",
             "start": 146.71,
-            "end": 148.29
+            "end": 148.29,
+            "fa": "تو هیچ‌وقت صبحانه را نمی‌پرونی."
         },
         {
             "speaker": "Neil",
             "text": "Never, unless there's a very, very good reason.",
             "start": 148.81,
-            "end": 152.87
+            "end": 152.87,
+            "fa": "هرگز، مگر اینکه دلیل خیلی، خیلی خوبی داشته باشی."
         },
         {
             "speaker": "Georgie",
             "text": "Okay.",
             "start": 153.23,
-            "end": 153.83
+            "end": 153.83,
+            "fa": "باشه."
         },
         {
             "speaker": "Neil",
             "text": "Like, I think the last time I skipped breakfast, I needed to get up at 3am to catch a flight.",
             "start": 154.11,
-            "end": 162.25
+            "end": 162.25,
+            "fa": "مثلاً، فکر می‌کنم آخرین باری که صبحانه را نادیدم، مجبور شدم ساعت ۳ صبح بیدار شم تا پروازی بگیرم."
         },
         {
             "speaker": "Georgie",
             "text": "Yes, it's very strange to wake up at that time.",
             "start": 163.11,
-            "end": 166.77
+            "end": 166.77,
+            "fa": "آره، بیدار شدن تو این ساعت خیلی عجیبه."
         },
         {
             "speaker": "Georgie",
             "text": "It changes your routine, doesn't it?",
             "start": 166.77,
-            "end": 168.87
+            "end": 168.87,
+            "fa": "این روتینتو عوض می‌کنه، نه؟"
         },
         {
             "speaker": "Georgie",
             "text": "Because you don't feel hungry then.",
             "start": 169.03,
-            "end": 171.01
+            "end": 171.01,
+            "fa": "چون اون موقع حس گرسنگی نمی‌کنی."
         },
         {
             "speaker": "Neil",
             "text": "So how about you, Georgie?",
             "start": 171.59,
-            "end": 173.07
+            "end": 173.07,
+            "fa": "پس تو چطور، جرجی؟"
         },
         {
             "speaker": "Neil",
             "text": "Do you skip breakfast?",
             "start": 173.17,
-            "end": 175.01
+            "end": 175.01,
+            "fa": "آیا صبحانه می‌پرونی؟"
         },
         {
             "speaker": "Georgie",
             "text": "Sometimes I skip breakfast because when I wake up, I'm not hungry.",
             "start": 176.17,
-            "end": 182.49
+            "end": 182.49,
+            "fa": "گاهی صبحانه را نمی‌خورم چون وقتی بیدار می‌شم، گرسنه نیستم."
         },
         {
             "speaker": "Georgie",
             "text": "So if I don't eat breakfast straight away, I sometimes forget to eat breakfast, but then I have an early lunch.",
             "start": 182.49,
-            "end": 192.19
+            "end": 192.19,
+            "fa": "پس اگه فوراً صبحانه نخورم، گاهی فراموشش می‌کنم، اما بعداً یک ناهار زود می‌خورم."
         },
         {
             "speaker": "Neil",
             "text": "Right.",
             "start": 193.01,
-            "end": 193.21
+            "end": 193.21,
+            "fa": "درسته."
         },
         {
             "speaker": "Georgie",
             "text": "So Neil you said that it hard to get up when you haven slept well Does that mean you oversleep You sleep too long",
             "start": 193.53,
-            "end": 203.42
+            "end": 203.42,
+            "fa": "پس نیل، گفتی وقتی خوب خوابیدی بیدار شدن سخت است. یعنی زیاد می‌خوابی؟ خیلی طول می‌کشی بخوابی؟"
         },
         {
             "speaker": "Neil",
             "text": "No Unfortunately I never oversleep In fact I usually wake up before my alarm Do you oversleep",
             "start": 203.5,
-            "end": 211.64
+            "end": 211.64,
+            "fa": "نه، متأسفانه من هرگز زیاد نمی‌خوابم. در واقع معمولاً قبل از زنگ ساعت بیدار می‌شوم. تو زیاد می‌خوابی؟"
         },
         {
             "speaker": "Georgie",
             "text": "Well, I usually wake up with my alarm. I never wake up before my alarm.",
             "start": 212.74,
-            "end": 219.1
+            "end": 219.1,
+            "fa": "خب، من معمولاً با زنگ ساعت بیدار می‌شوم. هرگز قبل از زنگ ساعت بیدار نمی‌شوم."
         },
         {
             "speaker": "Georgie",
             "text": "So sometimes if I don't set my alarm, I oversleep.",
             "start": 219.1,
-            "end": 224.38
+            "end": 224.38,
+            "fa": "پس گاهی اگر زنگ ساعت تنظیم نکنم، زیاد می‌خوابم."
         },
         {
             "speaker": "Georgie",
             "text": "That actually happened this week, but it was OK because I woke up in time for work.",
             "start": 224.92,
-            "end": 231.38
+            "end": 231.38,
+            "fa": "این واقعاً این هفته اتفاق افتاد، اما اوکی بود چون سر وقت برای کار بیدار شدم."
         },
         {
             "speaker": "Georgie",
             "text": "I didn't oversleep that much.",
             "start": 231.74,
-            "end": 233.72
+            "end": 233.72,
+            "fa": "خیلی زیاد نخوابیدم."
         },
         {
             "speaker": "Neil",
             "text": "Right. Have you ever overslept so much that you've missed work or missed the start of the working day?",
             "start": 234.12,
-            "end": 242.62
+            "end": 242.62,
+            "fa": "درسته. تا حالا این‌قدر زیاد نخوابیدی که کار یا شروع روز کاری را از دست بدی؟"
         },
         {
             "speaker": "Georgie",
             "text": "Never work, but yes to a flight.",
             "start": 243.2,
-            "end": 247.1
+            "end": 247.1,
+            "fa": "هرگز برای کار نه، اما برای یک پرواز بله."
         },
         {
             "speaker": "Georgie",
             "text": "That was one of the most stressful mornings I've had.",
             "start": 247.1,
-            "end": 252.5
+            "end": 252.5,
+            "fa": "اون یکی از استرس‌زا‌ترین صبح‌های من بود."
         },
         {
             "speaker": "Neil",
             "text": "Is there anything else, Georgie, that you do in the morning regularly?",
             "start": 253.28,
-            "end": 258.16
+            "end": 258.16,
+            "fa": "چیزی دیگه‌ای هست، جرجی، که تو صبح به‌طور منظم انجام می‌دی؟"
         },
         {
             "speaker": "Georgie",
             "text": "Well, regularly, maybe not.",
             "start": 259.16,
-            "end": 261.24
+            "end": 261.24,
+            "fa": "خب، منظماً، شاید نه."
         },
         {
             "speaker": "Georgie",
             "text": "But sometimes if I feel motivated, I manage to do some exercise in the mornings,",
             "start": 261.36,
-            "end": 267.36
+            "end": 267.36,
+            "fa": "اما گاهی اگر انگیزه داشته باشم، می‌تونم صبح ورزش کنم، یا دویدن یا واقعاً امروز صبح یک تمرین پیلاتس انجام دادم."
         },
         {
             "speaker": "Georgie",
@@ -1600,73 +1802,85 @@
             "speaker": "Georgie",
             "text": "What about you, Neil?",
             "start": 273.06,
-            "end": 274.34
+            "end": 274.34,
+            "fa": "نظرت چیه، نیل؟"
         },
         {
             "speaker": "Neil",
             "text": "No, I can't exercise until later because my body doesn't enjoy that, especially running.",
             "start": 274.34,
-            "end": 282.78
+            "end": 282.78,
+            "fa": "نه، تا بعدش نمی‌تونم ورزش کنم، چون بدنم از این کار خوشش نمیاد، مخصوصاً دویدن."
         },
         {
             "speaker": "Neil",
             "text": "All of my joints hurt.",
             "start": 283.72,
-            "end": 286.18
+            "end": 286.18,
+            "fa": "تمام مفاصل‌م درد می‌کنن."
         },
         {
             "speaker": "Georgie",
             "text": "So what do you do in the mornings?",
             "start": 286.88,
-            "end": 289.16
+            "end": 289.16,
+            "fa": "پس صبح‌ها چی کار می‌کنی؟"
         },
         {
             "speaker": "Neil",
             "text": "I like to know what the weather is going to be like.",
             "start": 289.66,
-            "end": 292.3
+            "end": 292.3,
+            "fa": "دوست دارم بدونم هوا چطوری خواهد بود."
         },
         {
             "speaker": "Neil",
             "text": "So I check the forecast and I choose my clothes so that I wearing the right thing for the type of weather",
             "start": 292.38,
-            "end": 299.22
+            "end": 299.22,
+            "fa": "پس پیش‌بینی هوا رو چک می‌کنم و لباس‌هام رو انتخاب می‌کنم تا مناسب نوع هوا باشه."
         },
         {
             "speaker": "Georgie",
             "text": "That very sensible",
             "start": 299.28,
-            "end": 300.46
+            "end": 300.46,
+            "fa": "خیلی معقوله."
         },
         {
             "speaker": "Neil",
             "text": "especially in the United Kingdom because the weather can be different every day",
             "start": 300.52,
-            "end": 305.67
+            "end": 305.67,
+            "fa": "مخصوصاً تو بریتانیا چون هوا هر روز می‌تونه فرق کنه."
         },
         {
             "speaker": "Georgie",
             "text": "That very true Make sure you got your umbrella",
             "start": 305.73,
-            "end": 308.73
+            "end": 308.73,
+            "fa": "درست می‌گی، حتماً چترتو بردار."
         },
         {
             "speaker": "Neil",
             "text": "Or not.",
             "start": 309.31,
-            "end": 309.89
+            "end": 309.89,
+            "fa": "یا نه."
         },
         {
             "speaker": "Georgie",
             "text": "OK, let's recap the language we heard during the conversation.",
             "start": 316.71,
-            "end": 320.37
+            "end": 320.37,
+            "fa": "خب، بزنیم سر خلاصه‌اش از زبان‌هایی که توی گفتگو شنیدیم."
         },
         {
             "speaker": "Neil",
             "text": "We heard a few ways to talk about what time we sleep until. We heard sleep in,",
             "start": 320.81,
-            "end": 326.69
+            "end": 326.69,
+            "fa": "چند تا روش برای گفتن تا چه ساعتی می‌خوابیم شنیدیم. «sleep in» یعنی تو تخت می‌مونیم و دیرتر از معمول می‌خوابیم."
         },
         {
             "speaker": "Neil",
@@ -1678,31 +1892,36 @@
             "speaker": "Neil",
             "text": "And we also heard oversleep, which means sleeping longer than you should, accidentally.",
             "start": 331.95,
-            "end": 338.23
+            "end": 338.23,
+            "fa": "همچنین «oversleep» رو هم شنیدیم که یعنی به‌صورت تصادفی بیشتر از حد لازم می‌خوابیم."
         },
         {
             "speaker": "Georgie",
             "text": "We had get up, which is a phrasal verb we use to say stand up and leave your bed.",
             "start": 338.75,
-            "end": 344.53
+            "end": 344.53,
+            "fa": "«get up» هم بود، یک فعل مرکب که یعنی از تخت بلند شدن."
         },
         {
             "speaker": "Neil",
             "text": "And we heard a morning person.",
             "start": 345.05,
-            "end": 347.01
+            "end": 347.01,
+            "fa": "و «morning person» رو هم شنیدیم."
         },
         {
             "speaker": "Neil",
             "text": "Like you, Georgie, you're a morning person.",
             "start": 347.19,
-            "end": 349.19
+            "end": 349.19,
+            "fa": "مثل تو، جورجی، تو یک صبح‌خوردی هستی."
         },
         {
             "speaker": "Neil",
             "text": "A morning person is someone who likes the mornings,",
             "start": 349.79,
-            "end": 352.45
+            "end": 352.45,
+            "fa": "صبح‌خوردی کسیه که صبح‌ها رو دوست داره و سر روز انرژی زیادی داره."
         },
         {
             "speaker": "Neil",
@@ -1714,19 +1933,22 @@
             "speaker": "Neil",
             "text": "I'm not really a morning person.",
             "start": 355.15,
-            "end": 357.29
+            "end": 357.29,
+            "fa": "من واقعاً صبح‌خوردی نیستم."
         },
         {
             "speaker": "Georgie",
             "text": "We had skip, not do something that you usually do or should do.",
             "start": 357.93,
-            "end": 362.31
+            "end": 362.31,
+            "fa": "«skip» هم بود، یعنی کاری که معمولاً انجام می‌دی یا باید انجام بدی رو نادیده گرفتن."
         },
         {
             "speaker": "Georgie",
             "text": "For example, sometimes I forget to eat in the morning,",
             "start": 362.53,
-            "end": 365.73
+            "end": 365.73,
+            "fa": "مثلا گاهی صبح غذا خوردن رو فراموش می‌کنم، پس صبحانه رو می‌پرند و به‌جایش زودتر ناهار می‌خورم."
         },
         {
             "speaker": "Georgie",
@@ -1738,25 +1960,29 @@
             "speaker": "Neil",
             "text": "That's it for this episode of Real Easy English.",
             "start": 370.27,
-            "end": 373.33
+            "end": 373.33,
+            "fa": "این هم تمام شد برای این قسمت از «Real Easy English»."
         },
         {
             "speaker": "Neil",
             "text": "You can test what you've learned with our worksheet on our website.",
             "start": 373.63,
-            "end": 377.57
+            "end": 377.57,
+            "fa": "می‌تونی با کاربرگ‌مون توی وب‌سایت، چیزی که یاد گرفتی رو تست کنی."
         },
         {
             "speaker": "Neil",
             "text": "Find a link in the notes and go there.",
             "start": 378.13,
-            "end": 380.23
+            "end": 380.23,
+            "fa": "یک لینک توی یادداشت‌ها پیدا کن و بزن سرش."
         },
         {
             "speaker": "Georgie",
             "text": "And if you want to learn more language to talk about your morning routine,",
             "start": 380.61,
-            "end": 384.27
+            "end": 384.27,
+            "fa": "اگه می‌خوای بیشتر درباره‌ی زبان برای توصیف روتین صبح‌ات یاد بگیری، من یه ویدیو درباره‌ی افعال مرکب برای روتین صبح‌ات درست کردم."
         },
         {
             "speaker": "Georgie",
@@ -1768,13 +1994,15 @@
             "speaker": "Georgie",
             "text": "You can also find it at bbclearningenglish.com.",
             "start": 388.39,
-            "end": 391.67
+            "end": 391.67,
+            "fa": "می‌تونی اون رو توی bbclearningenglish.com هم پیدا کنی."
         },
         {
             "speaker": "Neil",
             "text": "And next time we'll talk about our evening routines,",
             "start": 392.33,
-            "end": 395.75
+            "end": 395.75,
+            "fa": "و دفعه‌ی بعد درباره‌ی روتین‌های شبانه‌مون، چه کارهایی توی شب‌ها انجام می‌دیم، صحبت می‌کنیم."
         },
         {
             "speaker": "Neil",
@@ -1786,13 +2014,15 @@
             "speaker": "Georgie",
             "text": "See you next time.",
             "start": 398.35,
-            "end": 399.13
+            "end": 399.13,
+            "fa": "دفعهٔ بعد می‌بینمت."
         },
         {
             "speaker": "Neil",
             "text": "Goodbye.",
             "start": 399.29,
-            "end": 399.55
+            "end": 399.55,
+            "fa": "خداحافظ."
         }
     ],
     "listening_words": [

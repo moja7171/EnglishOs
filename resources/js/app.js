@@ -2381,6 +2381,35 @@ Alpine.data('dictionarySheet', (urls) => ({
  * tapped open, every time. A phone with no English voice has nothing to
  * hear, so its texts open by themselves.
  */
+/**
+ * Whether the Persian line shows under each English sentence of a synced
+ * text (<x-fa-toggle>, <x-fa-line>). Off by default; the choice is kept in
+ * this browser.
+ */
+document.addEventListener('alpine:init', () => {
+    const read = () => {
+        try {
+            return localStorage.getItem('eos-show-fa') === '1';
+        } catch {
+            return false;
+        }
+    };
+
+    Alpine.store('fa', {
+        on: read(),
+
+        toggle() {
+            this.on = !this.on;
+
+            try {
+                localStorage.setItem('eos-show-fa', this.on ? '1' : '0');
+            } catch {
+                // Private window: the choice lasts until the page closes.
+            }
+        },
+    });
+});
+
 document.addEventListener('alpine:init', () => {
     const englishVoices = () => (window.speechSynthesis?.getVoices() ?? []).filter((voice) => /^en/i.test(voice.lang));
 

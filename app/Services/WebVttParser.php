@@ -96,4 +96,63 @@ class WebVttParser
 
         return array_values(array_filter($groups));
     }
+
+    /**
+     * Whether any chunk carries its sentence's Persian line ("fa", see
+     * scripts/translate-fa.py), so a player knows to offer the translation.
+     *
+     * @param  list<array<string, mixed>>  $segments
+     */
+    public static function hasTranslation(array $segments): bool
+    {
+        foreach ($segments as $segment) {
+            if (filled($segment['fa'] ?? null)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * The Persian line of one sentence group as returned by sentences()
+     * (it sits on the group's first chunk).
+     *
+     * @param  list<array{index: int, segment: array<string, mixed>}>  $sentence
+     */
+    public static function translation(array $sentence): ?string
+    {
+        foreach ($sentence as $line) {
+            if (filled($line['segment']['fa'] ?? null)) {
+                return $line['segment']['fa'];
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * The Persian lines of every sentence that overlaps the time window
+     * [$start, $end] (the span of a shadowing line), joined; null if none.
+     * A chunk without its own "fa" belongs to the sentence started before it.
+     *
+     * @param  list<array<string, mixed>>  $segments
+     */
+    public static function translationWithin(array $segments, float $start, float $end): ?string
+    {
+        $lines = [];
+        $current = null;
+
+        foreach ($segments as $segment) {
+            if (filled($segment['fa'] ?? null)) {
+                $current = $segment['fa'];
+            }
+
+            if ($current !== null && (float) $segment['end'] > $start && (float) $segment['start'] < $end) {
+                $lines[$current] = $current;
+            }
+        }
+
+        return $lines === [] ? null : implode(' ', $lines);
+    }
 }
