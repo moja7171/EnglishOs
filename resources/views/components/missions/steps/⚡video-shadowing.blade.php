@@ -329,6 +329,7 @@ new class extends Component
             :line="$line"
             kind="Say it · {{ $index + 1 }} of {{ $lineCount }}"
             hear="playLine({{ $index }})"
+            :fa="($point = $this->shadowTimestamps()[$index] ?? null) ? \App\Services\WebVttParser::translationWithin($video['video_segments'] ?? [], (float) $point['start'], (float) $point['end']) : null"
             :recording-url="$draftShadowUrls[$index] ?? null"
             file-name="video-shadow-{{ $index }}.webm"
             :feedback="$feedback['shadow_'.$index] ?? null"

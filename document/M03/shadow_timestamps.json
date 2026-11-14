@@ -3,17 +3,20 @@
         {
             "text": "Can you tell me what you do for work?",
             "start": 0,
-            "end": 3.8
+            "end": 3.8,
+            "fa": "می‌تونی بگی تو چه کاری انجام می‌دی؟"
         },
         {
             "text": "Currently, I'm a music teacher in Barcelona.",
             "start": 3.8,
-            "end": 6.8
+            "end": 6.8,
+            "fa": "در حال حاضر من معلم موسیقی در بارسلونا هستم."
         },
         {
             "text": "I work in an international school,",
             "start": 6.8,
-            "end": 11.3
+            "end": 11.3,
+            "fa": "من توی یک مدرسه بین‌المللی کار می‌کنم، به انگلیسی تدریس می‌کنم و... بله، دورهٔ ابتدایی و متوسطه."
         },
         {
             "text": "teaching in English, and... yeah, primary and secondary school.",
@@ -23,27 +26,32 @@
         {
             "text": "Okay, I used to be a teacher, but I retired in July.",
             "start": 15.8,
-            "end": 20.3
+            "end": 20.3,
+            "fa": "خب، قبلاً معلم بودم، اما در ماه ژوئیه بازنشسته شدم."
         },
         {
             "text": "I'm a postie, I work for Royal Mail.",
             "start": 20.3,
-            "end": 21.8
+            "end": 21.8,
+            "fa": "من پستچی‌ام، برای رویل میل کار می‌کنم."
         },
         {
             "text": "So, I work part-time, doing that four days a week.",
             "start": 21.8,
-            "end": 26.3
+            "end": 26.3,
+            "fa": "پس من به‌صورت پاره‌وقت کار می‌کنم، چهار روز در هفته این کار را انجام می‌دهم."
         },
         {
             "text": "What do you do for a job?",
             "start": 26.3,
-            "end": 27.8
+            "end": 27.8,
+            "fa": "چه کاری انجام می‌دی؟"
         },
         {
             "text": "So I work in a special education needs school in Lancing,",
             "start": 27.8,
-            "end": 32.3
+            "end": 32.3,
+            "fa": "من توی یک مدرسهٔ نیازهای ویژه در لنسینگ کار می‌کنم، با کودک‌ها و نوجوانانی که نیازهای ارتباطی و رفتاری دارند."
         },
         {
             "text": "with children and young people with communication needs,",
@@ -58,7 +66,8 @@
         {
             "text": "And we just... yeah, my role is pastoral and safeguarding,",
             "start": 36.8,
-            "end": 39.8
+            "end": 39.8,
+            "fa": "و ما فقط... بله، نقش من مشاوره‌ای و حفاظت از دانش‌آموزان است، یعنی سعی می‌کنم باهاشون کار کنم، آموزششون بدهم..."
         },
         {
             "text": "so just trying to work with them, educate them...",
@@ -68,27 +77,32 @@
         {
             "text": "Wow, okay. That's a mouthful.",
             "start": 44.3,
-            "end": 47.3
+            "end": 47.3,
+            "fa": "وای، خوب. این خیلی طولانی شد."
         },
         {
             "text": "Do you have a specific job title?",
             "start": 47.3,
-            "end": 50.3
+            "end": 50.3,
+            "fa": "آیا عنوان شغلی خاصی داری؟"
         },
         {
             "text": "Yes, so I have five...",
             "start": 50.3,
-            "end": 53.3
+            "end": 53.3,
+            "fa": "بله، من پنج تا دارم..."
         },
         {
             "text": "What do you do for work?",
             "start": 53.3,
-            "end": 54.8
+            "end": 54.8,
+            "fa": "چه کاری انجام می‌دی؟"
         },
         {
             "text": "My name is Sjors and I work as a ramp employee at Schiphol Airport,",
             "start": 54.8,
-            "end": 62.3
+            "end": 62.3,
+            "fa": "اسم من سِیُورس است و من به‌عنوان کارگر رمپ در فرودگاه شِیپ‌هول کار می‌کنم، همچنین هماهنگ‌کنندهٔ چرخش هواپیما هستم و فرآیند چرخش یک هواپیما را مدیریت می‌کنم."
         },
         {
             "text": "and I am a turnaround coordinator",
@@ -103,17 +117,20 @@
         {
             "text": "I am an underwriter for an insurance company.",
             "start": 68.3,
-            "end": 71.3
+            "end": 71.3,
+            "fa": "من یک ارزیاب ریسک برای یک شرکت بیمه هستم."
         },
         {
             "text": "What do you do for a job?",
             "start": 71.3,
-            "end": 74.3
+            "end": 74.3,
+            "fa": "چه کاری انجام می‌دی؟"
         },
         {
             "text": "So I work at a catering company,",
             "start": 74.3,
-            "end": 77.3
+            "end": 77.3,
+            "fa": "پس من در یک شرکت کترینگ کار می‌کنم، جایی که اساساً غذا و نوشیدنی رو در عروسی‌ها و مراسم‌های شرکتی سرو می‌کنم."
         },
         {
             "text": "where I basically just serve like food and drinks",
@@ -128,17 +145,20 @@
         {
             "text": "Sometimes like, wakes and stuff, but it's mostly weddings.",
             "start": 83.3,
-            "end": 87.8
+            "end": 87.8,
+            "fa": "گاهی هم مراسم بیداری و چیزهای مشابه، اما بیشتر عروسی‌هاست."
         },
         {
             "text": "I used to teach business studies and economics to kids from 11 to 19.",
             "start": 87.8,
-            "end": 93.8
+            "end": 93.8,
+            "fa": "قبلاً به بچه‌های ۱۱ تا ۱۹ ساله درس‌های مطالعات تجاری و اقتصاد می‌دادم."
         },
         {
             "text": "So, 'Pastoral Assistant', so the way that pastoral works in our school,",
             "start": 93.8,
-            "end": 96.8
+            "end": 96.8,
+            "fa": "پس «دستیار مشاوره‌ای»، طرز کار مشاوره در مدرسه‌مان اینه که به دانش‌آموزانی که در کلاس مشکل دارند، مداخلات حمایتی ارائه می‌دهیم."
         },
         {
             "text": "is basically, students that struggle to be in the classroom,",
@@ -153,7 +173,8 @@
         {
             "text": "So it depends on the intervention really,",
             "start": 104.3,
-            "end": 107.3
+            "end": 107.3,
+            "fa": "بنابراین بستگی به نوع مداخله دارد، ممکنه فقط یک ساعت در هفته باشد تا به یک دانش‌آموز کمک کنیم بندهای کفشش را ببندد، چون هنوز نمی‌تواند در محیط کلاس به‌خوبی عمل کند."
         },
         {
             "text": "so it could be as little as an hour a week,",
@@ -173,7 +194,8 @@
         {
             "text": "But we do a lot of work to get them to that place,",
             "start": 114.8,
-            "end": 117.8
+            "end": 117.8,
+            "fa": "اما ما کلی کار می‌کنیم تا اون‌ها به اونجا برسند تا بتونن وارد کلاس بشن."
         },
         {
             "text": "so that they can go into a classroom.",
@@ -183,12 +205,14 @@
         {
             "text": "I just graduated from school.",
             "start": 119.3,
-            "end": 120.8
+            "end": 120.8,
+            "fa": "من تازه از مدرسه فارغ‌التحصیل شدم."
         },
         {
             "text": "I did hotel management, because in the future,",
             "start": 120.8,
-            "end": 125.3
+            "end": 125.3,
+            "fa": "من مدیریت هتل خوندم، چون شاید تو آینده بخوام هتل داشته باشم، فکر کردم این می‌تونه شروع خوبی باشه."
         },
         {
             "text": "maybe, I want to have... to own a hotel,",
@@ -203,22 +227,26 @@
         {
             "text": "I did it for a year.",
             "start": 131.3,
-            "end": 132.8
+            "end": 132.8,
+            "fa": "من این کارو یک سال انجام دادم."
         },
         {
             "text": "I did a fast-track, so I was graduating faster.",
             "start": 132.8,
-            "end": 137.3
+            "end": 137.3,
+            "fa": "من یک مسیر سریع‌التحصیل داشتم، پس زودتر فارغ‌التحصیل شدم."
         },
         {
             "text": "Can I ask; what do you do for work?",
             "start": 137.3,
-            "end": 140.3
+            "end": 140.3,
+            "fa": "می‌تونم بپرسم؛ تو چه کاری انجام می‌دی؟"
         },
         {
             "text": "So a bit complicated actually, but I work for a university,",
             "start": 140.3,
-            "end": 143.3
+            "end": 143.3,
+            "fa": "خب، کمی پیچیده است، من برای یک دانشگاه کار می‌کنم، اما به دانشگاه‌های دیگه تو کشور کمک می‌کنم تا کارهای بیشتری با جامعه‌شون داشته باشن، یعنی بیشتر محلی یا مدنی بشن."
         },
         {
             "text": "but I help other universities, in the country,",
@@ -238,17 +266,20 @@
         {
             "text": "So it's kind of helping universities connect more deeply with...",
             "start": 152.3,
-            "end": 155.3
+            "end": 155.3,
+            "fa": "پس یه جور کمک به دانشگاه‌هاست تا عمیق‌تر با..."
         },
         {
             "text": "with their people, and their places and their communities.",
             "start": 155.3,
-            "end": 156.8
+            "end": 156.8,
+            "fa": "…مردم، مکان‌ها و جامعه‌شون ارتباط برقرار کنن."
         },
         {
             "text": "Go on, you first. A healthcare assistant",
             "start": 156.8,
-            "end": 161.3
+            "end": 161.3,
+            "fa": "برو جلو، تو اولین. من دستیار بهداشت هستم و با سالمندان مبتلا به دمانس کار می‌کنم."
         },
         {
             "text": "and work with elderly with dementia.",
@@ -258,52 +289,62 @@
         {
             "text": "Nice, is that around here? No, no, Kent. In Kent? Yeah. Okay.",
             "start": 164.3,
-            "end": 168.8
+            "end": 168.8,
+            "fa": "جالب است، اینجا نزدیکه؟ نه، نه، کنت. تو کنت؟ آره. خوب."
         },
         {
             "text": "And I'm a tattoo artist.",
             "start": 168.8,
-            "end": 176.8
+            "end": 176.8,
+            "fa": "و من یک هنرمند تتو هستم."
         },
         {
             "text": "How did both of you fall into that line of work?",
             "start": 182.3,
-            "end": 185.3
+            "end": 185.3,
+            "fa": "چطور هر دو تا به این شغل رسیدید؟"
         },
         {
             "text": "Was it something you wanted to do?",
             "start": 185.3,
-            "end": 186.8
+            "end": 186.8,
+            "fa": "آیا این کاری بود که می‌خواستید انجام بدید؟"
         },
         {
             "text": "Did it just happen? Gosh.",
             "start": 186.8,
-            "end": 188.3
+            "end": 188.3,
+            "fa": "آیا به‌طور تصادفی پیش آمد؟ وای."
         },
         {
             "text": "I've always wanted to be a tattoo artist, really, since I was a kid.",
             "start": 188.3,
-            "end": 192.8
+            "end": 192.8,
+            "fa": "من همیشه می‌خواستم هنرمند تتو بشم، از وقتی که بچه بودم."
         },
         {
             "text": "Just drawing non-stop, just drawing cartoons, just loving it.",
             "start": 192.8,
-            "end": 195.8
+            "end": 195.8,
+            "fa": "همیشه داشتم نقاشی می‌کشیدم، کاریکاتور می‌کشیدم، عاشقش بودم."
         },
         {
             "text": "And then I thought, if I could make a career out of it, why not?",
             "start": 195.8,
-            "end": 200.3
+            "end": 200.3,
+            "fa": "بعد فکر کردم، اگر بتونم ازش شغلی بسازم، چرا نه؟"
         },
         {
             "text": "And for me, I had a huge career change.",
             "start": 200.3,
-            "end": 203.3
+            "end": 203.3,
+            "fa": "و برای من یک تغییر شغلی بزرگ بود."
         },
         {
             "text": "My first job was actually in the police,",
             "start": 203.3,
-            "end": 206.3
+            "end": 206.3,
+            "fa": "اولین شغلم در واقع در پلیس بود، در پلیس متروپولیتن. اوه، جدی؟! بله."
         },
         {
             "text": "in the Metropolitan Police. Oh, really!? Yeah.",
@@ -313,7 +354,8 @@
         {
             "text": "And then, I just wanted to give a little bit more back to,",
             "start": 207.8,
-            "end": 212.3
+            "end": 212.3,
+            "fa": "بعد می‌خواستم کمی بیشتر به جامعه برگردونم... فقط مثل کمک به مردم."
         },
         {
             "text": "I don't know... the community... yeah,",
@@ -328,22 +370,26 @@
         {
             "text": "That's great. And then, how long have you been a postie for?",
             "start": 215.3,
-            "end": 218.3
+            "end": 218.3,
+            "fa": "عالیه. پس، چند وقتیه که پستچی هستی؟"
         },
         {
             "text": "I've been doing it for like, 10 years now, for my sins.",
             "start": 218.3,
-            "end": 224.3
+            "end": 224.3,
+            "fa": "من حدود ۱۰ ساله این کارو می‌کنم، برای گناهم."
         },
         {
             "text": "How did you get into that line of work?",
             "start": 224.3,
-            "end": 227.3
+            "end": 227.3,
+            "fa": "چطور به این شغل وارد شدی؟"
         },
         {
             "text": "I just wanted something part-time,",
             "start": 227.3,
-            "end": 228.8
+            "end": 228.8,
+            "fa": "من فقط می‌خواستم کاری نیمه‌وقت داشته باشم، چون سعی می‌کردم هنر، طراحی و موسیقی رو دنبال کنم و نمی‌دونستم به کجا می‌رسیم، پس می‌خواستم کاری کمی ثابت داشته باشم تا در حین کار روی اون‌ها سرپا بمونم."
         },
         {
             "text": "because I was trying to do art, and design, and music",
@@ -368,7 +414,8 @@
         {
             "text": "And yeah, it was meant to be a stopgap,",
             "start": 239.3,
-            "end": 242.3
+            "end": 242.3,
+            "fa": "آره، این کار رو به عنوان یک کار موقت شروع کردم، اما الآن خیلی لذت می‌برم و بهم کمک می‌کنه ادامه بدم، پس آره."
         },
         {
             "text": "but I quite enjoy it and it's kept me going, so yeah.",
@@ -378,7 +425,8 @@
         {
             "text": "Where does the passion come from,",
             "start": 245.3,
-            "end": 248.3
+            "end": 248.3,
+            "fa": "علاقه‌ات از کجا میاد که بخوای هتل خودتو داشته باشی؟"
         },
         {
             "text": "for you to want to own your own hotel?",
@@ -388,22 +436,26 @@
         {
             "text": "Or where did it come from to work, or be in sort of, hospitality?",
             "start": 249.8,
-            "end": 254.3
+            "end": 254.3,
+            "fa": "یا این علاقه از کجا اومده که بخوای تو مهمان‌نوازی کار کنی؟"
         },
         {
             "text": "Where did this passion come from?",
             "start": 254.3,
-            "end": 255.8
+            "end": 255.8,
+            "fa": "این علاقه از کجا اومده؟"
         },
         {
             "text": "I really like to work with people, but also help people.",
             "start": 255.8,
-            "end": 260.3
+            "end": 260.3,
+            "fa": "من واقعاً دوست دارم با مردم کار کنم، اما همین‌طور به مردم کمک کنم."
         },
         {
             "text": "I really like to give some advice to people,",
             "start": 260.3,
-            "end": 263.3
+            "end": 263.3,
+            "fa": "من خیلی دوست دارم به مردم مشاوره بدم یا باهاشون گپ بزنم و فقط باعث خوشحالی‌شون بشم."
         },
         {
             "text": "or chat with some people and just make people have a good time.",
@@ -413,12 +465,14 @@
         {
             "text": "Okay, and is catering, is hospitality your kind of...",
             "start": 269.3,
-            "end": 272.3
+            "end": 272.3,
+            "fa": "خب، مهمانداری و پذیرایی نوع کار تو هست؟"
         },
         {
             "text": "something you wanted to get into initially,",
             "start": 272.3,
-            "end": 273.8
+            "end": 273.8,
+            "fa": "چیزی که اول می‌خواستی توش وارد شی یا فکر دیگه‌ای داشتی؟"
         },
         {
             "text": "or do you have another idea?",
@@ -428,7 +482,8 @@
         {
             "text": "It's sort of a good way to make money while I'm studying,",
             "start": 276.8,
-            "end": 282.8
+            "end": 282.8,
+            "fa": "این یه راه خوبه برای پول درآوردن وقتی دارم درس می‌خونم، اما فکر نمی‌کنم طولانی‌مدت بخوام این کارو ادامه بدم."
         },
         {
             "text": "but I don't think it's something that I necessarily,",
@@ -443,17 +498,20 @@
         {
             "text": "It can be quite like, intense.",
             "start": 285.8,
-            "end": 288.8
+            "end": 288.8,
+            "fa": "می‌تونه خیلی پر فشار باشه."
         },
         {
             "text": "I work like, quite long hours and stuff.",
             "start": 288.8,
-            "end": 290.3
+            "end": 290.3,
+            "fa": "من ساعت‌های طولانی کار می‌کنم و چیزهای دیگه."
         },
         {
             "text": "So it's like, good money while you're a student,",
             "start": 290.3,
-            "end": 291.8
+            "end": 291.8,
+            "fa": "پس وقتی دانشجو هستی، پول خوب می‌گیری، جوانی و انرژی داری."
         },
         {
             "text": "and you're young and you have energy.",
@@ -463,27 +521,32 @@
         {
             "text": "But, I don't think it's a forever thing for me.",
             "start": 294.8,
-            "end": 296.3
+            "end": 296.3,
+            "fa": "اما فکر نمی‌کنم این برای همیشه برام باشه."
         },
         {
             "text": "And, did you train to do this?",
             "start": 296.3,
-            "end": 299.3
+            "end": 299.3,
+            "fa": "آیا برای این کار آموزش دیدی؟"
         },
         {
             "text": "Did you want to do this? No.",
             "start": 299.3,
-            "end": 300.8
+            "end": 300.8,
+            "fa": "آیا می‌خواستی این کارو انجام بدی؟ نه."
         },
         {
             "text": "No, I studied over there, at Brighton Uni, actually.",
             "start": 300.8,
-            "end": 305.3
+            "end": 305.3,
+            "fa": "نه، من اونجا تو دانشگاه بریت‌ن مطالعه کردم."
         },
         {
             "text": "I did history in politics,",
             "start": 305.3,
-            "end": 306.8
+            "end": 306.8,
+            "fa": "من تاریخ و سیاست خوندم و هدفم این بود که تو کارهای خیریه دولتی مشغول بشم."
         },
         {
             "text": "and my aim was to get into government charity work.",
@@ -493,7 +556,8 @@
         {
             "text": "But, there wasn't really many jobs going when I graduated,",
             "start": 309.8,
-            "end": 312.8
+            "end": 312.8,
+            "fa": "اما وقتی فارغ‌التحصیل شدم، کارهای زیادی نبود، پس به عنوان کارگزار بیمه کار پیدا کردم و بعد از ۱۲ سال، الآن تو بخش ارزیابی ریسک برای یک شرکت بیمه جهانی کار می‌کنم، پس..."
         },
         {
             "text": "so I got a job as an insurance broker, and then 12 years later,",
@@ -508,27 +572,32 @@
         {
             "text": "And you enjoy it? Yeah, it's so much fun.",
             "start": 320.3,
-            "end": 321.8
+            "end": 321.8,
+            "fa": "و ازش لذت می‌بری؟ آره، خیلی خوش‌گذره."
         },
         {
             "text": "Yeah, really? It's great stuff.",
             "start": 321.8,
-            "end": 323.3
+            "end": 323.3,
+            "fa": "واقعا؟ چیزهای عالیه."
         },
         {
             "text": "Really busy, but it's interesting.",
             "start": 323.3,
-            "end": 326.3
+            "end": 326.3,
+            "fa": "خیلی شلوغه، اما جالبه."
         },
         {
             "text": "And what would you say is the best thing about your job?",
             "start": 326.3,
-            "end": 329.3
+            "end": 329.3,
+            "fa": "به نظرت بهترین چیز تو شغلت چیه؟"
         },
         {
             "text": "Creativity. Because I'm very much autonomous,",
             "start": 329.3,
-            "end": 332.3
+            "end": 332.3,
+            "fa": "خلاقیت. چون من خیلی خودمختارم، می‌تونم هر کاری که دوست دارم با هر کلاسی انجام بدم. این عالیه. پس بله، خلاقیت و..."
         },
         {
             "text": "I can do um... left to my own devices,",
@@ -548,7 +617,8 @@
         {
             "text": "I think being a teacher is very social",
             "start": 342.8,
-            "end": 344.3
+            "end": 344.3,
+            "fa": "فکر می‌کنم معلم بودن خیلی اجتماعی است و نمی‌تونی در نهایت غمگین و تنها باشی، چون همیشه در ارتباطی، بچه‌ها بامزه‌اند و همیشه با تو حرف می‌زنند و می‌پرسند حالت چطوره و سوال‌های خنده‌دار می‌پرسند، پس تو همیشه سر پا می‌مونی."
         },
         {
             "text": "and I don't really think you can be ultimately that sad",
@@ -5783,102 +5853,122 @@
         {
             "text": "Hi, I'm Mike and welcome to Oxford Online English.",
             "start": 0,
-            "end": 3.58
+            "end": 3.58,
+            "fa": "سلام، من مایک هستم و به اکسفورد آنلاین انگلیش خوش اومدید."
         },
         {
             "text": "In this lesson, you can learn how to talk about your job in English.",
             "start": 3.8799999,
-            "end": 8.16
+            "end": 8.16,
+            "fa": "توی این درس، می‌تونید یاد بگیرید چطور درباره شغلتون به انگلیسی حرف بزنید."
         },
         {
             "text": "Where do you work? What do you have to do in your job?",
             "start": 9.24,
-            "end": 13.16
+            "end": 13.16,
+            "fa": "کجا کار می‌کنید؟ توی شغلتون باید چیکار کنید؟"
         },
         {
             "text": "What kind of company do you work for?",
             "start": 14.059999,
-            "end": 15.719999
+            "end": 15.719999,
+            "fa": "برای چه نوع کمپانی‌ای کار می‌کنید؟"
         },
         {
             "text": "In this class, you can learn how to answer questions like this in clear, detailed English.",
             "start": 16.96,
-            "end": 22.76
+            "end": 22.76,
+            "fa": "توی این کلاس، می‌تونید یاد بگیرید چطور به سؤالاتی مثل اینا به انگلیسی واضح و با جزئیات جواب بدید."
         },
         {
             "text": "Ready? Let's start.",
             "start": 23.74,
-            "end": 25.779999
+            "end": 25.779999,
+            "fa": "آماده‌اید؟ بریم شروع کنیم."
         },
         {
             "text": "Part 1. Introducing your job.",
             "start": 26.3,
-            "end": 28.98
+            "end": 28.98,
+            "fa": "بخش اول. معرفی شغل شما."
         },
         {
             "text": "I'm a, I work in, I work for.",
             "start": 30,
-            "end": 34.32
+            "end": 34.32,
+            "fa": "من یه ... هستم، من توی ... کار می‌کنم، من برای ... کار می‌کنم."
         },
         {
             "text": "How would you complete these sentences?",
             "start": 35.42,
-            "end": 37.52
+            "end": 37.52,
+            "fa": "چطور این جملات رو کامل می‌کنید؟"
         },
         {
             "text": "You could say something like, I'm a writer.",
             "start": 38.62,
-            "end": 41.96
+            "end": 41.96,
+            "fa": "می‌تونید یه چیزی بگید مثل: من یه نویسنده‌ام."
         },
         {
             "text": "I work in online education.",
             "start": 42.4,
-            "end": 44.32
+            "end": 44.32,
+            "fa": "من توی آموزش آنلاین کار می‌کنم."
         },
         {
             "text": "I work for a publishing company.",
             "start": 44.64,
-            "end": 47.22
+            "end": 47.22,
+            "fa": "من برای یه شرکت انتشاراتی کار می‌کنم."
         },
         {
             "text": "I work in is used with a field, meaning a type of work.",
             "start": 49.02,
-            "end": 52.82
+            "end": 52.82,
+            "fa": "عبارت work in با یه حوزه استفاده می‌شه، یعنی یه نوع کار."
         },
         {
             "text": "So you can say things like, I work in finance.",
             "start": 53.36,
-            "end": 56.98
+            "end": 56.98,
+            "fa": "پس می‌تونید چیزایی بگید مثل: من توی مالی کار می‌کنم."
         },
         {
             "text": "I work in digital marketing.",
             "start": 57.42,
-            "end": 59.239998
+            "end": 59.239998,
+            "fa": "من توی بازاریابی دیجیتال کار می‌کنم."
         },
         {
             "text": "You can also use work in with a place or a department of a company.",
             "start": 60,
-            "end": 65.12
+            "end": 65.12,
+            "fa": "شما می‌تونید از work in برای یه مکان یا یه بخش از یه شرکت هم استفاده کنید."
         },
         {
             "text": "For example, I work in the HR department of a financial firm.",
             "start": 65.12,
-            "end": 71.12
+            "end": 71.12,
+            "fa": "مثلاً: من توی بخش منابع انسانی یه شرکت مالی کار می‌کنم."
         },
         {
             "text": "I work in a school, teaching modern languages.",
             "start": 71.12,
-            "end": 75.12
+            "end": 75.12,
+            "fa": "من توی یه مدرسه کار می‌کنم و زبان‌های مدرن تدریس می‌کنم."
         },
         {
             "text": "Confused?",
             "start": 75.12,
-            "end": 76.12
+            "end": 76.12,
+            "fa": "گیج شدید؟"
         },
         {
             "text": "You can see that if you use work in to talk about the type of work you do, you don't use",
             "start": 76.12,
-            "end": 82.4
+            "end": 82.4,
+            "fa": "می‌بینید که اگه از work in برای صحبت درباره نوع کاری که انجام می‌دید استفاده کنید، از حرف تعریف مثل a یا the استفاده نمی‌کنید."
         },
         {
             "text": "an article like a or the.",
@@ -5888,7 +5978,8 @@
         {
             "text": "If you use an article after work in it means you talking about the place or department where you work I work for is used with a company So you could say I a salesman I work for a mobile phone",
             "start": 85.159996,
-            "end": 102.68
+            "end": 102.68,
+            "fa": "اگه بعد از work یه حرف تعریف مثل a یا the بیاری، یعنی داری در مورد محل یا بخش کاری که توش کار می‌کنی حرف می‌زنی. عبارت I work for برای شرکت‌ها استفاده می‌شه. پس می‌تونی بگی من فروشنده‌ام، من برای یه شرکت موبایل کار می‌کنم. یا من برای یه شرکت حقوقی که در فرانکفورت هست کار می‌کنم. یا حتی می‌تونی بگی کسب‌وکار خودم رو اداره می‌کنم. پس من برای خودم کار می‌کنم. اگه برای شرکتی کار نمی‌کنی چیکار می‌کنی؟ اینا چند تا جمله‌ای هستن که می‌تونی بگی. من فریلنسر هستم، یعنی مستقل برای آدم‌ها و شرکت‌های مختلف کار می‌کنم. من خودموزشغله (self-employed) هستم، یعنی برای خودم کار می‌کنم، یا فریلنسری می‌کنم یا کسب‌وکار خودم رو دارم. من صاحب کسب‌وکارم. اگه کار نمی‌کنی و ازت بپرسن چیکار می‌کنی، چی می‌تونی بگی؟ اینا چند تا عبارت مفید هستن."
         },
         {
             "text": "company. I work for a law firm based in Frankfurt. Or even I run my own business. So I work for",
@@ -5918,12 +6009,14 @@
         {
             "text": "I'm between jobs at the moment, meaning I've left one job and haven't found another yet.",
             "start": 145.38,
-            "end": 151.68
+            "end": 151.68,
+            "fa": "من الان بین دو شغل هستم، یعنی از یه شغل رها شده‌ام و هنوز شغل جدیدی پیدا نکرده‌ام."
         },
         {
             "text": "This sounds nicer than saying I'm unemployed. I'm taking some time out to travel, spend time",
             "start": 152.14,
-            "end": 159.86
+            "end": 159.86,
+            "fa": "این بهتر از اینه که بگی بیکارم. من یه مدت استراحت می‌کنم تا سفر کنم، با بچه‌هام وقت بگذرونم، کتابی بنویسم، از یه بیماری بهبود پیدا کنم و غیره. یعنی الان کار نمی‌کنم چون می‌خوام روی چیز دیگه‌ای تمرکز کنم. من بازنشسته‌ام. بخش ۳. چطور شغلت رو با جزئیات بیشتر توصیف کنی. پس تو واقعاً کل روزت رو چیکار می‌کنی؟ بذار ببینیم چطور می‌تونی شغلت رو با جزئیات بیشتر توصیف کنی. به این جملات نگاه کن. من مجبورم..."
         },
         {
             "text": "with my kids, write a book, recover from an illness, etc. Meaning I'm not working at the",
@@ -5948,77 +6041,92 @@
         {
             "text": "I'm responsible for.",
             "start": 191.22,
-            "end": 193.22
+            "end": 193.22,
+            "fa": "من مسئول..."
         },
         {
             "text": "Most of my time is spent.",
             "start": 193.22,
-            "end": 197.42001
+            "end": 197.42001,
+            "fa": "بیشتر وقت من صرف..."
         },
         {
             "text": "Let's do some examples together.",
             "start": 197.42001,
-            "end": 199.22
+            "end": 199.22,
+            "fa": "بذار با هم چند تا مثال بزنیم."
         },
         {
             "text": "We'll start with a simple example.",
             "start": 199.22,
-            "end": 202.76001
+            "end": 202.76001,
+            "fa": "با یه مثال ساده شروع می‌کنیم."
         },
         {
             "text": "I'm a nurse.",
             "start": 202.76001,
-            "end": 203.76001
+            "end": 203.76001,
+            "fa": "من پرستارم."
         },
         {
             "text": "I have to look after patients, give them medicine, and make sure they're comfortable.",
             "start": 203.76001,
-            "end": 209.56
+            "end": 209.56,
+            "fa": "من مجبورم از بیماران مراقبت کنم، بهشون دارو بدم و مطمئن بشم که راحت هستن."
         },
         {
             "text": "I'm responsible for about 20 to 30 patients.",
             "start": 209.56,
-            "end": 214.12001
+            "end": 214.12001,
+            "fa": "من مسئول حدود ۲۰ تا ۳۰ بیمار هستم."
         },
         {
             "text": "Most of my time is spent talking to patients and checking that everything is OK.",
             "start": 214.12001,
-            "end": 220.44
+            "end": 220.44,
+            "fa": "بیشتر وقت من صرف صحبت با بیماران و چک کردن اینکه همه‌چیز خوبه می‌شه."
         },
         {
             "text": "Next, let's do a more detailed example.",
             "start": 220.44,
-            "end": 225.48001
+            "end": 225.48001,
+            "fa": "حالا، بذار یه مثال با جزئیات بیشتر بزنیم."
         },
         {
             "text": "I have to design websites to the client's specifications.",
             "start": 225.48001,
-            "end": 229.02
+            "end": 229.02,
+            "fa": "من مجبورم وب‌سایت‌ها رو طبق مشخصات مشتری طراحی کنم."
         },
         {
             "text": "I'm responsible for the whole design process.",
             "start": 229.02,
-            "end": 232.56
+            "end": 232.56,
+            "fa": "من مسئول کل فرآیند طراحی هستم."
         },
         {
             "text": "So I have to take the client's ideas and turn them into a finished product.",
             "start": 232.56,
-            "end": 238.66
+            "end": 238.66,
+            "fa": "پس من مجبورم ایده‌های مشتری رو بگیرم و به یه محصول نهایی تبدیلشون کنم."
         },
         {
             "text": "of my time is spent experimenting with different designs and ideas and seeing what looks good.",
             "start": 238.66,
-            "end": 245.66
+            "end": 245.66,
+            "fa": "از وقت من صرف آزمایش با طراحی‌ها و ایده‌های مختلف و دیدن اینکه کدوم خوب به نظر می‌رسه می‌شه."
         },
         {
             "text": "Because attention to detail is important in this kind of work.",
             "start": 245.66,
-            "end": 252.06
+            "end": 252.06,
+            "fa": "چون دقت به جزئیات در این نوع کار مهمه."
         },
         {
             "text": "Can you say something like this about your job and what you do? Try to add details if",
             "start": 252.06,
-            "end": 257.66
+            "end": 257.66,
+            "fa": "می‌تونی درباره شغلت و کارهایی که انجام می‌دی یه چیزی شبیه این بگی؟ اگه می‌تونی سعی کن جزئیات اضافه کنی."
         },
         {
             "text": "you can.",
@@ -6028,12 +6136,14 @@
         {
             "text": "Part 5. How to make a longer answer.",
             "start": 259.34,
-            "end": 263.14
+            "end": 263.14,
+            "fa": "بخش ۵. چطور یه جواب طولانی‌تر بدهی."
         },
         {
             "text": "At this point you should be able to introduce your work, say where you work, give details",
             "start": 263.14,
-            "end": 269.62
+            "end": 269.62,
+            "fa": "در این مرحله باید بتونی کارت رو معرفی کنی، بگی کجا کار می‌کنی، جزئیاتی درباره کارهات بگی و بگی درباره کارت چه حسی داری. بذار با هم چند تا جواب نمونه‌ی بلندتر بسازیم. اولی: من داروسازم. داروخانه کوچیک خودم رو راه انداختم، پس من صاحب کسب‌وکارم هم هستم. البته مجبورم به عنوان داروساز کار کنم، به بیماران مشاوره بدم و مطمئن بشم که داروی درست رو دارن. با این حال، من مسئول داروخانه هم هستم، پس مجبورم کارمندام رو مدیریت کنم، حساب‌ها رو انجام بدم و غیره. این کار پرهیجان‌انگیزه چون مجبورم هر روز کارهای مختلفی انجام بدم، پس هیچ‌وقت خسته نمی‌شم. واضح بود؟ می‌تونی یه جوابی مثل این بسازی؟"
         },
         {
             "text": "about what you do and say how you feel about your work Let make some longer sample answers together First one I a pharmacist I started my own small pharmacy so I also a business owner",
@@ -6063,7 +6173,8 @@
         {
             "text": "Let's do one more. I'm a writer. I work in online education. I work for a big publishing company",
             "start": 317.62,
-            "end": 326.59998
+            "end": 326.59998,
+            "fa": "بیایید یک مورد دیگه انجام بدیم. من یک نویسنده‌ام. توی آموزش آنلاین کار می‌کنم. برای یک شرکت بزرگ انتشاراتی کار می‌کنم که مواد آموزشی مختلفی تولید می‌کنه که در سرتاسر جهان استفاده می‌شه."
         },
         {
             "text": "which produces different educational materials that are used all around the world.",
@@ -6073,17 +6184,20 @@
         {
             "text": "I have to write lesson plans and materials for teachers to use in the classroom.",
             "start": 332.59998,
-            "end": 337.24
+            "end": 337.24,
+            "fa": "من باید برنامه‌های درسی و مواد آموزشی برای معلمان بنویسم تا توی کلاس استفاده کنن."
         },
         {
             "text": "I spend most of my time thinking about how I can make different things fit together into a lesson.",
             "start": 339.47998,
-            "end": 345.63998
+            "end": 345.63998,
+            "fa": "بیشتر وقتم رو صرف فکر کردن به این می‌کنم که چطور می‌تونم چیزهای مختلف رو توی یک درس کنار هم بگذارم."
         },
         {
             "text": "It's very challenging work and it can be exhausting but it's also very creative and",
             "start": 346.59998,
-            "end": 351.96
+            "end": 351.96,
+            "fa": "این کار خیلی چالش‌برانگیزه و می‌تونه خسته‌کننده باشه، اما هم‌زمان خیلی خلاقانه و رضایت‌بخش است چون می‌دونم مردم سراسر جهان در حال استفاده از درس‌هایی هستند که من نوشته‌ام."
         },
         {
             "text": "satisfying because I know people all around the world are using lessons which I wrote.",
@@ -6093,7 +6207,8 @@
         {
             "text": "That is the end of the lesson. I hope you learned some new ways to talk about your job",
             "start": 358.59998,
-            "end": 363.88
+            "end": 363.88,
+            "fa": "این هم پایان درس بود. امیدوارم روش‌های جدیدی برای صحبت در مورد شغل و کاری که انجام می‌دید، یاد گرفته باشید. خیلی ممنون از تماشا کردن. تا دفعهٔ بعد می‌بینمت."
         },
         {
             "text": "and what you do. Thanks very much for watching. See you next time.",
@@ -10213,121 +10328,141 @@
             "speaker": "Mike",
             "text": "Hi, I'm Mike and welcome to Oxford Online English.",
             "start": 0,
-            "end": 3.58
+            "end": 3.58,
+            "fa": "سلام، من مایک هستم و به اکسفورد آنلاین انگلیش خوش اومدید."
         },
         {
             "speaker": "Mike",
             "text": "In this lesson, you can learn how to talk about your job in English.",
             "start": 3.88,
-            "end": 8.16
+            "end": 8.16,
+            "fa": "توی این درس، می‌تونید یاد بگیرید چطور درباره شغلتون به انگلیسی حرف بزنید."
         },
         {
             "speaker": "Mike",
             "text": "Where do you work? What do you have to do in your job?",
             "start": 9.24,
-            "end": 13.16
+            "end": 13.16,
+            "fa": "کجا کار می‌کنید؟ توی شغلتون باید چیکار کنید؟"
         },
         {
             "speaker": "Mike",
             "text": "What kind of company do you work for?",
             "start": 14.06,
-            "end": 15.72
+            "end": 15.72,
+            "fa": "برای چه نوع کمپانی‌ای کار می‌کنید؟"
         },
         {
             "speaker": "Mike",
             "text": "In this class, you can learn how to answer questions like this in clear, detailed English.",
             "start": 16.96,
-            "end": 22.76
+            "end": 22.76,
+            "fa": "توی این کلاس، می‌تونید یاد بگیرید چطور به سؤالاتی مثل اینا به انگلیسی واضح و با جزئیات جواب بدید."
         },
         {
             "speaker": "Mike",
             "text": "Ready? Let's start.",
             "start": 23.74,
-            "end": 25.78
+            "end": 25.78,
+            "fa": "آماده‌اید؟ بریم شروع کنیم."
         },
         {
             "speaker": "Mike",
             "text": "Part 1. Introducing your job.",
             "start": 26.3,
-            "end": 28.98
+            "end": 28.98,
+            "fa": "بخش اول. معرفی شغل شما."
         },
         {
             "speaker": "Mike",
             "text": "I'm a, I work in, I work for.",
             "start": 30,
-            "end": 34.32
+            "end": 34.32,
+            "fa": "من یه ... هستم، من توی ... کار می‌کنم، من برای ... کار می‌کنم."
         },
         {
             "speaker": "Mike",
             "text": "How would you complete these sentences?",
             "start": 35.42,
-            "end": 37.52
+            "end": 37.52,
+            "fa": "چطور این جملات رو کامل می‌کنید؟"
         },
         {
             "speaker": "Mike",
             "text": "You could say something like, I'm a writer.",
             "start": 38.62,
-            "end": 41.96
+            "end": 41.96,
+            "fa": "می‌تونید یه چیزی بگید مثل: من یه نویسنده‌ام."
         },
         {
             "speaker": "Mike",
             "text": "I work in online education.",
             "start": 42.4,
-            "end": 44.32
+            "end": 44.32,
+            "fa": "من توی آموزش آنلاین کار می‌کنم."
         },
         {
             "speaker": "Mike",
             "text": "I work for a publishing company.",
             "start": 44.64,
-            "end": 47.22
+            "end": 47.22,
+            "fa": "من برای یه شرکت انتشاراتی کار می‌کنم."
         },
         {
             "speaker": "Mike",
             "text": "I work in is used with a field, meaning a type of work.",
             "start": 49.02,
-            "end": 52.82
+            "end": 52.82,
+            "fa": "عبارت work in با یه حوزه استفاده می‌شه، یعنی یه نوع کار."
         },
         {
             "speaker": "Mike",
             "text": "So you can say things like, I work in finance.",
             "start": 53.36,
-            "end": 56.98
+            "end": 56.98,
+            "fa": "پس می‌تونید چیزایی بگید مثل: من توی مالی کار می‌کنم."
         },
         {
             "speaker": "Mike",
             "text": "I work in digital marketing.",
             "start": 57.42,
-            "end": 59.24
+            "end": 59.24,
+            "fa": "من توی بازاریابی دیجیتال کار می‌کنم."
         },
         {
             "speaker": "Mike",
             "text": "You can also use work in with a place or a department of a company.",
             "start": 60,
-            "end": 65.12
+            "end": 65.12,
+            "fa": "شما می‌تونید از work in برای یه مکان یا یه بخش از یه شرکت هم استفاده کنید."
         },
         {
             "speaker": "Mike",
             "text": "For example, I work in the HR department of a financial firm.",
             "start": 65.12,
-            "end": 71.12
+            "end": 71.12,
+            "fa": "مثلاً: من توی بخش منابع انسانی یه شرکت مالی کار می‌کنم."
         },
         {
             "speaker": "Mike",
             "text": "I work in a school, teaching modern languages.",
             "start": 71.12,
-            "end": 75.12
+            "end": 75.12,
+            "fa": "من توی یه مدرسه کار می‌کنم و زبان‌های مدرن تدریس می‌کنم."
         },
         {
             "speaker": "Mike",
             "text": "Confused?",
             "start": 75.12,
-            "end": 76.12
+            "end": 76.12,
+            "fa": "گیج شدید؟"
         },
         {
             "speaker": "Mike",
             "text": "You can see that if you use work in to talk about the type of work you do, you don't use",
             "start": 76.12,
-            "end": 82.4
+            "end": 82.4,
+            "fa": "می‌بینید که اگه از work in برای صحبت درباره نوع کاری که انجام می‌دید استفاده کنید، از حرف تعریف مثل a یا the استفاده نمی‌کنید."
         },
         {
             "speaker": "Mike",
@@ -10339,7 +10474,8 @@
             "speaker": "Mike",
             "text": "If you use an article after work in it means you talking about the place or department where you work I work for is used with a company So you could say I a salesman I work for a mobile phone",
             "start": 85.16,
-            "end": 102.68
+            "end": 102.68,
+            "fa": "اگه بعد از work یه حرف تعریف مثل a یا the بیاری، یعنی داری در مورد محل یا بخش کاری که توش کار می‌کنی حرف می‌زنی. عبارت I work for برای شرکت‌ها استفاده می‌شه. پس می‌تونی بگی من فروشنده‌ام، من برای یه شرکت موبایل کار می‌کنم. یا من برای یه شرکت حقوقی که در فرانکفورت هست کار می‌کنم. یا حتی می‌تونی بگی کسب‌وکار خودم رو اداره می‌کنم. پس من برای خودم کار می‌کنم. اگه برای شرکتی کار نمی‌کنی چیکار می‌کنی؟ اینا چند تا جمله‌ای هستن که می‌تونی بگی. من فریلنسر هستم، یعنی مستقل برای آدم‌ها و شرکت‌های مختلف کار می‌کنم. من خودموزشغله (self-employed) هستم، یعنی برای خودم کار می‌کنم، یا فریلنسری می‌کنم یا کسب‌وکار خودم رو دارم. من صاحب کسب‌وکارم. اگه کار نمی‌کنی و ازت بپرسن چیکار می‌کنی، چی می‌تونی بگی؟ اینا چند تا عبارت مفید هستن."
         },
         {
             "speaker": "Mike",
@@ -10375,13 +10511,15 @@
             "speaker": "Mike",
             "text": "I'm between jobs at the moment, meaning I've left one job and haven't found another yet.",
             "start": 145.38,
-            "end": 151.68
+            "end": 151.68,
+            "fa": "من الان بین دو شغل هستم، یعنی از یه شغل رها شده‌ام و هنوز شغل جدیدی پیدا نکرده‌ام."
         },
         {
             "speaker": "Mike",
             "text": "This sounds nicer than saying I'm unemployed. I'm taking some time out to travel, spend time",
             "start": 152.14,
-            "end": 159.86
+            "end": 159.86,
+            "fa": "این بهتر از اینه که بگی بیکارم. من یه مدت استراحت می‌کنم تا سفر کنم، با بچه‌هام وقت بگذرونم، کتابی بنویسم، از یه بیماری بهبود پیدا کنم و غیره. یعنی الان کار نمی‌کنم چون می‌خوام روی چیز دیگه‌ای تمرکز کنم. من بازنشسته‌ام. بخش ۳. چطور شغلت رو با جزئیات بیشتر توصیف کنی. پس تو واقعاً کل روزت رو چیکار می‌کنی؟ بذار ببینیم چطور می‌تونی شغلت رو با جزئیات بیشتر توصیف کنی. به این جملات نگاه کن. من مجبورم..."
         },
         {
             "speaker": "Mike",
@@ -10411,91 +10549,106 @@
             "speaker": "Mike",
             "text": "I'm responsible for.",
             "start": 191.22,
-            "end": 193.22
+            "end": 193.22,
+            "fa": "من مسئول..."
         },
         {
             "speaker": "Mike",
             "text": "Most of my time is spent.",
             "start": 193.22,
-            "end": 197.42
+            "end": 197.42,
+            "fa": "بیشتر وقت من صرف..."
         },
         {
             "speaker": "Mike",
             "text": "Let's do some examples together.",
             "start": 197.42,
-            "end": 199.22
+            "end": 199.22,
+            "fa": "بذار با هم چند تا مثال بزنیم."
         },
         {
             "speaker": "Mike",
             "text": "We'll start with a simple example.",
             "start": 199.22,
-            "end": 202.76
+            "end": 202.76,
+            "fa": "با یه مثال ساده شروع می‌کنیم."
         },
         {
             "speaker": "Mike",
             "text": "I'm a nurse.",
             "start": 202.76,
-            "end": 203.76
+            "end": 203.76,
+            "fa": "من پرستارم."
         },
         {
             "speaker": "Mike",
             "text": "I have to look after patients, give them medicine, and make sure they're comfortable.",
             "start": 203.76,
-            "end": 209.56
+            "end": 209.56,
+            "fa": "من مجبورم از بیماران مراقبت کنم، بهشون دارو بدم و مطمئن بشم که راحت هستن."
         },
         {
             "speaker": "Mike",
             "text": "I'm responsible for about 20 to 30 patients.",
             "start": 209.56,
-            "end": 214.12
+            "end": 214.12,
+            "fa": "من مسئول حدود ۲۰ تا ۳۰ بیمار هستم."
         },
         {
             "speaker": "Mike",
             "text": "Most of my time is spent talking to patients and checking that everything is OK.",
             "start": 214.12,
-            "end": 220.44
+            "end": 220.44,
+            "fa": "بیشتر وقت من صرف صحبت با بیماران و چک کردن اینکه همه‌چیز خوبه می‌شه."
         },
         {
             "speaker": "Mike",
             "text": "Next, let's do a more detailed example.",
             "start": 220.44,
-            "end": 225.48
+            "end": 225.48,
+            "fa": "حالا، بذار یه مثال با جزئیات بیشتر بزنیم."
         },
         {
             "speaker": "Mike",
             "text": "I have to design websites to the client's specifications.",
             "start": 225.48,
-            "end": 229.02
+            "end": 229.02,
+            "fa": "من مجبورم وب‌سایت‌ها رو طبق مشخصات مشتری طراحی کنم."
         },
         {
             "speaker": "Mike",
             "text": "I'm responsible for the whole design process.",
             "start": 229.02,
-            "end": 232.56
+            "end": 232.56,
+            "fa": "من مسئول کل فرآیند طراحی هستم."
         },
         {
             "speaker": "Mike",
             "text": "So I have to take the client's ideas and turn them into a finished product.",
             "start": 232.56,
-            "end": 238.66
+            "end": 238.66,
+            "fa": "پس من مجبورم ایده‌های مشتری رو بگیرم و به یه محصول نهایی تبدیلشون کنم."
         },
         {
             "speaker": "Mike",
             "text": "of my time is spent experimenting with different designs and ideas and seeing what looks good.",
             "start": 238.66,
-            "end": 245.66
+            "end": 245.66,
+            "fa": "از وقت من صرف آزمایش با طراحی‌ها و ایده‌های مختلف و دیدن اینکه کدوم خوب به نظر می‌رسه می‌شه."
         },
         {
             "speaker": "Mike",
             "text": "Because attention to detail is important in this kind of work.",
             "start": 245.66,
-            "end": 252.06
+            "end": 252.06,
+            "fa": "چون دقت به جزئیات در این نوع کار مهمه."
         },
         {
             "speaker": "Mike",
             "text": "Can you say something like this about your job and what you do? Try to add details if",
             "start": 252.06,
-            "end": 257.66
+            "end": 257.66,
+            "fa": "می‌تونی درباره شغلت و کارهایی که انجام می‌دی یه چیزی شبیه این بگی؟ اگه می‌تونی سعی کن جزئیات اضافه کنی."
         },
         {
             "speaker": "Mike",
@@ -10507,13 +10660,15 @@
             "speaker": "Mike",
             "text": "Part 5. How to make a longer answer.",
             "start": 259.34,
-            "end": 263.14
+            "end": 263.14,
+            "fa": "بخش ۵. چطور یه جواب طولانی‌تر بدهی."
         },
         {
             "speaker": "Mike",
             "text": "At this point you should be able to introduce your work, say where you work, give details",
             "start": 263.14,
-            "end": 269.62
+            "end": 269.62,
+            "fa": "در این مرحله باید بتونی کارت رو معرفی کنی، بگی کجا کار می‌کنی، جزئیاتی درباره کارهات بگی و بگی درباره کارت چه حسی داری. بذار با هم چند تا جواب نمونه‌ی بلندتر بسازیم. اولی: من داروسازم. داروخانه کوچیک خودم رو راه انداختم، پس من صاحب کسب‌وکارم هم هستم. البته مجبورم به عنوان داروساز کار کنم، به بیماران مشاوره بدم و مطمئن بشم که داروی درست رو دارن. با این حال، من مسئول داروخانه هم هستم، پس مجبورم کارمندام رو مدیریت کنم، حساب‌ها رو انجام بدم و غیره. این کار پرهیجان‌انگیزه چون مجبورم هر روز کارهای مختلفی انجام بدم، پس هیچ‌وقت خسته نمی‌شم. واضح بود؟ می‌تونی یه جوابی مثل این بسازی؟"
         },
         {
             "speaker": "Mike",
@@ -10549,7 +10704,8 @@
             "speaker": "Mike",
             "text": "Let's do one more. I'm a writer. I work in online education. I work for a big publishing company",
             "start": 317.62,
-            "end": 326.6
+            "end": 326.6,
+            "fa": "بیایید یک مورد دیگه انجام بدیم. من یک نویسنده‌ام. توی آموزش آنلاین کار می‌کنم. برای یک شرکت بزرگ انتشاراتی کار می‌کنم که مواد آموزشی مختلفی تولید می‌کنه که در سرتاسر جهان استفاده می‌شه."
         },
         {
             "speaker": "Mike",
@@ -10561,19 +10717,22 @@
             "speaker": "Mike",
             "text": "I have to write lesson plans and materials for teachers to use in the classroom.",
             "start": 332.6,
-            "end": 337.24
+            "end": 337.24,
+            "fa": "من باید برنامه‌های درسی و مواد آموزشی برای معلمان بنویسم تا توی کلاس استفاده کنن."
         },
         {
             "speaker": "Mike",
             "text": "I spend most of my time thinking about how I can make different things fit together into a lesson.",
             "start": 339.48,
-            "end": 345.64
+            "end": 345.64,
+            "fa": "بیشتر وقتم رو صرف فکر کردن به این می‌کنم که چطور می‌تونم چیزهای مختلف رو توی یک درس کنار هم بگذارم."
         },
         {
             "speaker": "Mike",
             "text": "It's very challenging work and it can be exhausting but it's also very creative and",
             "start": 346.6,
-            "end": 351.96
+            "end": 351.96,
+            "fa": "این کار خیلی چالش‌برانگیزه و می‌تونه خسته‌کننده باشه، اما هم‌زمان خیلی خلاقانه و رضایت‌بخش است چون می‌دونم مردم سراسر جهان در حال استفاده از درس‌هایی هستند که من نوشته‌ام."
         },
         {
             "speaker": "Mike",
@@ -10585,7 +10744,8 @@
             "speaker": "Mike",
             "text": "That is the end of the lesson. I hope you learned some new ways to talk about your job",
             "start": 358.6,
-            "end": 363.88
+            "end": 363.88,
+            "fa": "این هم پایان درس بود. امیدوارم روش‌های جدیدی برای صحبت در مورد شغل و کاری که انجام می‌دید، یاد گرفته باشید. خیلی ممنون از تماشا کردن. تا دفعهٔ بعد می‌بینمت."
         },
         {
             "speaker": "Mike",

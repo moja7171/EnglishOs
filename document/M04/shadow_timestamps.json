@@ -3,12 +3,14 @@
         {
             "text": "Good morning and welcome to what I eat in a day.",
             "start": 2.3,
-            "end": 7
+            "end": 7,
+            "fa": "صبح بخیر و خوش آمدید به «چی می‌خورم تو یک روز»."
         },
         {
             "text": "Today, I'm going to show you everything I eat,",
             "start": 7,
-            "end": 10.5
+            "end": 10.5,
+            "fa": "امروز می‌خوام بهتون نشون بدم همه چی که می‌خورم و چند تا واژه انگلیسی مربوط به غذا یاد بگیریم."
         },
         {
             "text": "and we're going to learn some English about food.",
@@ -18,7 +20,8 @@
         {
             "text": "We're going to learn some really common food English,",
             "start": 13.4,
-            "end": 16.3
+            "end": 16.3,
+            "fa": "قراره چند تا واژه انگلیسی خیلی رایج درباره غذا یاد بگیریم و به روش ساده و خوبی یاد بگیرید، چون من امروز تمام غذاهایی که می‌خورم رو ویدیو می‌کنم."
         },
         {
             "text": "and you're going to learn it in a really good, easy way,",
@@ -33,7 +36,8 @@
         {
             "text": "So, let's start with breakfast,",
             "start": 23,
-            "end": 24.8
+            "end": 24.8,
+            "fa": "پس بزنیم سر صبحانه، مهم‌ترین وعدهٔ روز."
         },
         {
             "text": "the most important meal of the day.",
@@ -43,17 +47,20 @@
         {
             "text": "So, I'm actually a bit of a creature of habit.",
             "start": 27,
-            "end": 31.5
+            "end": 31.5,
+            "fa": "راستش من آدم عادت‌مندم."
         },
         {
             "text": "I really like having very similar food most days.",
             "start": 31.5,
-            "end": 35.5
+            "end": 35.5,
+            "fa": "خیلی دوست دارم اکثر روزها غذاهای مشابه بخورم."
         },
         {
             "text": "So, this is the breakfast I have every single day,",
             "start": 35.5,
-            "end": 39.5
+            "end": 39.5,
+            "fa": "این صبحانه‌ایه که هر روز می‌خورم و ازش خسته نمی‌شم."
         },
         {
             "text": "and I don't get bored of it.",
@@ -63,27 +70,32 @@
         {
             "text": "So, we've got Greek yogurt.",
             "start": 41.4,
-            "end": 44.5
+            "end": 44.5,
+            "fa": "ما ماست یونانی داریم."
         },
         {
             "text": "I'm going to do Greek yogurt with almond butter.",
             "start": 44.5,
-            "end": 47.3
+            "end": 47.3,
+            "fa": "من می‌خوام ماست یونانی با کرهٔ بادام درست کنم."
         },
         {
             "text": "Ooh, I love almond butter. Let me show you.",
             "start": 47.3,
-            "end": 49.6
+            "end": 49.6,
+            "fa": "اوه، من عاشق کرهٔ بادامم. بزار نشونت بدم."
         },
         {
             "text": "We're going to have...",
             "start": 49.6,
-            "end": 57.6
+            "end": 57.6,
+            "fa": "ما می‌خوایم ..."
         },
         {
             "text": "Disaster. Oh no,",
             "start": 57.7,
-            "end": 61.2
+            "end": 61.2,
+            "fa": "فاجعه. اوه نه، اصلاً همون چیزی که می‌خواستم نبود. وای."
         },
         {
             "text": "that is not what I wanted at all. Gosh.",
@@ -93,37 +105,44 @@
         {
             "text": "Oh no, I fully split it all.",
             "start": 64.5,
-            "end": 68.5
+            "end": 68.5,
+            "fa": "اوه نه، همه‌اش رو کاملاً پخش کردم."
         },
         {
             "text": "To start my day then, I'm just going to transfer all this Greek yogurt into this.",
             "start": 68.5,
-            "end": 72.5
+            "end": 72.5,
+            "fa": "برای شروع روزم، می‌خوام تمام این ماست یونانی رو تو این منتقل کنم."
         },
         {
             "text": "Bear with me a second. Promise we'll get to a what I eat in a day video very shortly.",
             "start": 72.5,
-            "end": 77.3
+            "end": 77.3,
+            "fa": "یک لحظه صبر کن. قول می‌دم به زودی ویدیو «چی می‌خورم تو یک روز» رو ببینید."
         },
         {
             "text": "I'm very clumsy.",
             "start": 77.3,
-            "end": 79
+            "end": 79,
+            "fa": "من خیلی دست و پا چلفتی‌ام."
         },
         {
             "text": "If that didn't show you that I'm a clumsy person, I don't know what will.",
             "start": 79,
-            "end": 82.8
+            "end": 82.8,
+            "fa": "اگه این نشون نده که من دست و پا چلفتی‌ام، نمی‌دونم چی نشون بده."
         },
         {
             "text": "I have no coordination. I often drop things. Very, very clumsy.",
             "start": 82.8,
-            "end": 88.3
+            "end": 88.3,
+            "fa": "من هماهنگی ندارم. اغلب چیزها رو می‌ریزم. خیلی، خیلی چلفتی‌ام."
         },
         {
             "text": "Okay, so that wasn't quite the glamorous opening of a video I wanted,",
             "start": 88.3,
-            "end": 96.3
+            "end": 96.3,
+            "fa": "خب، این مقدمهٔ جذابی که می‌خواستم برای ویدیو نبود، اما اشکالی نداره."
         },
         {
             "text": "but that's fine.",
@@ -133,77 +152,92 @@
         {
             "text": "So, what I normally do for breakfast is I normally get a bowl.",
             "start": 97.8,
-            "end": 104
+            "end": 104,
+            "fa": "پس معمولاً برای صبحانه یک کاسه می‌گیرم."
         },
         {
             "text": "Watch out for the pronunciation of that word, by the way.",
             "start": 104,
-            "end": 107
+            "end": 107,
+            "fa": "راستی حواستون به تلفظ این کلمه باشه."
         },
         {
             "text": "Bowl, not bowel. Very different thing.",
             "start": 107,
-            "end": 110
+            "end": 110,
+            "fa": "کاسه، نه روده. خیلی چیزهای متفاوتی هستن."
         },
         {
             "text": "And then I still have a little bit of yogurt in this one.",
             "start": 110,
-            "end": 113
+            "end": 113,
+            "fa": "و هنوز کمی ماست تو این کاسه‌ست."
         },
         {
             "text": "So, I get some Greek yogurt in a bowl.",
             "start": 113,
-            "end": 117
+            "end": 117,
+            "fa": "پس من یک مقدار ماست یونانی تو یک کاسه می‌گیرم."
         },
         {
             "text": "I just like Greek yogurt because it's very filling.",
             "start": 117,
-            "end": 124
+            "end": 124,
+            "fa": "من فقط ماست یونانی رو دوست دارم چون خیلی سیرکننده‌ست."
         },
         {
             "text": "It's very filling. It keeps me full for a long time.",
             "start": 124,
-            "end": 129.3
+            "end": 129.3,
+            "fa": "خیلی سیرکننده‌ست. طولانی‌وقت منو سیر نگه می‌داره."
         },
         {
             "text": "And I think that's what you want with breakfast.",
             "start": 129.3,
-            "end": 132
+            "end": 132,
+            "fa": "و فکر می‌کنم این همون چیزی‌ست که تو صبحانه می‌خوای."
         },
         {
             "text": "You want... you want to feel full for a long time.",
             "start": 132,
-            "end": 135.5
+            "end": 135.5,
+            "fa": "می‌خوای... می‌خوای طولانی‌وقت سیر حس کنی."
         },
         {
             "text": "I don't want to eat breakfast, and then two seconds later, oh, I'm hungry again.",
             "start": 135.5,
-            "end": 142.3
+            "end": 142.3,
+            "fa": "نمی‌خوام صبحانه بخورم و بعد دو ثانیه بعد، آه، دوباره گرسنه شدم."
         },
         {
             "text": "So, I have my Greek yogurt in a bowl.",
             "start": 142.3,
-            "end": 145.1
+            "end": 145.1,
+            "fa": "پس ماست یونانی‌ام رو تو یک کاسه دارم."
         },
         {
             "text": "Um, it doesn't look very appetizing right now, but I need an apple, and I also need some almond butter.",
             "start": 145.1,
-            "end": 151.8
+            "end": 151.8,
+            "fa": "اممم، الان خیلی خوشمزه به نظر نمیاد، ولی یک سیب لازم دارم و همچنین کمی کره بادام."
         },
         {
             "text": "So, I get a good scoop of almond butter. And I normally... So, I add that in there.",
             "start": 151.8,
-            "end": 159.8
+            "end": 159.8,
+            "fa": "پس یک قاشق خوب کره بادام می‌گیرم. معمولاً... پس اون رو می‌دم داخل."
         },
         {
             "text": "Then I mix it all in there. Mix, mix, mix, mix, mix.",
             "start": 160.4,
-            "end": 164.2
+            "end": 164.2,
+            "fa": "بعد همه‌ش رو داخل می‌زنم و می‌زنم، می‌زنم، می‌زنم، می‌زنم."
         },
         {
             "text": "Then I chop the apple up. I chop it up, or I cut the apple into smaller pieces,",
             "start": 164.2,
-            "end": 170.3
+            "end": 170.3,
+            "fa": "بعد سیب رو خرد می‌کنم. یا خردش می‌کنم، یا به تکه‌های کوچیک می‌برم، یا به قطعات بزرگ."
         },
         {
             "text": "or I cut the apple into chunks.",
@@ -213,32 +247,38 @@
         {
             "text": "So we can often talk about food in chunks.",
             "start": 177.2,
-            "end": 180.1
+            "end": 180.1,
+            "fa": "پس می‌تونیم اغلب درباره غذا به صورت قطعات صحبت کنیم."
         },
         {
             "text": "So a chunk is a non-specified measurement.",
             "start": 180.1,
-            "end": 184.6
+            "end": 184.6,
+            "fa": "یک قطعه یعنی یک اندازه نامشخص."
         },
         {
             "text": "I'm not... I'm not measuring these. That's just a chunk of apple, you know.",
             "start": 184.6,
-            "end": 189.9
+            "end": 189.9,
+            "fa": "من... دارم اندازه‌اش رو نمی‌گیرم. این فقط یک قطعه سیب است، می‌دونی."
         },
         {
             "text": "Uh, and I don't use the core of the apple. I don't need the core.",
             "start": 189.9,
-            "end": 195
+            "end": 195,
+            "fa": "اُه، من هسته سیب رو استفاده نمی‌کنم. نیازی به هسته ندارم."
         },
         {
             "text": "I don't want the seeds. Or in the UK, we call seeds \"pips\".",
             "start": 195,
-            "end": 198
+            "end": 198,
+            "fa": "دانه‌ها رو نمی‌خوام. یا در انگلستان به دانه‌ها می‌گن «پپس»."
         },
         {
             "text": "I don't know whether that's just a UK thing, but when I was younger,",
             "start": 198,
-            "end": 202.1
+            "end": 202.1,
+            "fa": "نمی‌دونم این فقط یک چیز انگلیسیه یا نه، اما وقتی کوچیک بودم همیشه می‌گفتم: «اوه مامان، یک پرتقال می‌خوام، ولی نمی‌خوام پرتقالی با پپس داشته باشه.»"
         },
         {
             "text": "I would always say, \"Ooh, mom, I want an orange,",
@@ -253,172 +293,206 @@
         {
             "text": "Then I mix all that together so that the apple is evenly spread throughout the thing.",
             "start": 207.6,
-            "end": 212.8
+            "end": 212.8,
+            "fa": "بعد همه‌اشو با هم می‌زنم تا سیب به‌طور مساوی در کل مخلوط پخش بشه."
         },
         {
             "text": "And then to finish it off, I just top it with some blueberries.",
             "start": 212.8,
-            "end": 218.3
+            "end": 218.3,
+            "fa": "و بعد برای تمومش، فقط رویش کمی بلوبری می‌پاشم."
         },
         {
             "text": "Sprinkle some blueberries on the top.",
             "start": 218.3,
-            "end": 221
+            "end": 221,
+            "fa": "کمی بلوبری روی بالا بپاش."
         },
         {
             "text": "Easy peasy lemon squeezy. Let's go eat it.",
             "start": 221,
-            "end": 224.5
+            "end": 224.5,
+            "fa": "خیلی ساده‌ست. بزن بریم بخوریم."
         },
         {
             "text": "Oh, I need a coffee. I haven't made myself a coffee.",
             "start": 224.5,
-            "end": 230.8
+            "end": 230.8,
+            "fa": "اوه، یک قهوه لازم دارم. هنوز قهوه‌ای نساخته‌ام."
         },
         {
             "text": "Clearly the yogurt just threw me off.",
             "start": 230.8,
-            "end": 234
+            "end": 234,
+            "fa": "واضحه که ماست باعث شد من از مسیر خارج شم."
         },
         {
             "text": "We've decorated for Christmas, which is very exciting.",
             "start": 234,
-            "end": 237
+            "end": 237,
+            "fa": "ما برای کریسمس دکور کردیم، که خیلی هیجان‌انگیزه."
         },
         {
             "text": "Um, but yes, so I've got my Greek yogurt bowl with my blueberries.",
             "start": 237,
-            "end": 241.3
+            "end": 241.3,
+            "fa": "اممم، اما بله، من کاسه ماست یونانی‌ام رو با بلوبری‌ها دارم."
         },
         {
             "text": "Tuck in.",
             "start": 241.3,
-            "end": 246.8
+            "end": 246.8,
+            "fa": "بزن بخور."
         },
         {
             "text": "Okay, it's now later in the day. It's time for lunch.",
             "start": 246.8,
-            "end": 251
+            "end": 251,
+            "fa": "خب، الآن وقت ظهر شده، وقت ناهار است."
         },
         {
             "text": "I really enjoy lunch. Most weekdays I just have a salad.",
             "start": 251,
-            "end": 254.8
+            "end": 254.8,
+            "fa": "من واقعاً از ناهار لذت می‌برم. تو بیشتر روزهای کاری فقط یک سالاد می‌خورم."
         },
         {
             "text": "It's really, really boring.",
             "start": 254.8,
-            "end": 256.8
+            "end": 256.8,
+            "fa": "خیلی، خیلی کسل‌کننده است."
         },
         {
             "text": "But it's a Saturday, so I'm going to have possibly one of my favorite foods ever.",
             "start": 256.8,
-            "end": 261.7
+            "end": 261.7,
+            "fa": "اما امروز شنبه است، پس قراره یکی از غذاهای مورد علاقه‌ام رو بخورم."
         },
         {
             "text": "Let me show you.",
             "start": 261.7,
-            "end": 262.5
+            "end": 262.5,
+            "fa": "بزار بهت نشون بدم."
         },
         {
             "text": "I'm actually really excited for this because it's the beginning of the Christmas season.",
             "start": 262.5,
-            "end": 268.5
+            "end": 268.5,
+            "fa": "در واقع خیلی هیجان‌زده‌ام چون این شروع فصل کریسمس است."
         },
         {
             "text": "So now I have complete free rein to eat as much turkey and cranberry sauce as I want.",
             "start": 268.5,
-            "end": 276.5
+            "end": 276.5,
+            "fa": "پس الآن آزادی کامل دارم که هر مقدار بوقلمون و سس کرن‌بری که می‌خوام بخورم."
         },
         {
             "text": "That is my favorite combination of anything.",
             "start": 278.9,
-            "end": 281.2
+            "end": 281.2,
+            "fa": "این ترکیب مورد علاقه‌ام از همه چیزهاست."
         },
         {
             "text": "In the UK in particular, Christmas dinner involves a turkey.",
             "start": 281.2,
-            "end": 285
+            "end": 285,
+            "fa": "به‌خصوص در بریتانیا، شام کریسمس شامل بوقلمون می‌شود."
         },
         {
             "text": "Big turkey with cranberry sauce and gravy.",
             "start": 285,
-            "end": 290.1
+            "end": 290.1,
+            "fa": "بوقلمون بزرگ با سس کرن‌بری و گریوی."
         },
         {
             "text": "It is phenomenal. That mixture of savory with sweet. I just love it.",
             "start": 290.1,
-            "end": 295
+            "end": 295,
+            "fa": "این فوق‌العاده است. ترکیب شور و شیرین. من واقعاً عاشقشم."
         },
         {
             "text": "I've always liked having, like, meat and then a sweet sauce on it.",
             "start": 295,
-            "end": 299.5
+            "end": 299.5,
+            "fa": "همیشه دوست داشتم گوشت داشته باشم و بعد یک سس شیرین رویش."
         },
         {
             "text": "So, like, duck in orange sauce, chicken in lemon sauce, you know, that combination.",
             "start": 299.5,
-            "end": 305.4
+            "end": 305.4,
+            "fa": "مثلاً اردک با سس پرتقال، مرغ با سس لیمو، می‌دونی، این ترکیب."
         },
         {
             "text": "So I'm going to make a bagel with turkey, butter, and cranberry sauce.",
             "start": 305.4,
-            "end": 311
+            "end": 311,
+            "fa": "پس می‌خوام یک باگل با بوقلمون، کره و سس کرن‌بری درست کنم."
         },
         {
             "text": "It's really simple, but I think it might be my favorite food of all time.",
             "start": 311,
-            "end": 315.5
+            "end": 315.5,
+            "fa": "خیلی ساده است، اما فکر می‌کنم شاید بهترین غذای من تا به حال باشد."
         },
         {
             "text": "Okay, so I'm going to make my bagel. I'm going to toast my bagel.",
             "start": 315.5,
-            "end": 319.5
+            "end": 319.5,
+            "fa": "خب، می‌خوام باگل‌ام رو درست کنم. می‌خوام باگل‌ام رو تست کنم."
         },
         {
             "text": "These are the protein bagels. They've got seeds on them. I just like it.",
             "start": 319.5,
-            "end": 325.5
+            "end": 325.5,
+            "fa": "این‌ها باگل‌های پروتئینی هستند. رویشون دانه‌ها هست. من واقعاً دوستش دارم."
         },
         {
             "text": "So, I'm going to toast these, put some turkey in it, and then put some cranberry sauce on it.",
             "start": 325.5,
-            "end": 330
+            "end": 330,
+            "fa": "پس این‌ها را تست می‌کنم، کمی بوقلمون می‌گذارم داخلش و بعد سس کرن‌بری می‌ریزم."
         },
         {
             "text": "Oh my goodness. Take a look, by the way, at my butter dish.",
             "start": 330,
-            "end": 334.4
+            "end": 334.4,
+            "fa": "اوه خدای من. راستی، یک نگاه بنداز به ظرف کره‌ام."
         },
         {
             "text": "How sweet is this butter dish?",
             "start": 334.4,
-            "end": 337.8
+            "end": 337.8,
+            "fa": "این ظرف کره چقدر شیرین است؟"
         },
         {
             "text": "I'm just... I...",
             "start": 337.8,
-            "end": 339.6
+            "end": 339.6,
+            "fa": "من فقط... من..."
         },
         {
             "text": "Little things like this bring me so much joy.",
             "start": 339.6,
-            "end": 342.1
+            "end": 342.1,
+            "fa": "چیزهای کوچیکی مثل این برام کلی خوشی می‌آورند."
         },
         {
             "text": "So, this is my butter dish, and inside we have some butter.",
             "start": 342.1,
-            "end": 346.4
+            "end": 346.4,
+            "fa": "پس این ظرف کره‌ام است و داخلش کمی کره داریم."
         },
         {
             "text": "Obviously, I know it might seem really simple and silly, but a turkey bagel with cranberry sauce.",
             "start": 346.4,
-            "end": 354.4
+            "end": 354.4,
+            "fa": "واضحاً می‌دونم ممکنه خیلی ساده و احمقانه به نظر بیاد، اما یک باگل بوقلمون با سس کرن‌بری."
         },
         {
             "text": "I can eat this every day for the rest of my life and I'll be happy.",
             "start": 360.9,
-            "end": 368.9
+            "end": 368.9,
+            "fa": "من می‌تونم اینو هر روز تا آخر عمرم بخورم و خوشحال می‌مونم."
         }
     ],
     "video_shadowing": [
@@ -4938,22 +5012,26 @@
         {
             "text": "Hi, I'm Oli.",
             "start": 0.32,
-            "end": 1.68
+            "end": 1.68,
+            "fa": "سلام، من اولی‌ام."
         },
         {
             "text": "Welcome to Oxford Online English.",
             "start": 1.68,
-            "end": 3.8
+            "end": 3.8,
+            "fa": "به آکسفورد آنلاین انگلیش خوش آمدید."
         },
         {
             "text": "In this lesson, you can learn how to talk about food.",
             "start": 3.8,
-            "end": 7.2
+            "end": 7.2,
+            "fa": "در این درس می‌تونی یاد بگیری چطور درباره غذا صحبت کنی."
         },
         {
             "text": "You'll see how to talk about different cuisines, talk about food you like or dislike, and talk",
             "start": 7.2,
-            "end": 12.9
+            "end": 12.9,
+            "fa": "می‌بینی چطور می‌تونی درباره انواع غذاها، غذاهایی که دوست داری یا دوست نداری، و عادات آشپزی و خوردن صحبت کنی."
         },
         {
             "text": "about cooking and eating habits.",
@@ -4963,22 +5041,26 @@
         {
             "text": "What kind of food do you like?",
             "start": 15.719999,
-            "end": 17
+            "end": 17,
+            "fa": "چه نوع غذایی دوست داری؟"
         },
         {
             "text": "I like a bit of everything, really.",
             "start": 17,
-            "end": 18.68
+            "end": 18.68,
+            "fa": "من واقعاً کمی از همه چیز دوست دارم."
         },
         {
             "text": "I grew up in the UK, and you can get food from all over the world there.",
             "start": 18.68,
-            "end": 22.8
+            "end": 22.8,
+            "fa": "من توی بریتانیا بزرگ شدم و اونجا می‌تونی غذاهای تمام دنیا پیدا کنی."
         },
         {
             "text": "My mum's cooking is a combination of different cuisines – a bit of French, a bit of Italian,",
             "start": 22.8,
-            "end": 27.3
+            "end": 27.3,
+            "fa": "آشپزی مامانم ترکیبی از غذاهای مختلفه – کمی فرانسوی، کمی ایتالیایی، کمی هندی و غیره."
         },
         {
             "text": "a bit of Indian, and so on.",
@@ -4988,22 +5070,26 @@
         {
             "text": "What's British cuisine like?",
             "start": 29.34,
-            "end": 30.8
+            "end": 30.8,
+            "fa": "غذای بریتانیایی چطوره؟"
         },
         {
             "text": "I know about fish and chips, but there must be more.",
             "start": 30.8,
-            "end": 33.54
+            "end": 33.54,
+            "fa": "من در مورد فیش اند چیپس می‌دونم، اما باید چیزهای دیگه‌ای هم باشه."
         },
         {
             "text": "There is, but not that much.",
             "start": 33.54,
-            "end": 35.6
+            "end": 35.6,
+            "fa": "هست، اما نه خیلی."
         },
         {
             "text": "There are a few famous dishes like shepherd's pie or Sunday roast, but most people eat a",
             "start": 35.6,
-            "end": 40.06
+            "end": 40.06,
+            "fa": "چند تا غذا مشهور مثل شِفردز پای یا ساندی رست هستن، اما اکثر مردم ترکیبی از چیزها می‌خورن."
         },
         {
             "text": "mix of things.",
@@ -5013,22 +5099,26 @@
         {
             "text": "What about you?",
             "start": 41.6,
-            "end": 43.06
+            "end": 43.06,
+            "fa": "شما چه فکر می‌کنید؟"
         },
         {
             "text": "What food do you like?",
             "start": 43.06,
-            "end": 44.06
+            "end": 44.06,
+            "fa": "چه غذایی دوست داری؟"
         },
         {
             "text": "I'm half Spanish, so when I was young, we ate a lot of Mediterranean food at home.",
             "start": 44.06,
-            "end": 49.14
+            "end": 49.14,
+            "fa": "من نصف اسپانیایی‌ام، پس وقتی کوچیک بودم تو خونه غذای مدیترانه‌ای زیاد می‌خوردیم."
         },
         {
             "text": "Now I live in Berlin, and it's a pretty cosmopolitan place, so you can get all kinds",
             "start": 49.14,
-            "end": 53.86
+            "end": 53.86,
+            "fa": "حالا تو برلین زندگی می‌کنم و اینجا شهر خیلی بین‌المللیه، پس می‌تونی همه نوع غذا پیدا کنی، مثل بریتانیا، فکر می‌کنم."
         },
         {
             "text": "of food, like the UK, I suppose.",
@@ -5038,22 +5128,26 @@
         {
             "text": "I've never really had much Spanish food.",
             "start": 55.66,
-            "end": 58.6
+            "end": 58.6,
+            "fa": "من واقعاً غذاهای اسپانیایی زیاد نخورده‌ام."
         },
         {
             "text": "Is it similar to Italian?",
             "start": 58.6,
-            "end": 60.5
+            "end": 60.5,
+            "fa": "آیا شبیه ایتالیایی‌هاست؟"
         },
         {
             "text": "In some ways, yes.",
             "start": 60.5,
-            "end": 62.079998
+            "end": 62.079998,
+            "fa": "تو بعضی جهات، بله."
         },
         {
             "text": "They both use a lot of fresh ingredients, and there's a lot of seafood, salads, and",
             "start": 62.079998,
-            "end": 66.28
+            "end": 66.28,
+            "fa": "هر دو از مواد تازه زیاد استفاده می‌کنن و غذاهای دریایی، سالادها و غیره زیاد هست."
         },
         {
             "text": "so on.",
@@ -5063,47 +5157,56 @@
         {
             "text": "Pasta isn't so common in Spanish cooking, though.",
             "start": 67.28,
-            "end": 70.04
+            "end": 70.04,
+            "fa": "پاستا تو آشپزی اسپانیایی خیلی رایج نیست."
         },
         {
             "text": "What are some typical Spanish dishes?",
             "start": 70.04,
-            "end": 72.04
+            "end": 72.04,
+            "fa": "چند تا غذای سنتی اسپانیایی چه هستند؟"
         },
         {
             "text": "I'd be interested to try some.",
             "start": 72.04,
-            "end": 74.119995
+            "end": 74.119995,
+            "fa": "دوست دارم امتحانشون کنم."
         },
         {
             "text": "I guess paella is quite well known.",
             "start": 74.119995,
-            "end": 76.479996
+            "end": 76.479996,
+            "fa": "فکر می‌کنم پاِیلا خیلی شناخته شده‌ست."
         },
         {
             "text": "My personal favourite is a dish called arbondigas, which is meatballs in a tomato sauce.",
             "start": 76.479996,
-            "end": 81.9
+            "end": 81.9,
+            "fa": "غذای مورد علاقه شخصی من «آربوندیگاس» است، که توپ‌کوفتی تو سس گوجه‌فرنگی است."
         },
         {
             "text": "It's simple, but so tasty.",
             "start": 81.9,
-            "end": 83.78
+            "end": 83.78,
+            "fa": "ساده‌ست، اما خیلی خوشمزه."
         },
         {
             "text": "Sounds good.",
             "start": 83.78,
-            "end": 84.78
+            "end": 84.78,
+            "fa": "خوبه."
         },
         {
             "text": "Here's a question.",
             "start": 84.78,
-            "end": 86.64
+            "end": 86.64,
+            "fa": "یک سؤال دارم."
         },
         {
             "text": "Do you know the difference between the words cuisine dish and meal Cuisine means the kind of food you find in a specific country or culture For example you have Chinese cuisine French cuisine local cuisine and so on",
             "start": 86.64,
-            "end": 105.052505
+            "end": 105.052505,
+            "fa": "می‌دونی فرق بین کلمات «کوزین»، «دیش» و «میل» چیه؟ «کوزین» به نوع غذایی که تو یک کشور یا فرهنگ خاص پیدا می‌شه می‌گه. مثلاً «کوزین چینی»، «کوزین فرانسوی»، «کوزین محلی» و غیره. «کوزین» شبیه به سبک آشپزی هست."
         },
         {
             "text": "Cuisine means something like cooking style.",
@@ -5113,42 +5216,50 @@
         {
             "text": "You can use the word food or cooking in the same way.",
             "start": 108.27251,
-            "end": 112.4725
+            "end": 112.4725,
+            "fa": "می‌تونی واژه «فود» یا «کوکینگ» رو همون‌طوری استفاده کنی."
         },
         {
             "text": "So you can say Chinese cuisine, Chinese cooking, or Chinese food.",
             "start": 112.4725,
-            "end": 117.4925
+            "end": 117.4925,
+            "fa": "پس می‌تونی بگی «کوزین چینی»، «کوکینگ چینی» یا «فود چینی»."
         },
         {
             "text": "The meaning is very close.",
             "start": 117.4925,
-            "end": 119.832504
+            "end": 119.832504,
+            "fa": "معنی‌شون خیلی نزدیکه."
         },
         {
             "text": "A dish means something which is cooked or prepared.",
             "start": 119.832504,
-            "end": 123.332504
+            "end": 123.332504,
+            "fa": "«دیش» یعنی چیزی که پخته یا آماده شده."
         },
         {
             "text": "Usually, a dish is made from different kinds of food.",
             "start": 123.332504,
-            "end": 127.2525
+            "end": 127.2525,
+            "fa": "معمولاً یک «دیش» از انواع مختلف غذا ساخته می‌شه."
         },
         {
             "text": "A meal is food eaten at a specific time.",
             "start": 127.2525,
-            "end": 130.9725
+            "end": 130.9725,
+            "fa": "«میل» غذاییه که تو زمان مشخصی خورده می‌شه."
         },
         {
             "text": "Most people eat three meals a day – breakfast, lunch, and dinner.",
             "start": 130.9725,
-            "end": 135.5525
+            "end": 135.5525,
+            "fa": "اکثر مردم روزانه سه وعده غذا می‌خورند – صبحانه، ناهار و شام."
         },
         {
             "text": "We often hear English learners make mistakes with these three words, so be careful with",
             "start": 135.5525,
-            "end": 140.1725
+            "end": 140.1725,
+            "fa": "ما اغلب می‌شنویم یادگیرندگان انگلیسی این سه واژه رو اشتباه می‌کنن، پس مراقبشون باش."
         },
         {
             "text": "them.",
@@ -5158,82 +5269,98 @@
         {
             "text": "Next, let's look at how to talk about food you like… or don't.",
             "start": 141.1725,
-            "end": 146.3725
+            "end": 146.3725,
+            "fa": "حالا می‌خوایم ببینیم چطور درباره غذایی که دوست داری یا دوست نداری صحبت کنیم..."
         },
         {
             "text": "So, what do you think?",
             "start": 147.4925,
-            "end": 150.9925
+            "end": 150.9925,
+            "fa": "پس، نظرت چیه؟"
         },
         {
             "text": "Oh no, this is terrible!",
             "start": 150.9925,
-            "end": 153.4325
+            "end": 153.4325,
+            "fa": "اوه نه، این خیلی بدیه!"
         },
         {
             "text": "Really?",
             "start": 153.4325,
-            "end": 154.4325
+            "end": 154.4325,
+            "fa": "جدی؟"
         },
         {
             "text": "First, you haven't cooked the meat long enough.",
             "start": 154.4325,
-            "end": 157.1325
+            "end": 157.1325,
+            "fa": "اولاً، گوشت رو کافی زمان نپختی."
         },
         {
             "text": "It's tough and really chewy.",
             "start": 157.1325,
-            "end": 159.29251
+            "end": 159.29251,
+            "fa": "سفت و خیلی جویدنیه."
         },
         {
             "text": "You need to keep cooking it until it's tender.",
             "start": 159.29251,
-            "end": 161.2525
+            "end": 161.2525,
+            "fa": "باید ادامه بدی بپزی تا نرم بشه."
         },
         {
             "text": "I cooked it for two hours, just like you said.",
             "start": 161.2525,
-            "end": 164.1525
+            "end": 164.1525,
+            "fa": "من دو ساعت پختمش، دقیقاً همون‌طوری که گفتی."
         },
         {
             "text": "Yes, but you also have to check that it's done.",
             "start": 164.1525,
-            "end": 167.6125
+            "end": 167.6125,
+            "fa": "بله، ولی باید بررسی کنی که کاملاً پخته شده."
         },
         {
             "text": "Also, these vegetables are awful.",
             "start": 167.6125,
-            "end": 170.6125
+            "end": 170.6125,
+            "fa": "راستی، این سبزی‌ها خیلی بده."
         },
         {
             "text": "They're mushy because you've overcooked them.",
             "start": 170.6125,
-            "end": 173.1525
+            "end": 173.1525,
+            "fa": "چون زیاد پختی، له‌لّه‌ شده‌اند."
         },
         {
             "text": "They should be fresh and crunchy.",
             "start": 173.1525,
-            "end": 175.1125
+            "end": 175.1125,
+            "fa": "باید تازه و ترد باشن."
         },
         {
             "text": "Right.",
             "start": 175.1125,
-            "end": 176.8925
+            "end": 176.8925,
+            "fa": "درسته."
         },
         {
             "text": "What about the sauce?",
             "start": 176.8925,
-            "end": 177.8925
+            "end": 177.8925,
+            "fa": "سس چطور؟"
         },
         {
             "text": "It's not bad, but it's a little bland.",
             "start": 177.8925,
-            "end": 180.7125
+            "end": 180.7125,
+            "fa": "بد نیست، ولی یه کم بی‌طعمه."
         },
         {
             "text": "A dish like this should be rich spicy and a little sour While you cooking don forget to taste it and add more spices or more vinegar or whatever it needs Okay I a little scared to show you my dessert now",
             "start": 180.7125,
-            "end": 193.785
+            "end": 193.785,
+            "fa": "یک غذا مثل این باید پرطعم، تند و کمی ترش باشد. وقتی آشپزی می‌کنی فراموش نکن مزه‌اش را بچشی و ادویه یا سرکه یا هر چی لازم بود اضافه کنی. خب، کمی ترس دارم که دسرم را الآن بهت نشون بدم. آه! واو، این فوق‌العاده است!"
         },
         {
             "text": "Ah! Wow, this is amazing!",
@@ -5243,62 +5370,74 @@
         {
             "text": "Oh? You mean it?",
             "start": 197.225,
-            "end": 198.905
+            "end": 198.905,
+            "fa": "اوه؟ جدی می‌گی؟"
         },
         {
             "text": "Yes! It's a perfect tart. It's crumbly but not dry, which is a difficult balance to get right.",
             "start": 198.905,
-            "end": 205.065
+            "end": 205.065,
+            "fa": "آره! این یک تارت عالیه. تردیه اما خشک نیست، که تعادل سختیه."
         },
         {
             "text": "The fruit gives a nice tangy flavour. Very tasty.",
             "start": 205.625,
-            "end": 209.30501
+            "end": 209.30501,
+            "fa": "میوه طعم ترش و خوش‌طعم می‌ده. خیلی خوشمزه."
         },
         {
             "text": "Thank you!",
             "start": 209.30501,
-            "end": 209.705
+            "end": 209.705,
+            "fa": "ممنون!"
         },
         {
             "text": "Next, let's see how you can talk about cooking habits.",
             "start": 211.225,
-            "end": 218.345
+            "end": 218.345,
+            "fa": "حالا ببینیم چطور می‌تونی درباره عادات آشپزی صحبت کنی."
         },
         {
             "text": "Do you cook much?",
             "start": 218.345,
-            "end": 219.345
+            "end": 219.345,
+            "fa": "آیا زیاد آشپزی می‌کنی؟"
         },
         {
             "text": "Sometimes.",
             "start": 219.345,
-            "end": 220.345
+            "end": 220.345,
+            "fa": "گاهی."
         },
         {
             "text": "I cook maybe twice a week, but I'm too busy to do more than that.",
             "start": 220.345,
-            "end": 224.32501
+            "end": 224.32501,
+            "fa": "حدوداً دو بار در هفته آشپزی می‌کنم، اما خیلی سرم شلوغه تا بیشتر از این بکنم."
         },
         {
             "text": "What do you do the rest of the time?",
             "start": 224.32501,
-            "end": 225.725
+            "end": 225.725,
+            "fa": "بقیه زمان چی کار می‌کنی؟"
         },
         {
             "text": "For lunch, I eat in the canteen at work.",
             "start": 225.725,
-            "end": 228.445
+            "end": 228.445,
+            "fa": "برای ناهار توی غذاخوری شرکت می‌خورم."
         },
         {
             "text": "In the evening, I generally get something from the supermarket, or get a takeaway.",
             "start": 228.445,
-            "end": 232.345
+            "end": 232.345,
+            "fa": "شب‌ها معمولاً از سوپرمارکت چیزی می‌خرم یا سفارش میدم."
         },
         {
             "text": "I don't like it because I know it's more expensive and less healthy than cooking for",
             "start": 232.345,
-            "end": 236.785
+            "end": 236.785,
+            "fa": "دوست ندارم چون می‌دونم گران‌تر و سالم‌تر نیست نسبت به اینکه خودم بپزم، اما وقت ندارم."
         },
         {
             "text": "myself, but I just don't have the time.",
@@ -5308,62 +5447,74 @@
         {
             "text": "What about you?",
             "start": 240.505,
-            "end": 241.505
+            "end": 241.505,
+            "fa": "شما چه فکر می‌کنید؟"
         },
         {
             "text": "I make most of my meals.",
             "start": 241.505,
-            "end": 243.405
+            "end": 243.405,
+            "fa": "من بیشتر غذاها رو خودم می‌پزم."
         },
         {
             "text": "I don't cook every day, though.",
             "start": 243.405,
-            "end": 245.565
+            "end": 245.565,
+            "fa": "اما هر روز آشپزی نمی‌کنم."
         },
         {
             "text": "I normally do a lot of cooking on Sunday, and then I have food for the week.",
             "start": 245.565,
-            "end": 250.145
+            "end": 250.145,
+            "fa": "معمولاً یکشنبه زیاد آشپزی می‌کنم و بعد غذا برای تمام هفته دارم."
         },
         {
             "text": "I take a packed lunch to work, and then eat leftovers in the evening.",
             "start": 250.145,
-            "end": 253.60501
+            "end": 253.60501,
+            "fa": "یک ناهار بسته‌بندی شده به سر کار می‌برم و بعدش شب باقیمانده‌ها را می‌خورم."
         },
         {
             "text": "That's a good system.",
             "start": 253.60501,
-            "end": 255.26501
+            "end": 255.26501,
+            "fa": "این یک سیستم خوبه."
         },
         {
             "text": "I wish I could be so organised.",
             "start": 255.26501,
-            "end": 257.20502
+            "end": 257.20502,
+            "fa": "کاش می‌تونستم این‌قدر منظم باشم."
         },
         {
             "text": "It helps that I have a market very close to my house.",
             "start": 257.20502,
-            "end": 260.025
+            "end": 260.025,
+            "fa": "اینکه یک بازار خیلی نزدیک خونه‌ام هست کمک می‌کنه."
         },
         {
             "text": "They have great fresh produce, fish, meat, everything you need.",
             "start": 260.025,
-            "end": 265.305
+            "end": 265.305,
+            "fa": "اونجا محصولات تازه عالی، ماهی، گوشت و همه چیزهایی که نیاز داری دارند."
         },
         {
             "text": "That means I don't need to spend much time shopping.",
             "start": 265.305,
-            "end": 268.185
+            "end": 268.185,
+            "fa": "یعنی نیازی نیست وقت زیادی برای خرید صرف کنم."
         },
         {
             "text": "Plus, I prefer eating home-cooked, fresh food.",
             "start": 268.185,
-            "end": 272.14502
+            "end": 272.14502,
+            "fa": "به‌علاوه، ترجیح می‌دم غذای خانگی و تازه بخورم."
         },
         {
             "text": "If I don have food with me I end up eating greasy fast food and then I feel bloated and gross Yeah I the same way Maybe I start cooking more Think about the first question you heard in the dialogue",
             "start": 272.14502,
-            "end": 285.85748
+            "end": 285.85748,
+            "fa": "اگر غذا نداشته باشم، سراغ فست‌فود چرب می‌رم و بعد احساس نفخ و بدی می‌کنم. آره، منم همین‌طور. شاید شروع کنم بیشتر آشپزی کنم. به اولین سوالی که توی دیالوگ شنیدی فکر کن: «آیا زیاد آشپزی می‌کنی؟»"
         },
         {
             "text": "Do you cook much?",
@@ -5373,52 +5524,62 @@
         {
             "text": "How would you answer this?",
             "start": 287.4975,
-            "end": 290.8975
+            "end": 290.8975,
+            "fa": "چطور جواب می‌دی؟"
         },
         {
             "text": "You could say something like, I cook every day.",
             "start": 290.8975,
-            "end": 295.5975
+            "end": 295.5975,
+            "fa": "می‌تونی بگی مثل: «من هر روز آشپزی می‌کنم»."
         },
         {
             "text": "I don't cook much, maybe once or twice a week.",
             "start": 295.5975,
-            "end": 300.3375
+            "end": 300.3375,
+            "fa": "من زیاد آشپزی نمی‌کنم، شاید یک‌دوتا بار در هفته."
         },
         {
             "text": "I don't cook.",
             "start": 300.3375,
-            "end": 301.3375
+            "end": 301.3375,
+            "fa": "من آشپزی نمی‌کنم."
         },
         {
             "text": "I've never learned how.",
             "start": 301.3375,
-            "end": 304.5375
+            "end": 304.5375,
+            "fa": "من هرگز یادش ندادم."
         },
         {
             "text": "If you don't cook, what can you do for food?",
             "start": 304.5375,
-            "end": 308.13748
+            "end": 308.13748,
+            "fa": "اگر آشپزی نمی‌کنی، برای غذا چه می‌کنی؟"
         },
         {
             "text": "You heard some phrases in the dialogue.",
             "start": 308.13748,
-            "end": 310.5375
+            "end": 310.5375,
+            "fa": "تو چند تا عبارت توی دیالوگ شنیدی."
         },
         {
             "text": "Do you remember?",
             "start": 310.5375,
-            "end": 313.4975
+            "end": 313.4975,
+            "fa": "یادت میاد؟"
         },
         {
             "text": "Look at some sentences that you heard.",
             "start": 313.4975,
-            "end": 317.8975
+            "end": 317.8975,
+            "fa": "به چند جمله‌ای که شنیدی نگاه کن."
         },
         {
             "text": "Imagine you're an English teacher, and you want to explain the meanings of the words",
             "start": 317.8975,
-            "end": 322.9575
+            "end": 322.9575,
+            "fa": "تصور کن معلم انگلیسی هستی و می‌خوای معانی کلمات قرمز رنگ رو توضیح بدی."
         },
         {
             "text": "in red.",
@@ -5428,12 +5589,14 @@
         {
             "text": "How would you do it?",
             "start": 324.8175,
-            "end": 328.0575
+            "end": 328.0575,
+            "fa": "چطور این کارو می‌کنی؟"
         },
         {
             "text": "A canteen is a bit like a restaurant, but it's run by a company for its staff, or by",
             "start": 328.0575,
-            "end": 333.7375
+            "end": 333.7375,
+            "fa": "یک کافه‌تریا شبیه رستوران است، اما توسط یک شرکت برای کارمندانش یا توسط دانشگاه برای دانشجوها اداره می‌شود."
         },
         {
             "text": "a university for its students.",
@@ -5443,12 +5606,14 @@
         {
             "text": "Canteens are usually cheap, or the food might even be free.",
             "start": 336.5975,
-            "end": 342.2975
+            "end": 342.2975,
+            "fa": "کافه‌تریاها معمولاً ارزان هستند و گاهی هم غذا رایگان می‌شود."
         },
         {
             "text": "A takeaway means you buy or order the food from a restaurant, and then eat it somewhere",
             "start": 342.2975,
-            "end": 347.2175
+            "end": 347.2175,
+            "fa": "یک «تیک‌اوی» یعنی غذا را از رستوران می‌خری یا سفارش می‌دهی و بعدش را در جایی دیگه، معمولاً خونه، می‌خوری."
         },
         {
             "text": "else, usually at home.",
@@ -5458,32 +5623,38 @@
         {
             "text": "A packed lunch means you take food from home and eat it at work or school.",
             "start": 351.2975,
-            "end": 358.91748
+            "end": 358.91748,
+            "fa": "یک ناهار بسته‌بندی‌شده یعنی غذا را از خونه می‌بری و توی کار یا مدرسه می‌خوری."
         },
         {
             "text": "If you cook more than you eat, the extra food is called leftovers.",
             "start": 358.91748,
-            "end": 363.2375
+            "end": 363.2375,
+            "fa": "اگر بیشتر از آنچه می‌خوری آشپزی کنی، غذای اضافه «باقیمانده» نامیده می‌شود."
         },
         {
             "text": "You can eat the leftovers on another day.",
             "start": 363.2375,
-            "end": 367.47748
+            "end": 367.47748,
+            "fa": "می‌تونی باقیمانده‌ها را توی روز دیگه بخوری."
         },
         {
             "text": "What about you?",
             "start": 367.47748,
-            "end": 368.47748
+            "end": 368.47748,
+            "fa": "شما چه فکر می‌کنید؟"
         },
         {
             "text": "Do you cook much?",
             "start": 368.47748,
-            "end": 370.1175
+            "end": 370.1175,
+            "fa": "آیا زیاد آشپزی می‌کنی؟"
         },
         {
             "text": "If not, what do you do for food?",
             "start": 370.1175,
-            "end": 372.41748
+            "end": 372.41748,
+            "fa": "اگر نه، برای غذا چه کار می‌کنی؟"
         }
     ],
     "listening_words": [
@@ -10478,25 +10649,29 @@
             "speaker": "Oli",
             "text": "Hi, I'm Oli.",
             "start": 0.32,
-            "end": 1.68
+            "end": 1.68,
+            "fa": "سلام، من اولی‌ام."
         },
         {
             "speaker": "Oli",
             "text": "Welcome to Oxford Online English.",
             "start": 1.68,
-            "end": 3.8
+            "end": 3.8,
+            "fa": "به آکسفورد آنلاین انگلیش خوش آمدید."
         },
         {
             "speaker": "Oli",
             "text": "In this lesson, you can learn how to talk about food.",
             "start": 3.8,
-            "end": 7.2
+            "end": 7.2,
+            "fa": "در این درس می‌تونی یاد بگیری چطور درباره غذا صحبت کنی."
         },
         {
             "speaker": "Oli",
             "text": "You'll see how to talk about different cuisines, talk about food you like or dislike, and talk",
             "start": 7.2,
-            "end": 12.9
+            "end": 12.9,
+            "fa": "می‌بینی چطور می‌تونی درباره انواع غذاها، غذاهایی که دوست داری یا دوست نداری، و عادات آشپزی و خوردن صحبت کنی."
         },
         {
             "speaker": "Oli",
@@ -10508,25 +10683,29 @@
             "speaker": "Marie",
             "text": "What kind of food do you like?",
             "start": 15.72,
-            "end": 17
+            "end": 17,
+            "fa": "چه نوع غذایی دوست داری؟"
         },
         {
             "speaker": "Oli",
             "text": "I like a bit of everything, really.",
             "start": 17,
-            "end": 18.68
+            "end": 18.68,
+            "fa": "من واقعاً کمی از همه چیز دوست دارم."
         },
         {
             "speaker": "Oli",
             "text": "I grew up in the UK, and you can get food from all over the world there.",
             "start": 18.68,
-            "end": 22.8
+            "end": 22.8,
+            "fa": "من توی بریتانیا بزرگ شدم و اونجا می‌تونی غذاهای تمام دنیا پیدا کنی."
         },
         {
             "speaker": "Oli",
             "text": "My mum's cooking is a combination of different cuisines a bit of French, a bit of Italian,",
             "start": 22.8,
-            "end": 27.3
+            "end": 27.3,
+            "fa": "آشپزی مامانم ترکیبی از غذاهای مختلفه؛ کمی فرانسوی، کمی ایتالیایی، کمی هندی و غیره."
         },
         {
             "speaker": "Oli",
@@ -10538,25 +10717,29 @@
             "speaker": "Marie",
             "text": "What's British cuisine like?",
             "start": 29.34,
-            "end": 30.8
+            "end": 30.8,
+            "fa": "غذای بریتانیایی چطوره؟"
         },
         {
             "speaker": "Marie",
             "text": "I know about fish and chips, but there must be more.",
             "start": 30.8,
-            "end": 33.54
+            "end": 33.54,
+            "fa": "من در مورد فیش اند چیپس می‌دونم، اما باید چیزهای دیگه‌ای هم باشه."
         },
         {
             "speaker": "Oli",
             "text": "There is, but not that much.",
             "start": 33.54,
-            "end": 35.6
+            "end": 35.6,
+            "fa": "هست، اما نه خیلی."
         },
         {
             "speaker": "Oli",
             "text": "There are a few famous dishes like shepherd's pie or Sunday roast, but most people eat a",
             "start": 35.6,
-            "end": 40.06
+            "end": 40.06,
+            "fa": "چند تا غذا مشهور مثل شِفردز پای یا ساندی رست هستن، اما اکثر مردم ترکیبی از چیزها می‌خورن."
         },
         {
             "speaker": "Oli",
@@ -10568,25 +10751,29 @@
             "speaker": "Oli",
             "text": "What about you?",
             "start": 41.6,
-            "end": 43.06
+            "end": 43.06,
+            "fa": "شما چه فکر می‌کنید؟"
         },
         {
             "speaker": "Oli",
             "text": "What food do you like?",
             "start": 43.06,
-            "end": 44.06
+            "end": 44.06,
+            "fa": "چه غذایی دوست داری؟"
         },
         {
             "speaker": "Marie",
             "text": "I'm half Spanish, so when I was young, we ate a lot of Mediterranean food at home.",
             "start": 44.06,
-            "end": 49.14
+            "end": 49.14,
+            "fa": "من نصف اسپانیایی‌ام، پس وقتی کوچیک بودم تو خونه غذای مدیترانه‌ای زیاد می‌خوردیم."
         },
         {
             "speaker": "Marie",
             "text": "Now I live in Berlin, and it's a pretty cosmopolitan place, so you can get all kinds",
             "start": 49.14,
-            "end": 53.86
+            "end": 53.86,
+            "fa": "حالا تو برلین زندگی می‌کنم و اینجا شهر خیلی بین‌المللیه، پس می‌تونی همه نوع غذا پیدا کنی، مثل بریتانیا، فکر می‌کنم."
         },
         {
             "speaker": "Marie",
@@ -10598,25 +10785,29 @@
             "speaker": "Oli",
             "text": "I've never really had much Spanish food.",
             "start": 55.66,
-            "end": 58.6
+            "end": 58.6,
+            "fa": "من واقعاً غذاهای اسپانیایی زیاد نخورده‌ام."
         },
         {
             "speaker": "Oli",
             "text": "Is it similar to Italian?",
             "start": 58.6,
-            "end": 60.5
+            "end": 60.5,
+            "fa": "آیا شبیه ایتالیایی‌هاست؟"
         },
         {
             "speaker": "Marie",
             "text": "In some ways, yes.",
             "start": 60.5,
-            "end": 62.08
+            "end": 62.08,
+            "fa": "تو بعضی جهات، بله."
         },
         {
             "speaker": "Marie",
             "text": "They both use a lot of fresh ingredients, and there's a lot of seafood, salads, and",
             "start": 62.08,
-            "end": 66.28
+            "end": 66.28,
+            "fa": "هر دو از مواد تازه زیاد استفاده می‌کنن و غذاهای دریایی، سالادها و غیره زیاد هست."
         },
         {
             "speaker": "Marie",
@@ -10628,55 +10819,64 @@
             "speaker": "Marie",
             "text": "Pasta isn't so common in Spanish cooking, though.",
             "start": 67.28,
-            "end": 70.04
+            "end": 70.04,
+            "fa": "پاستا تو آشپزی اسپانیایی خیلی رایج نیست."
         },
         {
             "speaker": "Oli",
             "text": "What are some typical Spanish dishes?",
             "start": 70.04,
-            "end": 72.04
+            "end": 72.04,
+            "fa": "چند تا غذای سنتی اسپانیایی چه هستند؟"
         },
         {
             "speaker": "Oli",
             "text": "I'd be interested to try some.",
             "start": 72.04,
-            "end": 74.12
+            "end": 74.12,
+            "fa": "دوست دارم امتحانشون کنم."
         },
         {
             "speaker": "Marie",
             "text": "I guess paella is quite well known.",
             "start": 74.12,
-            "end": 76.48
+            "end": 76.48,
+            "fa": "فکر می‌کنم پاِیلا خیلی شناخته شده‌ست."
         },
         {
             "speaker": "Marie",
             "text": "My personal favourite is a dish called arbondigas, which is meatballs in a tomato sauce.",
             "start": 76.48,
-            "end": 81.9
+            "end": 81.9,
+            "fa": "غذای مورد علاقه شخصی من «آربوندیگاس» است، که توپ‌کوفتی تو سس گوجه‌فرنگی است."
         },
         {
             "speaker": "Marie",
             "text": "It's simple, but so tasty.",
             "start": 81.9,
-            "end": 83.78
+            "end": 83.78,
+            "fa": "ساده‌ست، اما خیلی خوشمزه."
         },
         {
             "speaker": "Oli",
             "text": "Sounds good.",
             "start": 83.78,
-            "end": 84.78
+            "end": 84.78,
+            "fa": "خوبه."
         },
         {
             "speaker": "Marie",
             "text": "Here's a question.",
             "start": 84.78,
-            "end": 86.64
+            "end": 86.64,
+            "fa": "یک سؤال دارم."
         },
         {
             "speaker": "Marie",
             "text": "Do you know the difference between the words cuisine dish and meal Cuisine means the kind of food you find in a specific country or culture For example you have Chinese cuisine French cuisine local cuisine and so on",
             "start": 86.64,
-            "end": 105.05
+            "end": 105.05,
+            "fa": "می‌دونی فرق بین کلمات «کوزین»، «دیش» و «میل» چیه؟ «کوزین» به نوع غذایی که تو یک کشور یا فرهنگ خاص پیدا می‌شه می‌گه. مثلاً «کوزین چینی»، «کوزین فرانسوی»، «کوزین محلی» و غیره. «کوزین» شبیه به سبک آشپزی هست."
         },
         {
             "speaker": "Marie",
@@ -10688,49 +10888,57 @@
             "speaker": "Marie",
             "text": "You can use the word food or cooking in the same way.",
             "start": 108.27,
-            "end": 112.47
+            "end": 112.47,
+            "fa": "می‌تونی واژه «فود» یا «کوکینگ» رو همون‌طوری استفاده کنی."
         },
         {
             "speaker": "Marie",
             "text": "So you can say Chinese cuisine, Chinese cooking, or Chinese food.",
             "start": 112.47,
-            "end": 117.49
+            "end": 117.49,
+            "fa": "پس می‌تونی بگی «کوزین چینی»، «کوکینگ چینی» یا «فود چینی»."
         },
         {
             "speaker": "Marie",
             "text": "The meaning is very close.",
             "start": 117.49,
-            "end": 119.83
+            "end": 119.83,
+            "fa": "معنی‌شون خیلی نزدیکه."
         },
         {
             "speaker": "Oli",
             "text": "A dish means something which is cooked or prepared.",
             "start": 119.83,
-            "end": 123.33
+            "end": 123.33,
+            "fa": "«دیش» یعنی چیزی که پخته یا آماده شده."
         },
         {
             "speaker": "Oli",
             "text": "Usually, a dish is made from different kinds of food.",
             "start": 123.33,
-            "end": 127.25
+            "end": 127.25,
+            "fa": "معمولاً یک «دیش» از انواع مختلف غذا ساخته می‌شه."
         },
         {
             "speaker": "Oli",
             "text": "A meal is food eaten at a specific time.",
             "start": 127.25,
-            "end": 130.97
+            "end": 130.97,
+            "fa": "«میل» غذاییه که تو زمان مشخصی خورده می‌شه."
         },
         {
             "speaker": "Oli",
             "text": "Most people eat three meals a day breakfast, lunch, and dinner.",
             "start": 130.97,
-            "end": 135.55
+            "end": 135.55,
+            "fa": "اکثر مردم روزانه سه «میل» می‌خورن: صبحانه، ناهار و شام."
         },
         {
             "speaker": "Oli",
             "text": "We often hear English learners make mistakes with these three words, so be careful with",
             "start": 135.55,
-            "end": 140.17
+            "end": 140.17,
+            "fa": "ما اغلب می‌شنویم یادگیرندگان انگلیسی این سه واژه رو اشتباه می‌کنن، پس مراقبشون باش."
         },
         {
             "speaker": "Oli",
@@ -10742,181 +10950,211 @@
             "speaker": "Marie",
             "text": "Next, let's look at how to talk about food you like… or don't.",
             "start": 141.17,
-            "end": 146.37
+            "end": 146.37,
+            "fa": "حالا می‌خوایم ببینیم چطور درباره غذایی که دوست داری یا دوست نداری صحبت کنیم..."
         },
         {
             "speaker": "Oli",
             "text": "So, what do you think?",
             "start": 147.49,
-            "end": 150.99
+            "end": 150.99,
+            "fa": "پس، نظرت چیه؟"
         },
         {
             "speaker": "Marie",
             "text": "Oh no, this is terrible!",
             "start": 150.99,
-            "end": 153.43
+            "end": 153.43,
+            "fa": "اوه نه، این خیلی بدیه!"
         },
         {
             "speaker": "Oli",
             "text": "Really?",
             "start": 153.43,
-            "end": 154.43
+            "end": 154.43,
+            "fa": "جدی؟"
         },
         {
             "speaker": "Marie",
             "text": "First, you haven't cooked the meat long enough.",
             "start": 154.43,
-            "end": 157.13
+            "end": 157.13,
+            "fa": "اولاً، گوشت رو کافی زمان نپختی."
         },
         {
             "speaker": "Marie",
             "text": "It's tough and really chewy.",
             "start": 157.13,
-            "end": 159.29
+            "end": 159.29,
+            "fa": "سفت و خیلی جویدنیه."
         },
         {
             "speaker": "Marie",
             "text": "You need to keep cooking it until it's tender.",
             "start": 159.29,
-            "end": 161.25
+            "end": 161.25,
+            "fa": "باید ادامه بدی بپزی تا نرم بشه."
         },
         {
             "speaker": "Oli",
             "text": "I cooked it for two hours, just like you said.",
             "start": 161.25,
-            "end": 164.15
+            "end": 164.15,
+            "fa": "من دو ساعت پختمش، دقیقاً همون‌طوری که گفتی."
         },
         {
             "speaker": "Marie",
             "text": "Yes, but you also have to check that it's done.",
             "start": 164.15,
-            "end": 167.61
+            "end": 167.61,
+            "fa": "بله، ولی باید بررسی کنی که کاملاً پخته شده."
         },
         {
             "speaker": "Marie",
             "text": "Also, these vegetables are awful.",
             "start": 167.61,
-            "end": 170.61
+            "end": 170.61,
+            "fa": "راستی، این سبزی‌ها خیلی بده."
         },
         {
             "speaker": "Marie",
             "text": "They're mushy because you've overcooked them.",
             "start": 170.61,
-            "end": 173.15
+            "end": 173.15,
+            "fa": "چون زیاد پختی، له‌لّه‌ شده‌اند."
         },
         {
             "speaker": "Marie",
             "text": "They should be fresh and crunchy.",
             "start": 173.15,
-            "end": 175.11
+            "end": 175.11,
+            "fa": "باید تازه و ترد باشن."
         },
         {
             "speaker": "Oli",
             "text": "Right.",
             "start": 175.11,
-            "end": 176.89
+            "end": 176.89,
+            "fa": "درسته."
         },
         {
             "speaker": "Oli",
             "text": "What about the sauce?",
             "start": 176.89,
-            "end": 177.89
+            "end": 177.89,
+            "fa": "سس چطور؟"
         },
         {
             "speaker": "Marie",
             "text": "It's not bad, but it's a little bland.",
             "start": 177.89,
-            "end": 180.71
+            "end": 180.71,
+            "fa": "بد نیست، ولی یه کم بی‌طعمه."
         },
         {
             "speaker": "Marie",
             "text": "A dish like this should be rich spicy and a little sour While you cooking don forget to taste it and add more spices or more vinegar or whatever it needs Okay",
             "start": 180.71,
-            "end": 190.89
+            "end": 190.89,
+            "fa": "یه غذا مثل این باید پرطعم، تند و کمی ترش باشه. وقتی می‌پزی فراموش نکن که مزه‌اشو بچشی و بیشتر ادویه یا سرکه یا هر چی لازمه اضافه کنی. باشه."
         },
         {
             "speaker": "Oli",
             "text": "I a little scared to show you my dessert now",
             "start": 190.95,
-            "end": 193.79
+            "end": 193.79,
+            "fa": "یکم می‌ترسم الآن دسرمو بهت نشون بدم."
         },
         {
             "speaker": "Marie",
             "text": "Ah! Wow, this is amazing!",
             "start": 194.35,
-            "end": 197.23
+            "end": 197.23,
+            "fa": "آه! واو، این فوق‌العاده‌ست!"
         },
         {
             "speaker": "Oli",
             "text": "Oh? You mean it?",
             "start": 197.23,
-            "end": 198.91
+            "end": 198.91,
+            "fa": "اوه؟ جدی می‌گی؟"
         },
         {
             "speaker": "Marie",
             "text": "Yes! It's a perfect tart. It's crumbly but not dry, which is a difficult balance to get right.",
             "start": 198.91,
-            "end": 205.07
+            "end": 205.07,
+            "fa": "آره! این یک تارت عالیه. تردیه اما خشک نیست، که تعادل سختیه."
         },
         {
             "speaker": "Marie",
             "text": "The fruit gives a nice tangy flavour. Very tasty.",
             "start": 205.63,
-            "end": 209.31
+            "end": 209.31,
+            "fa": "میوه طعم ترش و خوش‌طعم می‌ده. خیلی خوشمزه."
         },
         {
             "speaker": "Oli",
             "text": "Thank you!",
             "start": 209.31,
-            "end": 209.71
+            "end": 209.71,
+            "fa": "ممنون!"
         },
         {
             "speaker": "Oli",
             "text": "Next, let's see how you can talk about cooking habits.",
             "start": 211.23,
-            "end": 218.35
+            "end": 218.35,
+            "fa": "حالا ببینیم چطور می‌تونی درباره عادات آشپزی صحبت کنی."
         },
         {
             "speaker": "Marie",
             "text": "Do you cook much?",
             "start": 218.35,
-            "end": 219.35
+            "end": 219.35,
+            "fa": "آیا زیاد آشپزی می‌کنی؟"
         },
         {
             "speaker": "Oli",
             "text": "Sometimes.",
             "start": 219.35,
-            "end": 220.35
+            "end": 220.35,
+            "fa": "گاهی."
         },
         {
             "speaker": "Oli",
             "text": "I cook maybe twice a week, but I'm too busy to do more than that.",
             "start": 220.35,
-            "end": 224.33
+            "end": 224.33,
+            "fa": "حدوداً دو بار در هفته آشپزی می‌کنم، اما خیلی سرم شلوغه تا بیشتر از این بکنم."
         },
         {
             "speaker": "Marie",
             "text": "What do you do the rest of the time?",
             "start": 224.33,
-            "end": 225.73
+            "end": 225.73,
+            "fa": "بقیه زمان چی کار می‌کنی؟"
         },
         {
             "speaker": "Oli",
             "text": "For lunch, I eat in the canteen at work.",
             "start": 225.73,
-            "end": 228.45
+            "end": 228.45,
+            "fa": "برای ناهار توی غذاخوری شرکت می‌خورم."
         },
         {
             "speaker": "Oli",
             "text": "In the evening, I generally get something from the supermarket, or get a takeaway.",
             "start": 228.45,
-            "end": 232.35
+            "end": 232.35,
+            "fa": "شب‌ها معمولاً از سوپرمارکت چیزی می‌خرم یا سفارش میدم."
         },
         {
             "speaker": "Oli",
             "text": "I don't like it because I know it's more expensive and less healthy than cooking for",
             "start": 232.35,
-            "end": 236.79
+            "end": 236.79,
+            "fa": "دوست ندارم چون می‌دونم گران‌تر و سالم‌تر نیست نسبت به اینکه خودم بپزم، اما وقت ندارم."
         },
         {
             "speaker": "Oli",
@@ -10928,85 +11166,99 @@
             "speaker": "Oli",
             "text": "What about you?",
             "start": 240.51,
-            "end": 241.51
+            "end": 241.51,
+            "fa": "شما چه فکر می‌کنید؟"
         },
         {
             "speaker": "Marie",
             "text": "I make most of my meals.",
             "start": 241.51,
-            "end": 243.41
+            "end": 243.41,
+            "fa": "من بیشتر غذاها رو خودم می‌پزم."
         },
         {
             "speaker": "Marie",
             "text": "I don't cook every day, though.",
             "start": 243.41,
-            "end": 245.57
+            "end": 245.57,
+            "fa": "اما هر روز آشپزی نمی‌کنم."
         },
         {
             "speaker": "Marie",
             "text": "I normally do a lot of cooking on Sunday, and then I have food for the week.",
             "start": 245.57,
-            "end": 250.15
+            "end": 250.15,
+            "fa": "معمولاً یکشنبه زیاد آشپزی می‌کنم و بعد غذا برای تمام هفته دارم."
         },
         {
             "speaker": "Marie",
             "text": "I take a packed lunch to work, and then eat leftovers in the evening.",
             "start": 250.15,
-            "end": 253.61
+            "end": 253.61,
+            "fa": "یک ناهار بسته‌بندی شده به سر کار می‌برم و بعدش شب باقیمانده‌ها را می‌خورم."
         },
         {
             "speaker": "Oli",
             "text": "That's a good system.",
             "start": 253.61,
-            "end": 255.27
+            "end": 255.27,
+            "fa": "این یک سیستم خوبه."
         },
         {
             "speaker": "Oli",
             "text": "I wish I could be so organised.",
             "start": 255.27,
-            "end": 257.21
+            "end": 257.21,
+            "fa": "کاش می‌تونستم این‌قدر منظم باشم."
         },
         {
             "speaker": "Marie",
             "text": "It helps that I have a market very close to my house.",
             "start": 257.21,
-            "end": 260.03
+            "end": 260.03,
+            "fa": "اینکه یک بازار خیلی نزدیک خونه‌ام هست کمک می‌کنه."
         },
         {
             "speaker": "Marie",
             "text": "They have great fresh produce, fish, meat, everything you need.",
             "start": 260.03,
-            "end": 265.31
+            "end": 265.31,
+            "fa": "اونجا محصولات تازه عالی، ماهی، گوشت و همه چیزهایی که نیاز داری دارند."
         },
         {
             "speaker": "Marie",
             "text": "That means I don't need to spend much time shopping.",
             "start": 265.31,
-            "end": 268.19
+            "end": 268.19,
+            "fa": "یعنی نیازی نیست وقت زیادی برای خرید صرف کنم."
         },
         {
             "speaker": "Marie",
             "text": "Plus, I prefer eating home-cooked, fresh food.",
             "start": 268.19,
-            "end": 272.15
+            "end": 272.15,
+            "fa": "به‌علاوه، ترجیح می‌دم غذای خانگی و تازه بخورم."
         },
         {
             "speaker": "Marie",
             "text": "If I don have food with me I end up eating greasy fast food and then I feel bloated and gross",
             "start": 272.15,
-            "end": 278.62
+            "end": 278.62,
+            "fa": "اگر غذا نداشته باشم، سراغ فست‌فود چرب می‌رم و بعد احساس نفخ و بدی می‌کنم"
         },
         {
             "speaker": "Oli",
             "text": "Yeah I the same way Maybe I start cooking more",
             "start": 278.69,
-            "end": 281.89
+            "end": 281.89,
+            "fa": "آره، منم همین‌طور. شاید شروع کنم بیشتر آشپزی کنم"
         },
         {
             "speaker": "Marie",
             "text": "Think about the first question you heard in the dialogue",
             "start": 281.96,
-            "end": 285.86
+            "end": 285.86,
+            "fa": "به اولین سوالی که توی دیالوگ شنیدی فکر کن: «آیا زیاد آشپزی می‌کنی؟»"
         },
         {
             "speaker": "Marie",
@@ -11018,61 +11270,71 @@
             "speaker": "Marie",
             "text": "How would you answer this?",
             "start": 287.5,
-            "end": 290.9
+            "end": 290.9,
+            "fa": "چطور جواب می‌دی؟"
         },
         {
             "speaker": "Marie",
             "text": "You could say something like, I cook every day.",
             "start": 290.9,
-            "end": 295.6
+            "end": 295.6,
+            "fa": "می‌تونی بگی مثل: «من هر روز آشپزی می‌کنم»."
         },
         {
             "speaker": "Marie",
             "text": "I don't cook much, maybe once or twice a week.",
             "start": 295.6,
-            "end": 300.34
+            "end": 300.34,
+            "fa": "من زیاد آشپزی نمی‌کنم، شاید یک‌دوتا بار در هفته."
         },
         {
             "speaker": "Marie",
             "text": "I don't cook.",
             "start": 300.34,
-            "end": 301.34
+            "end": 301.34,
+            "fa": "من آشپزی نمی‌کنم."
         },
         {
             "speaker": "Marie",
             "text": "I've never learned how.",
             "start": 301.34,
-            "end": 304.54
+            "end": 304.54,
+            "fa": "من هرگز یادش ندادم."
         },
         {
             "speaker": "Marie",
             "text": "If you don't cook, what can you do for food?",
             "start": 304.54,
-            "end": 308.14
+            "end": 308.14,
+            "fa": "اگر آشپزی نمی‌کنی، برای غذا چه می‌کنی؟"
         },
         {
             "speaker": "Marie",
             "text": "You heard some phrases in the dialogue.",
             "start": 308.14,
-            "end": 310.54
+            "end": 310.54,
+            "fa": "تو چند تا عبارت توی دیالوگ شنیدی."
         },
         {
             "speaker": "Marie",
             "text": "Do you remember?",
             "start": 310.54,
-            "end": 313.5
+            "end": 313.5,
+            "fa": "یادت میاد؟"
         },
         {
             "speaker": "Oli",
             "text": "Look at some sentences that you heard.",
             "start": 313.5,
-            "end": 317.9
+            "end": 317.9,
+            "fa": "به چند جمله‌ای که شنیدی نگاه کن."
         },
         {
             "speaker": "Oli",
             "text": "Imagine you're an English teacher, and you want to explain the meanings of the words",
             "start": 317.9,
-            "end": 322.96
+            "end": 322.96,
+            "fa": "تصور کن معلم انگلیسی هستی و می‌خوای معانی کلمات قرمز رنگ رو توضیح بدی."
         },
         {
             "speaker": "Oli",
@@ -11084,13 +11346,15 @@
             "speaker": "Marie",
             "text": "How would you do it?",
             "start": 324.82,
-            "end": 328.06
+            "end": 328.06,
+            "fa": "چطور این کارو می‌کنی؟"
         },
         {
             "speaker": "Oli",
             "text": "A canteen is a bit like a restaurant, but it's run by a company for its staff, or by",
             "start": 328.06,
-            "end": 333.74
+            "end": 333.74,
+            "fa": "یک کافه‌تریا شبیه رستوران است، اما توسط یک شرکت برای کارمندانش یا توسط دانشگاه برای دانشجوها اداره می‌شود."
         },
         {
             "speaker": "Oli",
@@ -11102,13 +11366,15 @@
             "speaker": "Oli",
             "text": "Canteens are usually cheap, or the food might even be free.",
             "start": 336.6,
-            "end": 342.3
+            "end": 342.3,
+            "fa": "کافه‌تریاها معمولاً ارزان هستند و گاهی هم غذا رایگان می‌شود."
         },
         {
             "speaker": "Marie",
             "text": "A takeaway means you buy or order the food from a restaurant, and then eat it somewhere",
             "start": 342.3,
-            "end": 347.22
+            "end": 347.22,
+            "fa": "یک «تیک‌اوی» یعنی غذا را از رستوران می‌خری یا سفارش می‌دهی و بعدش را در جایی دیگه، معمولاً خونه، می‌خوری."
         },
         {
             "speaker": "Marie",
@@ -11120,37 +11386,43 @@
             "speaker": "Oli",
             "text": "A packed lunch means you take food from home and eat it at work or school.",
             "start": 351.3,
-            "end": 358.92
+            "end": 358.92,
+            "fa": "یک ناهار بسته‌بندی‌شده یعنی غذا را از خونه می‌بری و توی کار یا مدرسه می‌خوری."
         },
         {
             "speaker": "Marie",
             "text": "If you cook more than you eat, the extra food is called leftovers.",
             "start": 358.92,
-            "end": 363.24
+            "end": 363.24,
+            "fa": "اگر بیشتر از آنچه می‌خوری آشپزی کنی، غذای اضافه «باقیمانده» نامیده می‌شود."
         },
         {
             "speaker": "Marie",
             "text": "You can eat the leftovers on another day.",
             "start": 363.24,
-            "end": 367.48
+            "end": 367.48,
+            "fa": "می‌تونی باقیمانده‌ها را توی روز دیگه بخوری."
         },
         {
             "speaker": "Marie",
             "text": "What about you?",
             "start": 367.48,
-            "end": 368.48
+            "end": 368.48,
+            "fa": "شما چه فکر می‌کنید؟"
         },
         {
             "speaker": "Marie",
             "text": "Do you cook much?",
             "start": 368.48,
-            "end": 370.12
+            "end": 370.12,
+            "fa": "آیا زیاد آشپزی می‌کنی؟"
         },
         {
             "speaker": "Marie",
             "text": "If not, what do you do for food?",
             "start": 370.12,
-            "end": 372.42
+            "end": 372.42,
+            "fa": "اگر نه، برای غذا چه کار می‌کنی؟"
         }
     ]
 }
