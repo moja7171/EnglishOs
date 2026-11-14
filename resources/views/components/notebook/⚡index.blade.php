@@ -648,8 +648,8 @@ new class extends Component
                             <span class="relative drop-shadow">{{ $item['code'] }}</span>
                         </span>
                         <span class="flex min-w-0 flex-1 flex-col gap-0.5">
-                            <span class="flex items-center gap-2">
-                                <span class="min-w-0 truncate text-base font-extrabold text-ink dark:text-ink-dark">{{ $item['focus'] }}</span>
+                            <span class="flex flex-wrap items-center gap-x-2 gap-y-1">
+                                <span class="min-w-0 text-base leading-tight font-extrabold text-ink dark:text-ink-dark">{{ $item['focus'] }}</span>
                                 @if ($item['learned'])
                                     <span class="shrink-0 rounded-full bg-success-soft px-2 py-0.5 text-xs font-extrabold text-success dark:bg-success-soft-dark dark:text-success-dark">Learned</span>
                                 @elseif ($item['current'])
@@ -670,6 +670,9 @@ new class extends Component
                         @foreach ($item['sections'] as $section)
                             @include('missions.steps.partials.grammar-rule-card', ['section' => $section])
                         @endforeach
+                        @if ($item['canPractice'])
+                            <a href="{{ route('notebook.grammar', $item['code']) }}" wire:navigate class="flex w-full items-center justify-center gap-2 rounded-2xl bg-accent py-3.5 text-base font-bold text-white shadow-[0_4px_0_color-mix(in_srgb,var(--color-accent)_60%,black)] transition-colors hover:opacity-90 dark:bg-accent-dark">@svg('heroicon-o-pencil-square', 'h-5 w-5') Practice</a>
+                        @endif
                     </div>
                 </section>
             @else

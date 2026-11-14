@@ -13,12 +13,13 @@
     @param string|null $icon Heroicons name shown before the title.
     @param string|null $doneLabel A green ✓ badge on the top right, e.g. "Listened".
     @param string|null $titleHref Makes the title a link, e.g. to the mission's page.
+    @param bool $grammar Shows the mission's grammar point (English, Persian under it) under the title.
     @slot $top Top left instead of the way back, e.g. home's "Mission 3 of 24 · 🔥".
     @slot $actions Beside the title, e.g. an ⓘ button.
     @slot $media Extra background layer over the photo, e.g. an ambient video.
     @slot default Under the title: a subtitle line, day pills.
 --}}
-@props(['missionCode', 'title', 'backHref' => null, 'backLabel' => null, 'icon' => null, 'doneLabel' => null, 'titleHref' => null])
+@props(['missionCode', 'title', 'backHref' => null, 'backLabel' => null, 'icon' => null, 'doneLabel' => null, 'titleHref' => null, 'grammar' => false])
 
 @php
     $coverUrl = app(\App\Services\MissionGrid::class)->coverUrl($missionCode);
@@ -64,5 +65,11 @@
         </h1>
         {{ $actions ?? '' }}
     </div>
+    @if ($grammar && ($grammarName = app(\App\Services\GrammarShelf::class)->nameFor($missionCode)))
+        <p class="mt-1 truncate text-xs font-semibold text-white/85">Grammar · {{ $grammarName['focus'] }}</p>
+        @if ($grammarName['focusFa'])
+            <p dir="rtl" class="font-fa truncate text-xs text-white/70">{{ $grammarName['focusFa'] }}</p>
+        @endif
+    @endif
     {{ $slot }}
 </header>

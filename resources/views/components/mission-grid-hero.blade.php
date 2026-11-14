@@ -3,7 +3,10 @@
 {{-- The Missions tab's top card: the mission the learner is on, big, with
      "You're here", today's day and its day rings (see <x-mission-grid>
      for the shape of $mission). --}}
-@php $today = collect($mission['days'])->firstWhere('state', 'today'); @endphp
+@php
+    $today = collect($mission['days'])->firstWhere('state', 'today');
+    $grammarName = app(\App\Services\GrammarShelf::class)->nameFor($mission['code']);
+@endphp
 <div class="relative h-44 overflow-hidden rounded-3xl bg-linear-to-br from-hero to-hero-2">
     @if ($mission['coverUrl'])
         <img src="{{ $mission['coverUrl'] }}" alt="" class="absolute inset-0 h-full w-full object-cover">
@@ -16,6 +19,9 @@
     <div class="pointer-events-none absolute inset-x-0 bottom-0 p-4">
         <p class="text-xs font-extrabold text-white/80">{{ $mission['code'] }}{{ $today ? ' · Day '.$today['number'] : '' }}</p>
         <p class="text-xl font-extrabold text-white">{{ $mission['title'] }}</p>
+        @if ($grammarName)
+            <p class="truncate text-xs font-semibold text-white/80">Grammar · {{ $grammarName['focus'] }}</p>
+        @endif
         <div class="pointer-events-auto mt-2 flex gap-1.5">
             @foreach ($mission['days'] as $day)
                 @if ($day['url'])

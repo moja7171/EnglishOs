@@ -16,7 +16,7 @@ use App\Models\User;
 class GrammarShelf
 {
     /**
-     * @return list<array{code: string, title: string, coverUrl: ?string, focus: string, focusFa: ?string, built: bool, open: bool, current: bool, done: bool, learned: bool, intro: ?string, sections: list<array<string, mixed>>}>
+     * @return list<array{code: string, title: string, coverUrl: ?string, focus: string, focusFa: ?string, built: bool, open: bool, current: bool, done: bool, learned: bool, canPractice: bool, intro: ?string, sections: list<array<string, mixed>>}>
      */
     public function for(User $learner): array
     {
@@ -46,11 +46,27 @@ class GrammarShelf
                     'current' => $open && ! $done,
                     'done' => $done,
                     'learned' => $point instanceof GrammarPoint && $point->repetitions >= User::MASTERED_GRAMMAR_REPETITIONS,
+                    'canPractice' => $open && app(GrammarPractice::class)->isAvailable($mission),
                     'intro' => $open ? ($lesson['lesson']['intro'] ?? null) : null,
                     'sections' => $open ? ($lesson['lesson']['sections'] ?? []) : [],
                 ];
             })
             ->values()
             ->all();
+    }
+
+    /**
+     * One mission's grammar point name, for the lines on a mission's cards:
+     * the seeded lesson's own name when the mission is built, else the
+     * roadmap's.
+     *
+     * @return array{focus: string, focusFa: ?string}|null
+     */
+    public function nameFor(string $missionCode): ?array
+    {
+        $planned = Mission::roadmapCatalog()[$missionCode]['grammar'] ?? null;
+        $focus = Mission::where('code', $missionCode)->first()?->stepContent('grammar_in_context')['focus'] ?? $planned;
+
+        return $focus === null ? null : ['focus' => $focus, 'focusFa' => config('grammar_names')[$missionCode] ?? null];
     }
 }

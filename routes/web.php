@@ -178,6 +178,11 @@ Route::middleware(['auth', 'session.absolute_timeout', 'ai_keys.saved'])->group(
         return view('notebook');
     })->name('notebook.index');
 
+    // One round of practice on a grammar point from the Notebook's Grammar tab.
+    Route::get('/notebook/grammar/{mission:code}', function (Mission $mission) {
+        return view('notebook-grammar', ['mission' => $mission]);
+    })->name('notebook.grammar');
+
     // Admins only (404 for everyone else): usage, learners who need a
     // look, step analytics, and one learner's full picture.
     Route::middleware('admin')->prefix('admin')->name('admin.')->group(function () {

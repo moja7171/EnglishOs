@@ -7,6 +7,7 @@ use App\Livewire\Concerns\TracksAiUsage;
 use App\Livewire\Concerns\TracksCheckAttempts;
 use App\Models\Evidence;
 use App\Models\MissionRun;
+use App\Services\GrammarPractice;
 use App\Services\SentenceChecker;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -120,9 +121,6 @@ new class extends Component
      * number someone might later edit in one place and not the other.
      */
     public const REQUIRED_SENTENCES = 3;
-
-    /** "Which one is right?" questions after each rule (see sectionPairs()). */
-    public const PAIRS_PER_SECTION = 3;
 
     /** Exposed for the Blade template — a bare `self::CONST` isn't reachable there. */
     public function requiredSentences(): int
@@ -355,29 +353,7 @@ new class extends Component
      */
     public function sectionPairs(array $section, int $sectionIndex): array
     {
-        $pairs = [];
-
-        foreach ($section['blocks'] ?? [] as $block) {
-            if (($block['type'] ?? null) === 'mistake_fix' && filled($block['wrong'] ?? null)) {
-                $pairs[] = ['wrong' => $block['wrong'], 'right' => $block['right'], 'why' => $block['explanation'] ?? null];
-            }
-        }
-
-        foreach ($section['blocks'] ?? [] as $block) {
-            if (($block['type'] ?? null) === 'do_dont') {
-                foreach ($block['items'] ?? [] as $item) {
-                    if (filled($item['wrong'] ?? null)) {
-                        $pairs[] = ['wrong' => $item['wrong'], 'right' => $item['right'], 'why' => $item['note'] ?? null];
-                    }
-                }
-            }
-        }
-
-        foreach (config("grammar_practice.{$this->run->mission->code}.{$sectionIndex}", []) as $pair) {
-            $pairs[] = $pair + ['why' => null];
-        }
-
-        return array_slice($pairs, 0, self::PAIRS_PER_SECTION);
+        return app(GrammarPractice::class)->sectionPairs($section, $this->run->mission->code, $sectionIndex);
     }
 
     public function declineReveal(int $index): void

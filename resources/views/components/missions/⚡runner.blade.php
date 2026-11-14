@@ -498,6 +498,7 @@ new class extends Component
             :back-href="route('missions.index')"
             back-label="Missions"
             :done-label="$this->isFinished ? 'Done' : null"
+            grammar
         >
             <x-slot:actions>
                 <x-usage-guide-button on-photo />

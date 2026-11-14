@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Mission;
 use App\Models\MissionRun;
 use App\Models\User;
+use App\Services\GrammarShelf;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -86,5 +87,30 @@ class NotebookGrammarTabTest extends TestCase
         $this->assertTrue($first['open']);
         $this->assertTrue($first['done']);
         $this->assertFalse($first['current']);
+    }
+
+    public function test_a_mission_cards_grammar_line_uses_the_seeded_name_and_the_roadmap_for_unbuilt_missions(): void
+    {
+        $this->missionWithLesson('M01', 'My Daily Life', 'Present Simple + Adverbs of Frequency');
+
+        $built = app(GrammarShelf::class)->nameFor('M01');
+        $planned = app(GrammarShelf::class)->nameFor('M12');
+
+        $this->assertSame('Present Simple + Adverbs of Frequency', $built['focus']);
+        $this->assertNotNull($built['focusFa']);
+        $this->assertSame('Reported Speech (basic)', $planned['focus']);
+        $this->assertNull(app(GrammarShelf::class)->nameFor('M99'));
+    }
+
+    public function test_the_missions_page_hero_and_the_mission_banner_show_the_grammar_line(): void
+    {
+        $this->missionWithLesson('M01', 'My Daily Life', 'Present Simple + Adverbs of Frequency');
+
+        $this->blade('<x-mission-banner mission-code="M01" title="My Daily Life" grammar />')
+            ->assertSee('Grammar · Present Simple + Adverbs of Frequency');
+        $this->blade('<x-mission-banner mission-code="M01" title="My Daily Life" />')
+            ->assertDontSee('Grammar ·');
+        $this->blade('<x-mission-grid-hero :mission="$mission" />', ['mission' => ['code' => 'M01', 'title' => 'My Daily Life', 'coverUrl' => null, 'url' => null, 'days' => []]])
+            ->assertSee('Grammar · Present Simple + Adverbs of Frequency');
     }
 }
