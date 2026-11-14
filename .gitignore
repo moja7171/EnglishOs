@@ -33,9 +33,12 @@ Thumbs.db
 /document/English Vocabulary in Use*.pdf
 /document/Intermediate_Grammar_in_Use.pdf
 
-# In-app listening picks: audio, transcripts and their synced text. Too big and not ours to
-# redistribute through git — copied onto the server by hand (see listening:build-picks).
-/document/*/picks/
+# In-app listening picks: audio, transcripts and PDFs stay out of git — audio is served from the
+# download host. Only each pick's list (index.json) and its synced text (*.turns.json, built by
+# listening:build-picks) travel with the code: without them a pick does not play in the app.
+/document/*/picks/*
+!/document/*/picks/index.json
+!/document/*/picks/*.turns.json
 
 # Mission audio and video: big, copied to the server by hand like the listening picks.
 /document/*/*.mp3
