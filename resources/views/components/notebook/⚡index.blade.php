@@ -7,6 +7,7 @@ use App\Models\VocabularyWord;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Database\UniqueConstraintViolationException;
+use App\Services\GrammarShelf;
 use App\Services\MissionGrid;
 use App\Services\WordDetails;
 use App\Services\WordSentences;
@@ -81,6 +82,18 @@ new class extends Component
             ->orderByDesc('times_seen')
             ->orderByDesc('last_seen_at')
             ->get();
+    }
+
+    /**
+     * The Grammar tab: every mission's grammar point in course order, open
+     * (with its rules) for the missions the learner has started.
+     *
+     * @return list<array<string, mixed>>
+     */
+    #[Computed]
+    public function grammarShelf(): array
+    {
+        return app(GrammarShelf::class)->for(auth()->user());
     }
 
     /**
@@ -528,7 +541,7 @@ new class extends Component
     class="mx-auto max-w-2xl space-y-4 p-4 sm:p-6"
     x-on:eos-word-saved.window="$wire.$refresh()"
     x-data="{
-        notebookTab: @js($roundDone ? 'mistakes' : (in_array(request()->query('tab'), ['mistakes', 'tips', 'words'], true) ? (request()->query('tab') === 'tips' ? 'mistakes' : request()->query('tab')) : 'words')),
+        notebookTab: @js($roundDone ? 'mistakes' : (in_array(request()->query('tab'), ['mistakes', 'tips', 'words', 'grammar'], true) ? (request()->query('tab') === 'tips' ? 'mistakes' : request()->query('tab')) : 'words')),
         sheet: false,
         learned: false,
         search: '',
@@ -584,10 +597,14 @@ new class extends Component
     </div>
 
     <div class="flex gap-1 rounded-full bg-surface-sunken p-1 dark:bg-surface-sunken-dark" role="tablist">
-        @foreach (['words' => 'Words', 'mistakes' => 'Mistakes'] as $tab => $label)
+        @foreach (['words' => 'Words', 'mistakes' => 'Mistakes', 'grammar' => 'Grammar'] as $tab => $label)
             @php
-                $count = $tab === 'words' ? $this->words->count() : $this->visibleEntries->whereNull('learned_at')->count();
-                $newCount = $tab === 'words' ? 0 : $this->visibleEntries->filter(fn (NotebookEntry $entry) => $entry->isUnpractised())->count();
+                $count = match ($tab) {
+                    'words' => $this->words->count(),
+                    'grammar' => collect($this->grammarShelf)->where('open', true)->count(),
+                    default => $this->visibleEntries->whereNull('learned_at')->count(),
+                };
+                $newCount = $tab === 'mistakes' ? $this->visibleEntries->filter(fn (NotebookEntry $entry) => $entry->isUnpractised())->count() : 0;
             @endphp
             <button
                 type="button"
@@ -609,6 +626,66 @@ new class extends Component
         $removeSheetButton = 'mt-1 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl border border-danger-line bg-danger-soft py-3 text-sm font-extrabold text-danger-ink';
         $removeButton = 'inline-flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-full bg-danger-soft text-danger-ink';
     @endphp
+
+    {{-- Grammar: every mission's grammar point in course order. The ones the learner has started open to their rules; the rest are greyed so the learner sees what is coming. --}}
+    <div x-show="notebookTab === 'grammar'" x-cloak class="space-y-3">
+        @php
+            $shelf = collect($this->grammarShelf);
+            $openFirst = $shelf->where('current', true)->first()['code'] ?? null;
+        @endphp
+        @if ($shelf->where('open', true)->isEmpty())
+            <p class="py-2 text-center text-sm text-ink-faint dark:text-ink-faint-dark">The grammar of each mission you start shows up here.</p>
+        @endif
+        @foreach ($shelf as $item)
+            @if ($item['open'])
+                <section aria-label="{{ $item['focus'] }}" class="overflow-hidden rounded-3xl bg-surface dark:bg-surface-dark" x-data="{ shown: {{ $item['code'] === $openFirst ? 'true' : 'false' }} }" wire:key="grammar-{{ $item['code'] }}">
+                    <button type="button" x-on:click="shown = ! shown" x-bind:aria-expanded="shown" class="flex w-full cursor-pointer items-center gap-3 p-3 text-left">
+                        <span class="relative flex h-14 w-14 shrink-0 items-end overflow-hidden rounded-2xl bg-linear-to-br from-hero to-dusk p-1.5 text-[13px] font-extrabold text-white">
+                            @if ($item['coverUrl'])
+                                <img src="{{ $item['coverUrl'] }}" alt="" class="absolute inset-0 h-full w-full object-cover">
+                                <span class="absolute inset-0 bg-black/30"></span>
+                            @endif
+                            <span class="relative drop-shadow">{{ $item['code'] }}</span>
+                        </span>
+                        <span class="flex min-w-0 flex-1 flex-col gap-0.5">
+                            <span class="flex items-center gap-2">
+                                <span class="min-w-0 truncate text-base font-extrabold text-ink dark:text-ink-dark">{{ $item['focus'] }}</span>
+                                @if ($item['learned'])
+                                    <span class="shrink-0 rounded-full bg-success-soft px-2 py-0.5 text-xs font-extrabold text-success dark:bg-success-soft-dark dark:text-success-dark">Learned</span>
+                                @elseif ($item['current'])
+                                    <span class="shrink-0 rounded-full bg-accent-soft px-2 py-0.5 text-xs font-extrabold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">Now</span>
+                                @endif
+                            </span>
+                            @if ($item['focusFa'])
+                                <span dir="rtl" class="font-fa text-[13px] text-ink-soft dark:text-ink-soft-dark">{{ $item['focusFa'] }}</span>
+                            @endif
+                            <span class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">{{ $item['title'] }}</span>
+                        </span>
+                        <span class="shrink-0 text-ink-faint transition-transform dark:text-ink-faint-dark" x-bind:class="shown ? 'rotate-180' : ''">@svg('heroicon-m-chevron-down', 'h-5 w-5')</span>
+                    </button>
+                    <div x-show="shown" @if ($item['code'] !== $openFirst) x-cloak @endif class="flex flex-col gap-5 border-t border-line p-4 dark:border-line-dark">
+                        @if ($item['intro'])
+                            <p class="text-base leading-relaxed text-ink-soft dark:text-ink-soft-dark">{{ $item['intro'] }}</p>
+                        @endif
+                        @foreach ($item['sections'] as $section)
+                            @include('missions.steps.partials.grammar-rule-card', ['section' => $section])
+                        @endforeach
+                    </div>
+                </section>
+            @else
+                <div class="flex items-center gap-3 rounded-3xl bg-surface/60 p-3 opacity-70 dark:bg-surface-dark/60" wire:key="grammar-{{ $item['code'] }}">
+                    <span class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-surface-sunken text-ink-faint dark:bg-surface-sunken-dark dark:text-ink-faint-dark">@svg('heroicon-o-lock-closed', 'h-5 w-5')</span>
+                    <span class="flex min-w-0 flex-1 flex-col gap-0.5">
+                        <span class="truncate text-base font-extrabold text-ink-soft dark:text-ink-soft-dark">{{ $item['focus'] }}</span>
+                        @if ($item['focusFa'])
+                            <span dir="rtl" class="font-fa text-[13px] text-ink-faint dark:text-ink-faint-dark">{{ $item['focusFa'] }}</span>
+                        @endif
+                        <span class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">{{ $item['code'] }} · {{ $item['title'] }}{{ $item['built'] ? '' : ' · soon' }}</span>
+                    </span>
+                </div>
+            @endif
+        @endforeach
+    </div>
 
     {{-- Mistakes: the lines the learner got wrong (and a few "better ways"), grouped by kind of mistake or by mission, with one Tip card on top. --}}
     @php
