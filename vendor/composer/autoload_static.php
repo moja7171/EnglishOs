@@ -700,6 +700,8 @@ class ComposerStaticInitdd10e30ec7065eb577b19a4c3968c74e
         'App\\Services\\GameVoice' => __DIR__ . '/../..' . '/app/Services/GameVoice.php',
         'App\\Services\\GeminiClient' => __DIR__ . '/../..' . '/app/Services/GeminiClient.php',
         'App\\Services\\GeminiWordDefiner' => __DIR__ . '/../..' . '/app/Services/GeminiWordDefiner.php',
+        'App\\Services\\GrammarPractice' => __DIR__ . '/../..' . '/app/Services/GrammarPractice.php',
+        'App\\Services\\GrammarShelf' => __DIR__ . '/../..' . '/app/Services/GrammarShelf.php',
         'App\\Services\\GroqClient' => __DIR__ . '/../..' . '/app/Services/GroqClient.php',
         'App\\Services\\JustAMinuteDeck' => __DIR__ . '/../..' . '/app/Services/JustAMinuteDeck.php',
         'App\\Services\\LearnerFeedback' => __DIR__ . '/../..' . '/app/Services/LearnerFeedback.php',

@@ -158,6 +158,8 @@ return array(
     'App\\Services\\GameVoice' => $baseDir . '/app/Services/GameVoice.php',
     'App\\Services\\GeminiClient' => $baseDir . '/app/Services/GeminiClient.php',
     'App\\Services\\GeminiWordDefiner' => $baseDir . '/app/Services/GeminiWordDefiner.php',
+    'App\\Services\\GrammarPractice' => $baseDir . '/app/Services/GrammarPractice.php',
+    'App\\Services\\GrammarShelf' => $baseDir . '/app/Services/GrammarShelf.php',
     'App\\Services\\GroqClient' => $baseDir . '/app/Services/GroqClient.php',
     'App\\Services\\JustAMinuteDeck' => $baseDir . '/app/Services/JustAMinuteDeck.php',
     'App\\Services\\LearnerFeedback' => $baseDir . '/app/Services/LearnerFeedback.php',
