@@ -3,32 +3,38 @@
         {
             "text": "Hello, I'm Oli.",
             "start": 0.91999996,
-            "end": 2.08
+            "end": 2.08,
+            "fa": "سلام، من اولی‌ام."
         },
         {
             "text": "Welcome to Oxford Online English.",
             "start": 2.08,
-            "end": 4.48
+            "end": 4.48,
+            "fa": "به آکسفورد آنلاین انگلیش خوش آمدید."
         },
         {
             "text": "In this lesson, you can learn about how to talk about your free time and hobbies in English.",
             "start": 4.48,
-            "end": 11.759999
+            "end": 11.759999,
+            "fa": "در این درس می‌تونی یاد بگیری چطور دربارهٔ وقت آزاد و سرگرمی‌هات به انگلیسی صحبت کنی."
         },
         {
             "text": "What do you like doing in your free time?",
             "start": 11.759999,
-            "end": 14.32
+            "end": 14.32,
+            "fa": "تو توی وقت آزاد چه کاری دوست داری انجام بدی؟"
         },
         {
             "text": "Do you have any interesting hobbies?",
             "start": 14.32,
-            "end": 17.279999
+            "end": 17.279999,
+            "fa": "سرگرمی جالبی داری؟"
         },
         {
             "text": "Talking about your free time is a great way to start a conversation in English or to find",
             "start": 17.279999,
-            "end": 21.72
+            "end": 21.72,
+            "fa": "صحبت کردن دربارهٔ وقت آزاد راه خوبی برای شروع مکالمه به انگلیسی یا پیدا کردن چیزهای مشترک وقتی با کسی حرف می‌زنی، هست."
         },
         {
             "text": "things in common when you're speaking to somebody.",
@@ -38,7 +44,8 @@
         {
             "text": "By the end of this lesson, you'll be able to speak clearly and naturally about your",
             "start": 25.16,
-            "end": 29.46
+            "end": 29.46,
+            "fa": "تا آخر این درس می‌تونی به‌صورت واضح و طبیعی دربارهٔ وقت آزاد و سرگرمی‌هات به انگلیسی صحبت کنی."
         },
         {
             "text": "free time and your hobbies in English.",
@@ -48,27 +55,32 @@
         {
             "text": "Part 1.",
             "start": 32.7,
-            "end": 33.7
+            "end": 33.7,
+            "fa": "بخش اول."
         },
         {
             "text": "Free time and hobbies vocabulary.",
             "start": 33.7,
-            "end": 36.86
+            "end": 36.86,
+            "fa": "واژگان مربوط به وقت آزاد و سرگرمی‌ها."
         },
         {
             "text": "What words do you know for free time activities in English?",
             "start": 36.86,
-            "end": 41.78
+            "end": 41.78,
+            "fa": "چه کلماتی برای فعالیت‌های وقت آزاد به انگلیسی می‌دونی؟"
         },
         {
             "text": "Some people prefer things you can do at home, like watching TV, reading, or cooking.",
             "start": 41.78,
-            "end": 49.079998
+            "end": 49.079998,
+            "fa": "بعضی‌ها چیزهایی که می‌تونی تو خونه انجام بدی رو ترجیح می‌دن، مثل تماشای تلویزیون، خواندن یا آشپزی."
         },
         {
             "text": "Other people like sports, like playing football, playing basketball, playing tennis, going",
             "start": 49.079998,
-            "end": 55.98
+            "end": 55.98,
+            "fa": "دیگران ورزش دوست دارن، مثل فوتبال بازی کردن، بسکتبال، تنیس، شنا، دویدن یا صعود، یا شاید بوکس، جودو یا یوگا."
         },
         {
             "text": "swimming, going jogging, or going climbing, or maybe doing boxing, doing judo, or doing",
@@ -83,17 +95,20 @@
         {
             "text": "Of course, many people prefer more social activities.",
             "start": 64.579994,
-            "end": 68.34
+            "end": 68.34,
+            "fa": "البته خیلی‌ها فعالیت‌های اجتماعی‌تری رو ترجیح می‌دن."
         },
         {
             "text": "For example, hanging out with your friends, relaxing with your family, or going shopping.",
             "start": 68.34,
-            "end": 75.52
+            "end": 75.52,
+            "fa": "مثلاً با دوستات وقت می‌گذرونی، با خانواده استراحت می‌کنی یا خرید می‌روی."
         },
         {
             "text": "Or maybe you like to do something more creative, like taking photos, painting, or writing stories,",
             "start": 75.52,
-            "end": 82.259995
+            "end": 82.259995,
+            "fa": "یا شاید کاری خلاقانه‌تر دوست داشته باشی، مثل عکاسی، نقاشی یا نوشتن داستان یا وبلاگ. تو چه کاری تو وقت آزاد ترجیح می‌دی؟ بریم ببینیم چطور می‌تونی دربارهٔ فعالیت‌ها و سرگرمی‌های مورد علاقت صحبت کنی. بخش دوم."
         },
         {
             "text": "or writing a blog What about you What kind of free time activities do you prefer Let look at how you can talk about free time activities and hobbies which you like",
@@ -108,97 +123,116 @@
         {
             "text": "What do you like doing?",
             "start": 96.645004,
-            "end": 98.925
+            "end": 98.925,
+            "fa": "چه کاری دوست داری انجام بدی؟"
         },
         {
             "text": "In my free time, I like...",
             "start": 98.925,
-            "end": 103.365005
+            "end": 103.365005,
+            "fa": "تو وقت آزاد، من ... دوست دارم."
         },
         {
             "text": "What could you say here?",
             "start": 103.365005,
-            "end": 105.825005
+            "end": 105.825005,
+            "fa": "اینجا چه می‌تونی بگی؟"
         },
         {
             "text": "In my free time, I like playing basketball.",
             "start": 105.825005,
-            "end": 109.845
+            "end": 109.845,
+            "fa": "تو وقت آزاد، من دوست دارم بسکتبال بازی کنم."
         },
         {
             "text": "In my free time, I like relaxing with my family.",
             "start": 109.845,
-            "end": 114.425
+            "end": 114.425,
+            "fa": "تو وقت آزاد، من دوست دارم با خانواده‌ام استراحت کنم."
         },
         {
             "text": "In my free time, I like reading books.",
             "start": 114.425,
-            "end": 118.80501
+            "end": 118.80501,
+            "fa": "تو وقت آزاد، من دوست دارم کتاب بخوانم."
         },
         {
             "text": "Can you see a pattern here?",
             "start": 118.80501,
-            "end": 120.985
+            "end": 120.985,
+            "fa": "می‌تونی الگو رو ببینی؟"
         },
         {
             "text": "In every sentence, after like, we use a verb plus ing.",
             "start": 120.985,
-            "end": 127.245
+            "end": 127.245,
+            "fa": "در هر جمله، بعد از «دوست دارم»، یک فعل به شکل ing می‌آید."
         },
         {
             "text": "Can you make a sentence?",
             "start": 127.245,
-            "end": 128.845
+            "end": 128.845,
+            "fa": "می‌تونی یک جمله بسازی؟"
         },
         {
             "text": "What do you like doing in your free time?",
             "start": 128.845,
-            "end": 132.80501
+            "end": 132.80501,
+            "fa": "تو توی وقت آزاد چه کاری دوست داری انجام بدی؟"
         },
         {
             "text": "But just using like can be repetitive and boring.",
             "start": 132.80501,
-            "end": 136.825
+            "end": 136.825,
+            "fa": "اما فقط استفاده از «دوست دارم» می‌تونه تکراری و کسل‌کننده باشه."
         },
         {
             "text": "So what other verbs can you use?",
             "start": 136.825,
-            "end": 139.285
+            "end": 139.285,
+            "fa": "پس چه افعال دیگه‌ای می‌تونی استفاده کنی؟"
         },
         {
             "text": "Well, you could use verbs like love, enjoy, or hate.",
             "start": 139.285,
-            "end": 146.485
+            "end": 146.485,
+            "fa": "خب، می‌تونی از افعالی مثل دوست داشتن، لذت بردن یا نفرت داشتن استفاده کنی."
         },
         {
             "text": "For example, I love going swimming.",
             "start": 146.485,
-            "end": 150.345
+            "end": 150.345,
+            "fa": "مثلاً، من عاشق رفتن به شنا هستم."
         },
         {
             "text": "I enjoy watching TV.",
             "start": 150.345,
-            "end": 152.985
+            "end": 152.985,
+            "fa": "من از تماشای تلویزیون لذت می‌برم."
         },
         {
             "text": "I hate going shopping.",
             "start": 152.985,
-            "end": 156.005
+            "end": 156.005,
+            "fa": "من از رفتن به خرید متنفرم."
         },
         {
             "text": "Can you see the same pattern?",
             "start": 156.005,
-            "end": 157.965
+            "end": 157.965,
+            "fa": "می‌تونی همین الگو رو ببینی؟"
         },
         {
             "text": "After all of these verbs, you need to use a verb with –ing.",
             "start": 157.965,
-            "end": 163.66501
+            "end": 163.66501,
+            "fa": "بعد از تمام این افعال، باید یک فعل با –ing استفاده کنی."
         },
         {
             "text": "You can also add words like really, sometimes, or absolutely to make your meaning stronger",
             "start": 163.66501,
-            "end": 170.685
+            "end": 170.685,
+            "fa": "همچنین می‌تونی کلماتی مثل واقعاً، گاهی یا کاملاً اضافه کنی تا معنی‌ات قوی‌تر یا ضعیف‌تر بشه."
         },
         {
             "text": "or weaker.",
@@ -208,7 +242,8 @@
         {
             "text": "For example I really like taking photos Sometimes I enjoy going jogging I absolutely hate playing football",
             "start": 172.325,
-            "end": 183.91
+            "end": 183.91,
+            "fa": "مثلاً من واقعاً عکاسی کردن رو دوست دارم. گاهی من از دویدن لذت می‌برم. من کاملاً از فوتبال بازی کردن متنفرم. حالا نوبت توست."
         },
         {
             "text": "Now it's your turn.",
@@ -218,17 +253,20 @@
         {
             "text": "What can you say?",
             "start": 185.39,
-            "end": 186.71
+            "end": 186.71,
+            "fa": "چه چیزی می‌تونی بگی؟"
         },
         {
             "text": "Can you make your own sentences?",
             "start": 186.71,
-            "end": 189.09001
+            "end": 189.09001,
+            "fa": "می‌تونی جملات خودتو بسازی؟"
         },
         {
             "text": "OK, so now you can say something about what you like or don't like doing, let's look",
             "start": 189.09001,
-            "end": 195.23001
+            "end": 195.23001,
+            "fa": "خب، حالا می‌تونی در مورد چیزهایی که دوست داری یا دوست ندارید بگی، بیاییم ببینیم چطور می‌تونی جزئیات بیشتری به ایده‌هات اضافه کنی."
         },
         {
             "text": "at how you can add more details to your ideas.",
@@ -238,107 +276,128 @@
         {
             "text": "First, let's say how often you do your free time activity.",
             "start": 199.09001,
-            "end": 204.47
+            "end": 204.47,
+            "fa": "اول بگو چقدر وقت آزادیت رو انجام می‌دی."
         },
         {
             "text": "For example, I like playing sport.",
             "start": 204.47,
-            "end": 207.57
+            "end": 207.57,
+            "fa": "مثلاً من ورزش کردن رو دوست دارم."
         },
         {
             "text": "I play football every Tuesday evening.",
             "start": 207.57,
-            "end": 211.29001
+            "end": 211.29001,
+            "fa": "من هر سه‌شنبه عصر فوتبال بازی می‌کنم."
         },
         {
             "text": "I absolutely hate going shopping.",
             "start": 211.29001,
-            "end": 213.57
+            "end": 213.57,
+            "fa": "من کاملاً از رفتن به خرید متنفرم."
         },
         {
             "text": "I only go shopping once or twice a year.",
             "start": 213.57,
-            "end": 217.93001
+            "end": 217.93001,
+            "fa": "من فقط سالی یک یا دو بار به خرید می‌رم."
         },
         {
             "text": "I really like taking photos, but I don't get the chance to do it often.",
             "start": 217.93001,
-            "end": 223.67001
+            "end": 223.67001,
+            "fa": "من واقعاً عکاسی کردن رو دوست دارم، اما فرصت انجامش رو زیاد ندارم."
         },
         {
             "text": "What about you?",
             "start": 223.67001,
-            "end": 224.81
+            "end": 224.81,
+            "fa": "شما چه فکر می‌کنید؟"
         },
         {
             "text": "How often do you do your hobbies?",
             "start": 224.81,
-            "end": 227.31
+            "end": 227.31,
+            "fa": "چند بار به سرگرمی‌هات می‌پردازی؟"
         },
         {
             "text": "You can use these phrases to help you talk.",
             "start": 227.31,
-            "end": 231.55
+            "end": 231.55,
+            "fa": "می‌تونی از این عبارات برای صحبت کردن استفاده کنی."
         },
         {
             "text": "Every mmm, for example.",
             "start": 231.55,
-            "end": 234.67001
+            "end": 234.67001,
+            "fa": "مثلاً هر …"
         },
         {
             "text": "Every weekend.",
             "start": 234.67001,
-            "end": 236.23001
+            "end": 236.23001,
+            "fa": "هر آخر هفته."
         },
         {
             "text": "Every Saturday afternoon.",
             "start": 236.23001,
-            "end": 238.41
+            "end": 238.41,
+            "fa": "هر بعدازظهر شنبه."
         },
         {
             "text": "Every day.",
             "start": 238.41,
-            "end": 240.69
+            "end": 240.69,
+            "fa": "هر روز."
         },
         {
             "text": "Once or twice a mmm, for example.",
             "start": 240.69,
-            "end": 245.41
+            "end": 245.41,
+            "fa": "مثلاً یک یا دو بار در …"
         },
         {
             "text": "Once a week.",
             "start": 245.41,
-            "end": 246.85
+            "end": 246.85,
+            "fa": "هفته‌ای یک بار."
         },
         {
             "text": "Twice a month.",
             "start": 246.85,
-            "end": 248.37
+            "end": 248.37,
+            "fa": "دو بار در ماه."
         },
         {
             "text": "Three times a year.",
             "start": 248.37,
-            "end": 249.87
+            "end": 249.87,
+            "fa": "سه بار در سال."
         },
         {
             "text": "And so on.",
             "start": 249.87,
-            "end": 251.99
+            "end": 251.99,
+            "fa": "و غیره."
         },
         {
             "text": "Can you make some sentences like this about your free time and hobbies?",
             "start": 251.99,
-            "end": 256.77002
+            "end": 256.77002,
+            "fa": "می‌تونی چند جمله شبیه این دربارهٔ وقت آزاد و سرگرمی‌هات بسازی؟"
         },
         {
             "text": "How often do you do your hobbies?",
             "start": 256.77002,
-            "end": 259.27002
+            "end": 259.27002,
+            "fa": "چند بار به سرگرمی‌هات می‌پردازی؟"
         },
         {
             "text": "OK next let look at giving background information Especially if you have an interesting or an unusual hobby you could talk about when and why you started doing it",
             "start": 259.27002,
-            "end": 272.695
+            "end": 272.695,
+            "fa": "خب، بعد بریم سراغ دادن اطلاعات پس‌زمینه. مخصوصاً اگه سرگرمی جالب یا عجیب داشته باشی، می‌تونی بگی کی و چرا شروع کردی. مثلا، من وقتی ده ساله بودم تنیس بازی کردن رو شروع کردم."
         },
         {
             "text": "For example, I started playing tennis when I was ten.",
@@ -348,22 +407,26 @@
         {
             "text": "I've been learning to paint for six months now.",
             "start": 277.975,
-            "end": 282.275
+            "end": 282.275,
+            "fa": "من الآن شش ماهه دارم نقاشی یاد می‌گیرم."
         },
         {
             "text": "I decided to do yoga because I wanted to be healthy.",
             "start": 282.275,
-            "end": 286.79498
+            "end": 286.79498,
+            "fa": "من تصمیم گرفتم یوگا کنم چون می‌خواستم سالم باشم."
         },
         {
             "text": "My French friend got me into climbing.",
             "start": 286.79498,
-            "end": 291.195
+            "end": 291.195,
+            "fa": "دوست فرانسوی‌ام منو به صخره‌نوردی کشوند."
         },
         {
             "text": "In the last sentence, the phrase, my friend got me into something, means that your friend",
             "start": 291.195,
-            "end": 297.01498
+            "end": 297.01498,
+            "fa": "در جملهٔ آخر، عبارت «دوست من منو به چیزی کشوند» یعنی دوستت اون فعالیت رو بهت معرفی کرده و الآن توش علاقه‌مندی."
         },
         {
             "text": "introduced this activity to you, and now you like it.",
@@ -373,67 +436,80 @@
         {
             "text": "What can you say about your hobby?",
             "start": 301.955,
-            "end": 303.775
+            "end": 303.775,
+            "fa": "در مورد سرگرمی‌ات می‌تونی چی بگی؟"
         },
         {
             "text": "Can you use some of these phrases to talk about yourself?",
             "start": 303.775,
-            "end": 307.275
+            "end": 307.275,
+            "fa": "می‌تونی از این عبارات برای صحبت دربارهٔ خودت استفاده کنی؟"
         },
         {
             "text": "For example, I started climbing when I was living in Russia.",
             "start": 307.275,
-            "end": 311.07498
+            "end": 311.07498,
+            "fa": "مثلاً، من وقتی تو روسیه زندگی می‌کردم صخره‌نوردی رو شروع کردم."
         },
         {
             "text": "I've been climbing for about eight years.",
             "start": 311.07498,
-            "end": 313.79498
+            "end": 313.79498,
+            "fa": "حدود هشت ساله که دارم صخره‌نوردی می‌کنم."
         },
         {
             "text": "I also recently decided to do yoga because I wanted to be more flexible.",
             "start": 313.79498,
-            "end": 321.715
+            "end": 321.715,
+            "fa": "من همین تازگی هم تصمیم گرفتم یوگا کنم چون می‌خواستم انعطاف‌پذیرتر بشم."
         },
         {
             "text": "When I was younger, my dad got me into photography.",
             "start": 321.715,
-            "end": 326.455
+            "end": 326.455,
+            "fa": "وقتی کوچیک‌تر بودم، بابام منو به عکاسی کشوند."
         },
         {
             "text": "Let's try using everything we've looked at to make a longer answer.",
             "start": 326.455,
-            "end": 330.995
+            "end": 330.995,
+            "fa": "بیایید با استفاده از تمام چیزهایی که دیدیم یک جواب طولانی‌تر بسازیم."
         },
         {
             "text": "For example, I really like playing tennis.",
             "start": 330.995,
-            "end": 334.555
+            "end": 334.555,
+            "fa": "مثلاً، من واقعاً تنیس بازی کردن رو دوست دارم."
         },
         {
             "text": "I play every weekend at the park near my house.",
             "start": 334.555,
-            "end": 338.375
+            "end": 338.375,
+            "fa": "هر آخر هفته تو پارکی که نزدیک خونه‌ام هست بازی می‌کنم."
         },
         {
             "text": "Sometimes I play with my brother, or sometimes with a friend.",
             "start": 338.375,
-            "end": 341.715
+            "end": 341.715,
+            "fa": "گاهی با برادرم بازی می‌کنم، گاهی هم با دوستی."
         },
         {
             "text": "My brother got me into it, because he loves sports and he needed someone to play with.",
             "start": 341.715,
-            "end": 346.59497
+            "end": 346.59497,
+            "fa": "برادرم منو بهش کشوند، چون ورزش دوست داره و به کسی برای بازی نیاز داشت."
         },
         {
             "text": "I didn't like it at first, because it was hard and I lost all the time.",
             "start": 346.59497,
-            "end": 351.13498
+            "end": 351.13498,
+            "fa": "اولش خوشم نمی‌آمد، چون سخت بود و همیشه می‌باختم."
         },
         {
             "text": "But now I enjoy it, especially when I beat my brother.",
             "start": 351.13498,
-            "end": 355.315
+            "end": 355.315,
+            "fa": "اما الآن لذت می‌برم، مخصوصاً وقتی برادرم رو می‌بازم."
         }
     ],
     "listening_words": [
@@ -4387,17 +4463,20 @@
         {
             "text": "And today I'm going to show you my hobbies.",
             "start": 0,
-            "end": 3.24
+            "end": 3.24,
+            "fa": "و امروز می‌خوام بهتون سرگرمی‌هام رو نشون بدم."
         },
         {
             "text": "So guys, the word hobby and the word pastime, they mean the same thing.",
             "start": 3.24,
-            "end": 8.38
+            "end": 8.38,
+            "fa": "پس بچه‌ها، کلمهٔ «سرگرمی» و «وقت‌گذرانی» یک معنی دارن."
         },
         {
             "text": "They are things that you like to do when you are not busy, when",
             "start": 8.38,
-            "end": 11.84
+            "end": 11.84,
+            "fa": "این‌ها چیزهایی هستن که وقتی سر کار نیستید، مشغول نیستید یا درس نمی‌خوانید، دوست دارید انجام بدید."
         },
         {
             "text": "you are not working, when you are not studying.",
@@ -4407,17 +4486,20 @@
         {
             "text": "The things you like to do with your free time for fun.",
             "start": 14.34,
-            "end": 19.02
+            "end": 19.02,
+            "fa": "چیزهایی که تو زمان آزاد برای تفریح دوست داری انجام بدی."
         },
         {
             "text": "Okay. So you can see I have my guitar with me.",
             "start": 19.02,
-            "end": 23.14
+            "end": 23.14,
+            "fa": "خب. می‌تونی ببینی که گیتارم اینجا هست."
         },
         {
             "text": "Now guys, this is a hobby that I have had on and off for",
             "start": 23.14,
-            "end": 28.94
+            "end": 28.94,
+            "fa": "حالا بچه‌ها، این یک سرگرمیه که حدود ۱۸ ساله توی رفت و آمد داشته‌ام."
         },
         {
             "text": "probably 18 years.",
@@ -4427,17 +4509,20 @@
         {
             "text": "No, maybe longer, maybe 20 years.",
             "start": 31.48,
-            "end": 33.4
+            "end": 33.4,
+            "fa": "نه، شاید بیشتر، شاید ۲۰ ساله."
         },
         {
             "text": "I have been playing guitar on and off now.",
             "start": 33.4,
-            "end": 38.88
+            "end": 38.88,
+            "fa": "من گیتار می‌زنم توی رفت و آمد تا حالا."
         },
         {
             "text": "The phrase on and off means that I have not been playing guitar for",
             "start": 38.88,
-            "end": 45.36
+            "end": 45.36,
+            "fa": "عبارت «تو رفت و آمد» یعنی این نیست که ۲۰ ساله گیتار نزده‌ام. یعنی یک سال زدم، بعد دو سال توقف کردم، دوباره دو سال زدم، بعد پنج سال استراحت، و اینطوری ادامه داره."
         },
         {
             "text": "20 years. No, it means I played for a year, then I stopped for",
@@ -4457,27 +4542,32 @@
         {
             "text": "Okay? And because I've done it on and off, I'm not that good, guys.",
             "start": 57.86,
-            "end": 64.68
+            "end": 64.68,
+            "fa": "درسته؟ و چون تو رفت و آمد انجامش دادم، اونقدر خوب نیستم، بچه‌ها."
         },
         {
             "text": "I'm really not that good.",
             "start": 64.68,
-            "end": 65.82
+            "end": 65.82,
+            "fa": "من واقعاً اونقدر خوب نیستم."
         },
         {
             "text": "But it is a cool hobby.",
             "start": 65.82,
-            "end": 68.7
+            "end": 68.7,
+            "fa": "اما یه سرگرمی باحال است."
         },
         {
             "text": "I do enjoy making music, and I think it's fun.",
             "start": 68.7,
-            "end": 72.08
+            "end": 72.08,
+            "fa": "من از ساختن موزیک لذت می‌برم و فکر می‌کنم جالبه."
         },
         {
             "text": "So, I'm going to play a little piece of a song, and I want",
             "start": 72.08,
-            "end": 76
+            "end": 76,
+            "fa": "پس یک قطعه کوتاه از یک آهنگ می‌نوازم و می‌خوام بگید می‌دونید این باند کدومه، کدوم باند راک معروف از زمان‌های قدیم."
         },
         {
             "text": "you guys to tell me if you know which band this is, which famous",
@@ -4492,27 +4582,32 @@
         {
             "text": "Not very good, but I do like to play guitar.",
             "start": 82.48,
-            "end": 86.64
+            "end": 86.64,
+            "fa": "خیلی خوب نیستم، اما گیتار زدن رو دوست دارم."
         },
         {
             "text": "So guys, one interesting thing, interesting piece of vocabulary about instruments.",
             "start": 86.64,
-            "end": 92.75200000000001
+            "end": 92.75200000000001,
+            "fa": "پس بچه‌ها، یک نکته جالب درباره واژگان مربوط به سازها."
         },
         {
             "text": "An instrument is anything that you use to make music.",
             "start": 93.292,
-            "end": 96.712
+            "end": 96.712,
+            "fa": "ساز هر چیزی است که برای ساختن موزیک استفاده می‌کنی."
         },
         {
             "text": "Guitars, pianos, drums, those are instruments.",
             "start": 96.712,
-            "end": 100.532
+            "end": 100.532,
+            "fa": "گیتار، پیانو، درام، این‌ها ساز هستند."
         },
         {
             "text": "Okay? Now in English, if somebody uses an instrument to make music, we do",
             "start": 100.532,
-            "end": 107.292
+            "end": 107.292,
+            "fa": "خب؟ تو انگلیسی وقتی کسی از ساز برای موزیک استفاده می‌کنه، نمی‌گیم «من گیتار می‌کنم»، «من گیتار استفاده می‌کنم»."
         },
         {
             "text": "not say \"I do the guitar\", \"I use the guitar\".",
@@ -4522,62 +4617,74 @@
         {
             "text": "In Spanish they use the verb \"to touch\", tocar.",
             "start": 113.072,
-            "end": 116.25200000000001
+            "end": 116.25200000000001,
+            "fa": "در اسپانیایی از فعل «tocar» یعنی «لمس کردن» استفاده می‌کنن."
         },
         {
             "text": "\"I touch the guitar.\"",
             "start": 116.452,
-            "end": 117.75200000000001
+            "end": 117.75200000000001,
+            "fa": "«من گیتار رو لمس می‌کنم»."
         },
         {
             "text": "No, in English we say play.",
             "start": 117.75200000000001,
-            "end": 120.272
+            "end": 120.272,
+            "fa": "نه، تو انگلیسی می‌گیم play."
         },
         {
             "text": "I play the guitar.",
             "start": 120.272,
-            "end": 122.092
+            "end": 122.092,
+            "fa": "من گیتار می‌زنم."
         },
         {
             "text": "Play the guitar.",
             "start": 122.812,
-            "end": 124.05199999999999
+            "end": 124.05199999999999,
+            "fa": "گیتار می‌زنم."
         },
         {
             "text": "Play the guitar.",
             "start": 125.952,
-            "end": 127.172
+            "end": 127.172,
+            "fa": "گیتار می‌زنم."
         },
         {
             "text": "Okay. Just an interesting piece of vocabulary.",
             "start": 127.172,
-            "end": 130.252
+            "end": 130.252,
+            "fa": "خب. فقط یک نکته جالب واژگانی."
         },
         {
             "text": "So tell me guys, do you play any instruments?",
             "start": 130.292,
-            "end": 133.072
+            "end": 133.072,
+            "fa": "پس بگید بچه‌ها، آیا ساز می‌نوازید؟"
         },
         {
             "text": "Okay. The next hobby is one that I am very passionate about.",
             "start": 133.072,
-            "end": 137.792
+            "end": 137.792,
+            "fa": "خب. سرگرمی بعدی چیزی است که خیلی بهش علاقه‌مندم."
         },
         {
             "text": "Okay. And that is learning languages.",
             "start": 138.272,
-            "end": 141.512
+            "end": 141.512,
+            "fa": "خب. و اون یادگیری زبان‌هاست."
         },
         {
             "text": "Guys, learning languages has absolutely changed my life in so many ways.",
             "start": 142.392,
-            "end": 148.792
+            "end": 148.792,
+            "fa": "دوستان، یادگیری زبان‌ها واقعاً زندگی منو توی کلی راه تغییر داده."
         },
         {
             "text": "And guys, because I chose to learn Spanish four, 5 years ago, so many",
             "start": 148.792,
-            "end": 155.052
+            "end": 155.052,
+            "fa": "و چون من چهار یا پنج سال پیش تصمیم گرفتم اسپانیایی یاد بگیرم، کلی چیزهای عالی وارد زندگی‌ام شد."
         },
         {
             "text": "great things have came into my life.",
@@ -4587,7 +4694,8 @@
         {
             "text": "Okay? I met a beautiful Colombian woman and I was able to speak with",
             "start": 157.372,
-            "end": 162.632
+            "end": 162.632,
+            "fa": "خب؟ من با یک زن زیبای کلمبیایی آشنا شدم و می‌تونستم باهاش حرف بزنم چون اسپانیایی بلدم و می‌فهمم."
         },
         {
             "text": "her because I spoke and understood Spanish.",
@@ -4597,17 +4705,20 @@
         {
             "text": "She became my wife, guys.",
             "start": 165.712,
-            "end": 167.652
+            "end": 167.652,
+            "fa": "اون شد همسر من، بچه‌ها."
         },
         {
             "text": "Without Spanish, I would have never met my wife.",
             "start": 167.652,
-            "end": 170.09199999999998
+            "end": 170.09199999999998,
+            "fa": "بدون اسپانیایی هرگز نمی‌تونستم همسرم رو پیدا کنم."
         },
         {
             "text": "If I didn't learn Spanish and realize how fulfilling it is to learn a",
             "start": 170.09199999999998,
-            "end": 175.152
+            "end": 175.152,
+            "fa": "اگر اسپانیسی یاد نمی‌گرفتم و نمی‌فهمیدم چقدر یادگیری زبان رضایت‌بخشه و چقدر ازش لذت می‌برم، هرگز این کانال رو راه نمی‌انداختم و فرصتی که برای ملاقات و صحبت با آدم‌های فوق‌العاده از سرتاسر جهان داشتم را از دست می‌دادم."
         },
         {
             "text": "language, how much I enjoy it, I would have never started this channel and",
@@ -4627,17 +4738,20 @@
         {
             "text": "So guys, the hobby of language learning has been a key in my life.",
             "start": 189.023,
-            "end": 195.063
+            "end": 195.063,
+            "fa": "پس بچه‌ها، یادگیری زبان یک کلید توی زندگی من بوده."
         },
         {
             "text": "It has been something that makes me happy.",
             "start": 195.063,
-            "end": 197.823
+            "end": 197.823,
+            "fa": "این چیزی بوده که منو خوشحال می‌کنه."
         },
         {
             "text": "It has been something that has brought me a lot of success and it",
             "start": 197.823,
-            "end": 201.103
+            "end": 201.103,
+            "fa": "این باعث موفقیت‌های زیادی شده و می‌خوام این رو با شما به اشتراک بگذارم."
         },
         {
             "text": "is something that I want to share with you guys.",
@@ -4647,12 +4761,14 @@
         {
             "text": "All right, guys.",
             "start": 204.363,
-            "end": 205.203
+            "end": 205.203,
+            "fa": "خب، بچه‌ها."
         },
         {
             "text": "So, another thing that I spend a lot of my free time on, another",
             "start": 205.203,
-            "end": 208.923
+            "end": 208.923,
+            "fa": "یک چیز دیگه‌ای که کلی وقت آزادم رو صرفش می‌کنم، یک سرگرمی دیگه یا تفریحیه که دارم، خوندن کتاب‌های خوبه."
         },
         {
             "text": "hobby of mine or another pastime is reading good books.",
@@ -4662,7 +4778,8 @@
         {
             "text": "Now, I love to read because I always love to keep on learning, growing",
             "start": 213.763,
-            "end": 218.203
+            "end": 218.203,
+            "fa": "من عاشق خوندن هستم چون همیشه می‌خوام یاد بگیرم و دیدگاهم نسبت به دنیا رو گسترش بدم."
         },
         {
             "text": "my view of the world.",
@@ -4672,7 +4789,8 @@
         {
             "text": "And I think that reading is one of the best things that you can",
             "start": 220.683,
-            "end": 223.883
+            "end": 223.883,
+            "fa": "و فکر می‌کنم خوندن یکی از بهترین کارهایی‌ست که می‌تونی برای مغز، سلامت روان و زندگی‌ات انجام بدی."
         },
         {
             "text": "do for your brain, for your mental health, for your life in general.",
@@ -4682,52 +4800,62 @@
         {
             "text": "Successful people read, guys.",
             "start": 228.923,
-            "end": 230.963
+            "end": 230.963,
+            "fa": "مردم موفق می‌خوان، بچه‌ها."
         },
         {
             "text": "So I usually do not read books that are fiction.",
             "start": 230.963,
-            "end": 235.883
+            "end": 235.883,
+            "fa": "من معمولاً کتاب‌های داستانی نمی‌خونم."
         },
         {
             "text": "I like non-fiction.",
             "start": 235.883,
-            "end": 237.203
+            "end": 237.203,
+            "fa": "من کتاب‌های غیرداستانی رو ترجیح می‌دم."
         },
         {
             "text": "So the difference between fiction and non-fiction, a fiction book is a story.",
             "start": 237.203,
-            "end": 243.343
+            "end": 243.343,
+            "fa": "فرق بین داستانی و غیرداستانی اینه که کتاب داستانی یک قصه‌ست."
         },
         {
             "text": "Okay? It's a story like Star Wars or Lord of the Rings.",
             "start": 243.343,
-            "end": 247.283
+            "end": 247.283,
+            "fa": "خب؟ مثل استار وارز یا ارباب حلقه‌ها."
         },
         {
             "text": "It's fantasy. Okay?",
             "start": 247.283,
-            "end": 248.703
+            "end": 248.703,
+            "fa": "یه فانتزیه. خب؟"
         },
         {
             "text": "It's not real.",
             "start": 248.703,
-            "end": 249.523
+            "end": 249.523,
+            "fa": "واقعی نیست."
         },
         {
             "text": "Non-fiction will be something about history or about a great person.",
             "start": 249.523,
-            "end": 254.563
+            "end": 254.563,
+            "fa": "غیرداستانی درباره تاریخ یا یک شخصیت بزرگه."
         },
         {
             "text": "And I prefer to read books that I can learn something from.",
             "start": 254.563,
-            "end": 257.823
+            "end": 257.823,
+            "fa": "و من ترجیح می‌دم کتاب‌هایی بخونم که بتونم ازشون چیزی یاد بگیرم."
         },
         {
             "text": "So, another hobby that I don't actually do right now, but I spent years",
             "start": 257.983,
-            "end": 264.14300000000003
+            "end": 264.14300000000003,
+            "fa": "یک سرگرمی دیگه که الان انجام نمی‌دم، اما سال‌ها انجام دادم. من عاشقش بودم، اما به دلایلی متوقف شدم و توی یک دقیقه بعد توضیح می‌دم."
         },
         {
             "text": "doing. I loved it, but there's a couple of reasons why I stopped, and",
@@ -4742,22 +4870,26 @@
         {
             "text": "Martial arts. Martial arts, but not like that.",
             "start": 271.835,
-            "end": 278.475
+            "end": 278.475,
+            "fa": "هنرهای رزمی. هنرهای رزمی، اما نه اونطوری."
         },
         {
             "text": "Not karate or kung fu.",
             "start": 278.475,
-            "end": 280.295
+            "end": 280.295,
+            "fa": "نه کاراته نه کونگ‌فو."
         },
         {
             "text": "I'm just trying to be funny, guys.",
             "start": 280.295,
-            "end": 282.155
+            "end": 282.155,
+            "fa": "من فقط دارم سعی می‌کنم خنده‌دار باشم، بچه‌ها."
         },
         {
             "text": "I probably spent 4 years training martial arts a couple of days a week",
             "start": 282.155,
-            "end": 286.815
+            "end": 286.815,
+            "fa": "احتمالاً ۴ سال تمرین هنرهای رزمی داشتم، چند روز در هفته به‌صورت منظم و واقعاً دوستش داشتم."
         },
         {
             "text": "consistently and I absolutely loved it.",
@@ -4767,7 +4899,8 @@
         {
             "text": "I loved it because it makes your body in really good shape, you get",
             "start": 291.235,
-            "end": 294.575
+            "end": 294.575,
+            "fa": "دوستش داشتم چون بدن‌تو تو فرم خیلی خوبی می‌ذاره، قوی‌تر می‌شی و اعتماد به‌نفس می‌ده، باعث می‌شه وقتی اتفاقی می‌افته بدونی چطور از خودت دفاع کنی."
         },
         {
             "text": "stronger and it gives you a confidence, makes you confident that if something happens,",
@@ -4782,22 +4915,26 @@
         {
             "text": "Why did I stop?",
             "start": 302.755,
-            "end": 304.115
+            "end": 304.115,
+            "fa": "چرا دست کشیدم؟"
         },
         {
             "text": "Well, guys, several reasons.",
             "start": 304.115,
-            "end": 306.095
+            "end": 306.095,
+            "fa": "خب، بچه‌ها، دلایل مختلفی هست."
         },
         {
             "text": "One, it's expensive.",
             "start": 306.095,
-            "end": 307.995
+            "end": 307.995,
+            "fa": "اول، گرانه."
         },
         {
             "text": "It cost a lot of money, guys, to be a member of a",
             "start": 308.295,
-            "end": 311.955
+            "end": 311.955,
+            "fa": "عضویت تو یک باشگاه هنرهای رزمی هزینهٔ زیادی داره، بچه‌ها."
         },
         {
             "text": "martial arts gym.",
@@ -4807,7 +4944,8 @@
         {
             "text": "And I was thinking to myself that I'm never going to be a professional",
             "start": 313.055,
-            "end": 319.435
+            "end": 319.435,
+            "fa": "و به خودم می‌گفتم که هرگز نمی‌خوام یک مبارز حرفه‌ای بشم. نمی‌خوام."
         },
         {
             "text": "fighter. I don't want to be.",
@@ -4817,17 +4955,20 @@
         {
             "text": "I don't want to hurt people.",
             "start": 321.395,
-            "end": 323.095
+            "end": 323.095,
+            "fa": "نمی‌خوام به مردم آسیب برسونم."
         },
         {
             "text": "I just want to know how to protect myself and my family.",
             "start": 323.095,
-            "end": 326.535
+            "end": 326.535,
+            "fa": "فقط می‌خوام بدونم چطور از خودم و خانواده‌ام محافظت کنم."
         },
         {
             "text": "So why am I spending so much money, thousands of dollars a year to",
             "start": 326.715,
-            "end": 331.135
+            "end": 331.135,
+            "fa": "پس چرا این‌قدر پول می‌دم، هزارها دلار در سال، برای کاری که هرگز برام پول برنمی‌گردونه؟"
         },
         {
             "text": "do something that will never give me any money back?",
@@ -4837,7 +4978,8 @@
         {
             "text": "So, one part of it was I decided that I wanted to stop giving",
             "start": 333.915,
-            "end": 338.435
+            "end": 338.435,
+            "fa": "یک بخشی از این بود که تصمیم گرفتم وقت و پولم رو به اون کار ندم و به چیزهایی بدم که می‌تونن برام بازده داشته باشن، شاید یه سرمایه‌گذاری بشه و بتونم پول دربیارم."
         },
         {
             "text": "my time and money to that and put my time and money into things",
@@ -4857,7 +4999,8 @@
         {
             "text": "So, I decided that I was going to start using my time and money",
             "start": 350.495,
-            "end": 353.395
+            "end": 353.395,
+            "fa": "پس تصمیم گرفتم وقت و پولم رو صرف بهبود کانالم کنم و هر چه بیشتر چیزهای مختلف یاد بگیرم."
         },
         {
             "text": "to improve my channel and learn as many different things as I possibly could.",
@@ -9528,37 +9671,43 @@
             "speaker": "Oli",
             "text": "Hello, I'm Oli.",
             "start": 0.92,
-            "end": 2.08
+            "end": 2.08,
+            "fa": "سلام، من اولی‌ام."
         },
         {
             "speaker": "Oli",
             "text": "Welcome to Oxford Online English.",
             "start": 2.08,
-            "end": 4.48
+            "end": 4.48,
+            "fa": "به آکسفورد آنلاین انگلیش خوش آمدید."
         },
         {
             "speaker": "Oli",
             "text": "In this lesson, you can learn about how to talk about your free time and hobbies in English.",
             "start": 4.48,
-            "end": 11.76
+            "end": 11.76,
+            "fa": "در این درس می‌تونی یاد بگیری چطور دربارهٔ وقت آزاد و سرگرمی‌هات به انگلیسی صحبت کنی."
         },
         {
             "speaker": "Oli",
             "text": "What do you like doing in your free time?",
             "start": 11.76,
-            "end": 14.32
+            "end": 14.32,
+            "fa": "تو توی وقت آزاد چه کاری دوست داری انجام بدی؟"
         },
         {
             "speaker": "Oli",
             "text": "Do you have any interesting hobbies?",
             "start": 14.32,
-            "end": 17.28
+            "end": 17.28,
+            "fa": "سرگرمی جالبی داری؟"
         },
         {
             "speaker": "Oli",
             "text": "Talking about your free time is a great way to start a conversation in English or to find",
             "start": 17.28,
-            "end": 21.72
+            "end": 21.72,
+            "fa": "صحبت کردن دربارهٔ وقت آزاد راه خوبی برای شروع مکالمه به انگلیسی یا پیدا کردن چیزهای مشترک وقتی با کسی حرف می‌زنی، هست."
         },
         {
             "speaker": "Oli",
@@ -9570,7 +9719,8 @@
             "speaker": "Oli",
             "text": "By the end of this lesson, you'll be able to speak clearly and naturally about your",
             "start": 25.16,
-            "end": 29.46
+            "end": 29.46,
+            "fa": "تا آخر این درس می‌تونی به‌صورت واضح و طبیعی دربارهٔ وقت آزاد و سرگرمی‌هات به انگلیسی صحبت کنی."
         },
         {
             "speaker": "Oli",
@@ -9582,31 +9732,36 @@
             "speaker": "Oli",
             "text": "Part 1.",
             "start": 32.7,
-            "end": 33.7
+            "end": 33.7,
+            "fa": "بخش اول."
         },
         {
             "speaker": "Oli",
             "text": "Free time and hobbies vocabulary.",
             "start": 33.7,
-            "end": 36.86
+            "end": 36.86,
+            "fa": "واژگان مربوط به وقت آزاد و سرگرمی‌ها."
         },
         {
             "speaker": "Oli",
             "text": "What words do you know for free time activities in English?",
             "start": 36.86,
-            "end": 41.78
+            "end": 41.78,
+            "fa": "چه کلماتی برای فعالیت‌های وقت آزاد به انگلیسی می‌دونی؟"
         },
         {
             "speaker": "Oli",
             "text": "Some people prefer things you can do at home, like watching TV, reading, or cooking.",
             "start": 41.78,
-            "end": 49.08
+            "end": 49.08,
+            "fa": "بعضی‌ها چیزهایی که می‌تونی تو خونه انجام بدی رو ترجیح می‌دن، مثل تماشای تلویزیون، خواندن یا آشپزی."
         },
         {
             "speaker": "Oli",
             "text": "Other people like sports, like playing football, playing basketball, playing tennis, going",
             "start": 49.08,
-            "end": 55.98
+            "end": 55.98,
+            "fa": "دیگران ورزش دوست دارن، مثل فوتبال بازی کردن، بسکتبال، تنیس، شنا، دویدن یا صعود، یا شاید بوکس، جودو یا یوگا."
         },
         {
             "speaker": "Oli",
@@ -9624,19 +9779,22 @@
             "speaker": "Oli",
             "text": "Of course, many people prefer more social activities.",
             "start": 64.58,
-            "end": 68.34
+            "end": 68.34,
+            "fa": "البته خیلی‌ها فعالیت‌های اجتماعی‌تری رو ترجیح می‌دن."
         },
         {
             "speaker": "Oli",
             "text": "For example, hanging out with your friends, relaxing with your family, or going shopping.",
             "start": 68.34,
-            "end": 75.52
+            "end": 75.52,
+            "fa": "مثلاً با دوستات وقت می‌گذرونی، با خانواده استراحت می‌کنی یا خرید می‌روی."
         },
         {
             "speaker": "Oli",
             "text": "Or maybe you like to do something more creative, like taking photos, painting, or writing stories,",
             "start": 75.52,
-            "end": 82.26
+            "end": 82.26,
+            "fa": "یا شاید کاری خلاقانه‌تر دوست داشته باشی، مثل عکاسی، نقاشی یا نوشتن داستان یا وبلاگ. تو چه کاری تو وقت آزاد ترجیح می‌دی؟ بریم ببینیم چطور می‌تونی دربارهٔ فعالیت‌ها و سرگرمی‌های مورد علاقت صحبت کنی. بخش دوم."
         },
         {
             "speaker": "Oli",
@@ -9654,115 +9812,134 @@
             "speaker": "Oli",
             "text": "What do you like doing?",
             "start": 96.65,
-            "end": 98.93
+            "end": 98.93,
+            "fa": "چه کاری دوست داری انجام بدی؟"
         },
         {
             "speaker": "Oli",
             "text": "In my free time, I like...",
             "start": 98.93,
-            "end": 103.37
+            "end": 103.37,
+            "fa": "تو وقت آزاد، من ... دوست دارم."
         },
         {
             "speaker": "Oli",
             "text": "What could you say here?",
             "start": 103.37,
-            "end": 105.83
+            "end": 105.83,
+            "fa": "اینجا چه می‌تونی بگی؟"
         },
         {
             "speaker": "Oli",
             "text": "In my free time, I like playing basketball.",
             "start": 105.83,
-            "end": 109.85
+            "end": 109.85,
+            "fa": "تو وقت آزاد، من دوست دارم بسکتبال بازی کنم."
         },
         {
             "speaker": "Oli",
             "text": "In my free time, I like relaxing with my family.",
             "start": 109.85,
-            "end": 114.43
+            "end": 114.43,
+            "fa": "تو وقت آزاد، من دوست دارم با خانواده‌ام استراحت کنم."
         },
         {
             "speaker": "Oli",
             "text": "In my free time, I like reading books.",
             "start": 114.43,
-            "end": 118.81
+            "end": 118.81,
+            "fa": "تو وقت آزاد، من دوست دارم کتاب بخوانم."
         },
         {
             "speaker": "Oli",
             "text": "Can you see a pattern here?",
             "start": 118.81,
-            "end": 120.99
+            "end": 120.99,
+            "fa": "می‌تونی الگو رو ببینی؟"
         },
         {
             "speaker": "Oli",
             "text": "In every sentence, after like, we use a verb plus ing.",
             "start": 120.99,
-            "end": 127.25
+            "end": 127.25,
+            "fa": "در هر جمله، بعد از «دوست دارم»، یک فعل به شکل ing می‌آید."
         },
         {
             "speaker": "Oli",
             "text": "Can you make a sentence?",
             "start": 127.25,
-            "end": 128.85
+            "end": 128.85,
+            "fa": "می‌تونی یک جمله بسازی؟"
         },
         {
             "speaker": "Oli",
             "text": "What do you like doing in your free time?",
             "start": 128.85,
-            "end": 132.81
+            "end": 132.81,
+            "fa": "تو توی وقت آزاد چه کاری دوست داری انجام بدی؟"
         },
         {
             "speaker": "Oli",
             "text": "But just using like can be repetitive and boring.",
             "start": 132.81,
-            "end": 136.83
+            "end": 136.83,
+            "fa": "اما فقط استفاده از «دوست دارم» می‌تونه تکراری و کسل‌کننده باشه."
         },
         {
             "speaker": "Oli",
             "text": "So what other verbs can you use?",
             "start": 136.83,
-            "end": 139.29
+            "end": 139.29,
+            "fa": "پس چه افعال دیگه‌ای می‌تونی استفاده کنی؟"
         },
         {
             "speaker": "Oli",
             "text": "Well, you could use verbs like love, enjoy, or hate.",
             "start": 139.29,
-            "end": 146.49
+            "end": 146.49,
+            "fa": "خب، می‌تونی از افعالی مثل دوست داشتن، لذت بردن یا نفرت داشتن استفاده کنی."
         },
         {
             "speaker": "Oli",
             "text": "For example, I love going swimming.",
             "start": 146.49,
-            "end": 150.35
+            "end": 150.35,
+            "fa": "مثلاً، من عاشق رفتن به شنا هستم."
         },
         {
             "speaker": "Oli",
             "text": "I enjoy watching TV.",
             "start": 150.35,
-            "end": 152.99
+            "end": 152.99,
+            "fa": "من از تماشای تلویزیون لذت می‌برم."
         },
         {
             "speaker": "Oli",
             "text": "I hate going shopping.",
             "start": 152.99,
-            "end": 156.01
+            "end": 156.01,
+            "fa": "من از رفتن به خرید متنفرم."
         },
         {
             "speaker": "Oli",
             "text": "Can you see the same pattern?",
             "start": 156.01,
-            "end": 157.97
+            "end": 157.97,
+            "fa": "می‌تونی همین الگو رو ببینی؟"
         },
         {
             "speaker": "Oli",
             "text": "After all of these verbs, you need to use a verb with –ing.",
             "start": 157.97,
-            "end": 163.67
+            "end": 163.67,
+            "fa": "بعد از تمام این افعال، باید یک فعل با –ing استفاده کنی."
         },
         {
             "speaker": "Oli",
             "text": "You can also add words like really, sometimes, or absolutely to make your meaning stronger",
             "start": 163.67,
-            "end": 170.69
+            "end": 170.69,
+            "fa": "همچنین می‌تونی کلماتی مثل واقعاً، گاهی یا کاملاً اضافه کنی تا معنی‌ات قوی‌تر یا ضعیف‌تر بشه."
         },
         {
             "speaker": "Oli",
@@ -9774,7 +9951,8 @@
             "speaker": "Oli",
             "text": "For example I really like taking photos Sometimes I enjoy going jogging I absolutely hate playing football",
             "start": 172.33,
-            "end": 183.91
+            "end": 183.91,
+            "fa": "مثلاً من واقعاً عکاسی کردن رو دوست دارم. گاهی من از دویدن لذت می‌برم. من کاملاً از فوتبال بازی کردن متنفرم. حالا نوبت توست."
         },
         {
             "speaker": "Oli",
@@ -9786,19 +9964,22 @@
             "speaker": "Oli",
             "text": "What can you say?",
             "start": 185.39,
-            "end": 186.71
+            "end": 186.71,
+            "fa": "چه چیزی می‌تونی بگی؟"
         },
         {
             "speaker": "Oli",
             "text": "Can you make your own sentences?",
             "start": 186.71,
-            "end": 189.09
+            "end": 189.09,
+            "fa": "می‌تونی جملات خودتو بسازی؟"
         },
         {
             "speaker": "Oli",
             "text": "OK, so now you can say something about what you like or don't like doing, let's look",
             "start": 189.09,
-            "end": 195.23
+            "end": 195.23,
+            "fa": "خب، حالا می‌تونی در مورد چیزهایی که دوست داری یا دوست ندارید بگی، بیاییم ببینیم چطور می‌تونی جزئیات بیشتری به ایده‌هات اضافه کنی."
         },
         {
             "speaker": "Oli",
@@ -9810,127 +9991,148 @@
             "speaker": "Oli",
             "text": "First, let's say how often you do your free time activity.",
             "start": 199.09,
-            "end": 204.47
+            "end": 204.47,
+            "fa": "اول بگو چقدر وقت آزادیت رو انجام می‌دی."
         },
         {
             "speaker": "Oli",
             "text": "For example, I like playing sport.",
             "start": 204.47,
-            "end": 207.57
+            "end": 207.57,
+            "fa": "مثلاً من ورزش کردن رو دوست دارم."
         },
         {
             "speaker": "Oli",
             "text": "I play football every Tuesday evening.",
             "start": 207.57,
-            "end": 211.29
+            "end": 211.29,
+            "fa": "من هر سه‌شنبه عصر فوتبال بازی می‌کنم."
         },
         {
             "speaker": "Oli",
             "text": "I absolutely hate going shopping.",
             "start": 211.29,
-            "end": 213.57
+            "end": 213.57,
+            "fa": "من کاملاً از رفتن به خرید متنفرم."
         },
         {
             "speaker": "Oli",
             "text": "I only go shopping once or twice a year.",
             "start": 213.57,
-            "end": 217.93
+            "end": 217.93,
+            "fa": "من فقط سالی یک یا دو بار به خرید می‌رم."
         },
         {
             "speaker": "Oli",
             "text": "I really like taking photos, but I don't get the chance to do it often.",
             "start": 217.93,
-            "end": 223.67
+            "end": 223.67,
+            "fa": "من واقعاً عکاسی کردن رو دوست دارم، اما فرصت انجامش رو زیاد ندارم."
         },
         {
             "speaker": "Oli",
             "text": "What about you?",
             "start": 223.67,
-            "end": 224.81
+            "end": 224.81,
+            "fa": "شما چه فکر می‌کنید؟"
         },
         {
             "speaker": "Oli",
             "text": "How often do you do your hobbies?",
             "start": 224.81,
-            "end": 227.31
+            "end": 227.31,
+            "fa": "چند بار به سرگرمی‌هات می‌پردازی؟"
         },
         {
             "speaker": "Oli",
             "text": "You can use these phrases to help you talk.",
             "start": 227.31,
-            "end": 231.55
+            "end": 231.55,
+            "fa": "می‌تونی از این عبارات برای صحبت کردن استفاده کنی."
         },
         {
             "speaker": "Oli",
             "text": "Every mmm, for example.",
             "start": 231.55,
-            "end": 234.67
+            "end": 234.67,
+            "fa": "مثلاً هر …"
         },
         {
             "speaker": "Oli",
             "text": "Every weekend.",
             "start": 234.67,
-            "end": 236.23
+            "end": 236.23,
+            "fa": "هر آخر هفته."
         },
         {
             "speaker": "Oli",
             "text": "Every Saturday afternoon.",
             "start": 236.23,
-            "end": 238.41
+            "end": 238.41,
+            "fa": "هر بعدازظهر شنبه."
         },
         {
             "speaker": "Oli",
             "text": "Every day.",
             "start": 238.41,
-            "end": 240.69
+            "end": 240.69,
+            "fa": "هر روز."
         },
         {
             "speaker": "Oli",
             "text": "Once or twice a mmm, for example.",
             "start": 240.69,
-            "end": 245.41
+            "end": 245.41,
+            "fa": "مثلاً یک یا دو بار در …"
         },
         {
             "speaker": "Oli",
             "text": "Once a week.",
             "start": 245.41,
-            "end": 246.85
+            "end": 246.85,
+            "fa": "هفته‌ای یک بار."
         },
         {
             "speaker": "Oli",
             "text": "Twice a month.",
             "start": 246.85,
-            "end": 248.37
+            "end": 248.37,
+            "fa": "دو بار در ماه."
         },
         {
             "speaker": "Oli",
             "text": "Three times a year.",
             "start": 248.37,
-            "end": 249.87
+            "end": 249.87,
+            "fa": "سه بار در سال."
         },
         {
             "speaker": "Oli",
             "text": "And so on.",
             "start": 249.87,
-            "end": 251.99
+            "end": 251.99,
+            "fa": "و غیره."
         },
         {
             "speaker": "Oli",
             "text": "Can you make some sentences like this about your free time and hobbies?",
             "start": 251.99,
-            "end": 256.77
+            "end": 256.77,
+            "fa": "می‌تونی چند جمله شبیه این دربارهٔ وقت آزاد و سرگرمی‌هات بسازی؟"
         },
         {
             "speaker": "Oli",
             "text": "How often do you do your hobbies?",
             "start": 256.77,
-            "end": 259.27
+            "end": 259.27,
+            "fa": "چند بار به سرگرمی‌هات می‌پردازی؟"
         },
         {
             "speaker": "Oli",
             "text": "OK next let look at giving background information Especially if you have an interesting or an unusual hobby you could talk about when and why you started doing it",
             "start": 259.27,
-            "end": 272.7
+            "end": 272.7,
+            "fa": "خب، بعد بریم سراغ دادن اطلاعات پس‌زمینه. مخصوصاً اگه سرگرمی جالب یا عجیب داشته باشی، می‌تونی بگی کی و چرا شروع کردی. مثلا، من وقتی ده ساله بودم تنیس بازی کردن رو شروع کردم."
         },
         {
             "speaker": "Oli",
@@ -9942,25 +10144,29 @@
             "speaker": "Oli",
             "text": "I've been learning to paint for six months now.",
             "start": 277.98,
-            "end": 282.28
+            "end": 282.28,
+            "fa": "من الآن شش ماهه دارم نقاشی یاد می‌گیرم."
         },
         {
             "speaker": "Oli",
             "text": "I decided to do yoga because I wanted to be healthy.",
             "start": 282.28,
-            "end": 286.79
+            "end": 286.79,
+            "fa": "من تصمیم گرفتم یوگا کنم چون می‌خواستم سالم باشم."
         },
         {
             "speaker": "Oli",
             "text": "My French friend got me into climbing.",
             "start": 286.79,
-            "end": 291.2
+            "end": 291.2,
+            "fa": "دوست فرانسوی‌ام منو به صخره‌نوردی کشوند."
         },
         {
             "speaker": "Oli",
             "text": "In the last sentence, the phrase, my friend got me into something, means that your friend",
             "start": 291.2,
-            "end": 297.01
+            "end": 297.01,
+            "fa": "در جملهٔ آخر، عبارت «دوست من منو به چیزی کشوند» یعنی دوستت اون فعالیت رو بهت معرفی کرده و الآن توش علاقه‌مندی."
         },
         {
             "speaker": "Oli",
@@ -9972,79 +10178,92 @@
             "speaker": "Oli",
             "text": "What can you say about your hobby?",
             "start": 301.96,
-            "end": 303.78
+            "end": 303.78,
+            "fa": "در مورد سرگرمی‌ات می‌تونی چی بگی؟"
         },
         {
             "speaker": "Oli",
             "text": "Can you use some of these phrases to talk about yourself?",
             "start": 303.78,
-            "end": 307.28
+            "end": 307.28,
+            "fa": "می‌تونی از این عبارات برای صحبت دربارهٔ خودت استفاده کنی؟"
         },
         {
             "speaker": "Oli",
             "text": "For example, I started climbing when I was living in Russia.",
             "start": 307.28,
-            "end": 311.07
+            "end": 311.07,
+            "fa": "مثلاً، من وقتی تو روسیه زندگی می‌کردم صخره‌نوردی رو شروع کردم."
         },
         {
             "speaker": "Oli",
             "text": "I've been climbing for about eight years.",
             "start": 311.07,
-            "end": 313.79
+            "end": 313.79,
+            "fa": "حدود هشت ساله که دارم صخره‌نوردی می‌کنم."
         },
         {
             "speaker": "Oli",
             "text": "I also recently decided to do yoga because I wanted to be more flexible.",
             "start": 313.79,
-            "end": 321.72
+            "end": 321.72,
+            "fa": "من همین تازگی هم تصمیم گرفتم یوگا کنم چون می‌خواستم انعطاف‌پذیرتر بشم."
         },
         {
             "speaker": "Oli",
             "text": "When I was younger, my dad got me into photography.",
             "start": 321.72,
-            "end": 326.46
+            "end": 326.46,
+            "fa": "وقتی کوچیک‌تر بودم، بابام منو به عکاسی کشوند."
         },
         {
             "speaker": "Oli",
             "text": "Let's try using everything we've looked at to make a longer answer.",
             "start": 326.46,
-            "end": 331
+            "end": 331,
+            "fa": "بیایید با استفاده از تمام چیزهایی که دیدیم یک جواب طولانی‌تر بسازیم."
         },
         {
             "speaker": "Oli",
             "text": "For example, I really like playing tennis.",
             "start": 331,
-            "end": 334.56
+            "end": 334.56,
+            "fa": "مثلاً، من واقعاً تنیس بازی کردن رو دوست دارم."
         },
         {
             "speaker": "Oli",
             "text": "I play every weekend at the park near my house.",
             "start": 334.56,
-            "end": 338.38
+            "end": 338.38,
+            "fa": "هر آخر هفته تو پارکی که نزدیک خونه‌ام هست بازی می‌کنم."
         },
         {
             "speaker": "Oli",
             "text": "Sometimes I play with my brother, or sometimes with a friend.",
             "start": 338.38,
-            "end": 341.72
+            "end": 341.72,
+            "fa": "گاهی با برادرم بازی می‌کنم، گاهی هم با دوستی."
         },
         {
             "speaker": "Oli",
             "text": "My brother got me into it, because he loves sports and he needed someone to play with.",
             "start": 341.72,
-            "end": 346.59
+            "end": 346.59,
+            "fa": "برادرم منو بهش کشوند، چون ورزش دوست داره و به کسی برای بازی نیاز داشت."
         },
         {
             "speaker": "Oli",
             "text": "I didn't like it at first, because it was hard and I lost all the time.",
             "start": 346.59,
-            "end": 351.13
+            "end": 351.13,
+            "fa": "اولش خوشم نمی‌آمد، چون سخت بود و همیشه می‌باختم."
         },
         {
             "speaker": "Oli",
             "text": "But now I enjoy it, especially when I beat my brother.",
             "start": 351.13,
-            "end": 355.32
+            "end": 355.32,
+            "fa": "اما الآن لذت می‌برم، مخصوصاً وقتی برادرم رو می‌بازم."
         }
     ]
 }

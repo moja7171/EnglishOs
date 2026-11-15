@@ -3,32 +3,38 @@
         {
             "text": "So where were you born and when were you born?",
             "start": 0,
-            "end": 5.12
+            "end": 5.12,
+            "fa": "خب، کجا به دنیا آمدی و چه زمانی؟"
         },
         {
             "text": "I was born in Bond Street Nursing Home on Easter Sunday, 1930.",
             "start": 6.2999997,
-            "end": 11.08
+            "end": 11.08,
+            "fa": "من در باند استریت نرسینگ هوم توی یکشنبه عید پاک سال ۱۹۳۰ به دنیا آمدم."
         },
         {
             "text": "1930. So how old does that make you?",
             "start": 11.66,
-            "end": 16.32
+            "end": 16.32,
+            "fa": "۱۹۳۰. پس چند سال داری؟"
         },
         {
             "text": "What now? 95, isn't it?",
             "start": 18.14,
-            "end": 20.72
+            "end": 20.72,
+            "fa": "حالا چی؟ ۹۵ سال، نه؟"
         },
         {
             "text": "95, everyone. So where did you grow up?",
             "start": 20.76,
-            "end": 24.34
+            "end": 24.34,
+            "fa": "۹۵ سال، همه. پس کجا بزرگ شدی؟"
         },
         {
             "text": "down bath lane it was called bath lane bath lane which city is that leicester city leicester",
             "start": 24.34,
-            "end": 33.94
+            "end": 33.94,
+            "fa": "اون پایین خیابون بات‌لین بود، بهش بات‌لین می‌گفتن. بات‌لین، این کدوم شهره؟ شهر لستر؟ آره، لستر. خب، بات‌لین به این دلیل بات‌لین بود که وسط خیابون یه پاب بود به اسم «نُوی بات» و این پاب تا ساعت ۱۰ یا ۱۱ شب باز بود. وای! و وقتی کوچیک بودی، نونو، خونتون چه شکلی بود؟"
         },
         {
             "text": "yeah okay bath lane it was called bath lane because there was a pub halfway up the road",
@@ -48,47 +54,56 @@
         {
             "text": "What do you remember about the house when you were very young?",
             "start": 56.14,
-            "end": 60.48
+            "end": 60.48,
+            "fa": "چه چیزهایی از خونه‌ات وقتی خیلی کوچیک بودی به یاد داری؟"
         },
         {
             "text": "Well, we didn't...",
             "start": 62.16,
-            "end": 64.74
+            "end": 64.74,
+            "fa": "خب، ما..."
         },
         {
             "text": "My mum hadn't got a house.",
             "start": 64.74,
-            "end": 66.159996
+            "end": 66.159996,
+            "fa": "مامانم خونه‌ای نداشت."
         },
         {
             "text": "She rented this house from this man who was ill.",
             "start": 66.74,
-            "end": 70.56
+            "end": 70.56,
+            "fa": "اون خونه‌ای که از مردی که مریض بود اجاره می‌کرد."
         },
         {
             "text": "He slept in the front room all the time.",
             "start": 71.799995,
-            "end": 73.979996
+            "end": 73.979996,
+            "fa": "اون مرد تمام وقت توی اتاق جلویی می‌خوابید."
         },
         {
             "text": "What?",
             "start": 74.08,
-            "end": 74.38
+            "end": 74.38,
+            "fa": "چی؟"
         },
         {
             "text": "He slept in...",
             "start": 75.06,
-            "end": 75.82
+            "end": 75.82,
+            "fa": "اون می‌خوابید..."
         },
         {
             "text": "The man who owned the house slept in the house.",
             "start": 75.82,
-            "end": 79.02
+            "end": 79.02,
+            "fa": "مردی که صاحب خونه بود توی خونه می‌خوابید."
         },
         {
             "text": "My mum used to pay rent We lived in the two back rooms Oh OK So it was a shared house Yes I suppose so Wow And what do you remember about the house Was it big dark cold small",
             "start": 79.02,
-            "end": 94.1875
+            "end": 94.1875,
+            "fa": "مامانم اجاره می‌داد. ما تو دو تا اتاق پشتی زندگی می‌کردیم. آها، خب. پس یه خونه مشترک بود. آره، فکر کنم. وای! و از خونتون چی به یاد داری؟ بزرگ بود؟ تاریک؟ سرد؟ کوچیک؟ نه، اون..."
         },
         {
             "text": "No, it was...",
@@ -98,117 +113,140 @@
         {
             "text": "What?",
             "start": 95.1875,
-            "end": 96.1875
+            "end": 96.1875,
+            "fa": "چی؟"
         },
         {
             "text": "Well, I used to think it was a poor house, really. Although people lived like that then.",
             "start": 96.1875,
-            "end": 105.1875
+            "end": 105.1875,
+            "fa": "خب، من فکر می‌کردم خونه‌اش خیلی فقیر بود. البته اون زمان مردم این‌جوری زندگی می‌کردن."
         },
         {
             "text": "Yeah, yeah. Did you have any brothers or sisters?",
             "start": 105.1875,
-            "end": 109.1875
+            "end": 109.1875,
+            "fa": "آره، آره. برادر یا خواهر داشتید؟"
         },
         {
             "text": "I had a brother who died.",
             "start": 109.1875,
-            "end": 112.4475
+            "end": 112.4475,
+            "fa": "یک برادر داشتم که مرد."
         },
         {
             "text": "When you were young?",
             "start": 113.207504,
-            "end": 114.2475
+            "end": 114.2475,
+            "fa": "وقتی بچه بودی؟"
         },
         {
             "text": "He died, yeah, he wasn't very old.",
             "start": 114.4875,
-            "end": 117.307495
+            "end": 117.307495,
+            "fa": "او مرد، آره، خیلی پیر نبود."
         },
         {
             "text": "And I got a brother who was, what was Albert?",
             "start": 118.3275,
-            "end": 121.8875
+            "end": 121.8875,
+            "fa": "و من یک برادر داشتم که، اسمش آلبرت چی بود؟"
         },
         {
             "text": "I think Albert was about four or five years older than me.",
             "start": 122.0075,
-            "end": 125.0075
+            "end": 125.0075,
+            "fa": "فکر می‌کنم آلبرت حدود چهار یا پنج سال از من بزرگتر بود."
         },
         {
             "text": "And then there was Ray.",
             "start": 125.447495,
-            "end": 126.7475
+            "end": 126.7475,
+            "fa": "بعدش رِی بود."
         },
         {
             "text": "And it was about 18 months between me and Ray.",
             "start": 127.307495,
-            "end": 129.64749
+            "end": 129.64749,
+            "fa": "و بین من و رِی حدود ۱۸ ماه فاصله بود."
         },
         {
             "text": "Yeah.",
             "start": 130.0675,
-            "end": 130.3675
+            "end": 130.3675,
+            "fa": "آره."
         },
         {
             "text": "And you two were thick as thieves.",
             "start": 130.8875,
-            "end": 133.4675
+            "end": 133.4675,
+            "fa": "و شما دو تا مثل دو تا دزد توی یک کیف بودید."
         },
         {
             "text": "Yeah.",
             "start": 133.5475,
-            "end": 133.8275
+            "end": 133.8275,
+            "fa": "آره."
         },
         {
             "text": "As they say.",
             "start": 133.9875,
-            "end": 134.64749
+            "end": 134.64749,
+            "fa": "همین‌طوری که می‌گن."
         },
         {
             "text": "Yeah.",
             "start": 134.8675,
-            "end": 135.0875
+            "end": 135.0875,
+            "fa": "آره."
         },
         {
             "text": "Like two peas in a pod.",
             "start": 135.3275,
-            "end": 137.0475
+            "end": 137.0475,
+            "fa": "مثل دو نخود توی یک پوسته."
         },
         {
             "text": "Yeah.",
             "start": 137.0475,
-            "end": 137.3875
+            "end": 137.3875,
+            "fa": "آره."
         },
         {
             "text": "because he used to smoke and my dad used to tell him off.",
             "start": 137.3875,
-            "end": 143.92749
+            "end": 143.92749,
+            "fa": "چون او سیگار می‌کشید و بابام همیشه بهش سرزنش می‌کرد."
         },
         {
             "text": "She used to hit him because he used to smoke.",
             "start": 144.0875,
-            "end": 146.2875
+            "end": 146.2875,
+            "fa": "او بهش می‌زد چون سیگار می‌کشید."
         },
         {
             "text": "What did you think of school when you were young?",
             "start": 146.8475,
-            "end": 149.3075
+            "end": 149.3075,
+            "fa": "وقتی بچه بودی، مدرسه رو چطور می‌دیدی؟"
         },
         {
             "text": "Oh, no, don't tell me about school.",
             "start": 149.5675,
-            "end": 151.48749
+            "end": 151.48749,
+            "fa": "اوه، نه، راجع به مدرسه نگو."
         },
         {
             "text": "Why?",
             "start": 151.76749,
-            "end": 152.1075
+            "end": 152.1075,
+            "fa": "چرا؟"
         },
         {
             "text": "Because I was in this class and I was doing something",
             "start": 152.5875,
-            "end": 156.98749
+            "end": 156.98749,
+            "fa": "چون من توی این کلاس بودم، کاری می‌کردم و معلم منو مجبور کرد، چون تخته‌سیاهش می‌چرخید."
         },
         {
             "text": "and the teacher made me, because he had a blackboard that swung round.",
@@ -218,17 +256,20 @@
         {
             "text": "Oh, yeah, yeah.",
             "start": 162.1875,
-            "end": 162.76749
+            "end": 162.76749,
+            "fa": "آره، آره."
         },
         {
             "text": "The teacher made me stand behind the blackboard.",
             "start": 162.76749,
-            "end": 164.9075
+            "end": 164.9075,
+            "fa": "معلم منو مجبور کرد پشت تخته‌سیاه بایستم."
         },
         {
             "text": "but the thing was I kept peeping round and the class was in uproar Because you were like laughing you were like peeping like that Yeah everybody were laughing and the teacher hit me So my mum went up to school and hit the teacher",
             "start": 164.9075,
-            "end": 181.195
+            "end": 181.195,
+            "fa": "ولی قضیه اینه که من مدام سر از پشت در بیرون می‌اومدم و کلاس به هم می‌خورد. چون داشتی می‌خندیدی و داشتی سر بیرون می‌اومدی. آره، همه دارن می‌خندن و معلم به من زد. پس مامانم رفت مدرسه و به معلم زد. واقعاً؟"
         },
         {
             "text": "Really?",
@@ -238,22 +279,26 @@
         {
             "text": "How old were you, roughly?",
             "start": 184.195,
-            "end": 185.915
+            "end": 185.915,
+            "fa": "تقریباً چند ساله بودی؟"
         },
         {
             "text": "Eight, nine.",
             "start": 187.855,
-            "end": 188.695
+            "end": 188.695,
+            "fa": "هشت، نه."
         },
         {
             "text": "So Nana, what was a normal day like when you were young?",
             "start": 189.175,
-            "end": 194.735
+            "end": 194.735,
+            "fa": "خب نانا، روز معمولی توی بچگی چطور بود؟"
         },
         {
             "text": "we used to go to school",
             "start": 194.735,
-            "end": 197.755
+            "end": 197.755,
+            "fa": "ما عادت داشتیم بریم مدرسه و توی خیابون بازی کنیم. بازی خشت‌پرتاب. می‌دونید خشت‌پرتاب چیه؟ نمی‌دونید؟ من بلدم. می‌تونید توصیفش کنید؟"
         },
         {
             "text": "used to play in the street",
@@ -283,7 +328,8 @@
         {
             "text": "you got the slabs on the floor",
             "start": 207.815,
-            "end": 209.855
+            "end": 209.855,
+            "fa": "تخته‌های سنگی توی زمین هست و از ۱ تا ۱۰ می‌شمارید. یه سنگ کوچیک داشتید و باید پرتش می‌کردید. هر جا سنگ می‌افتاد، باید با یه پا تا اونجا می‌پریدید. می‌دونید. روزگاری که شما بچه بودید، صبحانه چی می‌خوردید؟ یه صبحانه معمولی چی بود؟"
         },
         {
             "text": "and you do it 1, 2, 3, 4, 5, 6, 7, 8, 9, 10",
@@ -328,67 +374,80 @@
         {
             "text": "Porridge.",
             "start": 230.015,
-            "end": 230.535
+            "end": 230.535,
+            "fa": "پوره"
         },
         {
             "text": "Porridge?",
             "start": 231.595,
-            "end": 232.155
+            "end": 232.155,
+            "fa": "پوره؟"
         },
         {
             "text": "Yeah.",
             "start": 232.255,
-            "end": 232.475
+            "end": 232.475,
+            "fa": "آره."
         },
         {
             "text": "Every day?",
             "start": 233.855,
-            "end": 234.675
+            "end": 234.675,
+            "fa": "هر روز؟"
         },
         {
             "text": "Yeah. My mum used to make it with milk.",
             "start": 235.11499,
-            "end": 237.815
+            "end": 237.815,
+            "fa": "آره. مامانم معمولاً با شیر می‌پخت"
         },
         {
             "text": "Oh right, porridge. And how did you cook food? Was there an oven?",
             "start": 238.495,
-            "end": 243.715
+            "end": 243.715,
+            "fa": "آهان، پوره. غذاها رو چطور می‌پختی؟ فر داشتید؟"
         },
         {
             "text": "Yes, like, what do you call them? Stoves?",
             "start": 245.39499,
-            "end": 249.13501
+            "end": 249.13501,
+            "fa": "بله، چی می‌گن بهشون؟ اجاق؟"
         },
         {
             "text": "A gas oven?",
             "start": 249.33499,
-            "end": 250.055
+            "end": 250.055,
+            "fa": "اجاق گازی؟"
         },
         {
             "text": "Gas oven, yeah.",
             "start": 250.195,
-            "end": 251.275
+            "end": 251.275,
+            "fa": "اجاق گازی، آره"
         },
         {
             "text": "So you had an oven in the house?",
             "start": 251.275,
-            "end": 252.755
+            "end": 252.755,
+            "fa": "پس تو خونه فر داشتید؟"
         },
         {
             "text": "Yeah.",
             "start": 252.995,
-            "end": 253.17499
+            "end": 253.17499,
+            "fa": "آره."
         },
         {
             "text": "You didn't use coal?",
             "start": 253.17499,
-            "end": 255.17499
+            "end": 255.17499,
+            "fa": "زغال استفاده نمی‌کردید؟"
         },
         {
             "text": "We did have coal fires but I don think she used to use the oven And it sounds silly but when you were young did you have electricity in the house no it was all gas no electricity",
             "start": 255.17499,
-            "end": 273.4225
+            "end": 273.4225,
+            "fa": "ما شومینه‌های زغال داشتیم، ولی فکر نمی‌کنم از فر استفاده می‌کرد. عجیب به نظر میاد، ولی وقتی بچه بودید، برق داشتید؟ نه، همه‌چیز گاز بود. نه برق، نه گاز. مردم وقتی شما بچه بودید غذا رو از کجا می‌خریدن؟ سوپرمارکت‌های بزرگ مثل تسکو و سنتز داشتند؟ نه، نه. وورثینگتون. ما زیاد می‌رفتیم وورثینگتون. ولی یه مغازه کوچیک توی گوشه خیابون بود یا چیزی شبیه اون."
         },
         {
             "text": "no gas where did people buy food when you were young were there big",
@@ -408,7 +467,8 @@
         {
             "text": "Okay so it was small local shops. Yes yeah. Okay but were there supermarkets? I know you didn't go",
             "start": 292.7625,
-            "end": 302.7825
+            "end": 302.7825,
+            "fa": "خب، پس مغازه‌های محلی کوچیک بود. آره، آره. خب، ولی سوپرمارکت داشتند؟ می‌دونم که به سوپرمارکت نمی‌رفتید. نه، نه. بازار روباز داشتیم. وای، مثل یه بازار واقعی؟ بازار واقعی، آره. وای. حالا یه سوال براتون دارم. غذای مورد علاقه‌تون وقتی بچه بودید چی بود؟ سخت بود. چون پول نداشتیم غذای گرون یا خوب بخریم. مجبور بودیم چیزی بخریم که از پسش برمی‌اومد. ولی احتمالاً... من می‌خوام بگیم ما عادت داشتیم سیب‌زمینی سرخ‌شده توی یه کیسه کوچیک بگیریم. چقدر بود؟ خب، من نمی‌دونم. پول قدیمی. همه تپنس. تپنس. این برای من معنی‌ای نداره. کیسه سیب‌زمینی سرخ‌شده تپنس بود و رویش هم کره، نمک و فلفل می‌زدن."
         },
         {
             "text": "to supermarkets. No no we had open market. Oh like a real market? A real market yes. Wow here's a",
@@ -4567,67 +4627,80 @@
         {
             "text": "So, I guess my first question is: how did you meet Dad?",
             "start": 0.02,
-            "end": 6.9
+            "end": 6.9,
+            "fa": "خب، فکر کنم اولین سؤالم اینه: با بابا چطور آشنا شدید؟"
         },
         {
             "text": "I met your dad, Ian, when we both joined a beginners' tennis club.",
             "start": 6.9,
-            "end": 13.65
+            "end": 13.65,
+            "fa": "با بابات، اِین، وقتی که هر دو به یه باشگاه تنیس برای مبتدیان پیوستیم، آشنا شدم."
         },
         {
             "text": "So we both started to play tennis as adults in our 20s.",
             "start": 14.08,
-            "end": 19.08
+            "end": 19.08,
+            "fa": "پس هر دو وقتی که در بیست‌وچند سالگی بودیم، به‌عنوان بزرگسال شروع به بازی تنیس کردیم."
         },
         {
             "text": "We were part of a group, and we were just friends.",
             "start": 19.08,
-            "end": 23.58
+            "end": 23.58,
+            "fa": "ما عضو یه گروه بودیم و فقط دوست بودیم."
         },
         {
             "text": "And then we went on holiday in a group to the south of France.",
             "start": 23.58,
-            "end": 26.26
+            "end": 26.26,
+            "fa": "بعد با همون گروه به جنوب فرانسه رفتیم."
         },
         {
             "text": "And then we came back, we got together, and the rest is history, as they say.",
             "start": 26.26,
-            "end": 34
+            "end": 34,
+            "fa": "بعد که برگشتیم، با هم دیدار کردیم و بقیه‌اش رو تاریخ گفت، مثل همون اصطلاح معروف."
         },
         {
             "text": "Yeah. Oh, wow.",
             "start": 34,
-            "end": 36.54
+            "end": 36.54,
+            "fa": "آره. وای، خدایا."
         },
         {
             "text": "Yeah, obviously I know this story, but it's still interesting.",
             "start": 36.54,
-            "end": 40.41
+            "end": 40.41,
+            "fa": "آره، البته من این داستان رو می‌دونم، ولی هنوز هم جالبه."
         },
         {
             "text": "Yeah. I heard that there was a little bit of competition, actually.",
             "start": 40.48,
-            "end": 44.38
+            "end": 44.38,
+            "fa": "آره. شنیدم که یه کم رقابت هم بود، در واقع."
         },
         {
             "text": "Really? Yeah. Who with?",
             "start": 44.38,
-            "end": 46.22
+            "end": 46.22,
+            "fa": "جدی؟ آره. با کی؟"
         },
         {
             "text": "Oh, it's a secret between me and Dad, that.",
             "start": 46.22,
-            "end": 48.98
+            "end": 48.98,
+            "fa": "اوه، این یه راز بین من و بابامه."
         },
         {
             "text": "Oh, right. Okay, so where did you go on your first date?",
             "start": 48.98,
-            "end": 54.74
+            "end": 54.74,
+            "fa": "آره، درسته. خب، اولین قرار کجا رفتید؟"
         },
         {
             "text": "We went to a little pub in Leicestershire called The Reservoir,",
             "start": 54.74,
-            "end": 61.64
+            "end": 61.64,
+            "fa": "رفتمون یه پاب کوچیک تو لسترشایر به اسم «رزرووار» که کنار یه سد تو لستره."
         },
         {
             "text": "which is on the edge of a reservoir in Leicester.",
@@ -4637,12 +4710,14 @@
         {
             "text": "And we had a nice drink there.",
             "start": 64.68,
-            "end": 67.75
+            "end": 67.75,
+            "fa": "و اونجا یه نوشیدنی خوب خوردیم."
         },
         {
             "text": "And then we went on and we had",
             "start": 68.26,
-            "end": 70.74
+            "end": 70.74,
+            "fa": "بعد رفتیم و توی یه رستوران کاری تو لستر کاری خوردیم که برای کاری عالیه."
         },
         {
             "text": "a curry in a curry restaurant in Leicester,",
@@ -4657,12 +4732,14 @@
         {
             "text": "And it was memorable because Ian had a vindaloo.",
             "start": 79.58,
-            "end": 83.63
+            "end": 83.63,
+            "fa": "و خاطره‌انگیز بود چون اِین یه ویندالو خورد."
         },
         {
             "text": "Yeah. He had a vindaloo, which is a very,",
             "start": 83.82,
-            "end": 86.22
+            "end": 86.22,
+            "fa": "آره. یه ویندالو خورد که یه کاری خیلی خیلی تندیه، و حدود سه جگ آب."
         },
         {
             "text": "very hot curry, and about three jugs of water.",
@@ -4672,17 +4749,20 @@
         {
             "text": "So it was quite funny.",
             "start": 90.72,
-            "end": 92.753
+            "end": 92.753,
+            "fa": "پس خیلی بامزه بود."
         },
         {
             "text": "So, was he trying to show off?",
             "start": 92.753,
-            "end": 95.473
+            "end": 95.473,
+            "fa": "خب، داشت خودشو نشون میداد؟"
         },
         {
             "text": "Yes. I think he was trying to impress me with,",
             "start": 95.473,
-            "end": 100.13300000000001
+            "end": 100.13300000000001,
+            "fa": "آره. فکر می‌کنم می‌خواست با نشون دادن اینکه چقدر می‌تونه کاری تند بخوره، منو تحت تأثیر بذاره."
         },
         {
             "text": "you know, how spicy a curry he could eat.",
@@ -4692,42 +4772,50 @@
         {
             "text": "Right. \"Look how spicy my curries are.\"",
             "start": 102.553,
-            "end": 105.533
+            "end": 105.533,
+            "fa": "آره. «ببین چقدر کاری‌هام تندن.»"
         },
         {
             "text": "Yeah, that's quite funny.",
             "start": 105.533,
-            "end": 107.453
+            "end": 107.453,
+            "fa": "آره، این خیلی بامزه بود."
         },
         {
             "text": "But he did drink a lot of water, which is not the best thing.",
             "start": 107.453,
-            "end": 110.673
+            "end": 110.673,
+            "fa": "ولی اون یه تیکه آب زیاد خورد، که اصلاً کار خوبی نبود."
         },
         {
             "text": "What was I like as a baby?",
             "start": 110.673,
-            "end": 112.053
+            "end": 112.053,
+            "fa": "من وقتی بچه بودم چه شکلی بودم؟"
         },
         {
             "text": "Uh-oh. You were so cute as a baby.",
             "start": 112.053,
-            "end": 114.613
+            "end": 114.613,
+            "fa": "اوه. وقتی بچه بودی خیلی بامزه بودی."
         },
         {
             "text": "Was I? Yeah, you were. You were very, very cute.",
             "start": 114.613,
-            "end": 118.743
+            "end": 118.743,
+            "fa": "آیا من؟ آره، تو بودی. خیلی خیلی بامزه بودی."
         },
         {
             "text": "You were like a little cherub, and you had blonde curly hair.",
             "start": 119.033,
-            "end": 125.473
+            "end": 125.473,
+            "fa": "مثل یه فرشته کوچولو بودی و موهات بلوند و فر بود."
         },
         {
             "text": "And you were a lovely baby, but you had your own language,",
             "start": 125.473,
-            "end": 132.653
+            "end": 132.653,
+            "fa": "و یه بچه‌ی قشنگی بودی، ولی یه زبون خاص داشتی. فکر کنم به همین دلیله که الان تو زبون‌ها خوبه."
         },
         {
             "text": "which I think is why you are good at languages now.",
@@ -4737,7 +4825,8 @@
         {
             "text": "Because you made up your own language, right,",
             "start": 136.133,
-            "end": 138.873
+            "end": 138.873,
+            "fa": "چون یه زبون خودت رو اختراع کردی، آره، و فقط من می‌فهمیدم چی داری میگی."
         },
         {
             "text": "and only I could understand what you were saying.",
@@ -4747,42 +4836,50 @@
         {
             "text": "It's quite nice really, isn't it? Yeah, it was.",
             "start": 141.893,
-            "end": 144.913
+            "end": 144.913,
+            "fa": "واقعاً قشنگه، نه؟ آره، بود."
         },
         {
             "text": "What was your earliest childhood memory?",
             "start": 144.913,
-            "end": 148.203
+            "end": 148.203,
+            "fa": "اولین خاطره‌ات از بچگی چی بود؟"
         },
         {
             "text": "I don't know what mine is, so don't worry if you don't know.",
             "start": 149.633,
-            "end": 152.743
+            "end": 152.743,
+            "fa": "من خودم نمی‌دونم خاطره‌ام چیه، پس اگه نمی‌دونی نگران نباش."
         },
         {
             "text": "I think just playing outside in the street with my friends and just running about.",
             "start": 152.973,
-            "end": 159.993
+            "end": 159.993,
+            "fa": "فکر می‌کنم فقط بازی کردن تو خیابون با بچه‌ها و دویدن بود."
         },
         {
             "text": "And there was less traffic, and it felt safer back in the day.",
             "start": 159.993,
-            "end": 165.09300000000002
+            "end": 165.09300000000002,
+            "fa": "و اون موقع ترافیک کمتر بود و حس می‌کردم امن‌تره."
         },
         {
             "text": "Did it? Yeah. Aww.",
             "start": 165.09300000000002,
-            "end": 167.713
+            "end": 167.713,
+            "fa": "واقعاً؟ آره. وای، چه خوب."
         },
         {
             "text": "Who was your best friend when you were young?",
             "start": 167.713,
-            "end": 171.993
+            "end": 171.993,
+            "fa": "بهترین دوستت تو بچگی کی بود؟"
         },
         {
             "text": "My best friend at school was Anne Harper,",
             "start": 171.993,
-            "end": 176.333
+            "end": 176.333,
+            "fa": "بهترین دوستم تو مدرسه آن هارپر بود و از اول تا آخر دبستان بهترین دوستای هم بودیم."
         },
         {
             "text": "and we were best friends right all the way through primary school.",
@@ -4792,47 +4889,56 @@
         {
             "text": "And she was a twin, and she had a brother.",
             "start": 182.073,
-            "end": 186.587
+            "end": 186.587,
+            "fa": "و اون دوقلو بود و یه برادر داشت."
         },
         {
             "text": "What happened? Did you lose touch?",
             "start": 186.587,
-            "end": 189.027
+            "end": 189.027,
+            "fa": "چی شد؟ ارتباطتون قطع شد؟"
         },
         {
             "text": "At 11, I passed my 11-plus. What was that?",
             "start": 189.027,
-            "end": 193.207
+            "end": 193.207,
+            "fa": "تو یازده سالگی آزمون ۱۱ پلاس رو قبول شدم. اون چی بود؟"
         },
         {
             "text": "It was an exam that we used to have.",
             "start": 193.207,
-            "end": 195.247
+            "end": 195.247,
+            "fa": "یه امتحانی بود که قبلاً داشتیم."
         },
         {
             "text": "We still have it technically in some places.",
             "start": 195.247,
-            "end": 198.947
+            "end": 198.947,
+            "fa": "فنی‌به‌فنی هنوز هم توی بعضی جاهاش رو داریم."
         },
         {
             "text": "I passed my 11-plus, much to my surprise, and I went to grammar school.",
             "start": 198.947,
-            "end": 205.267
+            "end": 205.267,
+            "fa": "من از اون امتحان قبول شدم، خیلی برام عجیب بود، و رفتم مدرسه گرامر."
         },
         {
             "text": "So she went to a different school to me, and we lost touch.",
             "start": 205.267,
-            "end": 209.507
+            "end": 209.507,
+            "fa": "پس اون رفت یه مدرسه‌ی دیگه، و با هم قطع ارتباط شدیم."
         },
         {
             "text": "That's sad.",
             "start": 209.507,
-            "end": 210.977
+            "end": 210.977,
+            "fa": "خوبه."
         },
         {
             "text": "Here's another question I've never asked you, because, you know,",
             "start": 212.207,
-            "end": 216.30700000000002
+            "end": 216.30700000000002,
+            "fa": "یه سوال دیگه هم هست که هیچ‌وقت ازت نپرسیدم، چون، می‌دونی، وقتی بچه بودیم، من توی دنیای خودم بودم."
         },
         {
             "text": "like, growing up as a child, I'm in my own world.",
@@ -4842,42 +4948,50 @@
         {
             "text": "As an adult, we're all busy.",
             "start": 221.427,
-            "end": 222.827
+            "end": 222.827,
+            "fa": "وقتی بزرگ شدیم، همه‌مون شلوغیم."
         },
         {
             "text": "And you're still in your own world.",
             "start": 222.827,
-            "end": 224.387
+            "end": 224.387,
+            "fa": "و تو هنوز توی دنیای خودتی."
         },
         {
             "text": "And I'm still in my own world. But it is.",
             "start": 224.387,
-            "end": 227.267
+            "end": 227.267,
+            "fa": "و من هم هنوز توی دنیای خودم هستم. ولی واقعاً هست."
         },
         {
             "text": "What was your favourite meal as a child?",
             "start": 227.267,
-            "end": 229.727
+            "end": 229.727,
+            "fa": "عشقه‌ترین غذای تو وقتی بچه بودی چی بود؟"
         },
         {
             "text": "Oh right, I can tell you this one.",
             "start": 229.727,
-            "end": 232.427
+            "end": 232.427,
+            "fa": "آره، این یکی رو می‌تونم بگم."
         },
         {
             "text": "My favourite meal was fish fingers, peas, frozen peas, and mashed potatoes.",
             "start": 232.427,
-            "end": 239.777
+            "end": 239.777,
+            "fa": "غذای مورد علاقه‌م انگشت ماهی، نخود فرنگی یخ‌زده و پوره سیب‌زمینی بود."
         },
         {
             "text": "So nothing much has changed, really? No.",
             "start": 240.167,
-            "end": 241.847
+            "end": 241.847,
+            "fa": "پس خیلی چیزا عوض نشده، آره؟ نه."
         },
         {
             "text": "But I used to like to make a volcano",
             "start": 241.847,
-            "end": 244.387
+            "end": 244.387,
+            "fa": "ولی قبل از این دوست داشتم با پوره سیب‌زمینی‌ام یه آتشفشان درست کنم و نخود فرنگی‌هامو توش بذارم."
         },
         {
             "text": "of my mashed potatoes and put my peas in it.",
@@ -4887,42 +5001,50 @@
         {
             "text": "And I used to have that most Saturdays.",
             "start": 249.227,
-            "end": 252.097
+            "end": 252.097,
+            "fa": "و بیشتر شنبه‌ها این کارو می‌کردم."
         },
         {
             "text": "Do you think you had a nice childhood?",
             "start": 252.187,
-            "end": 254.637
+            "end": 254.637,
+            "fa": "فکر می‌کنی دوران بچگی‌ات خوب بود؟"
         },
         {
             "text": "I did, until I was 11. Why?",
             "start": 254.727,
-            "end": 258.007
+            "end": 258.007,
+            "fa": "آره، تا وقتی که ۱۱ سالم بود. چرا؟"
         },
         {
             "text": "Well, like I said, we were able to play in the street. We ran free.",
             "start": 258.007,
-            "end": 262.477
+            "end": 262.477,
+            "fa": "خب، مثل اینکه گفتم، می‌تونستیم تو خیابون بازی کنیم. آزاد بودیم."
         },
         {
             "text": "Was it so bad, this new school?",
             "start": 262.527,
-            "end": 264.477
+            "end": 264.477,
+            "fa": "اون مدرسه‌ی جدید اون‌قدر هم بد بود؟"
         },
         {
             "text": "It was just so different to what I was used to.",
             "start": 264.967,
-            "end": 271.527
+            "end": 271.527,
+            "fa": "فقط خیلی با چیزی که عادت داشتم فرق داشت."
         },
         {
             "text": "I was at an inner-city school that, you know, wasn't remarkable.",
             "start": 271.527,
-            "end": 275.627
+            "end": 275.627,
+            "fa": "من توی یه مدرسه‌ی محله‌های فقیر شهر بودم که، می‌دونی، خاص نبود."
         },
         {
             "text": "So you were in quite a rough school,",
             "start": 275.627,
-            "end": 276.94
+            "end": 276.94,
+            "fa": "پس تو توی یه مدرسه‌ی خیلی بی‌نظم بودی و بعد یهو رفتی یه مدرسه‌ی خیلی شیک. آره."
         },
         {
             "text": "and then suddenly in a very posh school. Yeah.",
@@ -4932,7 +5054,8 @@
         {
             "text": "What did it feel like being the, you know,",
             "start": 280.94,
-            "end": 283.86
+            "end": 283.86,
+            "fa": "حست چطور بود که تو یه مدرسه‌ی شیک، بچه‌ی نسبتاً فقیر بودی، درسته؟"
         },
         {
             "text": "relatively poor kid, right, in a posh school?",
@@ -4942,22 +5065,26 @@
         {
             "text": "Like, I'm sure you had issues with, like, buying the right uniform and shoes and stuff.",
             "start": 287.94,
-            "end": 294.06
+            "end": 294.06,
+            "fa": "مثلاً مطمئنم با خریدن یونیفرم و کفش و اینا مشکل داشتی."
         },
         {
             "text": "Oh, definitely. Yeah, actually, I did feel like the poor kid in the posh school.",
             "start": 294.06,
-            "end": 299.74
+            "end": 299.74,
+            "fa": "آره، حتماً. آره، واقعاً حس می‌کردم بچه‌ی فقیر توی مدرسه‌ی شیکم."
         },
         {
             "text": "There were, you know, people whose parents were doctors and played violin.",
             "start": 299.74,
-            "end": 305.71
+            "end": 305.71,
+            "fa": "می‌دونی، آدمایی بودند که پدر و مادرشون دکتر بودن و ویولن می‌زدن."
         },
         {
             "text": "But I didn't know that way of life existed until I went to that school,",
             "start": 306.54,
-            "end": 311.08
+            "end": 311.08,
+            "fa": "ولی من تا اون مدرسه نرفتم نمی‌دونستم این سبک زندگی وجود داره، چون توی مدرسه‌ی راهنمایی همه‌ی بچه‌ها یه جورایی شبیه هم بودن."
         },
         {
             "text": "because at my junior school everybody was the same, really.",
@@ -4967,7 +5094,8 @@
         {
             "text": "But I think the impact it has had is that I like to",
             "start": 314.4,
-            "end": 319.18
+            "end": 319.18,
+            "fa": "ولی فکر می‌کنم تأثیرش اینه که الان دوست دارم برای هر کاری که می‌خوام انجام بدم، لباس و کفش و وسایل درست و حسابی داشته باشم."
         },
         {
             "text": "have the correct clothing and shoes and equipment for anything that I'm doing.",
@@ -4977,42 +5105,50 @@
         {
             "text": "Do you wish you hadn't gone to that school? Oh, no.",
             "start": 325.28,
-            "end": 327.89
+            "end": 327.89,
+            "fa": "آیا کاش اون مدرسه نمی‌رفتی؟ نه، اصلاً."
         },
         {
             "text": "No, because it gave me a really good education, you know.",
             "start": 328.1,
-            "end": 331.4
+            "end": 331.4,
+            "fa": "نه، چون یه تحصیلات خیلی خوب بهم داد، می‌دونی."
         },
         {
             "text": "So what did you enjoy most about school? That's what I want to know.",
             "start": 331.4,
-            "end": 336.62
+            "end": 336.62,
+            "fa": "خب، از مدرسه بیشتر از همه چی بهت می‌چسبید؟ دقیقاً همینو می‌خوام بدونم."
         },
         {
             "text": "Oh, sport mostly. Sport? You're really sporty?",
             "start": 336.62,
-            "end": 340.58
+            "end": 340.58,
+            "fa": "اوه، بیشتر ورزش. ورزش؟ تو واقعاً ورزشکاری؟"
         },
         {
             "text": "I was really sporty. Oh, right. Interesting. I didn't know you were that sporty. I was.",
             "start": 340.58,
-            "end": 347.14
+            "end": 347.14,
+            "fa": "واقعاً ورزشکار بودم. اوه، آره. جالبه. نمی‌دونستم اونقدر ورزشکاری. آره بودم."
         },
         {
             "text": "I ran, I did long jump, I played hockey, I played netball.",
             "start": 347.14,
-            "end": 355.06
+            "end": 355.06,
+            "fa": "دو می‌دومدم، پرش طول می‌زدم، هاکی بازی می‌کردم، نت‌بال بازی می‌کردم."
         },
         {
             "text": "And ironically, when we played tennis, me and my friends, we didn't like tennis.",
             "start": 355.06,
-            "end": 360.86
+            "end": 360.86,
+            "fa": "و به‌طرز عجیبی، وقتی با دوستام تنیس بازی می‌کردیم، تنیس رو دوست نداشتیم."
         },
         {
             "text": "We used to just knock the ball out of court",
             "start": 360.86,
-            "end": 363.02
+            "end": 363.02,
+            "fa": "عادت داشتیم توپ رو از زمین بیرون بزنیم و بیشتر وقتِ کلاس رو صرف پیدا کردنش می‌کردیم."
         },
         {
             "text": "and spend most of the lesson looking for it.",
@@ -9633,55 +9769,64 @@
             "speaker": "Dave",
             "text": "So where were you born and when were you born?",
             "start": 0,
-            "end": 5.12
+            "end": 5.12,
+            "fa": "خب، کجا به دنیا آمدی و چه زمانی؟"
         },
         {
             "speaker": "Nanar",
             "text": "I was born in Bond Street Nursing Home on Easter Sunday, 1930.",
             "start": 6.3,
-            "end": 11.08
+            "end": 11.08,
+            "fa": "من در باند استریت نرسینگ هوم توی یکشنبه عید پاک سال ۱۹۳۰ به دنیا آمدم."
         },
         {
             "speaker": "Dave",
             "text": "1930. So how old does that make you?",
             "start": 11.66,
-            "end": 16.32
+            "end": 16.32,
+            "fa": "۱۹۳۰. پس چند سال داری؟"
         },
         {
             "speaker": "Nanar",
             "text": "What now? 95, isn't it?",
             "start": 18.14,
-            "end": 20.72
+            "end": 20.72,
+            "fa": "حالا چی؟ ۹۵ سال، نه؟"
         },
         {
             "speaker": "Dave",
             "text": "95, everyone. So where did you grow up?",
             "start": 20.76,
-            "end": 24.34
+            "end": 24.34,
+            "fa": "۹۵ سال، همه. پس کجا بزرگ شدی؟"
         },
         {
             "speaker": "Nanar",
             "text": "down bath lane it was called bath lane",
             "start": 24.34,
-            "end": 28.31
+            "end": 28.31,
+            "fa": "در پایین باث لین، اسمش باث لین بود."
         },
         {
             "speaker": "Dave",
             "text": "bath lane which city is that",
             "start": 28.41,
-            "end": 31.33
+            "end": 31.33,
+            "fa": "باث لین، توی چه شهریه؟"
         },
         {
             "speaker": "Nanar",
             "text": "leicester city",
             "start": 31.44,
-            "end": 32.9
+            "end": 32.9,
+            "fa": "شهر لستر."
         },
         {
             "speaker": "Dave",
             "text": "leicester",
             "start": 33,
-            "end": 33.94
+            "end": 33.94,
+            "fa": "لستر، آره، خوب باث لین."
         },
         {
             "speaker": "Dave",
@@ -9693,7 +9838,8 @@
             "speaker": "Nanar",
             "text": "it was called bath lane because there was a pub halfway up the road",
             "start": 35.56,
-            "end": 40.98
+            "end": 40.98,
+            "fa": "اسمش باث لین بود چون میانه راه یک بار بود به اسم «نئو باث» و اون بار تا ساعت ۱۰ یا ۱۱ شب باز می‌موند."
         },
         {
             "speaker": "Nanar",
@@ -9705,7 +9851,8 @@
             "speaker": "Dave",
             "text": "oh wow",
             "start": 49.24,
-            "end": 49.78
+            "end": 49.78,
+            "fa": "اوه، وقتی کوچیک بودی، نانن، خونه‌ات چطور بود؟"
         },
         {
             "speaker": "Dave",
@@ -9717,79 +9864,92 @@
             "speaker": "Dave",
             "text": "What do you remember about the house when you were very young?",
             "start": 56.14,
-            "end": 60.48
+            "end": 60.48,
+            "fa": "چه چیزهایی از خونه‌ات وقتی خیلی کوچیک بودی به یاد داری؟"
         },
         {
             "speaker": "Nanar",
             "text": "Well, we didn't...",
             "start": 62.16,
-            "end": 64.74
+            "end": 64.74,
+            "fa": "خب، ما..."
         },
         {
             "speaker": "Nanar",
             "text": "My mum hadn't got a house.",
             "start": 64.74,
-            "end": 66.16
+            "end": 66.16,
+            "fa": "مامانم خونه‌ای نداشت."
         },
         {
             "speaker": "Nanar",
             "text": "She rented this house from this man who was ill.",
             "start": 66.74,
-            "end": 70.56
+            "end": 70.56,
+            "fa": "اون خونه‌ای که از مردی که مریض بود اجاره می‌کرد."
         },
         {
             "speaker": "Nanar",
             "text": "He slept in the front room all the time.",
             "start": 71.8,
-            "end": 73.98
+            "end": 73.98,
+            "fa": "اون مرد تمام وقت توی اتاق جلویی می‌خوابید."
         },
         {
             "speaker": "Dave",
             "text": "What?",
             "start": 74.08,
-            "end": 74.38
+            "end": 74.38,
+            "fa": "چی؟"
         },
         {
             "speaker": "Nanar",
             "text": "He slept in...",
             "start": 75.06,
-            "end": 75.82
+            "end": 75.82,
+            "fa": "اون می‌خوابید..."
         },
         {
             "speaker": "Nanar",
             "text": "The man who owned the house slept in the house.",
             "start": 75.82,
-            "end": 79.02
+            "end": 79.02,
+            "fa": "مردی که صاحب خونه بود توی خونه می‌خوابید."
         },
         {
             "speaker": "Nanar",
             "text": "My mum used to pay rent We lived in the two back rooms",
             "start": 79.02,
-            "end": 83.73
+            "end": 83.73,
+            "fa": "مامانم اجاره می‌داد. ما توی دو اتاق پشت خونه زندگی می‌کردیم."
         },
         {
             "speaker": "Dave",
             "text": "Oh OK So it was a shared house",
             "start": 83.81,
-            "end": 86.43
+            "end": 86.43,
+            "fa": "آه، اوکی. پس خونه مشترک بود."
         },
         {
             "speaker": "Nanar",
             "text": "Yes I suppose so",
             "start": 86.52,
-            "end": 87.91
+            "end": 87.91,
+            "fa": "آره، فکر می‌کنم همینطوره."
         },
         {
             "speaker": "Dave",
             "text": "Wow And what do you remember about the house Was it big dark cold",
             "start": 88,
-            "end": 93.66
+            "end": 93.66,
+            "fa": "وای، چه چیزهایی از خونه به یاد داری؟ بزرگ بود، تاریک، سرد؟"
         },
         {
             "speaker": "Nanar",
             "text": "small",
             "start": 93.75,
-            "end": 94.19
+            "end": 94.19,
+            "fa": "کوچیک. نه، اینطوری بود..."
         },
         {
             "speaker": "Nanar",
@@ -9801,139 +9961,162 @@
             "speaker": "Nanar",
             "text": "What?",
             "start": 95.19,
-            "end": 96.19
+            "end": 96.19,
+            "fa": "چی؟"
         },
         {
             "speaker": "Nanar",
             "text": "Well, I used to think it was a poor house, really. Although people lived like that then.",
             "start": 96.19,
-            "end": 105.19
+            "end": 105.19,
+            "fa": "خب، من فکر می‌کردم خونه‌اش خیلی فقیر بود. البته اون زمان مردم این‌جوری زندگی می‌کردن."
         },
         {
             "speaker": "Dave",
             "text": "Yeah, yeah. Did you have any brothers or sisters?",
             "start": 105.19,
-            "end": 109.19
+            "end": 109.19,
+            "fa": "آره، آره. برادر یا خواهر داشتید؟"
         },
         {
             "speaker": "Nanar",
             "text": "I had a brother who died.",
             "start": 109.19,
-            "end": 112.45
+            "end": 112.45,
+            "fa": "یک برادر داشتم که مرد."
         },
         {
             "speaker": "Dave",
             "text": "When you were young?",
             "start": 113.21,
-            "end": 114.25
+            "end": 114.25,
+            "fa": "وقتی بچه بودی؟"
         },
         {
             "speaker": "Nanar",
             "text": "He died, yeah, he wasn't very old.",
             "start": 114.49,
-            "end": 117.31
+            "end": 117.31,
+            "fa": "او مرد، آره، خیلی پیر نبود."
         },
         {
             "speaker": "Nanar",
             "text": "And I got a brother who was, what was Albert?",
             "start": 118.33,
-            "end": 121.89
+            "end": 121.89,
+            "fa": "و من یک برادر داشتم که، اسمش آلبرت چی بود؟"
         },
         {
             "speaker": "Nanar",
             "text": "I think Albert was about four or five years older than me.",
             "start": 122.01,
-            "end": 125.01
+            "end": 125.01,
+            "fa": "فکر می‌کنم آلبرت حدود چهار یا پنج سال از من بزرگتر بود."
         },
         {
             "speaker": "Nanar",
             "text": "And then there was Ray.",
             "start": 125.45,
-            "end": 126.75
+            "end": 126.75,
+            "fa": "بعدش رِی بود."
         },
         {
             "speaker": "Nanar",
             "text": "And it was about 18 months between me and Ray.",
             "start": 127.31,
-            "end": 129.65
+            "end": 129.65,
+            "fa": "و بین من و رِی حدود ۱۸ ماه فاصله بود."
         },
         {
             "speaker": "Dave",
             "text": "Yeah.",
             "start": 130.07,
-            "end": 130.37
+            "end": 130.37,
+            "fa": "آره."
         },
         {
             "speaker": "Dave",
             "text": "And you two were thick as thieves.",
             "start": 130.89,
-            "end": 133.47
+            "end": 133.47,
+            "fa": "و شما دو تا مثل دو تا دزد توی یک کیف بودید."
         },
         {
             "speaker": "Nanar",
             "text": "Yeah.",
             "start": 133.55,
-            "end": 133.83
+            "end": 133.83,
+            "fa": "آره."
         },
         {
             "speaker": "Nanar",
             "text": "As they say.",
             "start": 133.99,
-            "end": 134.65
+            "end": 134.65,
+            "fa": "همین‌طوری که می‌گن."
         },
         {
             "speaker": "Dave",
             "text": "Yeah.",
             "start": 134.87,
-            "end": 135.09
+            "end": 135.09,
+            "fa": "آره."
         },
         {
             "speaker": "Dave",
             "text": "Like two peas in a pod.",
             "start": 135.33,
-            "end": 137.05
+            "end": 137.05,
+            "fa": "مثل دو نخود توی یک پوسته."
         },
         {
             "speaker": "Nanar",
             "text": "Yeah.",
             "start": 137.05,
-            "end": 137.39
+            "end": 137.39,
+            "fa": "آره."
         },
         {
             "speaker": "Nanar",
             "text": "because he used to smoke and my dad used to tell him off.",
             "start": 137.39,
-            "end": 143.93
+            "end": 143.93,
+            "fa": "چون او سیگار می‌کشید و بابام همیشه بهش سرزنش می‌کرد."
         },
         {
             "speaker": "Nanar",
             "text": "She used to hit him because he used to smoke.",
             "start": 144.09,
-            "end": 146.29
+            "end": 146.29,
+            "fa": "او بهش می‌زد چون سیگار می‌کشید."
         },
         {
             "speaker": "Dave",
             "text": "What did you think of school when you were young?",
             "start": 146.85,
-            "end": 149.31
+            "end": 149.31,
+            "fa": "وقتی بچه بودی، مدرسه رو چطور می‌دیدی؟"
         },
         {
             "speaker": "Nanar",
             "text": "Oh, no, don't tell me about school.",
             "start": 149.57,
-            "end": 151.49
+            "end": 151.49,
+            "fa": "اوه، نه، راجع به مدرسه نگو."
         },
         {
             "speaker": "Dave",
             "text": "Why?",
             "start": 151.77,
-            "end": 152.11
+            "end": 152.11,
+            "fa": "چرا؟"
         },
         {
             "speaker": "Nanar",
             "text": "Because I was in this class and I was doing something",
             "start": 152.59,
-            "end": 156.99
+            "end": 156.99,
+            "fa": "چون من توی این کلاس بودم، کاری می‌کردم و معلم منو مجبور کرد، چون تخته‌سیاهش می‌چرخید."
         },
         {
             "speaker": "Nanar",
@@ -9945,67 +10128,78 @@
             "speaker": "Dave",
             "text": "Oh, yeah,",
             "start": 162.19,
-            "end": 162.54
+            "end": 162.54,
+            "fa": "اوه، آره،"
         },
         {
             "speaker": "Nanar",
             "text": "yeah.",
             "start": 162.57,
-            "end": 162.77
+            "end": 162.77,
+            "fa": "آره."
         },
         {
             "speaker": "Nanar",
             "text": "The teacher made me stand behind the blackboard.",
             "start": 162.77,
-            "end": 164.91
+            "end": 164.91,
+            "fa": "معلم منو مجبور کرد پشت تخته‌سیاه بایستم."
         },
         {
             "speaker": "Nanar",
             "text": "but the thing was I kept peeping round and the class was in uproar",
             "start": 164.91,
-            "end": 169.6
+            "end": 169.6,
+            "fa": "اما مسأله این بود که من پشت سر می‌اومدم و کلاس همه‌جا شلوغ شد."
         },
         {
             "speaker": "Dave",
             "text": "Because you were like laughing you were like peeping like that",
             "start": 169.67,
-            "end": 174.08
+            "end": 174.08,
+            "fa": "چون تو خندیدی و این‌جوری پشت سر می‌اومدی."
         },
         {
             "speaker": "Nanar",
             "text": "Yeah everybody were laughing and the teacher hit me So my mum went up to school and hit the teacher",
             "start": 174.15,
-            "end": 181.2
+            "end": 181.2,
+            "fa": "آره، همه می‌خندیدن و معلم منو زد، پس مامانم رفت مدرسه و معلم رو زد."
         },
         {
             "speaker": "Dave",
             "text": "Really?",
             "start": 182.32,
-            "end": 182.88
+            "end": 182.88,
+            "fa": "جدی؟"
         },
         {
             "speaker": "Dave",
             "text": "How old were you, roughly?",
             "start": 184.2,
-            "end": 185.92
+            "end": 185.92,
+            "fa": "تقریباً چند ساله بودی؟"
         },
         {
             "speaker": "Nanar",
             "text": "Eight, nine.",
             "start": 187.86,
-            "end": 188.7
+            "end": 188.7,
+            "fa": "هشت، نه."
         },
         {
             "speaker": "Dave",
             "text": "So Nana, what was a normal day like when you were young?",
             "start": 189.18,
-            "end": 194.74
+            "end": 194.74,
+            "fa": "خب نانا، روز معمولی توی بچگی چطور بود؟"
         },
         {
             "speaker": "Nanar",
             "text": "we used to go to school",
             "start": 194.74,
-            "end": 197.76
+            "end": 197.76,
+            "fa": "ما می‌رفتیم مدرسه، تو خیابون بازی می‌کردیم، شطرنج‌دست می‌زدیم"
         },
         {
             "speaker": "Nanar",
@@ -10023,19 +10217,22 @@
             "speaker": "Dave",
             "text": "do you know what hopscotch is",
             "start": 201.72,
-            "end": 204.38
+            "end": 204.38,
+            "fa": "می‌دونی شطرنج‌دست چیه؟"
         },
         {
             "speaker": "Nanar",
             "text": "don't you?",
             "start": 204.38,
-            "end": 205.11
+            "end": 205.11,
+            "fa": "نه؟"
         },
         {
             "speaker": "Dave",
             "text": "I do",
             "start": 205.18,
-            "end": 205.48
+            "end": 205.48,
+            "fa": "من می‌دونم، می‌تونی توضیحش بدی؟"
         },
         {
             "speaker": "Dave",
@@ -10047,7 +10244,8 @@
             "speaker": "Nanar",
             "text": "you got the slabs on the floor",
             "start": 207.82,
-            "end": 209.86
+            "end": 209.86,
+            "fa": "تو زمین خرده‌پلاک‌ها می‌ذاشتی، می‌شمردی ۱ تا ۱۰، یه سنگ می‌انداختی و جایی که سنگ می‌افتاد، با یک پا می‌پریدی"
         },
         {
             "speaker": "Nanar",
@@ -10083,7 +10281,8 @@
             "speaker": "Dave",
             "text": "and",
             "start": 220.64,
-            "end": 222.78
+            "end": 222.78,
+            "fa": "پس اون زمان صبح‌غذیت چی بود؟ صبح‌غذی معمولی چی بود؟"
         },
         {
             "speaker": "Dave",
@@ -10101,109 +10300,127 @@
             "speaker": "Nanar",
             "text": "Porridge.",
             "start": 230.02,
-            "end": 230.54
+            "end": 230.54,
+            "fa": "پوره"
         },
         {
             "speaker": "Dave",
             "text": "Porridge?",
             "start": 231.6,
-            "end": 232.16
+            "end": 232.16,
+            "fa": "پوره؟"
         },
         {
             "speaker": "Dave",
             "text": "Yeah.",
             "start": 232.26,
-            "end": 232.48
+            "end": 232.48,
+            "fa": "آره."
         },
         {
             "speaker": "Dave",
             "text": "Every day?",
             "start": 233.86,
-            "end": 234.68
+            "end": 234.68,
+            "fa": "هر روز؟"
         },
         {
             "speaker": "Nanar",
             "text": "Yeah. My mum used to make it with milk.",
             "start": 235.11,
-            "end": 237.82
+            "end": 237.82,
+            "fa": "آره. مامانم معمولاً با شیر می‌پخت"
         },
         {
             "speaker": "Dave",
             "text": "Oh right, porridge. And how did you cook food? Was there an oven?",
             "start": 238.5,
-            "end": 243.72
+            "end": 243.72,
+            "fa": "آهان، پوره. غذاها رو چطور می‌پختی؟ فر داشتید؟"
         },
         {
             "speaker": "Nanar",
             "text": "Yes, like, what do you call them? Stoves?",
             "start": 245.39,
-            "end": 249.14
+            "end": 249.14,
+            "fa": "بله، چی می‌گن بهشون؟ اجاق؟"
         },
         {
             "speaker": "Dave",
             "text": "A gas oven?",
             "start": 249.33,
-            "end": 250.06
+            "end": 250.06,
+            "fa": "اجاق گازی؟"
         },
         {
             "speaker": "Nanar",
             "text": "Gas oven, yeah.",
             "start": 250.2,
-            "end": 251.28
+            "end": 251.28,
+            "fa": "اجاق گازی، آره"
         },
         {
             "speaker": "Dave",
             "text": "So you had an oven in the house?",
             "start": 251.28,
-            "end": 252.76
+            "end": 252.76,
+            "fa": "پس تو خونه فر داشتید؟"
         },
         {
             "speaker": "Dave",
             "text": "Yeah.",
             "start": 253,
-            "end": 253.17
+            "end": 253.17,
+            "fa": "آره."
         },
         {
             "speaker": "Dave",
             "text": "You didn't use coal?",
             "start": 253.17,
-            "end": 255.17
+            "end": 255.17,
+            "fa": "زغال استفاده نمی‌کردید؟"
         },
         {
             "speaker": "Nanar",
             "text": "We did have coal fires but I don think she used to use the oven",
             "start": 255.17,
-            "end": 261.63
+            "end": 261.63,
+            "fa": "ما زغال داشتیم ولی فکر نمی‌کنم مامان از فر استفاده می‌کرد"
         },
         {
             "speaker": "Dave",
             "text": "And it sounds silly but when you were young did you have electricity in the house",
             "start": 261.74,
-            "end": 270.04
+            "end": 270.04,
+            "fa": "جالب اینه که وقتی کوچیک بودی، برق تو خونه بود؟"
         },
         {
             "speaker": "Nanar",
             "text": "no it was all gas",
             "start": 270.14,
-            "end": 271.88
+            "end": 271.88,
+            "fa": "نه، همه‌اش گاز بود"
         },
         {
             "speaker": "Dave",
             "text": "no electricity",
             "start": 271.99,
-            "end": 273.42
+            "end": 273.42,
+            "fa": "برق نبود"
         },
         {
             "speaker": "Nanar",
             "text": "no gas",
             "start": 273.42,
-            "end": 273.98
+            "end": 273.98,
+            "fa": "گاز نبود"
         },
         {
             "speaker": "Dave",
             "text": "where did people buy food when you were young were there big",
             "start": 274.07,
-            "end": 279.66
+            "end": 279.66,
+            "fa": "وقتی کوچیک بودی غذاها رو از کجا می‌خریده‌اید؟ سوپرمارکت‌های بزرگ مثل تسکو یا سنتس بود؟"
         },
         {
             "speaker": "Dave",
@@ -10215,7 +10432,8 @@
             "speaker": "Nanar",
             "text": "no no oh then worth it we used to go to",
             "start": 282.24,
-            "end": 284.96
+            "end": 284.96,
+            "fa": "نه نه، ما معمولاً می‌رفتیم به ورتینگز، یه فروشگاه کوچیک گوشه‌کوچه"
         },
         {
             "speaker": "Nanar",
@@ -10227,19 +10445,22 @@
             "speaker": "Dave",
             "text": "Okay so it was small local shops.",
             "start": 292.76,
-            "end": 296.14
+            "end": 296.14,
+            "fa": "پس فروشگاه‌های محلی کوچیک بود"
         },
         {
             "speaker": "Nanar",
             "text": "Yes yeah.",
             "start": 296.24,
-            "end": 297.16
+            "end": 297.16,
+            "fa": "آره، دقیقاً"
         },
         {
             "speaker": "Dave",
             "text": "Okay but were there supermarkets? I know you didn't go",
             "start": 297.26,
-            "end": 302.78
+            "end": 302.78,
+            "fa": "باشه، ولی سوپرمارکت داشتید؟ می‌دونم که به سوپرمارکت نمی‌رفتید."
         },
         {
             "speaker": "Dave",
@@ -10251,25 +10472,29 @@
             "speaker": "Nanar",
             "text": "No no we had open market.",
             "start": 304.28,
-            "end": 306.49
+            "end": 306.49,
+            "fa": "نه نه، بازار باز داشتیم."
         },
         {
             "speaker": "Dave",
             "text": "Oh like a real market?",
             "start": 306.58,
-            "end": 308.52
+            "end": 308.52,
+            "fa": "اوه، مثل یه بازار واقعی؟"
         },
         {
             "speaker": "Nanar",
             "text": "A real market yes.",
             "start": 308.61,
-            "end": 310.2
+            "end": 310.2,
+            "fa": "آره، یه بازار واقعی."
         },
         {
             "speaker": "Dave",
             "text": "Wow here's a",
             "start": 310.28,
-            "end": 311.34
+            "end": 311.34,
+            "fa": "وای، حالا یه سوال براتون دارم. غذای مورد علاقه‌تون تو بچگی چی بود؟"
         },
         {
             "speaker": "Dave",
@@ -10281,7 +10506,8 @@
             "speaker": "Nanar",
             "text": "difficult it was difficult because we",
             "start": 317.54,
-            "end": 321.36
+            "end": 321.36,
+            "fa": "سخته. سخت بود چون پول نداشتیم که غذای گرون یا خوب بخریم. باید اون چیزی رو می‌خریدیم که از پسش برمی‌اومد. ولی ما معمولاً چیپس تو یه کیسه کوچیک می‌خریدیم."
         },
         {
             "speaker": "Nanar",
@@ -10299,37 +10525,43 @@
             "speaker": "Dave",
             "text": "how much for",
             "start": 338.36,
-            "end": 339.6
+            "end": 339.6,
+            "fa": "چنده؟"
         },
         {
             "speaker": "Nanar",
             "text": "well i",
             "start": 341.2,
-            "end": 341.64
+            "end": 341.64,
+            "fa": "خب، من..."
         },
         {
             "speaker": "Dave",
             "text": "i don't know the old money everyone",
             "start": 341.72,
-            "end": 344.29
+            "end": 344.29,
+            "fa": "نمی‌دونم، پول قدیمی. همه..."
         },
         {
             "speaker": "Nanar",
             "text": "tuppence",
             "start": 344.36,
-            "end": 344.95
+            "end": 344.95,
+            "fa": "دو پنس."
         },
         {
             "speaker": "Dave",
             "text": "tuppence that means nothing to me",
             "start": 345.02,
-            "end": 347.44
+            "end": 347.44,
+            "fa": "توپنس، این برای من هیچ معنایی نداره."
         },
         {
             "speaker": "Nanar",
             "text": "bag of chips for tuppence and they put fat salt and vinder ground for you as well",
             "start": 347.44,
-            "end": 352.72
+            "end": 352.72,
+            "fa": "یه کیسه چیپس با توپنس و اون‌ها نمک و فلفل آسیاب‌شده هم براتون می‌ریختن."
         }
     ]
 }

@@ -3,52 +3,62 @@
         {
             "text": "Let's start with a couple pieces of factual information.",
             "start": 0,
-            "end": 4.44
+            "end": 4.44,
+            "fa": "بذارید با یه مقدار اطلاعات واقعی شروع کنیم."
         },
         {
             "text": "How long have we...",
             "start": 4.88,
-            "end": 6.18
+            "end": 6.18,
+            "fa": "ما چقدر..."
         },
         {
             "text": "This is a kind of test.",
             "start": 6.18,
-            "end": 7.48
+            "end": 7.48,
+            "fa": "این یه جورایی آزمون هست."
         },
         {
             "text": "Oh, it's a test for me.",
             "start": 8.34,
-            "end": 9.78
+            "end": 9.78,
+            "fa": "اوه، برای من آزمون حساب میشه."
         },
         {
             "text": "How long have we been married?",
             "start": 9.86,
-            "end": 11.219999
+            "end": 11.219999,
+            "fa": "ما چند وقته با هم ازدواج کردیم؟"
         },
         {
             "text": "We've been married eight years.",
             "start": 11.599999,
-            "end": 13.2
+            "end": 13.2,
+            "fa": "هشت ساله با هم ازدواج کردیم."
         },
         {
             "text": "Oh, he passed the test.",
             "start": 13.44,
-            "end": 14.98
+            "end": 14.98,
+            "fa": "اوه، از آزمون رد شد."
         },
         {
             "text": "This year in August, it will be nine years.",
             "start": 15.66,
-            "end": 19.699999
+            "end": 19.699999,
+            "fa": "امسال تو آگوست، نه سال میشه."
         },
         {
             "text": "So we've been married like eight and a half years or so.",
             "start": 20.46,
-            "end": 23.16
+            "end": 23.16,
+            "fa": "پس تقریباً هشت و نیم ساله با هم ازدواج کردیم."
         },
         {
             "text": "Which is a long time for the average American of our age,",
             "start": 23.16,
-            "end": 27.119999
+            "end": 27.119999,
+            "fa": "که برای یه آمریکایی معمولی تو سن ما، زمان زیادی حساب میشه، چون ما فقط ۳۱ سالمون."
         },
         {
             "text": "because we're only 31.",
@@ -58,27 +68,32 @@
         {
             "text": "Oh, we're 31.",
             "start": 30,
-            "end": 31.54
+            "end": 31.54,
+            "fa": "اوه، ما ۳۱ ساله‌ایم."
         },
         {
             "text": "So we've been married a little while.",
             "start": 31.54,
-            "end": 33.56
+            "end": 33.56,
+            "fa": "پس یه مدتیه که با هم ازدواج کردیم."
         },
         {
             "text": "Yes, and when did we meet each other?",
             "start": 33.56,
-            "end": 36.86
+            "end": 36.86,
+            "fa": "آره، و کی با هم آشنا شدیم؟"
         },
         {
             "text": "We met each other the very first day of college.",
             "start": 36.86,
-            "end": 40.92
+            "end": 40.92,
+            "fa": "اولین روز دانشگاه با هم آشنا شدیم."
         },
         {
             "text": "And I was-",
             "start": 40.92,
-            "end": 41.76
+            "end": 41.76,
+            "fa": "و من- که تو کشورهای دیگه بهش دانشگاه میگن."
         },
         {
             "text": "Which is university in other countries.",
@@ -88,17 +103,20 @@
         {
             "text": "Yes, so I was 17 years old, but I was almost 18.",
             "start": 43.72,
-            "end": 47.78
+            "end": 47.78,
+            "fa": "آره، من ۱۷ ساله بودم، ولی تقریباً ۱۸ سالم میشد."
         },
         {
             "text": "The next week was my birthday.",
             "start": 47.78,
-            "end": 48.98
+            "end": 48.98,
+            "fa": "هفته بعد تولدم بود."
         },
         {
             "text": "So I was pretty much 18 years old",
             "start": 48.98,
-            "end": 50.96
+            "end": 50.96,
+            "fa": "پس عملاً ۱۸ ساله بودی و تو هم ۱۸ ساله بودی، درسته؟"
         },
         {
             "text": "and you were 18 too, right?",
@@ -108,7 +126,8 @@
         {
             "text": "Yes, so we've known each other for quite a long time",
             "start": 52.86,
-            "end": 55.98
+            "end": 55.98,
+            "fa": "آره، پس ما از ۱۸ سالگی تا ۳۱ سالگی همدیگه رو می‌شناختیم."
         },
         {
             "text": "from 18 to 31.",
@@ -118,42 +137,50 @@
         {
             "text": "What is that?",
             "start": 57.8,
-            "end": 58.8
+            "end": 58.8,
+            "fa": "این چیه؟"
         },
         {
             "text": "13 years?",
             "start": 58.8,
-            "end": 59.88
+            "end": 59.88,
+            "fa": "۱۳ سال؟"
         },
         {
             "text": "A long time.",
             "start": 60,
-            "end": 61.32
+            "end": 61.32,
+            "fa": "زمان زیادی."
         },
         {
             "text": "And a lot has happened during that time.",
             "start": 61.84,
-            "end": 64.38
+            "end": 64.38,
+            "fa": "و تو این مدت خیلی چیزایی پیش اومده."
         },
         {
             "text": "I think knowing someone, being in a relationship with someone for 13 years is normal for maybe our parents' generation.",
             "start": 65,
-            "end": 75.08
+            "end": 75.08,
+            "fa": "به نظرم ۱۳ سال با کسی آشنا بودن و توی رابطه بودن، برای نسل پدر و مادرهایمون عادی بود."
         },
         {
             "text": "But for our generation, it's something that's a little bit surprising.",
             "start": 75.08,
-            "end": 78.94
+            "end": 78.94,
+            "fa": "ولی برای نسل ما، یه کم عجیبه."
         },
         {
             "text": "When people meet us, they're surprised that we are 31 and we've been married for eight years.",
             "start": 78.94,
-            "end": 84.5
+            "end": 84.5,
+            "fa": "وقتی آدمای جدید ما رو می‌بینن، تعجب می‌کنن که ۳۱ سالمون و هشت ساله ازدواج کردیم."
         },
         {
             "text": "And that we only dated each other for a really long time That not very usual I don think Yeah and that we still like each other I think that there a lot of",
             "start": 84.86,
-            "end": 94.915
+            "end": 94.915,
+            "fa": "و اینکه فقط یه مدت خیلی طولانی با هم بودیم. این خیلی معمولی نیست، فکر می‌کنم. آره، و اینکه هنوز هم از هم خوشتون میاد. فکر می‌کنم خیلی‌ها..."
         },
         {
             "text": "Do we?",
@@ -163,17 +190,20 @@
         {
             "text": "You'll find out today.",
             "start": 95.775,
-            "end": 96.995
+            "end": 96.995,
+            "fa": "امروز متوجه میشید."
         },
         {
             "text": "We do.",
             "start": 97.555,
-            "end": 98.215
+            "end": 98.215,
+            "fa": "بله، ما اینطوریم."
         },
         {
             "text": "So there's a lot of things that we do in our relationship or principles that we have that",
             "start": 98.354996,
-            "end": 103.135
+            "end": 103.135,
+            "fa": "پس کلی چیز هست که تو رابطه‌مون انجام میدیم یا اصولی داریم که واقعاً به ما کمک کرده یه رابطه سالم و قوی داشته باشیم."
         },
         {
             "text": "have really helped us to maintain a healthy, strong relationship.",
@@ -183,7 +213,8 @@
         {
             "text": "And those are the two words that I want to focus on today is having a healthy relationship,",
             "start": 107.695,
-            "end": 112.575
+            "end": 112.575,
+            "fa": "و این دو کلمه‌ای هستن که امروز می‌خوام روشون تمرکز کنم: داشتن یه رابطه سالم، نه فقط اینکه چطور یه دوست‌پسر پیدا کنیم. من نمی‌تونم تو این مورد بهتون مشاوره بدم، یا اینکه چطور یه دوست‌دختر پیدا کنید، بلکه داشتن یه رابطه سالم و قوی. یعنی تو رابطه‌تون احساس اعتمادبه‌نفس داشته باشید. وقتی بخشی از اون رابطه هستید، به خودتون اعتمادبه‌نفس دارید."
         },
         {
             "text": "not just how to find a boyfriend. I can't give you advice on that, or how to find a girlfriend,",
@@ -203,7 +234,8 @@
         {
             "text": "And it means it will last a long time. And if you want to have children, it will be a good",
             "start": 131.255,
-            "end": 136.215
+            "end": 136.215,
+            "fa": "و یعنی این رابطه مدت طولانی ادامه پیدا می‌کنه. و اگه می‌خواید بچه داشته باشید، رابطه‌ی خوبی برای داشتن بچه خواهد بود. چون واقعاً، اگه قراره ازدواج کنید، احتمالاً بیشترش به خاطر داشتن بچه‌هاست، به نظر شخصی من."
         },
         {
             "text": "relationship to have children. Because really, if you're going to get married, it's probably",
@@ -218,7 +250,8 @@
         {
             "text": "So today, before we get started, I'd like to give a couple disclaimers. First of all,",
             "start": 144.555,
-            "end": 152.655
+            "end": 152.655,
+            "fa": "پس امروز، قبل از اینکه شروع کنیم، می‌خوام چند تا نکته رو بگم. اول از همه، ما یه شرایط خاص داریم؛ وقتی جوان بودیم با هم آشنا شدیم. همه اینا نکات شخصی هستن، ولی فقط می‌تونیم از زندگی شخصی‌مون به اشتراک بذاریم. ما ۵۰ ساله ازدواج نکرده‌ایم. می‌دونم کلی آدم هستن که خیلی بیشتر از ما با هم بودن. پس با احتیاط به حرفامون گوش بدید."
         },
         {
             "text": "we have a unique situation that we met each other when we were young. All of these are",
@@ -243,12 +276,14 @@
         {
             "text": "Yes, but apparently it's working.",
             "start": 170.555,
-            "end": 172.815
+            "end": 172.815,
+            "fa": "آره، ولی به نظر میاد داره جواب میده."
         },
         {
             "text": "Connected to that I would say don rush So don rush into a relationship So for example for Vanessa and I we knew each other for six months before we even dated And after dating we didn live together",
             "start": 172.815,
-            "end": 190.35
+            "end": 190.35,
+            "fa": "مرتبط با این موضوع می‌گم عجله نکنید. پس تو رابطه عجله نکنید. مثلاً برای ونسا و من، شش ماه با هم آشنا بودیم قبل از اینکه حتی شروع به قرار رفتن کنیم. و بعد از قرار رفتن، چهار سال طول کشید تا با هم زندگی کنیم."
         },
         {
             "text": "for four years.",
@@ -258,17 +293,20 @@
         {
             "text": "Yes. And of course this is a little bit unusual.",
             "start": 192.33,
-            "end": 194.89
+            "end": 194.89,
+            "fa": "آره. و البته این یه کم غیرعادی هست."
         },
         {
             "text": "And we were young.",
             "start": 194.89,
-            "end": 195.89
+            "end": 195.89,
+            "fa": "و ما جوان بودیم."
         },
         {
             "text": "Because we were so young. Well, I wanted to share some things that have personally",
             "start": 195.89,
-            "end": 200.65
+            "end": 200.65,
+            "fa": "چون خیلی جوان بودیم. خب، می‌خواستم چند تا چیز رو باهاتون به اشتراک بذارم که شخصاً واقعاً به من در رابطه‌مون کمک کرده، فراتر از اصول کلی."
         },
         {
             "text": "really helped me in our relationship beyond the general principles.",
@@ -278,17 +316,20 @@
         {
             "text": "This is to have fun together.",
             "start": 208.98999,
-            "end": 213.05
+            "end": 213.05,
+            "fa": "این یعنی با هم سرگرمی داشته باشید."
         },
         {
             "text": "I think that this can apply before you are married, but also during your marriage.",
             "start": 213.05,
-            "end": 220.85
+            "end": 220.85,
+            "fa": "فکر می‌کنم این قبل از ازدواج هم کاربرد داره، ولی موقع ازدواج هم."
         },
         {
             "text": "I know that we have some friends who have been together for a long time, and then even",
             "start": 220.85,
-            "end": 226.17
+            "end": 226.17,
+            "fa": "می‌دونم که بعضی از دوستامون مدت طولانی با هم بودن، و حتی اگه هر دوتاشون همدیگه رو دوست دارن، حس می‌کنن دیگه چیز خاصی نیست."
         },
         {
             "text": "Even though they both like each other, they feel like, there's nothing special anymore.",
@@ -298,12 +339,14 @@
         {
             "text": "Maybe we shouldn't be together.",
             "start": 232.55,
-            "end": 233.98999
+            "end": 233.98999,
+            "fa": "شاید نباید با هم باشیم."
         },
         {
             "text": "And of course, everyone has their own situation, but for us, it's been really helpful to have",
             "start": 233.98999,
-            "end": 239.32999
+            "end": 239.32999,
+            "fa": "و البته، هرکس شرایط خودش رو داره، ولی برای ما واقعاً کمک‌کننده بوده که یه سری فعالیت مشترک داشته باشیم که واقعاً دوست داریم با هم انجام بدیم."
         },
         {
             "text": "some common activities that we really like to do together.",
@@ -313,7 +356,8 @@
         {
             "text": "And there's actually a bunch of studies that show having a relationship, people who are",
             "start": 244.39,
-            "end": 249.87
+            "end": 249.87,
+            "fa": "و در واقع یه سری تحقیقات هست که نشون می‌دن تو یه رابطه، آدمایی که صد ساله‌ان یا خیلی پیرن، و یه مدت تو رابطه بودن، چیزی که بهشون کمک کرده اینه که با هم سرگرمی داشته باشن."
         },
         {
             "text": "100 years old or pretty old, and they've been in a relationship for a while, something that",
@@ -328,12 +372,14 @@
         {
             "text": "Because you're not always going to be a honeymoon couple who just met each other.",
             "start": 258.43,
-            "end": 263.47
+            "end": 263.47,
+            "fa": "چون همیشه نمی‌تونید یه زوج ماه عسل باشید که تازه همدیگه رو دیدن."
         },
         {
             "text": "You going to be just normal people And something that the marriage counselor who I was watching that video about something that she mentioned is that sometimes after you been with someone for a long time",
             "start": 263.47,
-            "end": 276.16498
+            "end": 276.16498,
+            "fa": "شما قراره آدمای معمولی باشید. و چیزی که مشاور ازدواجی که اون ویدیو رو می‌دیدم اشاره کرد، اینه که گاهی بعد از اینکه مدت طولانی با کسی بوده باشید، رابطه‌تون تمایل به جدی‌تر شدن داره."
         },
         {
             "text": "your relationship tends to get more serious.",
@@ -343,17 +389,20 @@
         {
             "text": "Not just serious as in you're going to stay together, but serious as in your demeanor.",
             "start": 280.085,
-            "end": 285.205
+            "end": 285.205,
+            "fa": "نه فقط جدی به این معنی که قراره با هم بمونید، بلکه جدی به معنی رفتار و چهره‌تون."
         },
         {
             "text": "Demeanor means your face, your attitude.",
             "start": 285.205,
-            "end": 287.805
+            "end": 287.805,
+            "fa": "دِمِنور یعنی حالت چهره‌ات، اخلاق‌ات."
         },
         {
             "text": "Your attitude becomes really serious because you're talking about daily life, your job,",
             "start": 287.805,
-            "end": 293.185
+            "end": 293.185,
+            "fa": "اخلاق‌ات خیلی جدی میشه چون داری درباره زندگی روزمره، کارت، ظرف‌ها رو می‌شوری؟"
         },
         {
             "text": "Are you doing the dishes?",
@@ -363,47 +412,56 @@
         {
             "text": "Who's cooking dinner?",
             "start": 294.16498,
-            "end": 295.285
+            "end": 295.285,
+            "fa": "کی داره شام می‌پزه؟"
         },
         {
             "text": "Where's our baby?",
             "start": 295.285,
-            "end": 296.32498
+            "end": 296.32498,
+            "fa": "بچه‌مون کجاست؟"
         },
         {
             "text": "Just factual things.",
             "start": 296.32498,
-            "end": 298.76498
+            "end": 298.76498,
+            "fa": "فقط چیزای عادی و واقعیت."
         },
         {
             "text": "Not really fun things.",
             "start": 298.76498,
-            "end": 300.405
+            "end": 300.405,
+            "fa": "اصلاً چیزای بامزه و سرگرم‌کننده نیست."
         },
         {
             "text": "And I think maybe an extra bit of advice.",
             "start": 300.405,
-            "end": 303.76498
+            "end": 303.76498,
+            "fa": "و فکر می‌کنم یه نکته‌ی اضافه‌ی دیگه."
         },
         {
             "text": "You said take a deep breath.",
             "start": 303.76498,
-            "end": 305.805
+            "end": 305.805,
+            "fa": "گفتی یه نفس عمیق بکش."
         },
         {
             "text": "This is a good idea.",
             "start": 305.805,
-            "end": 307.345
+            "end": 307.345,
+            "fa": "این یه ایده‌ی خوبه."
         },
         {
             "text": "Take a deep breath.",
             "start": 307.345,
-            "end": 308.60498
+            "end": 308.60498,
+            "fa": "یه نفس عمیق بکش."
         },
         {
             "text": "If you're feeling a little angry at your partner,",
             "start": 308.60498,
-            "end": 312.32498
+            "end": 312.32498,
+            "fa": "اگه یه کم از همسرت عصبانی هستی، قبل از اینکه چیزی بگی، فقط یه نفس عمیق بکش."
         },
         {
             "text": "before you say something, just breathe.",
@@ -413,7 +471,8 @@
         {
             "text": "Because I mean, I know we look very happy all the time,",
             "start": 316.28497,
-            "end": 320.205
+            "end": 320.205,
+            "fa": "چرا که می‌دونی، ما همیشه خیلی خوشحال به نظر می‌رسیم، ولی ما هم گاهی از هم عصبانی می‌شیم."
         },
         {
             "text": "but we get angry with each other too.",
@@ -423,57 +482,68 @@
         {
             "text": "I promise you it happens.",
             "start": 322.26498,
-            "end": 323.785
+            "end": 323.785,
+            "fa": "قول می‌دم که این اتفاق می‌افته."
         },
         {
             "text": "And I've had to learn, especially me, sometimes I get a little bit, I have a temper.",
             "start": 324.04498,
-            "end": 331.28497
+            "end": 331.28497,
+            "fa": "و من مجبور شدم یاد بگیرم، مخصوصاً من، گاهی یه کم، من زود عصبانی می‌شم."
         },
         {
             "text": "I can get angry.",
             "start": 331.645,
-            "end": 332.445
+            "end": 332.445,
+            "fa": "می‌تونم عصبانی بشم."
         },
         {
             "text": "You can get upset.",
             "start": 332.505,
-            "end": 333.125
+            "end": 333.125,
+            "fa": "می‌تونی ناراحت بشی."
         },
         {
             "text": "I can get angry.",
             "start": 333.245,
-            "end": 333.945
+            "end": 333.945,
+            "fa": "می‌تونم عصبانی بشم."
         },
         {
             "text": "I think everybody can get upset sometimes.",
             "start": 334.085,
-            "end": 335.78497
+            "end": 335.78497,
+            "fa": "فکر می‌کنم همه گاهی اوقات می‌تونن ناراحت بشن."
         },
         {
             "text": "So I've had to learn to stop and take a little breath before I say something.",
             "start": 335.78497,
-            "end": 342.26498
+            "end": 342.26498,
+            "fa": "پس من مجبور شدم یاد بگیرم که مکث کنم و یه نفس عمیق بکشم قبل از اینکه چیزی بگم."
         },
         {
             "text": "Because when you're angry, you might say something really mean.",
             "start": 342.405,
-            "end": 346.065
+            "end": 346.065,
+            "fa": "چون وقتی عصبانی هستی، ممکنه یه چیز خیلی بد بگی."
         },
         {
             "text": "And if you say something really bad, your partner is going to remember that.",
             "start": 346.065,
-            "end": 352.565
+            "end": 352.565,
+            "fa": "و اگه یه چیز خیلی بد بگی، همسرت اون رو به یاد می‌مونه."
         },
         {
             "text": "Yes.",
             "start": 352.82498,
-            "end": 353.185
+            "end": 353.185,
+            "fa": "آره."
         },
         {
             "text": "So you don't want to let a lot of those bad words build up over time.",
             "start": 353.745,
-            "end": 358.78497
+            "end": 358.78497,
+            "fa": "پس نمی‌خوایم بذاریم کلی کلمه‌های بد توی این مدت جمع بشن."
         }
     ],
     "listening_words": [
@@ -5317,7 +5387,8 @@
         {
             "text": "So, the next set of questions has to do",
             "start": 0,
-            "end": 2.58
+            "end": 2.58,
+            "fa": "خب، سری بعدی سؤالات درباره‌ی اینه که کی با هم ازدواج کردیم و کلیات زندگی مشترکمون."
         },
         {
             "text": "with when we got married and our marriage in general.",
@@ -5327,7 +5398,8 @@
         {
             "text": "First question is from Rafael Guadalupe Ortiz Vasquez,",
             "start": 5.84,
-            "end": 9.66
+            "end": 9.66,
+            "fa": "سؤال اول از رافائل گوادالوپ اورتیز واسکِز هست. امیدوارم درست اسمتو خوندم."
         },
         {
             "text": "I hope I said your name right.",
@@ -5337,7 +5409,8 @@
         {
             "text": "\"Is the word fiancé used for both the man",
             "start": 11.22,
-            "end": 13.84
+            "end": 13.84,
+            "fa": "«آیا کلمه‌ی فینانسه هم برای مرد و هم برای زنی که تازه نامزد شدن استفاده می‌شه؟»"
         },
         {
             "text": "and the woman who are just engaged?\"",
@@ -5347,17 +5420,20 @@
         {
             "text": "So, I'll answer this one.",
             "start": 15.9,
-            "end": 18.06
+            "end": 18.06,
+            "fa": "خب، من به این یکی جواب می‌دم."
         },
         {
             "text": "So, when Jen and I got engaged, I proposed to Jen.",
             "start": 18.14,
-            "end": 21.6
+            "end": 21.6,
+            "fa": "خب، وقتی جِن و من نامزد شدیم، من از جِن خواستگاری کردم."
         },
         {
             "text": "So, I asked her to marry me",
             "start": 21.6,
-            "end": 23.04
+            "end": 23.04,
+            "fa": "یعنی از او خواستم با من ازدواج کنه، یه انگشتر نامزدی بهش دادم و اون گفت «آره»."
         },
         {
             "text": "and I gave her an engagement ring, and she said \"yes.\"",
@@ -5367,12 +5443,14 @@
         {
             "text": "That's very, that was nice of you.",
             "start": 26.1,
-            "end": 27.78
+            "end": 27.78,
+            "fa": "خیلی خوب بود، خیلی قشنگ بود."
         },
         {
             "text": "And then after that,",
             "start": 27.78,
-            "end": 30.38
+            "end": 30.38,
+            "fa": "بعد از اون می‌گفتی که جین نامزد من بود و جین هم می‌گفت که من نامزدش بودم."
         },
         {
             "text": "you would say that Jen was my fiancée",
@@ -5387,7 +5465,8 @@
         {
             "text": "So, it is the same word for both the man and the woman",
             "start": 35.82,
-            "end": 39.28
+            "end": 39.28,
+            "fa": "پس برای مرد و زن یک واژه است و می‌گفتیم ما نامزد بودیم."
         },
         {
             "text": "and you would then say that we were engaged.",
@@ -5397,7 +5476,8 @@
         {
             "text": "So, there was a proposal, I gave Jen an engagement ring,",
             "start": 41.54,
-            "end": 44.9
+            "end": 44.9,
+            "fa": "یعنی یک پیشنهاد ازدواج بود، من حلقه نامزدی به جین دادم، او نامزد من شد، من نامزد او شدم و ما نامزد شدیم تا ازدواج کنیم."
         },
         {
             "text": "she became my fiancée, I became her fiancé",
@@ -5412,7 +5492,8 @@
         {
             "text": "Next question, Mila Polk,",
             "start": 50.02,
-            "end": 51.96
+            "end": 51.96,
+            "fa": "سوال بعدی، میلا پولک، «ما معمولاً انگشت راست رو حلقه می‌زنیم و وقتی طلاق می‌گیریم همان حلقه رو روی انگشت چپ می‌زنیم»."
         },
         {
             "text": "\"we usually wear a ring on the right-hand finger",
@@ -5432,32 +5513,38 @@
         {
             "text": "Do you have the same tradition?",
             "start": 56.84,
-            "end": 58.54
+            "end": 58.54,
+            "fa": "آیا شما هم این سنت را دارید؟"
         },
         {
             "text": "How long have you been married?",
             "start": 58.54,
-            "end": 59.86
+            "end": 59.86,
+            "fa": "چند وقت است که ازدواج کرده‌اید؟"
         },
         {
             "text": "We have been married for 46 years.\"",
             "start": 59.86,
-            "end": 61.42
+            "end": 61.42,
+            "fa": "ما ۴۶ سال است که ازدواج کرده‌ایم."
         },
         {
             "text": "Oh, congratulations, that is a long time.",
             "start": 61.42,
-            "end": 64.16
+            "end": 64.16,
+            "fa": "اوه، تبریک می‌گویم، این زمان طولانیه."
         },
         {
             "text": "We wear a ring on the ring finger on our left hand.",
             "start": 64.16,
-            "end": 67.9
+            "end": 67.9,
+            "fa": "ما حلقه‌مون رو روی انگشت حلقه دست چپ می‌زنیم."
         },
         {
             "text": "This would be, That's where,",
             "start": 68.1,
-            "end": 68.7
+            "end": 68.7,
+            "fa": "این می‌ره، اینجاست، اینطوریه، درسته؟ بله، اگر اندازه‌اش مناسب باشه."
         },
         {
             "text": "It goes like this, right? Yes, if it fits.",
@@ -5467,7 +5554,8 @@
         {
             "text": "I just have to get it resized and I,",
             "start": 71.52,
-            "end": 73.2
+            "end": 73.2,
+            "fa": "فقط باید اندازه‌اش را عوض کنم و وقتی بچه‌دار شدم، فکر می‌کنم مفصل‌هام بزرگ شد و دیگه نمی‌گنجد و هنوز تعمیرش نکرده‌ام."
         },
         {
             "text": "once I started having kids, my,",
@@ -5492,7 +5580,8 @@
         {
             "text": "Next question, LASENtemara,",
             "start": 81.96000000000001,
-            "end": 82.92
+            "end": 82.92,
+            "fa": "سوال بعدی، لاسنتامارا، «وقتی اختلاف بزرگی دارید، چطور با هم ارتباط برقرار می‌کنید؟»"
         },
         {
             "text": "\"how do you communicate",
@@ -5507,22 +5596,26 @@
         {
             "text": "Yeah, that's a tricky one.",
             "start": 87.7,
-            "end": 88.58
+            "end": 88.58,
+            "fa": "آره، این سؤال سختیه."
         },
         {
             "text": "First of all, we're not perfect.",
             "start": 88.58,
-            "end": 90.97200000000001
+            "end": 90.97200000000001,
+            "fa": "اول از همه، ما کامل نیستیم."
         },
         {
             "text": "We are not a perfect couple.",
             "start": 90.97200000000001,
-            "end": 92.232
+            "end": 92.232,
+            "fa": "ما یک زوج کامل نیستیم."
         },
         {
             "text": "We do argue, we do sometimes disagree on things",
             "start": 92.232,
-            "end": 95.892
+            "end": 95.892,
+            "fa": "ما مشاجره می‌کنیم، گاهی روی چیزها اختلاف نظر داریم و بله، فکر می‌کنم که ما بالغ‌تر شده‌ایم. بله."
         },
         {
             "text": "and, yes, so, I think that we have,",
@@ -5537,7 +5630,8 @@
         {
             "text": "So I think if you had asked us this like",
             "start": 106.05199999999999,
-            "end": 108.612
+            "end": 108.612,
+            "fa": "پس اگر از ما می‌پرسیدید از ابتدای ازدواج تا حالا، فکر می‌کنم وقتی اختلاف داریم آرام‌تر هستیم. بله."
         },
         {
             "text": "at the beginning of our marriage to now,",
@@ -5557,7 +5651,8 @@
         {
             "text": "I think that, like personally,",
             "start": 116.55199999999999,
-            "end": 118.932
+            "end": 118.932,
+            "fa": "فکر می‌کنم شخصاً من خیلی در نحوه واکنش‌ام به تو رشد کرده‌ام. بله."
         },
         {
             "text": "I know I've matured a lot",
@@ -5572,7 +5667,8 @@
         {
             "text": "I know early when we disagreed,",
             "start": 124.672,
-            "end": 126.912
+            "end": 126.912,
+            "fa": "یادم می‌آید وقتی اولین بار اختلاف داشتیم، می‌خواستم همه چیز رو سریع حل کنم ولی جین دوست داشت زمان بیشتری برای فکر کردن داشته باشد."
         },
         {
             "text": "I would want to resolve everything quickly",
@@ -5587,7 +5683,8 @@
         {
             "text": "And then, usually, now when we disagree,",
             "start": 133.532,
-            "end": 136.432
+            "end": 136.432,
+            "fa": "و حالا وقتی اختلاف داریم، می‌دانم جین زمان فکر کردن می‌خواهد و معمولاً بعد از اون خیلی بهتر می‌تونه بحث کند."
         },
         {
             "text": "I know that Jen likes some time to think about things",
@@ -5607,7 +5704,8 @@
         {
             "text": "Next question from Connie,",
             "start": 144.812,
-            "end": 146.112
+            "end": 146.112,
+            "fa": "سوال بعدی از کانی، «به یادماندنی‌ترین جایی که با جین رفته‌اید کجاست؟»"
         },
         {
             "text": "\"where is the most unforgettable place",
@@ -5622,12 +5720,14 @@
         {
             "text": "Oh, I guess that's for me, isn't it?",
             "start": 150.472,
-            "end": 152.192
+            "end": 152.192,
+            "fa": "اوه، فکر می‌کنم این برای من است، نه؟"
         },
         {
             "text": "I would say,",
             "start": 152.452,
-            "end": 153.132
+            "end": 153.132,
+            "fa": "می‌گویم، جین خانواده‌ای داشت که مدتی در بریتیش کلمبیا زندگی می‌کردند و ما برای دیدنشان می‌رفتیم. بریتیش کلمبیا یک استان در غرب کانادا است."
         },
         {
             "text": "so Jen's, Jen had family that lived in British Columbia",
@@ -5647,7 +5747,8 @@
         {
             "text": "It has mountains, it has, it's right on the Pacific Ocean,",
             "start": 163.172,
-            "end": 166.792
+            "end": 166.792,
+            "fa": "اونجا کوه‌ها، دریاچه‌ها، درست در اقیانوس آرام، شهرهای زیبایی داره، من واقعاً دوست داشتم به اونجا برم."
         },
         {
             "text": "beautiful cities, so I really liked going there.",
@@ -5657,12 +5758,14 @@
         {
             "text": "We went about two or three times when we were a lot younger.",
             "start": 170.272,
-            "end": 173.172
+            "end": 173.172,
+            "fa": "ما دو یا سه بار وقتی خیلی جوان بودیم به اونجا رفتیم."
         },
         {
             "text": "I got to go skiing in the middle of the summer once",
             "start": 173.172,
-            "end": 175.59199999999998
+            "end": 175.59199999999998,
+            "fa": "یک بار تو وسط تابستون اسکی کردم چون تو کوه‌ها برف بود."
         },
         {
             "text": "because there was snow up on the mountains.",
@@ -5672,12 +5775,14 @@
         {
             "text": "So that's, that would be my answer.",
             "start": 177.53199999999998,
-            "end": 178.985
+            "end": 178.985,
+            "fa": "پس این جواب من بود."
         },
         {
             "text": "Next question from Keive Lau,",
             "start": 178.985,
-            "end": 180.745
+            "end": 180.745,
+            "fa": "سوال بعدی از کیو لاو: \"آیا تا به حال برای جین برای تاریخ مهمی مثل تولد یا سالگرد هدیه‌ای نخریدید؟\""
         },
         {
             "text": "\"have you ever not bought any gifts for Jen",
@@ -5692,7 +5797,8 @@
         {
             "text": "Jen and I don't actually give each other gifts,",
             "start": 187.205,
-            "end": 190.185
+            "end": 190.185,
+            "fa": "من و جین واقعاً به هم هدیه نمی‌دیم، پس نمی‌دونم."
         },
         {
             "text": "so, I don't know.",
@@ -5702,7 +5808,8 @@
         {
             "text": "Is that? I actually,",
             "start": 191.765,
-            "end": 193.625
+            "end": 193.625,
+            "fa": "راستش برام خیلی سخته که برای باب هدیه خوب پیدا کنم."
         },
         {
             "text": "I find it really hard to find a good gift for Bob.",
@@ -5712,7 +5819,8 @@
         {
             "text": "So, I'm quite happy if he doesn't give me one",
             "start": 196.405,
-            "end": 200.20499999999998
+            "end": 200.20499999999998,
+            "fa": "من خوشحالم اگه باب به من هدیه نده، چون حس می‌کنم نیازی به دادن هدیه بهش ندارم و استرس هم کم می‌شه."
         },
         {
             "text": "'cause then I feel like I don't need to give him one",
@@ -5727,12 +5835,14 @@
         {
             "text": "There's just no stress about it.",
             "start": 204.625,
-            "end": 206.085
+            "end": 206.085,
+            "fa": "اصلاً استرسی در این مورد نیست."
         },
         {
             "text": "So-- The kids do give us gifts",
             "start": 206.085,
-            "end": 208.145
+            "end": 208.145,
+            "fa": "بچه‌ها به ما هدیه می‌دن اما ما معمولاً به هم هدیه نمی‌دیم."
         },
         {
             "text": "but we don't generally give Yeah.",
@@ -5742,12 +5852,14 @@
         {
             "text": "Each other gifts. Yeah.",
             "start": 209.70499999999998,
-            "end": 210.745
+            "end": 210.745,
+            "fa": "به هم هدیه می‌دیم؟ نه."
         },
         {
             "text": "Maybe we should do that more,",
             "start": 210.745,
-            "end": 212.265
+            "end": 212.265,
+            "fa": "شاید باید این کارو بیشتر بکنیم، شاید من باید یه وقتی بهت هدیه بدم."
         },
         {
             "text": "maybe I should give you gifts sometime.",
@@ -5757,7 +5869,8 @@
         {
             "text": "I think that, especially the last few years,",
             "start": 213.885,
-            "end": 218.685
+            "end": 218.685,
+            "fa": "فکر می‌کنم به‌خصوص تو چند سال اخیر که مریض بودی، یاد گرفتم که باید باب رو اولویت بدم."
         },
         {
             "text": "when you've been sick and I think I learned that I need to,",
@@ -5772,7 +5885,8 @@
         {
             "text": "Like, if I take care of Bob,",
             "start": 229.765,
-            "end": 231.685
+            "end": 231.685,
+            "fa": "مثلاً وقتی از باب مراقبت می‌کنم، فکر می‌کنم زندگی زناشویی‌مون خوشحال‌تر می‌شه و این باعث می‌شه باب هم حس کنه می‌تونه از من مراقبت کنه، پس به‌جای فکر کردن به خودم و چی ندارم یا چه چیزهایی منو عصبانی می‌کنه، می‌گم «چه کاری می‌تونم بکنم تا روز باب بهتر بشه؟»"
         },
         {
             "text": "I think our marriage is happier",
@@ -5812,12 +5926,14 @@
         {
             "text": "How can I help him?\" Yeah.",
             "start": 247.265,
-            "end": 247.885
+            "end": 247.885,
+            "fa": "چطور می‌تونم بهش کمک کنم؟"
         },
         {
             "text": "And for me, for me, that has really helped,",
             "start": 247.885,
-            "end": 251.665
+            "end": 251.665,
+            "fa": "برای من این واقعا کمک کرد، احساس می‌کنم رابطه‌مون بهتر شد چون من به اندازه کافی بالغ شدم که این کارو بکنم."
         },
         {
             "text": "I feel like our relationship is",
@@ -5832,7 +5948,8 @@
         {
             "text": "I don't think when I was in my 20s",
             "start": 255.645,
-            "end": 257.345
+            "end": 257.345,
+            "fa": "فکر نمی‌کردم وقتی در بیست‌سالگی بودم همیشه به‌قدر کافی بالغ بودم که از خودم عبور کنم."
         },
         {
             "text": "I was always mature enough to get to look past myself.",
@@ -5842,7 +5959,8 @@
         {
             "text": "Yeah. And think",
             "start": 261.645,
-            "end": 263.525
+            "end": 263.525,
+            "fa": "آره. و به‌جای فکر کردن به خودم، به‌چیزی که تو نیاز داری فکر کنم."
         },
         {
             "text": "about what you need.",
@@ -5852,7 +5970,8 @@
         {
             "text": "I would agree because I think the fact",
             "start": 264.665,
-            "end": 267.285
+            "end": 267.285,
+            "fa": "من موافقم چون این‌که تو توی تابستون کار کشاورزی می‌کنی و من تو پاییز، زمستان و بهار تدریس می‌کنم، این ریتم خوبیه که تو مراقبت از من می‌کنی و من هم از تو مراقبت می‌کنم و این خیلی به‌ما کمک کرده که به‌طرف دیگر فکر کنیم."
         },
         {
             "text": "that you farm and that happens in the summer",
@@ -5887,12 +6006,14 @@
         {
             "text": "I don't think there is a big secret.",
             "start": 284.017,
-            "end": 287.737
+            "end": 287.737,
+            "fa": "فکر نمی‌کنم راز بزرگیه."
         },
         {
             "text": "Yipin Bear, \"how do you keep a sense of freshness",
             "start": 287.737,
-            "end": 289.577
+            "end": 289.577,
+            "fa": "یپین بیر: \"چطور حس تازگی بین هم‌دیگه‌تون رو حفظ می‌کنید وقتی این‌قدر مدت زمان ازدواج دارید؟\""
         },
         {
             "text": "between each other since you have been married",
@@ -5907,7 +6028,8 @@
         {
             "text": "What do you think is the most effective way",
             "start": 292.097,
-            "end": 294.117
+            "end": 294.117,
+            "fa": "به نظرتون مؤثرترین راه برای حفظ یک ازدواج خوب چیه؟"
         },
         {
             "text": "to maintain a good marriage?\"",
@@ -5917,7 +6039,8 @@
         {
             "text": "I don't know, I just,",
             "start": 295.237,
-            "end": 298.41700000000003
+            "end": 298.41700000000003,
+            "fa": "نمی‌دونم، فقط به‌نحوی که می‌بینم ما قبلاً یه زوج خسته‌کننده و قدیمی هستیم."
         },
         {
             "text": "in some ways, the, it's 'cause we're just,",
@@ -5932,7 +6055,8 @@
         {
             "text": "We just really like hanging out together,",
             "start": 303.797,
-            "end": 305.577
+            "end": 305.577,
+            "fa": "ما واقعاً دوست داریم با هم وقت بگذرونیم، پس همیشه دنبال راه‌های جدید برای تازه‌کردن نیستیم."
         },
         {
             "text": "so we're not always looking for ways to make things fresh.",
@@ -5942,12 +6066,14 @@
         {
             "text": "I think we are both quite comfortable doing nothing.",
             "start": 308.457,
-            "end": 312.937
+            "end": 312.937,
+            "fa": "فکر می‌کنم هر دو خیلی راحتیم که کاری نکنیم."
         },
         {
             "text": "Yes. Like, we live",
             "start": 312.937,
-            "end": 314.137
+            "end": 314.137,
+            "fa": "آره. مثل این که تو وسط هیچ‌جایی زندگی می‌کنیم."
         },
         {
             "text": "in the middle of nowhere kind of.",
@@ -5957,32 +6083,38 @@
         {
             "text": "And we're very happy not doing a lot of stuff.",
             "start": 315.997,
-            "end": 320.617
+            "end": 320.617,
+            "fa": "و خیلی خوشحالیم که کارهای زیادی انجام نمی‌دیم."
         },
         {
             "text": "So, I think we'll just visit our kids a lot.",
             "start": 320.657,
-            "end": 322.997
+            "end": 322.997,
+            "fa": "پس فکر می‌کنم فقط زیاد به بچه‌هامون سر بزنیم."
         },
         {
             "text": "We might travel a little more.",
             "start": 322.997,
-            "end": 324.597
+            "end": 324.597,
+            "fa": "ممکنه کمی بیشتر سفر کنیم."
         },
         {
             "text": "We have not traveled a lot.",
             "start": 324.597,
-            "end": 326.537
+            "end": 326.537,
+            "fa": "ما زیاد سفر نکرده‌ایم."
         },
         {
             "text": "How do you see things changing?",
             "start": 326.537,
-            "end": 328.677
+            "end": 328.677,
+            "fa": "چطور فکر می‌کنی اوضاع تغییر کنه؟"
         },
         {
             "text": "I think I will, I know I put my thumbs up",
             "start": 330.437,
-            "end": 333.257
+            "end": 333.257,
+            "fa": "فکر می‌کنم انجامش بدم، می‌دونم که موافقم اما دلم برای بچه‌ها تنگ می‌شه."
         },
         {
             "text": "but I will miss my kids.",
@@ -5992,12 +6124,14 @@
         {
             "text": "I love the stage we're at right now.",
             "start": 334.937,
-            "end": 336.977
+            "end": 336.977,
+            "fa": "من این مرحله‌ای که الان توشیم رو دوست دارم."
         },
         {
             "text": "Yeah. I love,",
             "start": 336.977,
-            "end": 337.737
+            "end": 337.737,
+            "fa": "آره. من عاشق اینم که اون‌ها دور میز شام باشن، صدای شلوغ تو خونه و این که همیشه کسی اونجا هست رو دوست دارم."
         },
         {
             "text": "I love having them around the supper table,",
@@ -6017,12 +6151,14 @@
         {
             "text": "So, I hope that they don't live too far away.",
             "start": 344.277,
-            "end": 346.457
+            "end": 346.457,
+            "fa": "پس امیدوارم اون‌ها خیلی دور زندگی نکنن."
         },
         {
             "text": "I think that we will, as much as they want us,",
             "start": 346.457,
-            "end": 349.317
+            "end": 349.317,
+            "fa": "فکر می‌کنم ما، تا جایی که اون‌ها هم بخوان، به سرشون می‌ریم یا مهمونشون می‌شیم و بعد فکر می‌کنم... من مسافر زیادی نیستم، اما جاهایی هست که تا حالا نتونستیم بریم و دوست داریم برم."
         },
         {
             "text": "we'll visit them or have them over",
@@ -11643,61 +11779,71 @@
             "speaker": "Vanessa",
             "text": "Let's start with a couple pieces of factual information.",
             "start": 0,
-            "end": 4.44
+            "end": 4.44,
+            "fa": "بذارید با یه مقدار اطلاعات واقعی شروع کنیم."
         },
         {
             "speaker": "Vanessa",
             "text": "How long have we...",
             "start": 4.88,
-            "end": 6.18
+            "end": 6.18,
+            "fa": "ما چقدر..."
         },
         {
             "speaker": "Vanessa",
             "text": "This is a kind of test.",
             "start": 6.18,
-            "end": 7.48
+            "end": 7.48,
+            "fa": "این یه جورایی آزمون هست."
         },
         {
             "speaker": "Dan",
             "text": "Oh, it's a test for me.",
             "start": 8.34,
-            "end": 9.78
+            "end": 9.78,
+            "fa": "اوه، برای من آزمون حساب میشه."
         },
         {
             "speaker": "Vanessa",
             "text": "How long have we been married?",
             "start": 9.86,
-            "end": 11.22
+            "end": 11.22,
+            "fa": "ما چند وقته با هم ازدواج کردیم؟"
         },
         {
             "speaker": "Dan",
             "text": "We've been married eight years.",
             "start": 11.6,
-            "end": 13.2
+            "end": 13.2,
+            "fa": "هشت ساله با هم ازدواج کردیم."
         },
         {
             "speaker": "Vanessa",
             "text": "Oh, he passed the test.",
             "start": 13.44,
-            "end": 14.98
+            "end": 14.98,
+            "fa": "اوه، از آزمون رد شد."
         },
         {
             "speaker": "Vanessa",
             "text": "This year in August, it will be nine years.",
             "start": 15.66,
-            "end": 19.7
+            "end": 19.7,
+            "fa": "امسال تو آگوست، نه سال میشه."
         },
         {
             "speaker": "Vanessa",
             "text": "So we've been married like eight and a half years or so.",
             "start": 20.46,
-            "end": 23.16
+            "end": 23.16,
+            "fa": "پس تقریباً هشت و نیم ساله با هم ازدواج کردیم."
         },
         {
             "speaker": "Dan",
             "text": "Which is a long time for the average American of our age,",
             "start": 23.16,
-            "end": 27.12
+            "end": 27.12,
+            "fa": "که برای یه آمریکایی معمولی تو سن ما، زمان زیادی حساب میشه، چون ما فقط ۳۱ سالمون."
         },
         {
             "speaker": "Dan",
@@ -11709,31 +11855,36 @@
             "speaker": "Dan",
             "text": "Oh, we're 31.",
             "start": 30,
-            "end": 31.54
+            "end": 31.54,
+            "fa": "اوه، ما ۳۱ ساله‌ایم."
         },
         {
             "speaker": "Dan",
             "text": "So we've been married a little while.",
             "start": 31.54,
-            "end": 33.56
+            "end": 33.56,
+            "fa": "پس یه مدتیه که با هم ازدواج کردیم."
         },
         {
             "speaker": "Vanessa",
             "text": "Yes, and when did we meet each other?",
             "start": 33.56,
-            "end": 36.86
+            "end": 36.86,
+            "fa": "آره، و کی با هم آشنا شدیم؟"
         },
         {
             "speaker": "Dan",
             "text": "We met each other the very first day of college.",
             "start": 36.86,
-            "end": 40.92
+            "end": 40.92,
+            "fa": "اولین روز دانشگاه با هم آشنا شدیم."
         },
         {
             "speaker": "Dan",
             "text": "And I was-",
             "start": 40.92,
-            "end": 41.76
+            "end": 41.76,
+            "fa": "و من- که تو کشورهای دیگه بهش دانشگاه میگن."
         },
         {
             "speaker": "Dan",
@@ -11745,19 +11896,22 @@
             "speaker": "Vanessa",
             "text": "Yes, so I was 17 years old, but I was almost 18.",
             "start": 43.72,
-            "end": 47.78
+            "end": 47.78,
+            "fa": "آره، من ۱۷ ساله بودم، ولی تقریباً ۱۸ سالم میشد."
         },
         {
             "speaker": "Vanessa",
             "text": "The next week was my birthday.",
             "start": 47.78,
-            "end": 48.98
+            "end": 48.98,
+            "fa": "هفته بعد تولدم بود."
         },
         {
             "speaker": "Vanessa",
             "text": "So I was pretty much 18 years old",
             "start": 48.98,
-            "end": 50.96
+            "end": 50.96,
+            "fa": "پس عملاً ۱۸ ساله بودی و تو هم ۱۸ ساله بودی، درسته؟"
         },
         {
             "speaker": "Vanessa",
@@ -11769,13 +11923,15 @@
             "speaker": "Dan",
             "text": "Yes,",
             "start": 52.86,
-            "end": 53.1
+            "end": 53.1,
+            "fa": "آره،"
         },
         {
             "speaker": "Vanessa",
             "text": "so we've known each other for quite a long time",
             "start": 53.16,
-            "end": 55.98
+            "end": 55.98,
+            "fa": "پس از ۱۸ سالگی تا ۳۱ سالگی، مدت زیادیه که همدیگه رو میشناسیم."
         },
         {
             "speaker": "Vanessa",
@@ -11787,79 +11943,92 @@
             "speaker": "Vanessa",
             "text": "What is that?",
             "start": 57.8,
-            "end": 58.8
+            "end": 58.8,
+            "fa": "این چیه؟"
         },
         {
             "speaker": "Vanessa",
             "text": "13 years?",
             "start": 58.8,
-            "end": 59.88
+            "end": 59.88,
+            "fa": "۱۳ سال؟"
         },
         {
             "speaker": "Vanessa",
             "text": "A long time.",
             "start": 60,
-            "end": 61.32
+            "end": 61.32,
+            "fa": "زمان زیادی."
         },
         {
             "speaker": "Vanessa",
             "text": "And a lot has happened during that time.",
             "start": 61.84,
-            "end": 64.38
+            "end": 64.38,
+            "fa": "و تو این مدت خیلی چیزایی پیش اومده."
         },
         {
             "speaker": "Vanessa",
             "text": "I think knowing someone, being in a relationship with someone for 13 years is normal for maybe our parents' generation.",
             "start": 65,
-            "end": 75.08
+            "end": 75.08,
+            "fa": "به نظرم ۱۳ سال با کسی آشنا بودن و توی رابطه بودن، برای نسل پدر و مادرهایمون عادی بود."
         },
         {
             "speaker": "Vanessa",
             "text": "But for our generation, it's something that's a little bit surprising.",
             "start": 75.08,
-            "end": 78.94
+            "end": 78.94,
+            "fa": "ولی برای نسل ما، یه کم عجیبه."
         },
         {
             "speaker": "Vanessa",
             "text": "When people meet us, they're surprised that we are 31 and we've been married for eight years.",
             "start": 78.94,
-            "end": 84.5
+            "end": 84.5,
+            "fa": "وقتی آدمای جدید ما رو می‌بینن، تعجب می‌کنن که ۳۱ سالمون و هشت ساله ازدواج کردیم."
         },
         {
             "speaker": "Dan",
             "text": "And that we only dated each other for a really long time That not very usual I don think",
             "start": 84.86,
-            "end": 90.57
+            "end": 90.57,
+            "fa": "و اینکه فقط یه مدت خیلی طولانی با هم دوست بودیم. فکر نمی‌کنم خیلی معمول باشه."
         },
         {
             "speaker": "Vanessa",
             "text": "Yeah and that we still like each other I think that there a lot of",
             "start": 90.63,
-            "end": 94.92
+            "end": 94.92,
+            "fa": "آره، و اینکه هنوز از هم خوشتون میاد. فکر می‌کنم خیلی‌ها..."
         },
         {
             "speaker": "Dan",
             "text": "Do we?",
             "start": 94.92,
-            "end": 95.12
+            "end": 95.12,
+            "fa": "واقعاً؟"
         },
         {
             "speaker": "Vanessa",
             "text": "You'll find out today.",
             "start": 95.78,
-            "end": 97
+            "end": 97,
+            "fa": "امروز متوجه میشید."
         },
         {
             "speaker": "Dan",
             "text": "We do.",
             "start": 97.56,
-            "end": 98.22
+            "end": 98.22,
+            "fa": "بله، ما اینطوریم."
         },
         {
             "speaker": "Vanessa",
             "text": "So there's a lot of things that we do in our relationship or principles that we have that",
             "start": 98.35,
-            "end": 103.14
+            "end": 103.14,
+            "fa": "پس کلی چیز هست که تو رابطه‌مون انجام میدیم یا اصولی داریم که واقعاً به ما کمک کرده یه رابطه سالم و قوی داشته باشیم."
         },
         {
             "speaker": "Vanessa",
@@ -11871,7 +12040,8 @@
             "speaker": "Vanessa",
             "text": "And those are the two words that I want to focus on today is having a healthy relationship,",
             "start": 107.7,
-            "end": 112.58
+            "end": 112.58,
+            "fa": "و این دو کلمه‌ای هستن که امروز می‌خوام روشون تمرکز کنم: داشتن یه رابطه سالم، نه فقط اینکه چطور یه دوست‌پسر پیدا کنیم. من نمی‌تونم تو این مورد بهتون مشاوره بدم، یا اینکه چطور یه دوست‌دختر پیدا کنید، بلکه داشتن یه رابطه سالم و قوی. یعنی تو رابطه‌تون احساس اعتمادبه‌نفس داشته باشید. وقتی بخشی از اون رابطه هستید، به خودتون اعتمادبه‌نفس دارید."
         },
         {
             "speaker": "Vanessa",
@@ -11895,7 +12065,8 @@
             "speaker": "Dan",
             "text": "And it means it will last a long time. And if you want to have children, it will be a good",
             "start": 131.26,
-            "end": 136.22
+            "end": 136.22,
+            "fa": "و یعنی این رابطه مدت طولانی ادامه پیدا می‌کنه. و اگه می‌خواید بچه داشته باشید، رابطه‌ی خوبی برای داشتن بچه خواهد بود. چون واقعاً، اگه قراره ازدواج کنید، احتمالاً بیشترش به خاطر داشتن بچه‌هاست، به نظر شخصی من."
         },
         {
             "speaker": "Dan",
@@ -11913,7 +12084,8 @@
             "speaker": "Vanessa",
             "text": "So today, before we get started, I'd like to give a couple disclaimers. First of all,",
             "start": 144.56,
-            "end": 152.66
+            "end": 152.66,
+            "fa": "پس امروز، قبل از اینکه شروع کنیم، می‌خوام چند تا نکته رو بگم. اول از همه، ما یه شرایط خاص داریم؛ وقتی جوان بودیم با هم آشنا شدیم. همه اینا نکات شخصی هستن، ولی فقط می‌تونیم از زندگی شخصی‌مون به اشتراک بذاریم. ما ۵۰ ساله ازدواج نکرده‌ایم. می‌دونم کلی آدم هستن که خیلی بیشتر از ما با هم بودن. پس با احتیاط به حرفامون گوش بدید."
         },
         {
             "speaker": "Vanessa",
@@ -11943,13 +12115,15 @@
             "speaker": "Dan",
             "text": "Yes, but apparently it's working.",
             "start": 170.56,
-            "end": 172.82
+            "end": 172.82,
+            "fa": "آره، ولی به نظر میاد داره جواب میده."
         },
         {
             "speaker": "Dan",
             "text": "Connected to that I would say don rush So don rush into a relationship So for example for Vanessa and I we knew each other for six months before we even dated And after dating we didn live together",
             "start": 172.82,
-            "end": 190.35
+            "end": 190.35,
+            "fa": "مرتبط با این موضوع می‌گم عجله نکنید. پس تو رابطه عجله نکنید. مثلاً برای ونسا و من، شش ماه با هم آشنا بودیم قبل از اینکه حتی شروع به قرار رفتن کنیم. و بعد از قرار رفتن، چهار سال طول کشید تا با هم زندگی کنیم."
         },
         {
             "speaker": "Dan",
@@ -11961,19 +12135,22 @@
             "speaker": "Vanessa",
             "text": "Yes. And of course this is a little bit unusual.",
             "start": 192.33,
-            "end": 194.89
+            "end": 194.89,
+            "fa": "آره. و البته این یه کم غیرعادی هست."
         },
         {
             "speaker": "Dan",
             "text": "And we were young.",
             "start": 194.89,
-            "end": 195.89
+            "end": 195.89,
+            "fa": "و ما جوان بودیم."
         },
         {
             "speaker": "Vanessa",
             "text": "Because we were so young. Well, I wanted to share some things that have personally",
             "start": 195.89,
-            "end": 200.65
+            "end": 200.65,
+            "fa": "چون خیلی جوان بودیم. خب، می‌خواستم چند تا چیز رو باهاتون به اشتراک بذارم که شخصاً واقعاً به من در رابطه‌مون کمک کرده، فراتر از اصول کلی."
         },
         {
             "speaker": "Vanessa",
@@ -11985,19 +12162,22 @@
             "speaker": "Vanessa",
             "text": "This is to have fun together.",
             "start": 208.99,
-            "end": 213.05
+            "end": 213.05,
+            "fa": "این یعنی با هم سرگرمی داشته باشید."
         },
         {
             "speaker": "Vanessa",
             "text": "I think that this can apply before you are married, but also during your marriage.",
             "start": 213.05,
-            "end": 220.85
+            "end": 220.85,
+            "fa": "فکر می‌کنم این قبل از ازدواج هم کاربرد داره، ولی موقع ازدواج هم."
         },
         {
             "speaker": "Vanessa",
             "text": "I know that we have some friends who have been together for a long time, and then even",
             "start": 220.85,
-            "end": 226.17
+            "end": 226.17,
+            "fa": "می‌دونم که بعضی از دوستامون مدت طولانی با هم بودن، و حتی اگه هر دوتاشون همدیگه رو دوست دارن، حس می‌کنن دیگه چیز خاصی نیست."
         },
         {
             "speaker": "Vanessa",
@@ -12009,13 +12189,15 @@
             "speaker": "Vanessa",
             "text": "Maybe we shouldn't be together.",
             "start": 232.55,
-            "end": 233.99
+            "end": 233.99,
+            "fa": "شاید نباید با هم باشیم."
         },
         {
             "speaker": "Vanessa",
             "text": "And of course, everyone has their own situation, but for us, it's been really helpful to have",
             "start": 233.99,
-            "end": 239.33
+            "end": 239.33,
+            "fa": "و البته، هرکس شرایط خودش رو داره، ولی برای ما واقعاً کمک‌کننده بوده که یه سری فعالیت مشترک داشته باشیم که واقعاً دوست داریم با هم انجام بدیم."
         },
         {
             "speaker": "Vanessa",
@@ -12027,7 +12209,8 @@
             "speaker": "Vanessa",
             "text": "And there's actually a bunch of studies that show having a relationship, people who are",
             "start": 244.39,
-            "end": 249.87
+            "end": 249.87,
+            "fa": "و در واقع یه سری تحقیقات هست که نشون می‌دن تو یه رابطه، آدمایی که صد ساله‌ان یا خیلی پیرن، و یه مدت تو رابطه بودن، چیزی که بهشون کمک کرده اینه که با هم سرگرمی داشته باشن."
         },
         {
             "speaker": "Vanessa",
@@ -12045,13 +12228,15 @@
             "speaker": "Vanessa",
             "text": "Because you're not always going to be a honeymoon couple who just met each other.",
             "start": 258.43,
-            "end": 263.47
+            "end": 263.47,
+            "fa": "چون همیشه نمی‌تونید یه زوج ماه عسل باشید که تازه همدیگه رو دیدن."
         },
         {
             "speaker": "Vanessa",
             "text": "You going to be just normal people And something that the marriage counselor who I was watching that video about something that she mentioned is that sometimes after you been with someone for a long time",
             "start": 263.47,
-            "end": 276.16
+            "end": 276.16,
+            "fa": "شما قراره آدمای معمولی باشید. و چیزی که مشاور ازدواجی که اون ویدیو رو می‌دیدم اشاره کرد، اینه که گاهی بعد از اینکه مدت طولانی با کسی بوده باشید، رابطه‌تون تمایل به جدی‌تر شدن داره."
         },
         {
             "speaker": "Vanessa",
@@ -12063,19 +12248,22 @@
             "speaker": "Vanessa",
             "text": "Not just serious as in you're going to stay together, but serious as in your demeanor.",
             "start": 280.09,
-            "end": 285.21
+            "end": 285.21,
+            "fa": "نه فقط جدی به این معنی که قراره با هم بمونید، بلکه جدی به معنی رفتار و چهره‌تون."
         },
         {
             "speaker": "Vanessa",
             "text": "Demeanor means your face, your attitude.",
             "start": 285.21,
-            "end": 287.81
+            "end": 287.81,
+            "fa": "دِمِنور یعنی حالت چهره‌ات، اخلاق‌ات."
         },
         {
             "speaker": "Vanessa",
             "text": "Your attitude becomes really serious because you're talking about daily life, your job,",
             "start": 287.81,
-            "end": 293.19
+            "end": 293.19,
+            "fa": "اخلاق‌ات خیلی جدی میشه چون داری درباره زندگی روزمره، کارت، ظرف‌ها رو می‌شوری؟"
         },
         {
             "speaker": "Vanessa",
@@ -12087,55 +12275,64 @@
             "speaker": "Vanessa",
             "text": "Who's cooking dinner?",
             "start": 294.16,
-            "end": 295.29
+            "end": 295.29,
+            "fa": "کی داره شام می‌پزه؟"
         },
         {
             "speaker": "Vanessa",
             "text": "Where's our baby?",
             "start": 295.29,
-            "end": 296.32
+            "end": 296.32,
+            "fa": "بچه‌مون کجاست؟"
         },
         {
             "speaker": "Vanessa",
             "text": "Just factual things.",
             "start": 296.32,
-            "end": 298.76
+            "end": 298.76,
+            "fa": "فقط چیزای عادی و واقعیت."
         },
         {
             "speaker": "Vanessa",
             "text": "Not really fun things.",
             "start": 298.76,
-            "end": 300.41
+            "end": 300.41,
+            "fa": "اصلاً چیزای بامزه و سرگرم‌کننده نیست."
         },
         {
             "speaker": "Dan",
             "text": "And I think maybe an extra bit of advice.",
             "start": 300.41,
-            "end": 303.76
+            "end": 303.76,
+            "fa": "و فکر می‌کنم یه نکته‌ی اضافه‌ی دیگه."
         },
         {
             "speaker": "Dan",
             "text": "You said take a deep breath.",
             "start": 303.76,
-            "end": 305.81
+            "end": 305.81,
+            "fa": "گفتی یه نفس عمیق بکش."
         },
         {
             "speaker": "Dan",
             "text": "This is a good idea.",
             "start": 305.81,
-            "end": 307.35
+            "end": 307.35,
+            "fa": "این یه ایده‌ی خوبه."
         },
         {
             "speaker": "Dan",
             "text": "Take a deep breath.",
             "start": 307.35,
-            "end": 308.6
+            "end": 308.6,
+            "fa": "یه نفس عمیق بکش."
         },
         {
             "speaker": "Dan",
             "text": "If you're feeling a little angry at your partner,",
             "start": 308.6,
-            "end": 312.32
+            "end": 312.32,
+            "fa": "اگه یه کم از همسرت عصبانی هستی، قبل از اینکه چیزی بگی، فقط یه نفس عمیق بکش."
         },
         {
             "speaker": "Dan",
@@ -12147,7 +12344,8 @@
             "speaker": "Dan",
             "text": "Because I mean, I know we look very happy all the time,",
             "start": 316.28,
-            "end": 320.21
+            "end": 320.21,
+            "fa": "چرا که می‌دونی، ما همیشه خیلی خوشحال به نظر می‌رسیم، ولی ما هم گاهی از هم عصبانی می‌شیم."
         },
         {
             "speaker": "Dan",
@@ -12159,67 +12357,78 @@
             "speaker": "Dan",
             "text": "I promise you it happens.",
             "start": 322.26,
-            "end": 323.79
+            "end": 323.79,
+            "fa": "قول می‌دم که این اتفاق می‌افته."
         },
         {
             "speaker": "Dan",
             "text": "And I've had to learn, especially me, sometimes I get a little bit, I have a temper.",
             "start": 324.04,
-            "end": 331.28
+            "end": 331.28,
+            "fa": "و من مجبور شدم یاد بگیرم، مخصوصاً من، گاهی یه کم، من زود عصبانی می‌شم."
         },
         {
             "speaker": "Dan",
             "text": "I can get angry.",
             "start": 331.65,
-            "end": 332.45
+            "end": 332.45,
+            "fa": "می‌تونم عصبانی بشم."
         },
         {
             "speaker": "Vanessa",
             "text": "You can get upset.",
             "start": 332.51,
-            "end": 333.13
+            "end": 333.13,
+            "fa": "می‌تونی ناراحت بشی."
         },
         {
             "speaker": "Dan",
             "text": "I can get angry.",
             "start": 333.25,
-            "end": 333.95
+            "end": 333.95,
+            "fa": "می‌تونم عصبانی بشم."
         },
         {
             "speaker": "Vanessa",
             "text": "I think everybody can get upset sometimes.",
             "start": 334.09,
-            "end": 335.78
+            "end": 335.78,
+            "fa": "فکر می‌کنم همه گاهی اوقات می‌تونن ناراحت بشن."
         },
         {
             "speaker": "Dan",
             "text": "So I've had to learn to stop and take a little breath before I say something.",
             "start": 335.78,
-            "end": 342.26
+            "end": 342.26,
+            "fa": "پس من مجبور شدم یاد بگیرم که مکث کنم و یه نفس عمیق بکشم قبل از اینکه چیزی بگم."
         },
         {
             "speaker": "Dan",
             "text": "Because when you're angry, you might say something really mean.",
             "start": 342.41,
-            "end": 346.07
+            "end": 346.07,
+            "fa": "چون وقتی عصبانی هستی، ممکنه یه چیز خیلی بد بگی."
         },
         {
             "speaker": "Dan",
             "text": "And if you say something really bad, your partner is going to remember that.",
             "start": 346.07,
-            "end": 352.57
+            "end": 352.57,
+            "fa": "و اگه یه چیز خیلی بد بگی، همسرت اون رو به یاد می‌مونه."
         },
         {
             "speaker": "Vanessa",
             "text": "Yes.",
             "start": 352.82,
-            "end": 353.19
+            "end": 353.19,
+            "fa": "آره."
         },
         {
             "speaker": "Dan",
             "text": "So you don't want to let a lot of those bad words build up over time.",
             "start": 353.75,
-            "end": 358.78
+            "end": 358.78,
+            "fa": "پس نمی‌خوایم بذاریم کلی کلمه‌های بد توی این مدت جمع بشن."
         }
     ]
 }

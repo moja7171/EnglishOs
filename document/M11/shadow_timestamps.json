@@ -3,7 +3,8 @@
         {
             "text": "Today I have five work-related questions, including a little quiz about some work vocabulary",
             "start": 0,
-            "end": 8.78
+            "end": 8.78,
+            "fa": "امروز پنج سؤال کاری دارم، شامل یک آزمون کوچیک دربارهٔ واژگان کاری که نمی‌دونم دان می‌دونه یا نه."
         },
         {
             "text": "that I don't know if Dan will know.",
@@ -13,87 +14,104 @@
         {
             "text": "Maybe he will.",
             "start": 11.86,
-            "end": 12.86
+            "end": 12.86,
+            "fa": "شاید می‌دونه."
         },
         {
             "text": "Maybe you will know it.",
             "start": 12.86,
-            "end": 14.219999
+            "end": 14.219999,
+            "fa": "شاید تو می‌دونی."
         },
         {
             "text": "We'll see.",
             "start": 14.219999,
-            "end": 15.219999
+            "end": 15.219999,
+            "fa": "می‌بینیم."
         },
         {
             "text": "We'll see.",
             "start": 15.219999,
-            "end": 16.22
+            "end": 16.22,
+            "fa": "می‌بینیم."
         },
         {
             "text": "We both have non-traditional jobs, so we'll see what I know about work vocabulary.",
             "start": 16.22,
-            "end": 21.56
+            "end": 21.56,
+            "fa": "هر دو شغل غیر سنتی داریم، پس می‌بینیم چه چیزهایی دربارهٔ واژگان کاری می‌دونم."
         },
         {
             "text": "Yup.",
             "start": 21.56,
-            "end": 22.56
+            "end": 22.56,
+            "fa": "آره."
         },
         {
             "text": "All right.",
             "start": 22.56,
-            "end": 23.56
+            "end": 23.56,
+            "fa": "باشه."
         },
         {
             "text": "Let's start with our first question.",
             "start": 23.56,
-            "end": 24.56
+            "end": 24.56,
+            "fa": "بزن بریم با سؤال اولمون."
         },
         {
             "text": "All right.",
             "start": 24.56,
-            "end": 25.56
+            "end": 25.56,
+            "fa": "باشه."
         },
         {
             "text": "Let's go on to our second question.",
             "start": 25.56,
-            "end": 26.88
+            "end": 26.88,
+            "fa": "بریم سر سؤال دوم."
         },
         {
             "text": "Our second question is a little more of a modern question.",
             "start": 26.88,
-            "end": 29.72
+            "end": 29.72,
+            "fa": "سؤال دوممون یه سؤال مدرن‌تره."
         },
         {
             "text": "I want to know, would you rather work from home or at a workplace?",
             "start": 29.72,
-            "end": 36.219997
+            "end": 36.219997,
+            "fa": "می‌خوام بدونم، ترجیح می‌دی از خونه کار کنی یا تو محل کار؟"
         },
         {
             "text": "The workplace could be an office or in a coffee shop or the location that the job is set at.",
             "start": 36.219997,
-            "end": 43.579998
+            "end": 43.579998,
+            "fa": "محل کار می‌تونه دفتر باشه یا کافه یا جایی که کار توش انجام می‌شه."
         },
         {
             "text": "What would you rather do?",
             "start": 43.579998,
-            "end": 44.579998
+            "end": 44.579998,
+            "fa": "کدوم‌اش رو ترجیح می‌دی؟"
         },
         {
             "text": "Well, how about you?",
             "start": 44.579998,
-            "end": 45.579998
+            "end": 45.579998,
+            "fa": "خب، تو چطور؟"
         },
         {
             "text": "Yes.",
             "start": 45.579998,
-            "end": 46.579998
+            "end": 46.579998,
+            "fa": "آره."
         },
         {
             "text": "I think for me, because I work for myself, I have my own business teaching you English,",
             "start": 46.579998,
-            "end": 50.64
+            "end": 50.64,
+            "fa": "فکر می‌کنم برای من، چون خودم کار می‌کنم، کسب‌وکار خودم رو دارم که به تو انگلیسی یاد می‌دم، با ونسا انگلیسی صحبت می‌کنیم."
         },
         {
             "text": "speak English with Vanessa.",
@@ -103,52 +121,62 @@
         {
             "text": "I'm going to answer neither.",
             "start": 52.18,
-            "end": 55.34
+            "end": 55.34,
+            "fa": "من جواب «هیچ‌کدام» می‌دم."
         },
         {
             "text": "I don't want to work at home and I also don't want to work in a workplace.",
             "start": 55.34,
-            "end": 59.239998
+            "end": 59.239998,
+            "fa": "نمی‌خوام خونه کار کنم و نه هم می‌خوام تو محل کار کار کنم."
         },
         {
             "text": "This is my ideal scenario.",
             "start": 59.239998,
-            "end": 60.239998
+            "end": 60.239998,
+            "fa": "این وضعیت ایده‌آل من هست."
         },
         {
             "text": "Are you ready?",
             "start": 60.239998,
-            "end": 61.239998
+            "end": 61.239998,
+            "fa": "آماده‌ای؟"
         },
         {
             "text": "She wants to be totally independent.",
             "start": 61.239998,
-            "end": 64.4
+            "end": 64.4,
+            "fa": "اون می‌خواد کاملاً مستقل باشه."
         },
         {
             "text": "She wants to work in space.",
             "start": 64.4,
-            "end": 65.68
+            "end": 65.68,
+            "fa": "می‌خواد تو فضا کار کنه."
         },
         {
             "text": "I want to work in a castle overlooking a kingdom.",
             "start": 65.68,
-            "end": 68.86
+            "end": 68.86,
+            "fa": "من می‌خوام تو یک قلعه با چشم‌انداز به یک پادشاهی کار کنم."
         },
         {
             "text": "No, I want to ... I can probably do this in another couple of years.",
             "start": 68.86,
-            "end": 74.18
+            "end": 74.18,
+            "fa": "نه، من می‌خوام... شاید بتونم اینو تو چند سال دیگه انجام بدم."
         },
         {
             "text": "Work for my business, great, but not at home.",
             "start": 74.18,
-            "end": 78.619995
+            "end": 78.619995,
+            "fa": "برای کسب‌وکارم کار می‌کنم، عالی، اما نه تو خونه."
         },
         {
             "text": "Last year when I was pregnant with my baby, I worked at a coworking space and these exist",
             "start": 78.619995,
-            "end": 85.64
+            "end": 85.64,
+            "fa": "سال گذشته وقتی باردار بودم، تو یک فضای کار مشترک کار می‌کردم و این فضاها تو سرتاسر جهان هستن. شاید اسمشونو شنیده باشی یا نداری، مثل یک دفتر خیلی باحال. سعی می‌کنن جالب باشن چون می‌خوان بری اونجا و همه فقط با لپ‌تاپشون برای کارهای خودشون کار می‌کنن."
         },
         {
             "text": "all around the world Maybe you heard of them maybe you haven but it like a really fun office So they try to make it cool because they want you to go there and everyone is working just",
@@ -163,12 +191,14 @@
         {
             "text": "It's like the fun place to be.",
             "start": 101.487495,
-            "end": 104.127495
+            "end": 104.127495,
+            "fa": "مثل یه جای خوش‌گذره."
         },
         {
             "text": "And this is, I think, my ideal where I'm working at the job that I want to work at, being your",
             "start": 104.127495,
-            "end": 109.9675
+            "end": 109.9675,
+            "fa": "فکر می‌کنم این ایده‌آلمه: کاری که می‌خوام انجام بدم، معلم انگلیسی شما بودن، و تو جایی که دور و دور آدم‌های دیگه باشم."
         },
         {
             "text": "English teacher, and also in a location where I'm around other people.",
@@ -178,32 +208,38 @@
         {
             "text": "Working from home is so convenient with small children.",
             "start": 116.2475,
-            "end": 120.0275
+            "end": 120.0275,
+            "fa": "کار از خونه وقتی بچه‌های کوچیک دارین خیلی راحت‌ست."
         },
         {
             "text": "My baby's napping in the other room right now.",
             "start": 120.0275,
-            "end": 122.22749
+            "end": 122.22749,
+            "fa": "بچه‌ام الآن توی اتاق دیگه خوابیده."
         },
         {
             "text": "I can nurse her.",
             "start": 122.22749,
-            "end": 123.22749
+            "end": 123.22749,
+            "fa": "می‌تونم بهش شیر بده."
         },
         {
             "text": "I can help my kids.",
             "start": 123.22749,
-            "end": 124.667496
+            "end": 124.667496,
+            "fa": "می‌تونم به بچه‌هام کمک کنم."
         },
         {
             "text": "I can do those types of things, but when they're a little bit older, I'm out.",
             "start": 124.667496,
-            "end": 129.7675
+            "end": 129.7675,
+            "fa": "می‌تونم این کارها رو بکنم، ولی وقتی کمی بزرگ‌تر شدن، بیرون می‌رم."
         },
         {
             "text": "I want to go and be out in a co-working space, and this type of environment I think is really",
             "start": 129.7675,
-            "end": 135.6675
+            "end": 135.6675,
+            "fa": "می‌خوام برم توی یک فضای کار مشترک، و این نوع محیط رو برای خودم خیلی سالم می‌دونم."
         },
         {
             "text": "healthy for me.",
@@ -213,62 +249,74 @@
         {
             "text": "These are specifically things that you would write in an email in the office.",
             "start": 136.9675,
-            "end": 142.8475
+            "end": 142.8475,
+            "fa": "این‌ها دقیقاً چیزهایی‌ست که توی ایمیل دفتر می‌نویسی."
         },
         {
             "text": "Are you ready?",
             "start": 142.8475,
-            "end": 143.8475
+            "end": 143.8475,
+            "fa": "آماده‌ای؟"
         },
         {
             "text": "I already think I'm not going to be very good at this.",
             "start": 143.8475,
-            "end": 146.0875
+            "end": 146.0875,
+            "fa": "قبلاً فکر می‌کنم تو این کار خیلی خوب نمی‌شم."
         },
         {
             "text": "The first one is WFH.",
             "start": 146.0875,
-            "end": 152.0475
+            "end": 152.0475,
+            "fa": "اولین مورد WFH (کار از خونه) است."
         },
         {
             "text": "I'll give you a sample sentence.",
             "start": 152.98749,
-            "end": 154.70749
+            "end": 154.70749,
+            "fa": "یک جمله نمونه بهت می‌دم."
         },
         {
             "text": "Okay.",
             "start": 155.5475,
-            "end": 155.8275
+            "end": 155.8275,
+            "fa": "باشه."
         },
         {
             "text": "This is a WFH position, or I'm looking for a WFH position.",
             "start": 157.3475,
-            "end": 166.3875
+            "end": 166.3875,
+            "fa": "این یک موقعیت WFH است، یا من دنبال یک موقعیت WFH می‌گردم."
         },
         {
             "text": "So this is work from home, which is increasingly more common since the pandemic.",
             "start": 166.9675,
-            "end": 171.1275
+            "end": 171.1275,
+            "fa": "پس این کار از خونه است که بعد از همه‌گیری بیشتر رایج شده."
         },
         {
             "text": "Yes, work from home.",
             "start": 171.76749,
-            "end": 172.8475
+            "end": 172.8475,
+            "fa": "بله، کار از خونه."
         },
         {
             "text": "You got it.",
             "start": 172.8875,
-            "end": 173.1875
+            "end": 173.1875,
+            "fa": "درست گفتی."
         },
         {
             "text": "All right, the next one.",
             "start": 173.22751,
-            "end": 174.0275
+            "end": 174.0275,
+            "fa": "خب، مورد بعدی."
         },
         {
             "text": "You might see this at the bottom of an email O This is the letter not the number Ooh O If you saw O Orange",
             "start": 174.0275,
-            "end": 190.815
+            "end": 190.815,
+            "fa": "ممکنه اینو در انتهای ایمیل ببینی O این حرفه نه عدد Ooh O اگر دیدی O شترمرغ‌های نارنجی، اورانگوتان‌ها. بله، درست فهمیدی. نه، این «خارج از دفتر» است. اوه. O-O. وقتی کسی می‌ره تو روزهای کاری معمولی. فرض کن یک تعطیلات داری از دوشنبه تا چهارشنبه. تو سیستم ایمیلت می‌تونی پیام خودکار بذاری که به همه می‌رسه."
         },
         {
             "text": "ostriches, orangutans. Yes, you got it. No, this is out of office. Oh. O-O. So when someone",
@@ -288,7 +336,8 @@
         {
             "text": "That's your OOO, your out of office message that says, I'm sitting on a beach right now. Ha ha,",
             "start": 216.73499,
-            "end": 223.61499
+            "end": 223.61499,
+            "fa": "این پیام OOO یا پیام «خارج از دفتر» است که می‌گه من الان تو ساحل نشسته‌ام. هاها، تو دفتر هستی. تا پنج‌شنبه می‌بینمت. مثل این. آخرینش – فقط سه تا هست؟"
         },
         {
             "text": "you're at the office. I'll see you on Thursday. Something like this. All right. The last one is-",
@@ -303,107 +352,128 @@
         {
             "text": "There's only three.",
             "start": 230.095,
-            "end": 231.095
+            "end": 231.095,
+            "fa": "فقط سه تا هست؟"
         },
         {
             "text": "The last quiz is EOD.",
             "start": 231.095,
-            "end": 233.095
+            "end": 233.095,
+            "fa": "فقط سه تا هست."
         },
         {
             "text": "EOD.",
             "start": 233.095,
-            "end": 234.095
+            "end": 234.095,
+            "fa": "آخرین آزمون EOD (پایان روز) است."
         },
         {
             "text": "EOD.",
             "start": 234.095,
-            "end": 235.095
+            "end": 235.095,
+            "fa": "آخرین آزمون EOD (پایان روز) است."
         },
         {
             "text": "EOD.",
             "start": 235.095,
-            "end": 236.095
+            "end": 236.095,
+            "fa": "آخرین آزمون EOD (پایان روز) است."
         },
         {
             "text": "Would you like a sample sentence?",
             "start": 236.095,
-            "end": 238.095
+            "end": 238.095,
+            "fa": "می‌خوای یک جمله نمونه؟"
         },
         {
             "text": "Sure.",
             "start": 238.095,
-            "end": 239.095
+            "end": 239.095,
+            "fa": "حتماً."
         },
         {
             "text": "Okay.",
             "start": 239.095,
-            "end": 240.095
+            "end": 240.095,
+            "fa": "باشه."
         },
         {
             "text": "The sample sentence is, I need this finished by EOD, or I will have this finished by EOD.",
             "start": 240.095,
-            "end": 250.095
+            "end": 250.095,
+            "fa": "جمله نمونه اینه: من اینو باید تا پایان روز تموم کنم، یا اینکه تا پایان روز تمومش می‌کنم."
         },
         {
             "text": "Earliest, earliest?",
             "start": 250.095,
-            "end": 253.095
+            "end": 253.095,
+            "fa": "زودتر، زودتر؟"
         },
         {
             "text": "No.",
             "start": 253.095,
-            "end": 254.095
+            "end": 254.095,
+            "fa": "نه."
         },
         {
             "text": "Even.",
             "start": 254.095,
-            "end": 255.095
+            "end": 255.095,
+            "fa": "حتی."
         },
         {
             "text": "No.",
             "start": 255.095,
-            "end": 256.095
+            "end": 256.095,
+            "fa": "نه."
         },
         {
             "text": "EOD.",
             "start": 256.095,
-            "end": 257.095
+            "end": 257.095,
+            "fa": "آخرین آزمون EOD (پایان روز) است."
         },
         {
             "text": "EOD.",
             "start": 257.095,
-            "end": 258.095
+            "end": 258.095,
+            "fa": "آخرین آزمون EOD (پایان روز) است."
         },
         {
             "text": "Uh-huh.",
             "start": 258.095,
-            "end": 259.095
+            "end": 259.095,
+            "fa": "آره."
         },
         {
             "text": "Can you have this finished by EOD?",
             "start": 259.095,
-            "end": 262.035
+            "end": 262.035,
+            "fa": "می‌تونی اینو تا پایان روز تموم کنی؟"
         },
         {
             "text": "And you would not say this, you would write this in an email or in like a text.",
             "start": 262.035,
-            "end": 266.455
+            "end": 266.455,
+            "fa": "و تو اینو نمی‌گی، تو توی ایمیل یا پیام می‌نویسی."
         },
         {
             "text": "End of date.",
             "start": 266.455,
-            "end": 267.455
+            "end": 267.455,
+            "fa": "پایان تاریخ."
         },
         {
             "text": "Oh, close.",
             "start": 267.455,
-            "end": 268.455
+            "end": 268.455,
+            "fa": "اوه، نزدیک."
         },
         {
             "text": "End of day Yes End of day Yes Yes Can you have this finished by EOD Can you have this finished by EOD End of day Just the other day they were doing something else and I was doing some work",
             "start": 268.455,
-            "end": 279.54248
+            "end": 279.54248,
+            "fa": "پایان روز بله پایان روز بله بله می‌تونی اینو تا پایان روز تموم کنی؟ می‌تونی اینو تا پایان روز تموم کنی؟ پایان روز فقط دیروز اون‌ها کاری دیگه می‌کردن و من مشغول کار بودم که ناگهان توی اتاق اومدن. مامان، تو کامپیوتر هستی. واو. می‌خوام تو زانوهات بنشینم."
         },
         {
             "text": "and they busted in the room. Mommy, you're on the computer. Wow. I want to sit on your lap.",
@@ -413,7 +483,8 @@
         {
             "text": "There were two children on my lap and I was halfway through finishing an email that I really",
             "start": 286.5025,
-            "end": 291.7825
+            "end": 291.7825,
+            "fa": "دو تا بچه روی زانوهایم بودن و من نیمه‌راه ایمیلی که خیلی می‌خواستم تموم کنم، بودم. و هیچ راهی نیست. اگر تا حالا سعی کرده باشی این کارو بکنی، می‌دونی که نمی‌تونی. پس تو ذهنم می‌گم الآن این کارو نمی‌کنم. پنج یا ده دقیقه صبر می‌کنم. اوکی می‌شه. ده ساعت. ده ساعت. اوکی. و فقط به کاری که اون لحظه نیاز داره، می‌پردازم. بعد می‌تونم برگردم سر کار. چون اگر سعی کنی ایمیلتو چک کنی وقتی دارى با بچه‌هات حرف می‌زنی یا کار دیگه‌ای می‌کنی، مغزت دیوانه می‌شه. سرگرمی‌ها هم. چه سرگرمی‌هایی حتماً باید انجام بدم؟"
         },
         {
             "text": "wanted to finish. And there's no way. There is no way that you can do that if you have ever tried",
@@ -448,17 +519,20 @@
         {
             "text": "Some of them might be painful. I recently stopped watching hockey, which is my favorite sport.",
             "start": 326.82248,
-            "end": 331.7825
+            "end": 331.7825,
+            "fa": "بعضی ازشون ممکنه دردسرساز باشن. من تازه تماشای هاکی، که ورزش مورد علاقم بود، رو قطع کردم."
         },
         {
             "text": "That brought a little tear to my eye, but I just don't have time for it anymore.",
             "start": 331.7825,
-            "end": 335.3025
+            "end": 335.3025,
+            "fa": "این باعث شد یه اشک کوچیک تو چشمم بیاد، اما دیگه وقتش رو ندارم."
         },
         {
             "text": "Mm-hmm. And maybe at another point in your life, you will have more-",
             "start": 335.3025,
-            "end": 338.9025
+            "end": 338.9025,
+            "fa": "ام‌هم. شاید تو یه مرحله دیگه از زندگی‌ات بیشتر وقت داشته باشی – می‌تونم همه بازی‌های هاکی رو ببینم."
         },
         {
             "text": "I can watch all the hockey games I want.",
@@ -468,7 +542,8 @@
         {
             "text": "You'll have more figurative bandwidth. But for now, maybe in your life, if you're feeling",
             "start": 340.9025,
-            "end": 346.7425
+            "end": 346.7425,
+            "fa": "پهنای باند ذهنی‌ات بیشتر می‌شه. اما الآن، اگه احساس استرس زیاد از تعادل کار‑زندگی می‌کنی، همه چیزو روی میز بگذار. چه چیزهایی ضروریه؟"
         },
         {
             "text": "really stressed by this work-life balance, lay everything out on the table. What is necessary?",
@@ -478,37 +553,44 @@
         {
             "text": "How can I cut back so that I feel more balanced and happy?",
             "start": 351.9425,
-            "end": 355.4625
+            "end": 355.4625,
+            "fa": "چطور می‌تونم کم کنم تا احساس تعادل و خوشحالی کنم؟"
         },
         {
             "text": "I think you owe it to yourself.",
             "start": 355.7425,
-            "end": 357.04248
+            "end": 357.04248,
+            "fa": "فکر می‌کنم باید اینو به خودت بدهی."
         },
         {
             "text": "You owe it to your family.",
             "start": 357.32248,
-            "end": 358.26248
+            "end": 358.26248,
+            "fa": "تو به خانواده‌ات بدهکار هستی."
         },
         {
             "text": "And yeah, you'll just be a better person for it.",
             "start": 358.8625,
-            "end": 360.8625
+            "end": 360.8625,
+            "fa": "و آره، این باعث می‌شه آدم بهتری باشی."
         },
         {
             "text": "But I'm still working on that.",
             "start": 361.0625,
-            "end": 362.3025
+            "end": 362.3025,
+            "fa": "اما من هنوز تو این کار دارم."
         },
         {
             "text": "Dan's still working on that.",
             "start": 362.5025,
-            "end": 363.4025
+            "end": 363.4025,
+            "fa": "دَن هم هنوز تو این کار داره."
         },
         {
             "text": "So take it with a grain of salt.",
             "start": 363.5225,
-            "end": 364.9625
+            "end": 364.9625,
+            "fa": "پس اینو با کمی شک بگیر."
         }
     ],
     "listening_words": [
@@ -5472,92 +5554,110 @@
         {
             "text": "Hiya, everybody. Welcome to a new episode of Easy English.",
             "start": 0,
-            "end": 3.79
+            "end": 3.79,
+            "fa": "سلام به همه. به قسمت جدید Easy English خوش آمدید."
         },
         {
             "text": "So after a long time away, we're finally back in the UK.",
             "start": 3.79,
-            "end": 6.79
+            "end": 6.79,
+            "fa": "بعد از یه مدت طولانی دوری، بالاخره دوباره به انگلستان برگشتیم."
         },
         {
             "text": "So I thought I'd quickly nip into Brighton and ask a simple question to the people wandering around: what are you up to today?",
             "start": 6.79,
-            "end": 13.15
+            "end": 13.15,
+            "fa": "پس سریع به برایتون رفتم و یک سؤال ساده از آدم‌های سرگردان پرسیدم: امروز چه کاری می‌کنید؟"
         },
         {
             "text": "So, let's head into Brighton. Here we go.",
             "start": 13.15,
-            "end": 16.31
+            "end": 16.31,
+            "fa": "پس بریم به برایتون. بزن بریم."
         },
         {
             "text": "What are you two up to today in Brighton?",
             "start": 16.31,
-            "end": 19.99
+            "end": 19.99,
+            "fa": "امروز تو برایتون چه کار می‌کنید؟"
         },
         {
             "text": "We're just shopping, mostly. - Yeah.",
             "start": 19.99,
-            "end": 22.79
+            "end": 22.79,
+            "fa": "ما بیشتر خرید می‌کنیم. - آره."
         },
         {
             "text": "Yeah? - Just heading around.",
             "start": 22.79,
-            "end": 24.81
+            "end": 24.81,
+            "fa": "آره؟ - فقط دور و بر می‌گردیم."
         },
         {
             "text": "We're trying to find a thrift shop at the moment.",
             "start": 24.81,
-            "end": 26.99
+            "end": 26.99,
+            "fa": "ما الان دنبال یک فروشگاه دست دوم می‌گردیم."
         },
         {
             "text": "What are you two up to today in Brighton?",
             "start": 26.99,
-            "end": 28.93
+            "end": 28.93,
+            "fa": "امروز تو برایتون چه کار می‌کنید؟"
         },
         {
             "text": "We are just on our lunch break. - Just getting lunch, yeah.",
             "start": 28.93,
-            "end": 31.21
+            "end": 31.21,
+            "fa": "ما فقط تو زمان ناهاریم. - فقط می‌خوایم ناهار بخوریم، آره."
         },
         {
             "text": "We're going to get some sushi, actually.",
             "start": 31.21,
-            "end": 33.67
+            "end": 33.67,
+            "fa": "ما می‌خوایم سوشی بگیریم، در واقع."
         },
         {
             "text": "Can you tell me what you're up to today in Brighton?",
             "start": 33.67,
-            "end": 36.27
+            "end": 36.27,
+            "fa": "می‌تونی بگی امروز تو برایتون چه کاری می‌کنی؟"
         },
         {
             "text": "We are just wasting a day, basically, waiting for a ferry.",
             "start": 36.27,
-            "end": 40.65
+            "end": 40.65,
+            "fa": "ما فقط داریم یک روز رو هدر می‌دیم، basically، منتظر کشتی هستیم."
         },
         {
             "text": "What are you up to in Brighton today?",
             "start": 40.65,
-            "end": 43.37
+            "end": 43.37,
+            "fa": "امروز تو برایتون چه کاری می‌کنی؟"
         },
         {
             "text": "Just wandering aimlessly around The Lanes today.",
             "start": 43.37,
-            "end": 46.89
+            "end": 46.89,
+            "fa": "امروز فقط بی‌هدف تو The Lanes سر می‌گردیم."
         },
         {
             "text": "So we're here for the beach, obviously.",
             "start": 46.89,
-            "end": 49.59
+            "end": 49.59,
+            "fa": "پس ما اینجا برای ساحلیم، واضحاً."
         },
         {
             "text": "I think everyone kind of comes to Brighton for the beach.",
             "start": 49.59,
-            "end": 52.33
+            "end": 52.33,
+            "fa": "فکر می‌کنم همه برای ساحل به برایتون می‌آیند."
         },
         {
             "text": "But we're en route now to an Italian restaurant,",
             "start": 52.33,
-            "end": 54.59
+            "end": 54.59,
+            "fa": "اما الان در راه یک رستوران ایتالیایی هستیم و برای یک کنسرت اینجا هستیم، پس عملاً برای آخر هفته اینجا ماندیم."
         },
         {
             "text": "and we're here for a concert,",
@@ -5572,17 +5672,20 @@
         {
             "text": "And we're going to enjoy a nice pop concert in Chalk, just down the road.",
             "start": 58.17,
-            "end": 62.69
+            "end": 62.69,
+            "fa": "و می‌خوایم یک کنسرت پاپ خوب توی چاک، درست پایین جاده، لذت ببریم."
         },
         {
             "text": "So it's not far from here. But generally, enjoying the sun.",
             "start": 62.69,
-            "end": 65.57
+            "end": 65.57,
+            "fa": "پس از اینجا دور نیست. ولی به‌طور کلی، از آفتاب لذت می‌بریم."
         },
         {
             "text": "Where we live has very poor weather at the minute,",
             "start": 65.57,
-            "end": 68.43
+            "end": 68.43,
+            "fa": "جایی که من زندگی می‌کنم الآن هوای خیلی بدی داره، پس برای یک فرار کوتاه اومدیم، فکر می‌کنم همین‌طور می‌گن. - یعنی یک گت‌اوی."
         },
         {
             "text": "so we've come for a bit of an escape, I think, is probably how to round it up. - Okay, a getaway.",
@@ -5592,32 +5695,38 @@
         {
             "text": "What are you up to in Brighton today?",
             "start": 73.71000000000001,
-            "end": 76.61
+            "end": 76.61,
+            "fa": "امروز تو برایتون چه کاری می‌کنی؟"
         },
         {
             "text": "So we've come to Brighton today to visit with my niece and my sister, who are over from France.",
             "start": 76.61,
-            "end": 81.81
+            "end": 81.81,
+            "fa": "پس امروز برای دیدن خواهرزاده‌ام و خواهرم که از فرانسه اومده‌اند، به برایتون آمدیم."
         },
         {
             "text": "We're going down The Lanes, doing some shopping.",
             "start": 81.81,
-            "end": 84.78999999999999
+            "end": 84.78999999999999,
+            "fa": "داریم توی لِینز می‌گردیم، خرید می‌کنیم."
         },
         {
             "text": "Now we're heading off to the beach.",
             "start": 84.78999999999999,
-            "end": 86.41
+            "end": 86.41,
+            "fa": "حالا می‌خوایم بریم ساحل."
         },
         {
             "text": "Just had something to eat.",
             "start": 86.41,
-            "end": 88.01
+            "end": 88.01,
+            "fa": "تازه چیزی خوردم."
         },
         {
             "text": "Probably get a snack on the way back,",
             "start": 88.01,
-            "end": 90.43299999999999
+            "end": 90.43299999999999,
+            "fa": "احتمالاً تو مسیر برمی‌گردیم یک میان‌وعده می‌گیریم، بعد می‌ریم رانندگی به کنت که خونه‌امون هست."
         },
         {
             "text": "and then we'll drive back to Kent, which is where I live.",
@@ -5627,7 +5736,8 @@
         {
             "text": "So I'm with my boyfriend at the moment, who is just out of frame,",
             "start": 92.473,
-            "end": 96.033
+            "end": 96.033,
+            "fa": "الان با دوست‌پسرم هستم، که تو فریم نیست چون نمی‌خواست تو مصاحبه باشه."
         },
         {
             "text": "because he didn't want to be in the interview.",
@@ -5637,67 +5747,80 @@
         {
             "text": "And we... - Heckling from the side. - Yeah.",
             "start": 97.65299999999999,
-            "end": 100.533
+            "end": 100.533,
+            "fa": "و ما... - صدای خنده از طرف دیگه. - بله."
         },
         {
             "text": "We just went to the Hello Kitty cafe.",
             "start": 100.533,
-            "end": 104.493
+            "end": 104.493,
+            "fa": "تازه به کافه هلو کیتی رفتیم."
         },
         {
             "text": "We had some food, and now I think we're going to... we're pottery painting.",
             "start": 104.493,
-            "end": 110.053
+            "end": 110.053,
+            "fa": "یه خوراکی خوردیم و حالا فکر می‌کنم می‌ریم... ما نقاشی سفال می‌کنیم."
         },
         {
             "text": "And then after that... yeah, I'm not sure.",
             "start": 110.053,
-            "end": 111.693
+            "end": 111.693,
+            "fa": "بعد از اون... بله، مطمئن نیستم."
         },
         {
             "text": "Can you explain what a thrift shop is?",
             "start": 111.693,
-            "end": 115.553
+            "end": 115.553,
+            "fa": "می‌تونی توضیح بدی فروشگاه دست دوم چیه؟"
         },
         {
             "text": "It's like a shop with secondhand items, mostly clothing.",
             "start": 115.553,
-            "end": 119.973
+            "end": 119.973,
+            "fa": "مثل فروشگاهی هست که وسایل دست دوم، بیشتر لباس، می‌فروشه."
         },
         {
             "text": "Yeah, there's a vegan sushi restaurant there, so that's where we're going.",
             "start": 119.973,
-            "end": 123.413
+            "end": 123.413,
+            "fa": "آره، اونجا رستوران سوشی وگان هست، پس می‌ریم اونجا."
         },
         {
             "text": "Okay, do you go there often?",
             "start": 123.413,
-            "end": 125.213
+            "end": 125.213,
+            "fa": "خب، زیاد اونجا می‌ری؟"
         },
         {
             "text": "Yeah, it's my... when I want a nice lunch, that's my treat. - Yeah, exactly.",
             "start": 125.213,
-            "end": 129.213
+            "end": 129.213,
+            "fa": "آره، وقتی می‌خوام ناهار خوب بخورم، اینجا مال من است. - بله، دقیقاً."
         },
         {
             "text": "And today feels like one of those days to get a treat.",
             "start": 129.213,
-            "end": 131.653
+            "end": 131.653,
+            "fa": "و امروز حس می‌کنم یکی از اون روزهایی است که باید یک خوراکی خوشمزه بخریم."
         },
         {
             "text": "And what's your order?",
             "start": 131.653,
-            "end": 133.373
+            "end": 133.373,
+            "fa": "سفارش تو چیه؟"
         },
         {
             "text": "I get... so they do sushi burritos.",
             "start": 133.373,
-            "end": 134.933
+            "end": 134.933,
+            "fa": "من می‌گیرم... اونها سوشی بوریتو می‌سازن."
         },
         {
             "text": "So it's like a burrito with sushi, but it's all vegan,",
             "start": 134.933,
-            "end": 138.933
+            "end": 138.933,
+            "fa": "پس مثل بوریتوی سوشی‌ست، ولی تماماً وگان، من معمولاً می‌گیرم... اونها یک رپ دارند که مثل مرغ کنجدی است، اما مرغ واقعی نیست."
         },
         {
             "text": "so I normally get... they have a wrap, which is like sesame chicken, but it's not real chicken.",
@@ -5707,27 +5830,32 @@
         {
             "text": "Yeah, that's what I'm going to order, probably.",
             "start": 145.253,
-            "end": 147.273
+            "end": 147.273,
+            "fa": "آره، اینو می‌خرم، احتمالاً."
         },
         {
             "text": "I actually haven't decided yet, so maybe I'll just figure it out once I get there.",
             "start": 147.273,
-            "end": 151.453
+            "end": 151.453,
+            "fa": "در واقع هنوز تصمیم نگرفتم، شاید وقتی می‌رسیم بفهمم."
         },
         {
             "text": "Okay. Oh, this one behind us, Happy Maki?",
             "start": 151.453,
-            "end": 153.493
+            "end": 153.493,
+            "fa": "خب. این یکی پشت سرمون، هپی ماکی؟"
         },
         {
             "text": "Yeah, that's where we're going. - That's the one.",
             "start": 153.493,
-            "end": 155.713
+            "end": 155.713,
+            "fa": "آره، اونجایی که می‌ریم. - همینه."
         },
         {
             "text": "Oh, really? - Yeah, we're getting a nine o'clock ferry over to Santander,",
             "start": 155.713,
-            "end": 159.493
+            "end": 159.493,
+            "fa": "اوه، جدی؟ - آره، قراره ساعت نه‌ام شب فری به سانتاندر بگیریم و یک روز برای kill کردن داشتیم."
         },
         {
             "text": "and we had a day to kind of kill.",
@@ -5737,117 +5865,140 @@
         {
             "text": "So we thought we'd come to Brighton, do a bit of shopping, looking around, browsing for old books.",
             "start": 161.473,
-            "end": 168.873
+            "end": 168.873,
+            "fa": "پس فکر کردیم بریم برایایتون، کمی خرید کنیم، دور بگردیم، کتاب‌های قدیمی نگاه کنیم."
         },
         {
             "text": "You've come to the best place to look for old stuff.",
             "start": 168.873,
-            "end": 170.473
+            "end": 170.473,
+            "fa": "به بهترین جایی که می‌تونی کتاب‌های قدیمی پیدا کنی اومدی."
         },
         {
             "text": "I bought some fabulous fabric as well, and I've seen...",
             "start": 170.473,
-            "end": 174.19299999999998
+            "end": 174.19299999999998,
+            "fa": "من هم یک پارچه عالی خریدم، و دیدم..."
         },
         {
             "text": "there's two shops I need to go back in and have a look at fabrics, because I sew, so I love sewing.",
             "start": 174.19299999999998,
-            "end": 179.256
+            "end": 179.256,
+            "fa": "دو تا فروشگاه هست که باید برگردم و پارچه‌ها رو نگاه کنم، چون دوخت می‌کنم، پس دوختن رو دوست دارم."
         },
         {
             "text": "Okay, great.",
             "start": 179.256,
-            "end": 179.61599999999999
+            "end": 179.61599999999999,
+            "fa": "باشه، عالی."
         },
         {
             "text": "And next, you're off to pottery class.",
             "start": 179.61599999999999,
-            "end": 181.856
+            "end": 181.856,
+            "fa": "و بعدش می‌خوای بری کلاس سفال‌گری."
         },
         {
             "text": "Yes, we're pottery painting. - Pottery painting. Big day.",
             "start": 181.856,
-            "end": 184.256
+            "end": 184.256,
+            "fa": "آره، ما رنگ‌کردن سفال می‌کنیم. - رنگ‌کردن سفال. روز بزرگ."
         },
         {
             "text": "And this is like a hobby you have, or a one-off thing?",
             "start": 184.256,
-            "end": 187.676
+            "end": 187.676,
+            "fa": "این یک سرگرمیه یا فقط یک بار است؟"
         },
         {
             "text": "No, we just kind of like... I don't know, usually our schedules, like, don't align super well.",
             "start": 187.676,
-            "end": 191.876
+            "end": 191.876,
+            "fa": "نه، ما فقط... نمی‌دونم، معمولاً برنامه‌هامون سر هم نمی‌خورند."
         },
         {
             "text": "But today we were like, oh, we have like the whole day. Let's just do a bunch of, like, fun stuff.",
             "start": 191.876,
-            "end": 197.236
+            "end": 197.236,
+            "fa": "اما امروز گفتیم، اوه، تمام روز رو داریم. بزن بریم چند تا کار سرگرم‌کننده انجام بدیم."
         },
         {
             "text": "Especially 'cause it's a Monday, it's not, like, super busy in town at the moment.",
             "start": 197.236,
-            "end": 199.89600000000002
+            "end": 199.89600000000002,
+            "fa": "به‌خصوص چون دوشنبه‌ست، تو شهر الان خیلی شلوغ نیست."
         },
         {
             "text": "So we thought, let's do some whimsical activities. - Sounds whimsical.",
             "start": 199.89600000000002,
-            "end": 204.536
+            "end": 204.536,
+            "fa": "پس فکر کردیم چند تا فعالیت خیال‌انگیز انجام بدیم. - خیال‌انگیز به‌نظر می‌رسه."
         },
         {
             "text": "What do you two do for work?",
             "start": 204.536,
-            "end": 205.956
+            "end": 205.956,
+            "fa": "شما دو نفر چه کاری می‌کنید؟"
         },
         {
             "text": "We both work in marketing... marketing, in the same company, at William Reed.",
             "start": 205.956,
-            "end": 210.236
+            "end": 210.236,
+            "fa": "هر دو توی مارکتینگ کار می‌کنیم... مارکتینگ، توی یک شرکت، ویلیام رید."
         },
         {
             "text": "Okay. You're happy at your job? Like your job?",
             "start": 210.236,
-            "end": 211.916
+            "end": 211.916,
+            "fa": "خب. تو شغلت خوشحالی؟ مثل شغلت؟"
         },
         {
             "text": "Yeah. - Yeah, it's fun. - We run events, so we do marketing for events.",
             "start": 211.916,
-            "end": 216.95600000000002
+            "end": 216.95600000000002,
+            "fa": "آره. - آره، جالبه. - ما ایونت‌ها رو برگزار می‌کنیم، پس مارکتینگ ایونت‌ها رو انجام می‌دیم."
         },
         {
             "text": "Do you live in Brighton? - No, I live south London.",
             "start": 216.95600000000002,
-            "end": 219.736
+            "end": 219.736,
+            "fa": "تو توی براییتون زندگی می‌کنی؟ - نه، من توی جنوب لندن زندگی می‌کنم."
         },
         {
             "text": "Okay. - Yeah, yeah. - And how long are you down for? How long are you down in Brighton for?",
             "start": 219.736,
-            "end": 224.996
+            "end": 224.996,
+            "fa": "خب. - آره، آره. - و چقدر می‌مونی؟ چقدر توی براییتون می‌مونی؟"
         },
         {
             "text": "Just the weekend, three days.",
             "start": 224.996,
-            "end": 227.036
+            "end": 227.036,
+            "fa": "فقط آخر هفته، سه روز."
         },
         {
             "text": "But my girlfriend went to uni here, so she's kind of...",
             "start": 227.036,
-            "end": 230.596
+            "end": 230.596,
+            "fa": "اما دوست‌دخترم اینجا دانشگاه می‌ره، پس او..."
         },
         {
             "text": "I've come here a couple of times, but she's showing me around.",
             "start": 230.596,
-            "end": 234.416
+            "end": 234.416,
+            "fa": "من چند بار اینجا اومدم، اما اون داره دور و برم می‌گردونه."
         },
         {
             "text": "And are you from Brighton?",
             "start": 234.416,
-            "end": 235.976
+            "end": 235.976,
+            "fa": "و تو اهل بریتون هستی؟"
         },
         {
             "text": "I'm from Canterbury, in Kent, originally,",
             "start": 235.976,
-            "end": 238.316
+            "end": 238.316,
+            "fa": "من از کنتربری، تو کنت، هستم، ولی الان حدود چهار ساله تو بریتون زندگی می‌کنم، فکر کنم."
         },
         {
             "text": "but I've lived in Brighton for, like, four years now, I want to say.",
@@ -5857,187 +6008,224 @@
         {
             "text": "And I actually got my... my uni results today.",
             "start": 243.856,
-            "end": 247.256
+            "end": 247.256,
+            "fa": "و امروز نتایج دانشگاهم رو گرفتم."
         },
         {
             "text": "Passed. Got my degree... - Well done! - Got a 2:1. Very happy with that.",
             "start": 247.256,
-            "end": 249.936
+            "end": 249.936,
+            "fa": "قبول شدم. مدرکم رو گرفتم... - تبریک! - نمره ۲:۱ گرفتم. خیلی خوشحالم."
         },
         {
             "text": "But yeah, I'm just going to try and live here as long as I can, because I like it.",
             "start": 249.936,
-            "end": 254.576
+            "end": 254.576,
+            "fa": "اما می‌خوام تا جایی که می‌تونم اینجا زندگی کنم، چون اینجا رو دوست دارم."
         },
         {
             "text": "Oh, really? You'd like to stay? - Yeah, I love Brighton. It's really, really nice.",
             "start": 254.576,
-            "end": 257.516
+            "end": 257.516,
+            "fa": "اوه، جدی؟ می‌خوای بمونی؟ - آره، بریتون رو دوست دارم. واقعاً خیلی قشنگه."
         },
         {
             "text": "Where are you going for food in a minute?",
             "start": 257.516,
-            "end": 258.996
+            "end": 258.996,
+            "fa": "کجا می‌خوای بریم غذا بخوریم؟"
         },
         {
             "text": "Ask Italian. - Ask Italian, yeah.",
             "start": 258.996,
-            "end": 260.896
+            "end": 260.896,
+            "fa": "آسک ایتالیان. - آسک ایتالیان، بله."
         },
         {
             "text": "Yeah, we've got a voucher, so we want the money off. - It's okay.",
             "start": 260.896,
-            "end": 265.796
+            "end": 265.796,
+            "fa": "ما یک ووچر داریم، می‌خوایم تخفیف بگیریم. - مشکلی نیست."
         },
         {
             "text": "Ask Italian's pretty good anyway, even if you don't have a voucher, I think, no?",
             "start": 265.796,
-            "end": 269.179
+            "end": 269.179,
+            "fa": "آسک ایتالیان اصلاً خوبه، حتی بدون ووچر هم، فکر نمی‌کنی؟"
         },
         {
             "text": "And, out of interest, what are you watching? You're going to a concert tomorrow? - We are.",
             "start": 269.179,
-            "end": 273.339
+            "end": 273.339,
+            "fa": "راستی، چه برنامه‌ای داری؟ فردا می‌خوای به کنسرت بری؟ - ما می‌ریم."
         },
         {
             "text": "We're going to watch an artist called Peach PRC.",
             "start": 273.339,
-            "end": 276.819
+            "end": 276.819,
+            "fa": "ما می‌خوایم یک هنرمند به اسم Peach PRC رو ببینیم."
         },
         {
             "text": "So we're going to have a good time.",
             "start": 276.819,
-            "end": 278.519
+            "end": 278.519,
+            "fa": "پس قراره حسابی خوش بگذره."
         },
         {
             "text": "And you get a nice long lunch break?",
             "start": 278.519,
-            "end": 280.259
+            "end": 280.259,
+            "fa": "و یک استراحت ناهار طولانی دارید؟"
         },
         {
             "text": "We get an hour. - Get an hour. So we literally just like... on our way.",
             "start": 280.259,
-            "end": 284.939
+            "end": 284.939,
+            "fa": "ما یک ساعت داریم. - یک ساعت. یعنی دقیقاً مثل این که... در راه هستیم."
         },
         {
             "text": "It's like a grab-and-go situation.",
             "start": 284.939,
-            "end": 287.079
+            "end": 287.079,
+            "fa": "مثل یک وضعیت «بردار و بزن» است."
         },
         {
             "text": "I won't keep you any longer then, let you get to it.",
             "start": 287.079,
-            "end": 288.499
+            "end": 288.499,
+            "fa": "دیگه وقتت رو نمی‌گیرم، ببرش."
         },
         {
             "text": "So you have a 9 pm ferry... from where, though? Not from Brighton? - From Portsmouth.",
             "start": 288.499,
-            "end": 292.599
+            "end": 292.599,
+            "fa": "پس یک فری ۹ شب دارید... از کجا؟ نه از بریتون؟ - از پورتسموث."
         },
         {
             "text": "Oh, so you're going back to... - Yeah, back to Portsmouth.",
             "start": 292.599,
-            "end": 294.979
+            "end": 294.979,
+            "fa": "اوه، پس می‌خوای برگردی به... - آره، برمی‌گردم به پورتسموث."
         },
         {
             "text": "So it's a little bit random, but I didn't want to go to Southampton or Portsmouth.",
             "start": 294.979,
-            "end": 299.439
+            "end": 299.439,
+            "fa": "یکم تصادفی شد، اما نمی‌خواستم به ساؤثمپتون یا پورتسموث برم."
         },
         {
             "text": "I wanted to go further afield, and Winchester we know like the back of our hand.",
             "start": 299.439,
-            "end": 303.279
+            "end": 303.279,
+            "fa": "می‌خواستم جایی دورتر برم، و وینچستر رو مثل دست خودمون می‌دونیم."
         },
         {
             "text": "So we thought, Brighton!",
             "start": 303.279,
-            "end": 305.679
+            "end": 305.679,
+            "fa": "پس فکر کردیم، بریتون!"
         },
         {
             "text": "And then, so I'm guessing you're getting, like, an overnight sleeper ferry thing?",
             "start": 305.679,
-            "end": 308.099
+            "end": 308.099,
+            "fa": "حالا حدس می‌زنم می‌خوای یک فری شبانه‌سوار بگیری؟"
         },
         {
             "text": "Yeah. Yeah, yeah, yeah.",
             "start": 308.099,
-            "end": 311.059
+            "end": 311.059,
+            "fa": "آره. آره، آره، آره."
         },
         {
             "text": "Walk our legs off today and basically put them up tomorrow on the ferry.",
             "start": 311.059,
-            "end": 314.219
+            "end": 314.219,
+            "fa": "امروز کلی راه می‌ریم و فردا توی فری می‌ذاریم پاها رو."
         },
         {
             "text": "Oh my God, you're going to be knackered. - Yeah, I think so.",
             "start": 314.219,
-            "end": 317.199
+            "end": 317.199,
+            "fa": "اوه خدای من، خسته می‌شی. - آره، فکر می‌کنم."
         },
         {
             "text": "And how long is the ferry? - About 30 hours. - Oh, wow!",
             "start": 317.199,
-            "end": 320.139
+            "end": 320.139,
+            "fa": "فری چقدر طول می‌کشه؟ - حدود ۳۰ ساعت. - اوه، واو!"
         },
         {
             "text": "Okay, so over a couple of days? - Yeah, yeah, yeah. - Amazing!",
             "start": 320.139,
-            "end": 322.519
+            "end": 322.519,
+            "fa": "خب، یعنی چند روزه؟ - آره، آره، آره. - شگفت‌انگیزه!"
         },
         {
             "text": "So we land in Spain on Wednesday morning. - Wow!",
             "start": 322.519,
-            "end": 325.819
+            "end": 325.819,
+            "fa": "پس صبح چهارشنبه توی اسپانیا می‌رسیم. - واو!"
         },
         {
             "text": "Well, have a great time. - Thank you!",
             "start": 325.819,
-            "end": 327.599
+            "end": 327.599,
+            "fa": "خوب، خوش بگذره. - ممنون!"
         },
         {
             "text": "And how does Brighton compare to your home... to Cardiff?",
             "start": 327.599,
-            "end": 330.419
+            "end": 330.419,
+            "fa": "برایتون چطور با خونه‌ات... یعنی کاردیف مقایسه می‌شه؟"
         },
         {
             "text": "Nothing beats where we're from, I don't think.",
             "start": 330.419,
-            "end": 331.899
+            "end": 331.899,
+            "fa": "فکر نمی‌کنم جایی بهتر از جایی که ما هستیم باشه."
         },
         {
             "text": "I think I'll always have a connection to that place.",
             "start": 331.899,
-            "end": 335.599
+            "end": 335.599,
+            "fa": "فکر می‌کنم همیشه یه ارتباط با اونجا دارم."
         },
         {
             "text": "But it's always good to see different things.",
             "start": 335.599,
-            "end": 338.179
+            "end": 338.179,
+            "fa": "اما همیشه خوبه چیزهای متفاوتو ببینی."
         },
         {
             "text": "This is our first... first step of travelling, really.",
             "start": 338.179,
-            "end": 340.959
+            "end": 340.959,
+            "fa": "این اولین قدم سفر ماست، واقعاً."
         },
         {
             "text": "We're going to go broader, obviously, later on.",
             "start": 340.959,
-            "end": 342.939
+            "end": 342.939,
+            "fa": "بعداً واضحاً می‌خوایم گسترده‌تر بریم."
         },
         {
             "text": "We are actually planning to go on a trip to Japan in a few years, for our shared big birthdays.",
             "start": 342.939,
-            "end": 347.819
+            "end": 347.819,
+            "fa": "ما در واقع برنامه‌ریزی می‌کنیم که چند سال آینده برای تولدهای بزرگ مشترکمون به ژاپن بریم."
         },
         {
             "text": "So, you know, it's all in the works, but we're easing into it at the moment.",
             "start": 347.819,
-            "end": 351.579
+            "end": 351.579,
+            "fa": "پس می‌دونی، همه چیز در دست اقدام هست، اما الآن کم‌کم پیش می‌ریم."
         },
         {
             "text": "Yeah, nice. Great! I hope you have a nice time in Brighton. - Thank you!",
             "start": 351.579,
-            "end": 355.1
+            "end": 355.1,
+            "fa": "آره، عالی! امیدوارم تو برایتون وقت خوشی داشته باشی. - ممنون!"
         }
     ],
     "video_shadowing_words": [
@@ -12213,7 +12401,8 @@
             "speaker": "Vanessa",
             "text": "Today I have five work-related questions, including a little quiz about some work vocabulary",
             "start": 0,
-            "end": 8.78
+            "end": 8.78,
+            "fa": "امروز پنج سؤال کاری دارم، شامل یک آزمون کوچیک دربارهٔ واژگان کاری که نمی‌دونم دان می‌دونه یا نه."
         },
         {
             "speaker": "Vanessa",
@@ -12225,103 +12414,120 @@
             "speaker": "Vanessa",
             "text": "Maybe he will.",
             "start": 11.86,
-            "end": 12.86
+            "end": 12.86,
+            "fa": "شاید می‌دونه."
         },
         {
             "speaker": "Vanessa",
             "text": "Maybe you will know it.",
             "start": 12.86,
-            "end": 14.22
+            "end": 14.22,
+            "fa": "شاید تو می‌دونی."
         },
         {
             "speaker": "Vanessa",
             "text": "We'll see.",
             "start": 14.22,
-            "end": 15.22
+            "end": 15.22,
+            "fa": "می‌بینیم."
         },
         {
             "speaker": "Dan",
             "text": "We'll see.",
             "start": 15.22,
-            "end": 16.22
+            "end": 16.22,
+            "fa": "می‌بینیم."
         },
         {
             "speaker": "Dan",
             "text": "We both have non-traditional jobs, so we'll see what I know about work vocabulary.",
             "start": 16.22,
-            "end": 21.56
+            "end": 21.56,
+            "fa": "هر دو شغل غیر سنتی داریم، پس می‌بینیم چه چیزهایی دربارهٔ واژگان کاری می‌دونم."
         },
         {
             "speaker": "Vanessa",
             "text": "Yup.",
             "start": 21.56,
-            "end": 22.56
+            "end": 22.56,
+            "fa": "آره."
         },
         {
             "speaker": "Vanessa",
             "text": "All right.",
             "start": 22.56,
-            "end": 23.56
+            "end": 23.56,
+            "fa": "باشه."
         },
         {
             "speaker": "Vanessa",
             "text": "Let's start with our first question.",
             "start": 23.56,
-            "end": 24.56
+            "end": 24.56,
+            "fa": "بزن بریم با سؤال اولمون."
         },
         {
             "speaker": "Vanessa",
             "text": "All right.",
             "start": 24.56,
-            "end": 25.56
+            "end": 25.56,
+            "fa": "باشه."
         },
         {
             "speaker": "Vanessa",
             "text": "Let's go on to our second question.",
             "start": 25.56,
-            "end": 26.88
+            "end": 26.88,
+            "fa": "بریم سر سؤال دوم."
         },
         {
             "speaker": "Vanessa",
             "text": "Our second question is a little more of a modern question.",
             "start": 26.88,
-            "end": 29.72
+            "end": 29.72,
+            "fa": "سؤال دوممون یه سؤال مدرن‌تره."
         },
         {
             "speaker": "Vanessa",
             "text": "I want to know, would you rather work from home or at a workplace?",
             "start": 29.72,
-            "end": 36.22
+            "end": 36.22,
+            "fa": "می‌خوام بدونم، ترجیح می‌دی از خونه کار کنی یا تو محل کار؟"
         },
         {
             "speaker": "Vanessa",
             "text": "The workplace could be an office or in a coffee shop or the location that the job is set at.",
             "start": 36.22,
-            "end": 43.58
+            "end": 43.58,
+            "fa": "محل کار می‌تونه دفتر باشه یا کافه یا جایی که کار توش انجام می‌شه."
         },
         {
             "speaker": "Vanessa",
             "text": "What would you rather do?",
             "start": 43.58,
-            "end": 44.58
+            "end": 44.58,
+            "fa": "کدوم‌اش رو ترجیح می‌دی؟"
         },
         {
             "speaker": "Dan",
             "text": "Well, how about you?",
             "start": 44.58,
-            "end": 45.58
+            "end": 45.58,
+            "fa": "خب، تو چطور؟"
         },
         {
             "speaker": "Vanessa",
             "text": "Yes.",
             "start": 45.58,
-            "end": 46.58
+            "end": 46.58,
+            "fa": "آره."
         },
         {
             "speaker": "Vanessa",
             "text": "I think for me, because I work for myself, I have my own business teaching you English,",
             "start": 46.58,
-            "end": 50.64
+            "end": 50.64,
+            "fa": "فکر می‌کنم برای من، چون خودم کار می‌کنم، کسب‌وکار خودم رو دارم که به تو انگلیسی یاد می‌دم، با ونسا انگلیسی صحبت می‌کنیم."
         },
         {
             "speaker": "Vanessa",
@@ -12333,61 +12539,71 @@
             "speaker": "Vanessa",
             "text": "I'm going to answer neither.",
             "start": 52.18,
-            "end": 55.34
+            "end": 55.34,
+            "fa": "من جواب «هیچ‌کدام» می‌دم."
         },
         {
             "speaker": "Vanessa",
             "text": "I don't want to work at home and I also don't want to work in a workplace.",
             "start": 55.34,
-            "end": 59.24
+            "end": 59.24,
+            "fa": "نمی‌خوام خونه کار کنم و نه هم می‌خوام تو محل کار کار کنم."
         },
         {
             "speaker": "Vanessa",
             "text": "This is my ideal scenario.",
             "start": 59.24,
-            "end": 60.24
+            "end": 60.24,
+            "fa": "این وضعیت ایده‌آل من هست."
         },
         {
             "speaker": "Vanessa",
             "text": "Are you ready?",
             "start": 60.24,
-            "end": 61.24
+            "end": 61.24,
+            "fa": "آماده‌ای؟"
         },
         {
             "speaker": "Dan",
             "text": "She wants to be totally independent.",
             "start": 61.24,
-            "end": 64.4
+            "end": 64.4,
+            "fa": "اون می‌خواد کاملاً مستقل باشه."
         },
         {
             "speaker": "Dan",
             "text": "She wants to work in space.",
             "start": 64.4,
-            "end": 65.68
+            "end": 65.68,
+            "fa": "می‌خواد تو فضا کار کنه."
         },
         {
             "speaker": "Vanessa",
             "text": "I want to work in a castle overlooking a kingdom.",
             "start": 65.68,
-            "end": 68.86
+            "end": 68.86,
+            "fa": "من می‌خوام تو یک قلعه با چشم‌انداز به یک پادشاهی کار کنم."
         },
         {
             "speaker": "Vanessa",
             "text": "No, I want to I can probably do this in another couple of years.",
             "start": 68.86,
-            "end": 74.18
+            "end": 74.18,
+            "fa": "نه، فکر می‌کنم می‌تونم اینو تو چند سال دیگه انجام بدم."
         },
         {
             "speaker": "Vanessa",
             "text": "Work for my business, great, but not at home.",
             "start": 74.18,
-            "end": 78.62
+            "end": 78.62,
+            "fa": "برای کسب‌وکارم کار می‌کنم، عالی، اما نه تو خونه."
         },
         {
             "speaker": "Vanessa",
             "text": "Last year when I was pregnant with my baby, I worked at a coworking space and these exist",
             "start": 78.62,
-            "end": 85.64
+            "end": 85.64,
+            "fa": "سال گذشته وقتی باردار بودم، تو یک فضای کار مشترک کار می‌کردم و این فضاها تو سرتاسر جهان هستن. شاید اسمشونو شنیده باشی یا نداری، مثل یک دفتر خیلی باحال. سعی می‌کنن جالب باشن چون می‌خوان بری اونجا و همه فقط با لپ‌تاپشون برای کارهای خودشون کار می‌کنن."
         },
         {
             "speaker": "Vanessa",
@@ -12405,13 +12621,15 @@
             "speaker": "Vanessa",
             "text": "It's like the fun place to be.",
             "start": 101.49,
-            "end": 104.13
+            "end": 104.13,
+            "fa": "مثل یه جای خوش‌گذره."
         },
         {
             "speaker": "Vanessa",
             "text": "And this is, I think, my ideal where I'm working at the job that I want to work at, being your",
             "start": 104.13,
-            "end": 109.97
+            "end": 109.97,
+            "fa": "فکر می‌کنم این ایده‌آلمه: کاری که می‌خوام انجام بدم، معلم انگلیسی شما بودن، و تو جایی که دور و دور آدم‌های دیگه باشم."
         },
         {
             "speaker": "Vanessa",
@@ -12423,37 +12641,43 @@
             "speaker": "Vanessa",
             "text": "Working from home is so convenient with small children.",
             "start": 116.25,
-            "end": 120.03
+            "end": 120.03,
+            "fa": "کار از خونه وقتی بچه‌های کوچیک دارین خیلی راحت‌ست."
         },
         {
             "speaker": "Vanessa",
             "text": "My baby's napping in the other room right now.",
             "start": 120.03,
-            "end": 122.23
+            "end": 122.23,
+            "fa": "بچه‌ام الآن توی اتاق دیگه خوابیده."
         },
         {
             "speaker": "Vanessa",
             "text": "I can nurse her.",
             "start": 122.23,
-            "end": 123.23
+            "end": 123.23,
+            "fa": "می‌تونم بهش شیر بده."
         },
         {
             "speaker": "Vanessa",
             "text": "I can help my kids.",
             "start": 123.23,
-            "end": 124.67
+            "end": 124.67,
+            "fa": "می‌تونم به بچه‌هام کمک کنم."
         },
         {
             "speaker": "Vanessa",
             "text": "I can do those types of things, but when they're a little bit older, I'm out.",
             "start": 124.67,
-            "end": 129.77
+            "end": 129.77,
+            "fa": "می‌تونم این کارها رو بکنم، ولی وقتی کمی بزرگ‌تر شدن، بیرون می‌رم."
         },
         {
             "speaker": "Vanessa",
             "text": "I want to go and be out in a co-working space, and this type of environment I think is really",
             "start": 129.77,
-            "end": 135.67
+            "end": 135.67,
+            "fa": "می‌خوام برم توی یک فضای کار مشترک، و این نوع محیط رو برای خودم خیلی سالم می‌دونم."
         },
         {
             "speaker": "Vanessa",
@@ -12465,79 +12689,92 @@
             "speaker": "Vanessa",
             "text": "These are specifically things that you would write in an email in the office.",
             "start": 136.97,
-            "end": 142.85
+            "end": 142.85,
+            "fa": "این‌ها دقیقاً چیزهایی‌ست که توی ایمیل دفتر می‌نویسی."
         },
         {
             "speaker": "Vanessa",
             "text": "Are you ready?",
             "start": 142.85,
-            "end": 143.85
+            "end": 143.85,
+            "fa": "آماده‌ای؟"
         },
         {
             "speaker": "Dan",
             "text": "I already think I'm not going to be very good at this.",
             "start": 143.85,
-            "end": 146.09
+            "end": 146.09,
+            "fa": "قبلاً فکر می‌کنم تو این کار خیلی خوب نمی‌شم."
         },
         {
             "speaker": "Vanessa",
             "text": "The first one is WFH.",
             "start": 146.09,
-            "end": 152.05
+            "end": 152.05,
+            "fa": "اولین مورد WFH (کار از خونه) است."
         },
         {
             "speaker": "Vanessa",
             "text": "I'll give you a sample sentence.",
             "start": 152.99,
-            "end": 154.71
+            "end": 154.71,
+            "fa": "یک جمله نمونه بهت می‌دم."
         },
         {
             "speaker": "Dan",
             "text": "Okay.",
             "start": 155.55,
-            "end": 155.83
+            "end": 155.83,
+            "fa": "باشه."
         },
         {
             "speaker": "Vanessa",
             "text": "This is a WFH position, or I'm looking for a WFH position.",
             "start": 157.35,
-            "end": 166.39
+            "end": 166.39,
+            "fa": "این یک موقعیت WFH است، یا من دنبال یک موقعیت WFH می‌گردم."
         },
         {
             "speaker": "Vanessa",
             "text": "So this is work from home, which is increasingly more common since the pandemic.",
             "start": 166.97,
-            "end": 171.13
+            "end": 171.13,
+            "fa": "پس این کار از خونه است که بعد از همه‌گیری بیشتر رایج شده."
         },
         {
             "speaker": "Vanessa",
             "text": "Yes, work from home.",
             "start": 171.77,
-            "end": 172.85
+            "end": 172.85,
+            "fa": "بله، کار از خونه."
         },
         {
             "speaker": "Vanessa",
             "text": "You got it.",
             "start": 172.89,
-            "end": 173.19
+            "end": 173.19,
+            "fa": "درست گفتی."
         },
         {
             "speaker": "Vanessa",
             "text": "All right, the next one.",
             "start": 173.23,
-            "end": 174.03
+            "end": 174.03,
+            "fa": "خب، مورد بعدی."
         },
         {
             "speaker": "Vanessa",
             "text": "You might see this at the bottom of an email O This is the letter not the number",
             "start": 174.03,
-            "end": 186.7
+            "end": 186.7,
+            "fa": "ممکنه اینو در انتهای ایمیل ببینی: O (این حرفه، نه عدد)"
         },
         {
             "speaker": "Dan",
             "text": "Ooh O If you saw O Orange",
             "start": 186.86,
-            "end": 190.82
+            "end": 190.82,
+            "fa": "اوه، O. اگر O رو دیدی، مثل «اُستریس نارنجی»، «اورانگوتان»."
         },
         {
             "speaker": "Dan",
@@ -12549,7 +12786,8 @@
             "speaker": "Vanessa",
             "text": "Yes, you got it. No, this is out of office. Oh. O-O. So when someone",
             "start": 193.69,
-            "end": 202.19
+            "end": 202.19,
+            "fa": "بله، درست گفتی. نه، این «خارج از دفتر» است. اوه. O-O. وقتی کسی تو روزهای کاری غیبت دارد، مثلاً تعطیلات دوشنبه تا چهارشنبه، می‌تونی توی سیستم ایمیل یک پیام خودکار برای همه بفرستی."
         },
         {
             "speaker": "Vanessa",
@@ -12567,7 +12805,8 @@
             "speaker": "Vanessa",
             "text": "That's your OOO, your out of office message that says, I'm sitting on a beach right now. Ha ha,",
             "start": 216.73,
-            "end": 223.61
+            "end": 223.61,
+            "fa": "این پیام OOO (خارج از دفتر) توست که می‌گه: «الان توی ساحل نشسته‌ام». هاها، تو دفتر نیستی. تا پنج‌شنبه می‌بینمت."
         },
         {
             "speaker": "Vanessa",
@@ -12579,145 +12818,169 @@
             "speaker": "Dan",
             "text": "There's only three?",
             "start": 229.1,
-            "end": 230.1
+            "end": 230.1,
+            "fa": "خب، آخرین مورد اینه-"
         },
         {
             "speaker": "Vanessa",
             "text": "There's only three.",
             "start": 230.1,
-            "end": 231.1
+            "end": 231.1,
+            "fa": "فقط سه تا هست؟"
         },
         {
             "speaker": "Vanessa",
             "text": "The last quiz is EOD.",
             "start": 231.1,
-            "end": 233.1
+            "end": 233.1,
+            "fa": "فقط سه تا هست."
         },
         {
             "speaker": "Vanessa",
             "text": "EOD.",
             "start": 233.1,
-            "end": 234.1
+            "end": 234.1,
+            "fa": "آخرین آزمون EOD (پایان روز) است."
         },
         {
             "speaker": "Vanessa",
             "text": "EOD.",
             "start": 234.1,
-            "end": 235.1
+            "end": 235.1,
+            "fa": "آخرین آزمون EOD (پایان روز) است."
         },
         {
             "speaker": "Vanessa",
             "text": "EOD.",
             "start": 235.1,
-            "end": 236.1
+            "end": 236.1,
+            "fa": "آخرین آزمون EOD (پایان روز) است."
         },
         {
             "speaker": "Vanessa",
             "text": "Would you like a sample sentence?",
             "start": 236.1,
-            "end": 238.1
+            "end": 238.1,
+            "fa": "می‌خوای یک جمله نمونه؟"
         },
         {
             "speaker": "Dan",
             "text": "Sure.",
             "start": 238.1,
-            "end": 239.1
+            "end": 239.1,
+            "fa": "حتماً."
         },
         {
             "speaker": "Vanessa",
             "text": "Okay.",
             "start": 239.1,
-            "end": 240.1
+            "end": 240.1,
+            "fa": "باشه."
         },
         {
             "speaker": "Vanessa",
             "text": "The sample sentence is, I need this finished by EOD, or I will have this finished by EOD.",
             "start": 240.1,
-            "end": 250.1
+            "end": 250.1,
+            "fa": "جمله نمونه اینه: من اینو باید تا پایان روز تموم کنم، یا اینکه تا پایان روز تمومش می‌کنم."
         },
         {
             "speaker": "Dan",
             "text": "Earliest, earliest?",
             "start": 250.1,
-            "end": 253.1
+            "end": 253.1,
+            "fa": "زودتر، زودتر؟"
         },
         {
             "speaker": "Dan",
             "text": "No.",
             "start": 253.1,
-            "end": 254.1
+            "end": 254.1,
+            "fa": "نه."
         },
         {
             "speaker": "Dan",
             "text": "Even.",
             "start": 254.1,
-            "end": 255.1
+            "end": 255.1,
+            "fa": "حتی."
         },
         {
             "speaker": "Vanessa",
             "text": "No.",
             "start": 255.1,
-            "end": 256.1
+            "end": 256.1,
+            "fa": "نه."
         },
         {
             "speaker": "Vanessa",
             "text": "EOD.",
             "start": 256.1,
-            "end": 257.1
+            "end": 257.1,
+            "fa": "آخرین آزمون EOD (پایان روز) است."
         },
         {
             "speaker": "Vanessa",
             "text": "EOD.",
             "start": 257.1,
-            "end": 258.1
+            "end": 258.1,
+            "fa": "آخرین آزمون EOD (پایان روز) است."
         },
         {
             "speaker": "Vanessa",
             "text": "Uh-huh.",
             "start": 258.1,
-            "end": 259.1
+            "end": 259.1,
+            "fa": "آره."
         },
         {
             "speaker": "Vanessa",
             "text": "Can you have this finished by EOD?",
             "start": 259.1,
-            "end": 262.04
+            "end": 262.04,
+            "fa": "می‌تونی اینو تا پایان روز تموم کنی؟"
         },
         {
             "speaker": "Vanessa",
             "text": "And you would not say this, you would write this in an email or in like a text.",
             "start": 262.04,
-            "end": 266.46
+            "end": 266.46,
+            "fa": "و تو اینو نمی‌گی، تو توی ایمیل یا پیام می‌نویسی."
         },
         {
             "speaker": "Dan",
             "text": "End of date.",
             "start": 266.46,
-            "end": 267.46
+            "end": 267.46,
+            "fa": "پایان تاریخ."
         },
         {
             "speaker": "Vanessa",
             "text": "Oh, close.",
             "start": 267.46,
-            "end": 268.46
+            "end": 268.46,
+            "fa": "اوه، نزدیک."
         },
         {
             "speaker": "Vanessa",
             "text": "End of",
             "start": 268.46,
-            "end": 268.81
+            "end": 268.81,
+            "fa": "پایان"
         },
         {
             "speaker": "Dan",
             "text": "day Yes End of day",
             "start": 268.87,
-            "end": 269.93
+            "end": 269.93,
+            "fa": "روز بله پایان روز"
         },
         {
             "speaker": "Vanessa",
             "text": "Yes Yes Can you have this finished by EOD Can you have this finished by EOD End of day Just the other day they were doing something else and I was doing some work",
             "start": 269.99,
-            "end": 279.54
+            "end": 279.54,
+            "fa": "آره آره می‌تونی اینو تا پایان روز تموم کنی می‌تونی اینو تا پایان روز تموم کنی پایان روز همین دیروز وقتی داشتند کاری دیگه می‌کردند و من مشغول کار بودم و داخل اتاق اومدن. مامان، تو توی کامپیوتر هستی. واو. می‌خوام توی زانوهایت بنشینم."
         },
         {
             "speaker": "Vanessa",
@@ -12729,7 +12992,8 @@
             "speaker": "Vanessa",
             "text": "There were two children on my lap and I was halfway through finishing an email that I really",
             "start": 286.5,
-            "end": 291.78
+            "end": 291.78,
+            "fa": "دو تا بچه روی زانوهایم بود و من نیمه‌راه ایمیلی که خیلی می‌خواستم تمومش کنم، می‌نوشتم. هیچ‌وقت نمی‌تونی این کارو بکنی اگه تا حالا سعی نکردی. پس تو ذهنم می‌گم الآن این کارو نمی‌کنم، پنج یا ده دقیقه صبر می‌کنم. اوکی می‌شه."
         },
         {
             "speaker": "Vanessa",
@@ -12753,13 +13017,15 @@
             "speaker": "Dan",
             "text": "10 hours.",
             "start": 305.73,
-            "end": 306.45
+            "end": 306.45,
+            "fa": "۱۰ ساعت."
         },
         {
             "speaker": "Vanessa",
             "text": "10 hours. It's okay. And focus on just whatever they",
             "start": 306.53,
-            "end": 310.7
+            "end": 310.7,
+            "fa": "۱۰ ساعت. اوکی. فقط به کاری که در اون لحظه لازم است تمرکز کن. بعد می‌تونم برگردم سر کار. چون اگه هم‌زمان ایمیل‌هات رو چک کنی و با بچه‌هات حرف بزنی یا کار دیگه‌ای انجام بدی، مغزت دیوانه می‌شود."
         },
         {
             "speaker": "Vanessa",
@@ -12783,43 +13049,50 @@
             "speaker": "Dan",
             "text": "Hobbies too.",
             "start": 323.36,
-            "end": 324.14
+            "end": 324.14,
+            "fa": "سرگرمی‌ها هم."
         },
         {
             "speaker": "Vanessa",
             "text": "What hobbies do I absolutely have to do?",
             "start": 324.21,
-            "end": 326.82
+            "end": 326.82,
+            "fa": "چه سرگرمی‌هایی واقعا باید انجام بدم؟"
         },
         {
             "speaker": "Dan",
             "text": "Some of them might be painful. I recently stopped watching hockey, which is my favorite sport.",
             "start": 326.82,
-            "end": 331.78
+            "end": 331.78,
+            "fa": "بعضی ازشون ممکنه دردسرساز باشن. من تازه تماشای هاکی، که ورزش مورد علاقم بود، رو قطع کردم."
         },
         {
             "speaker": "Dan",
             "text": "That brought a little tear to my eye, but I just don't have time for it anymore.",
             "start": 331.78,
-            "end": 335.3
+            "end": 335.3,
+            "fa": "این باعث شد یه اشک کوچیک تو چشمم بیاد، اما دیگه وقتش رو ندارم."
         },
         {
             "speaker": "Vanessa",
             "text": "Mm-hmm. And maybe at another point in your life, you will have more-",
             "start": 335.3,
-            "end": 338.9
+            "end": 338.9,
+            "fa": "ام‌ام‑هم. شاید تو یه مرحله دیگه از زندگیت، بیشتر..."
         },
         {
             "speaker": "Dan",
             "text": "I can watch all the hockey games I want.",
             "start": 338.9,
-            "end": 340.9
+            "end": 340.9,
+            "fa": "می‌تونم هر تعداد بازی هاکی که می‌خوام ببینم."
         },
         {
             "speaker": "Vanessa",
             "text": "You'll have more figurative bandwidth. But for now, maybe in your life, if you're feeling",
             "start": 340.9,
-            "end": 346.74
+            "end": 346.74,
+            "fa": "پهنای باند ذهنی‌ات بیشتر می‌شه. اما الآن، اگه احساس استرس زیاد از تعادل کار‑زندگی می‌کنی، همه چیزو روی میز بگذار. چه چیزهایی ضروریه؟"
         },
         {
             "speaker": "Vanessa",
@@ -12831,43 +13104,50 @@
             "speaker": "Vanessa",
             "text": "How can I cut back so that I feel more balanced and happy?",
             "start": 351.94,
-            "end": 355.46
+            "end": 355.46,
+            "fa": "چطور می‌تونم کم کنم تا احساس تعادل و خوشحالی کنم؟"
         },
         {
             "speaker": "Vanessa",
             "text": "I think you owe it to yourself.",
             "start": 355.74,
-            "end": 357.04
+            "end": 357.04,
+            "fa": "فکر می‌کنم باید اینو به خودت بدهی."
         },
         {
             "speaker": "Vanessa",
             "text": "You owe it to your family.",
             "start": 357.32,
-            "end": 358.26
+            "end": 358.26,
+            "fa": "تو به خانواده‌ات بدهکار هستی."
         },
         {
             "speaker": "Vanessa",
             "text": "And yeah, you'll just be a better person for it.",
             "start": 358.86,
-            "end": 360.86
+            "end": 360.86,
+            "fa": "و آره، این باعث می‌شه آدم بهتری باشی."
         },
         {
             "speaker": "Vanessa",
             "text": "But I'm still working on that.",
             "start": 361.06,
-            "end": 362.3
+            "end": 362.3,
+            "fa": "اما من هنوز تو این کار دارم."
         },
         {
             "speaker": "Vanessa",
             "text": "Dan's still working on that.",
             "start": 362.5,
-            "end": 363.4
+            "end": 363.4,
+            "fa": "دَن هم هنوز تو این کار داره."
         },
         {
             "speaker": "Vanessa",
             "text": "So take it with a grain of salt.",
             "start": 363.52,
-            "end": 364.96
+            "end": 364.96,
+            "fa": "پس اینو با کمی شک بگیر."
         }
     ]
 }
