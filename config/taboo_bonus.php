@@ -147,4 +147,23 @@ return [
     'paperwork' => ['forms', 'documents'],
     'break down' => ['car', 'stop'],
     'run out of' => ['finish', 'none'],
+
+    // M12 · Education
+    'homeschooled' => ['home', 'parents'],
+    'scholarship' => ['money', 'student'],
+    'student loan' => ['money', 'university'],
+    'pay back' => ['money', 'borrow'],
+    'gap year' => ['year', 'travel'],
+    'primary school' => ['children', 'young'],
+    'secondary school' => ['teenagers', 'school'],
+    'state school' => ['free', 'government'],
+    'term' => ['school', 'months'],
+    'get into trouble' => ['wrong', 'punished'],
+    'break the rules' => ['wrong', 'rules'],
+    'degree' => ['university', 'finish'],
+    'graduate' => ['finish', 'university'],
+    'lecture' => ['university', 'talk'],
+    'qualification' => ['exam', 'certificate'],
+    'essay' => ['writing', 'subject'],
+    'do research' => ['study', 'facts'],
 ];

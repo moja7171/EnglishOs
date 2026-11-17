@@ -276,6 +276,25 @@
     --mood-texture-size: 26px 26px;
 }
 
+/* M12 "Education" — a deep pencil yellow (a school pencil, an old
+   exercise book), paired with small pairs of slanted marks like speech
+   marks (“ ”), because the mission is about what other people said —
+   pairs of tilted ovals, so they never read as the single dots, rings or
+   wedges of the other moods. */
+[data-mood='quote'] {
+    --color-accent: #b8901a;
+    --color-accent-dark: #e3bd4a;
+    --color-accent-soft: #f7efd6;
+    --color-accent-soft-dark: #43361a;
+    --color-accent-ink: #7f6210;
+    --color-accent-ink-dark: #ffe08a;
+    --color-dawn: #e9c860;
+    --color-dusk: #8a6a14;
+    --mood-texture: radial-gradient(ellipse 2px 4px at 42% 46%, color-mix(in srgb, var(--color-accent) calc(12% * var(--mood-boost)), transparent) 98%, transparent),
+        radial-gradient(ellipse 2px 4px at 56% 46%, color-mix(in srgb, var(--color-accent) calc(12% * var(--mood-boost)), transparent) 98%, transparent);
+    --mood-texture-size: 34px 34px;
+}
+
 [data-mood] {
     background-image: var(--mood-texture);
     background-size: var(--mood-texture-size);

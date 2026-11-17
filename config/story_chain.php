@@ -57,4 +57,8 @@ return [
         'Next Monday, Hamid is going to start a new job, but on Sunday night he gets a strange email from his new boss.',
         'Mina will have an important interview tomorrow morning, and tonight her laptop is going to stop working.',
     ],
+    'M12' => [
+        'On the first day of school, the teacher told Sara that she had to sit next to the quietest boy in the class.',
+        'Ali\'s mum said she had a surprise for him, but she asked him not to tell his sister.',
+    ],
 ];
