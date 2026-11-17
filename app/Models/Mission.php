@@ -532,6 +532,7 @@ class Mission extends Model
             'M09' => 'self',
             'M10' => 'bond',
             'M11' => 'ahead',
+            'M12' => 'quote',
             default => 'daily-life',
         };
     }

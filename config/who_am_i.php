@@ -62,5 +62,9 @@ return [
 
         // M10 · Relationships, M11 · Work
         ['wedding', 'place', 10], ['boss', 'job', 11], ['interviewer', 'job', 11], ['receptionist', 'job', 11],
+
+        // M12 · Education
+        ['classroom', 'place', 12], ['headteacher', 'job', 12], ['classmate', 'person', 12], ['homework', 'thing', 12],
+        ['exam', 'thing', 12], ['whiteboard', 'thing', 12], ['school bag', 'thing', 12], ['dictionary', 'thing', 12],
     ],
 ];

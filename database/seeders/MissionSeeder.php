@@ -2899,6 +2899,7 @@ class MissionSeeder extends Seeder
         $this->seedM09();
         $this->seedM10();
         $this->seedM11();
+        $this->seedM12();
     }
 
     /**
@@ -7895,6 +7896,701 @@ class MissionSeeder extends Seeder
                                     'I think I\'ll… / I don\'t think I\'ll…',
                                     'A plan for your work or study',
                                     'Where you think you\'ll be in five years',
+                                ],
+                            ],
+                            [
+                                'key' => 'mission_result',
+                                'label' => 'Mission Result',
+                                'duration_minutes' => 5,
+                                'hook' => "You started this mission with a number — let's see how far it moved.",
+                                'skills' => ['Listening', 'Vocabulary', 'Grammar', 'Speaking', 'Writing'],
+                                'reflection_questions' => [
+                                    'became_easier' => ['label' => 'What became easier?', 'type' => 'skills'],
+                                    'still_difficult' => ['label' => 'What is still difficult?', 'type' => 'skills'],
+                                    'expression_to_keep' => ['label' => 'One expression I want to keep using', 'type' => 'vocabulary'],
+                                    'grammar_to_review' => ['label' => 'One grammar point I need to review', 'type' => 'errors'],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ]
+        );
+    }
+
+    private function seedM12(): void
+    {
+        $audioUrl = $this->publishMissionAsset('M12', 'Speak English with Vanessa - Education with Dan.mp3');
+        $shadowingVideoUrl = $this->publishMissionAsset('M12', 'TED - Rita Pierson Every Kid Needs a Champion.mp4');
+        $shadowingCaptionsUrl = $this->publishMissionAsset('M12', 'TED - Rita Pierson Every Kid Needs a Champion.en.vtt');
+
+        Mission::updateOrCreate(
+            ['code' => 'M12'],
+            [
+                'title' => 'Education',
+                'module' => 'Education',
+                'outcome' => 'I can talk about my school and studies, and say what my teachers, parents and friends told me.',
+                'phases' => [
+                    [
+                        'phase' => 'foundation',
+                        'label' => 'Day 1',
+                        'mode' => 'solo',
+                        'pair_speaking' => [
+                            ['question' => 'Would you like to homeschool your children one day?', 'answer' => 'No, I wouldn\'t. My cousin was homeschooled, and she didn\'t have many friends.', 'words' => ['homeschooled']],
+                            ['question' => 'Did you or a friend ever get a scholarship?', 'answer' => 'Yes, my best friend got a scholarship for university.', 'words' => ['scholarship']],
+                            ['question' => 'Do students in your country take a student loan?', 'answer' => 'Some do. My brother took a student loan, and he has to pay it back.', 'words' => ['student loan', 'pay it back']],
+                            ['question' => 'Would you like to take a gap year?', 'answer' => 'Yes! I\'d like to take a gap year and travel before my next course.', 'words' => ['gap year']],
+                        ],
+                        'steps' => [
+                            [
+                                'key' => 'mission_brief',
+                                'label' => 'Get Ready',
+                                'duration_minutes' => 5,
+                                'hook' => 'What did your best teacher tell you? Could you say it in English?',
+                                'image_query' => 'students lecture hall university',
+                                'ambient_video_query' => 'students classroom university',
+                                'warm_up_questions' => [
+                                    'Did you like school?',
+                                    'Who was your favourite teacher?',
+                                    'What did your parents say about school?',
+                                    'Are you studying now?',
+                                ],
+                            ],
+                            [
+                                'key' => 'vocabulary_builder_1',
+                                'label' => 'New Words',
+                                'duration_minutes' => 9,
+                                'hook' => 'Five words Vanessa and Dan use about school and college.',
+                                // Day 1 = the Listening episode's own 5 target_phrases (see M01's
+                                // vocabulary_builder_1), so every learner meets them here first.
+                                'story' => 'My cousin Mahsa was **homeschooled** until she was ten. Later she got a **scholarship** '
+                                    .'for university, so she didn\'t need a big **student loan**. Her brother took a loan, and '
+                                    .'he is still trying to **pay back** the money. Now Mahsa wants to take a **gap year** and '
+                                    .'travel before her first job.',
+                                'words' => [
+                                    ['phrase' => 'homeschooled', 'meaning' => 'taught at home, usually by your parents, not at a school', 'meaning_fa' => 'در خانه درس‌خوانده (به‌جای مدرسه)', 'pos' => 'adjective', 'example' => 'My cousin was homeschooled until she was ten.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'scholarship', 'meaning' => 'money a school or university gives a good student to pay for their studies', 'meaning_fa' => 'بورسیه', 'pos' => 'noun', 'example' => 'She got a scholarship to study in Canada.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'student loan', 'meaning' => 'money you borrow to pay for university and pay back later', 'meaning_fa' => 'وام دانشجویی', 'pos' => 'noun', 'example' => 'He is still paying his student loan.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'pay back', 'meaning' => 'to give back money that you borrowed', 'meaning_fa' => 'پس دادن (پول قرض)', 'pos' => 'phrasal verb', 'example' => 'I\'ll pay you back on Friday.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'gap year', 'meaning' => 'a year between school and university or work, when you travel, work or help others', 'meaning_fa' => 'یک سال وقفه (بین مدرسه و دانشگاه)', 'pos' => 'noun', 'example' => 'After school, I took a gap year and worked in a café.', 'difficulty' => 'medium'],
+                                ],
+                            ],
+                            [
+                                'key' => 'listening',
+                                'label' => 'Listening',
+                                'duration_minutes' => 18,
+                                'hook' => 'Vanessa and Dan talk about school and college in the US. Listen for what other people said to them.',
+                                'source' => 'Speak English with Vanessa — "Advanced English Conversation: Education in the US" (with her husband Dan)',
+                                'image_query' => 'graduation cap and gown',
+                                'audio_url' => $audioUrl,
+                                'listening_segments' => $this->shadowTimestampsFor('M12', 'listening_segments'),
+                                // The same chunks tagged with who is talking — see
+                                // missions:align-listening-speakers. Two speakers: Vanessa
+                                // and Dan.
+                                'listening_turns' => $this->shadowTimestampsFor('M12', 'listening_turns'),
+                                // The parts kept in the cut (0:00-0:10, 1:08-1:59, 10:00-10:58,
+                                // 11:09-11:17, 13:59-15:15, 15:46-16:43, 18:26-19:06,
+                                // 26:08-27:13 and 27:52-27:56 of the original), written from the
+                                // video's human captions and checked against a Whisper pass of
+                                // the cut audio.
+                                'transcript' => [
+                                    ['speaker' => 'Vanessa', 'text' => 'You are invited to a real English conversation with me and my husband, Dan.'],
+                                    ['speaker' => 'Dan', 'text' => 'Hi.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'We\'re going to be talking about education today.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'The first question is, "What age does school start in the U.S. — that\'s where we\'re from — and what does the education system look like?" So let\'s start with the first question: "What age does school start in the U.S.?"'],
+                                    ['speaker' => 'Dan', 'text' => 'So a lot of kids go to some kind of school around four years old, so this would be preschool. In a lot of cases, this is not provided by the state.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'Yeah, this is something that parents have to pay for out of pocket.'],
+                                    ['speaker' => 'Dan', 'text' => 'I would say this is like daycare, except maybe a little more education peppered in, \'cause they\'re really little kids. And then official school is kindergarten, which starts around five or six years old. This is where real school begins. We\'re sitting and trying to learn our letters and alphabet and reading and, "Here\'s numbers," and all that kind of thing.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'Dan was homeschooled until how old?'],
+                                    ['speaker' => 'Dan', 'text' => 'Yes, until 13, I think — until middle school, roughly. And I feel like homeschooling today is way better than it was when I was a kid.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'Way more resources.'],
+                                    ['speaker' => 'Dan', 'text' => 'I think that what I experienced, I don\'t want for my kids. But today I can feasibly see how you can build up certain social exposures, have certain groups. There\'s a ton of resources online.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'Your mom certainly did the best that she could do.'],
+                                    ['speaker' => 'Dan', 'text' => 'Oh, yeah. My mom did a good job. I think it was just, for me personally, I don\'t think it fit what I probably needed as a child.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'Like you needed more pressure to have deadlines and stuff.'],
+                                    ['speaker' => 'Dan', 'text' => 'I needed another authority other than my mom, and I needed a bigger social circle and a little more structured education. I think that would\'ve been good for me.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'Question number two: "Do most American students go to universities after their graduation? Is it considered important?"'],
+                                    ['speaker' => 'Dan', 'text' => 'Oh, well, again, this probably goes to your social circle, because in my social circle it was super important. And I think this is probably family by family.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'I would say it\'s almost expected. If your parents are college graduates, it\'s almost expected — of course you\'ll go to college.'],
+                                    ['speaker' => 'Dan', 'text' => 'However, I think I have heard from certain… like our neighbor — I think she said she was the first to go to college, and it was looked upon as great, but it wasn\'t expected. But as a society, it is definitely encouraged. There\'s ads playing on the TV and YouTube, and every teacher will tell you — and I\'m just going to say university, \'cause more people say that probably — going to university is going to be a great benefit to your life and all this kind of stuff. So I think that is definitely pushed in society. That probably is another reason why I think that a lot of people go. But I\'m also forgetting about how expensive it is.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'Yeah, that\'s the other thing — it\'s really expensive. I would say anywhere between $30,000 and $200,000 for a four-year degree.'],
+                                    ['speaker' => 'Dan', 'text' => 'You know, we went to a small private school, and that\'s known for being pretty expensive.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'Yeah. For me, I had to get a lot of scholarships to go to that school, so I applied for tons of scholarships. The school also had scholarships, and it was pretty much required: if I was going to go to that school, I had to have a lot of money already paid for. Otherwise, it was just too expensive. But I think it\'s interesting, because of our experience — I can speak for you too — we felt pretty burdened. Even though we had scholarships, we felt pretty burdened post-college to pay back our student loans. When you start off your life, your adult life, in debt, that\'s so hard. My parents tried so hard; they paid a lot of money. I had a lot of scholarships, and I still had college debt that I had to pay back. So even though I think I was probably starting off in the best possible position, it still felt like a burden.'],
+                                    ['speaker' => 'Dan', 'text' => 'I don\'t know what the future holds, but I feel like the world changes really, really fast, in that I will certainly not tell my children they have to go to college, and that this will make all the difference. I\'ll be like, "Well, what exactly do you want to do? Let\'s get in that program. Let\'s look at the cost-benefit analysis of how much it costs and really dig in there." Unfortunately, I don\'t feel like my parents did that, but that\'s what I\'ll do.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'I think their generation really was the last generation who said, "I\'ll get a university degree, and that will give me a good job," and it worked. So their expectation was what happened to them, but that\'s not how it is now.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'And it\'s not common in the U.S. to take a gap year. This is a common thing, I think, in Europe and Australia, that after high school, students will take a gap year and go out and do something.'],
+                                    ['speaker' => 'Dan', 'text' => 'Good job, Europe.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'Go be a nanny, go volunteer on a farm.'],
+                                    ['speaker' => 'Dan', 'text' => 'Yeah, I think when we were…'],
+                                    ['speaker' => 'Vanessa', 'text' => 'Go travel in Southeast Asia, do something.'],
+                                    ['speaker' => 'Dan', 'text' => 'When we were in France that one year, we did meet some younger people who seemed to either be taking a gap year or doing some kind of intern thing. I don\'t know. I like that a lot. In the U.S., it\'s strange that you graduate high school and you have this big ceremony and, congratulations, you get to move on to more school.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'Yeah. I pretty much guarantee that if you were in the U.S. and you graduated from high school and you said, "I\'m going to take a gap year, and then I\'ll decide what I want to do," every single person will say, "If you don\'t go to college now, you\'re never going to do it. This is your chance to do it now, because you\'ll forget about it, or you won\'t have the motivation to do it, or you\'ll forget about education and forget about math" — these types of things.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'Well, thanks for talking to me today about education.'],
+                                    ['speaker' => 'Dan', 'text' => 'You\'re welcome.'],
+                                ],
+                                // The same 5 phrases vocabulary_builder_1 taught, each a real
+                                // substring of this transcript.
+                                'target_phrases' => [
+                                    [
+                                        'phrase' => 'homeschooled', 'meaning' => 'taught at home, not at school',
+                                        'gap_before' => 'Dan was ',
+                                        'gap_after' => ' until how old?',
+                                    ],
+                                    [
+                                        'phrase' => 'scholarships', 'meaning' => 'money for good students',
+                                        'gap_before' => 'so I applied for tons of ',
+                                        'gap_after' => '.',
+                                    ],
+                                    [
+                                        'phrase' => 'student loans', 'meaning' => 'money you borrow for university',
+                                        'gap_before' => 'we felt pretty burdened post-college to pay back our ',
+                                        'gap_after' => '.',
+                                    ],
+                                    [
+                                        'phrase' => 'pay back', 'meaning' => 'give back borrowed money',
+                                        'gap_before' => 'I still had college debt that I had to ',
+                                        'gap_after' => '.',
+                                    ],
+                                    [
+                                        'phrase' => 'gap year', 'meaning' => 'a year off after school',
+                                        'gap_before' => 'And it\'s not common in the U.S. to take a ',
+                                        'gap_after' => '.',
+                                    ],
+                                ],
+                                'topic_summary' => 'Vanessa and her husband Dan answer questions about school in the US, and Dan '
+                                    .'says he was homeschooled until he was 13. School starts with preschool at about four and '
+                                    .'kindergarten at five or six. Dan thinks he needed more friends and more structure as a '
+                                    .'child. Going to college is almost expected, and every teacher tells you it is a great '
+                                    .'benefit, but it is very expensive: Vanessa had scholarships and still had student loans to '
+                                    .'pay back. Dan says he will not tell his children they have to go to college, and Vanessa '
+                                    .'says that a gap year is not common in the US.',
+                                'comprehension_check' => [
+                                    ['statement' => 'Dan was homeschooled until he was about 13.', 'correct' => true, 'difficulty' => 'easy'],
+                                    ['statement' => 'Vanessa paid for college with scholarships, so she had no student loans.', 'correct' => false, 'difficulty' => 'medium'],
+                                    ['statement' => 'Vanessa says that a gap year is common in the US.', 'correct' => false, 'difficulty' => 'hard'],
+                                ],
+                                'detail_question' => [
+                                    'question' => 'What did Dan\'s neighbour say?',
+                                    'options' => ['She was the first in her family to go to college', 'She was homeschooled', 'She took a gap year in Europe'],
+                                    'correct' => 0,
+                                ],
+                                // No shadow_lines here — Day 1 Listening is comprehension-only;
+                                // shadowing is Listen Again's job (daily_listen_2/3).
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'build',
+                        'label' => 'Day 2',
+                        'mode' => 'solo',
+                        'pair_speaking' => [
+                            ['question' => 'What did your first teacher tell you?', 'answer' => 'She told me that I was good at drawing.', 'words' => ['told me that']],
+                            ['question' => 'Did you go to a state school or a private school?', 'answer' => 'I went to a state school. My dad said that it was a good school.', 'words' => ['state school', 'said that']],
+                            ['question' => 'Did you ever get into trouble at school?', 'answer' => 'Yes. My teacher told me not to talk, but I talked, so I got into trouble.', 'words' => ['told me not to', 'got into trouble']],
+                            ['question' => 'Which term at school did you like?', 'answer' => 'The summer term. Our teacher said we could go outside more.', 'words' => ['term', 'said we could']],
+                        ],
+                        'steps' => [
+                            [
+                                'key' => 'vocabulary_builder_2',
+                                'label' => 'New Words',
+                                'duration_minutes' => 10,
+                                'hook' => 'Six words for school, from your first day to the rules you broke.',
+                                // Vocabulary in Use unit 32 (School education), our own sentences.
+                                'story' => 'At my **primary school**, the teachers were very kind. Then I went to a big **state '
+                                    .'school** for **secondary school**. In my first **term** there, I **got into trouble**: I '
+                                    .'used my phone in class. "You **broke the rules**," my teacher said. "Give it to me, '
+                                    .'please."',
+                                'words' => [
+                                    ['phrase' => 'primary school', 'meaning' => 'a school for children from about 5 to 11', 'meaning_fa' => 'دبستان', 'pos' => 'noun', 'example' => 'My daughter starts primary school next year.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'secondary school', 'meaning' => 'a school for children from about 11 to 16 or 18', 'meaning_fa' => 'مدرسه‌ی متوسطه (راهنمایی و دبیرستان)', 'pos' => 'noun', 'example' => 'I walked to secondary school every day.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'state school', 'meaning' => 'a free school that the government pays for', 'meaning_fa' => 'مدرسه‌ی دولتی', 'pos' => 'noun', 'example' => 'I went to a state school near my house.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'term', 'meaning' => 'one of the parts of the school or university year', 'meaning_fa' => 'ترم، نیم‌سال تحصیلی', 'pos' => 'noun', 'example' => 'The summer term ends in June.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'get into trouble', 'meaning' => 'to do something wrong and have a problem with a teacher, parent or boss', 'meaning_fa' => 'توی دردسر افتادن، دعوا شنیدن', 'pos' => 'phrase', 'example' => 'I got into trouble for talking in class.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'break the rules', 'meaning' => 'to do something that the rules say you must not do', 'meaning_fa' => 'قانون را زیر پا گذاشتن', 'pos' => 'phrase', 'example' => 'If you break the rules, you can\'t play.', 'difficulty' => 'medium'],
+                                ],
+                            ],
+                            [
+                                'key' => 'daily_listen_2',
+                                'label' => 'Listen Again',
+                                'duration_minutes' => 7,
+                                'hook' => 'Same talk, one more time — now copy how Dan reports what other people said.',
+                                'image_query' => 'primary school children uniform',
+                                'shadow_lines' => [
+                                    'I think she **said** she was the **first** to go to college.',
+                                    'I will certainly not **tell** my children they **have** to go to college.',
+                                ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M12', 'daily_listen_2'),
+                            ],
+                            [
+                                'key' => 'grammar_in_context',
+                                'label' => 'Grammar Time',
+                                'duration_minutes' => 15,
+                                'hook' => 'How to pass on what someone said: "She said she was tired", "He told me to wait", "They asked me if I was ready".',
+                                'focus' => 'Reported Speech (basic)',
+                                // Our own explanation and examples (EOS-009 §14); the order
+                                // follows Grammar in Use units 47 (reported speech: he said
+                                // that…), 48 (say and tell, tell someone to…) and the second
+                                // half of 50 (reported questions: he asked me where…).
+                                'lesson' => [
+                                    'intro' => 'Three small things: the verb usually goes one step back (I\'m tired → she said she was tired), tell needs a person (told me), and a reported question has normal word order (he asked me where I lived).',
+                                    'sections' => [
+                                        [
+                                            'heading' => 'A · She said (that) she was… — one step back',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'When you tell someone what another person said before, the verb usually goes <strong>one step back</strong>: am / is → <strong>was</strong>, like → <strong>liked</strong>, will → <strong>would</strong>, can → <strong>could</strong>. Change the people too: <strong>"I\'m tired."</strong> → <strong>She said (that) she was tired.</strong>',
+                                                    'fa' => 'وقتی حرفِ کسی را بعداً نقل می‌کنی، فعل معمولاً یک قدم به گذشته می‌رود: is ← was، like ← liked، will ← would، can ← could. ضمیرها هم عوض می‌شوند: I ← she. کلمه‌ی that اختیاری است.',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'said (that) + person + verb one step back',
+                                                    'parts' => [
+                                                        ['text' => 'She', 'caption' => 'who spoke'],
+                                                        ['text' => 'said (that)', 'caption' => 'said', 'tone' => 'accent'],
+                                                        ['text' => 'she', 'caption' => 'I → she'],
+                                                        ['text' => 'was tired', 'caption' => 'am → was', 'tone' => 'accent'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'Sara said that I was busy, so she couldn\'t come.', 'right' => 'Sara said that she was busy, so she couldn\'t come.', 'highlight' => 'she was'],
+                                                        ['wrong' => 'He said he will call me, but he didn\'t.', 'right' => 'He said he would call me, but he didn\'t.', 'highlight' => 'would'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'pairs',
+                                                    'pairs' => [
+                                                        ['left' => '"I like my school."', 'right' => 'He said he liked his school.'],
+                                                        ['left' => '"I can\'t come."', 'right' => 'She said she couldn\'t come.'],
+                                                        ['left' => '"The test is easy."', 'right' => 'The teacher said the test was easy.'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'From the listening', 'items' => [
+                                                            'I think she said she was the first to go to college.',
+                                                        ]],
+                                                        ['label' => 'Examples', 'items' => [
+                                                            'My teacher said that I was good at maths.',
+                                                            'They said the exam would be on Monday.',
+                                                        ]],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'B · say or tell?',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => '<strong>tell</strong> always needs a person: <strong>She told me (that)…</strong> <strong>say</strong> does not: <strong>She said (that)…</strong> (or <strong>said to me</strong>). For instructions, use <strong>tell someone to</strong> / <strong>not to</strong> + verb: <strong>The teacher told us to sit down.</strong>',
+                                                    'fa' => 'بعد از tell همیشه یک نفر می‌آید (told me / told us). بعد از say نفر نمی‌آید؛ اگر بخواهی بگویی به چه کسی، said to me. برای دستور: told me to + فعل، و منفی‌اش told me not to + فعل (نه told me don\'t).',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'told + person + (not) to + verb',
+                                                    'parts' => [
+                                                        ['text' => 'The teacher', 'caption' => 'who spoke'],
+                                                        ['text' => 'told', 'caption' => 'told', 'tone' => 'accent'],
+                                                        ['text' => 'us', 'caption' => 'person'],
+                                                        ['text' => 'not to talk', 'caption' => '(not) to + verb', 'tone' => 'accent'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'She said me that the test was easy.', 'right' => 'She told me that the test was easy.', 'highlight' => 'told me'],
+                                                        ['wrong' => 'The teacher told us don\'t use our phones.', 'right' => 'The teacher told us not to use our phones.', 'highlight' => 'not to use'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'From the video', 'items' => [
+                                                            'A colleague said to me one time, "They don\'t pay me to like the kids."',
+                                                            'I told all my students, "You were chosen to be in my class."',
+                                                        ]],
+                                                        ['label' => 'Examples', 'items' => [
+                                                            'My mum told me to study every day.',
+                                                            'He said that he was sorry.',
+                                                        ]],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'C · He asked me if / where…',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'A reported question has <strong>normal word order</strong> (person + verb), no <strong>do / does / did</strong> and no question mark. For a yes / no question, use <strong>if</strong>: <strong>"Are you ready?"</strong> → <strong>She asked me if I was ready.</strong> <strong>"Where do you live?"</strong> → <strong>He asked me where I lived.</strong>',
+                                                    'fa' => 'سؤالِ نقل‌شده دیگر سؤال نیست: ترتیبش مثل جمله‌ی خبری است (اول فاعل بعد فعل)، do/does/did ندارد و علامت سؤال هم ندارد. برای سؤال بله/نه از if استفاده کن: She asked me if I was ready.',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'asked + person + if / wh-word + person + verb',
+                                                    'parts' => [
+                                                        ['text' => 'He', 'caption' => 'who asked'],
+                                                        ['text' => 'asked me', 'caption' => 'asked + person', 'tone' => 'accent'],
+                                                        ['text' => 'where', 'caption' => 'if / wh-word'],
+                                                        ['text' => 'I lived', 'caption' => 'person + verb', 'tone' => 'accent'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'She asked me where did I live.', 'right' => 'She asked me where I lived.', 'highlight' => 'where I lived'],
+                                                        ['wrong' => 'He asked me was I ready.', 'right' => 'He asked me if I was ready.', 'highlight' => 'if I was'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'From the video, reported', 'items' => [
+                                                            '"Ms. Pierson, is this an F?" → He asked her if it was an F.',
+                                                            '"Then why\'d you put a smiley face?" → He asked her why she put a smiley face.',
+                                                        ]],
+                                                        ['label' => 'Examples', 'items' => [
+                                                            'My teacher asked me why I was late.',
+                                                            'They asked us what we wanted to study.',
+                                                        ]],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'D · Make it personal',
+                                            'body' => 'Next you\'ll finish sentences about what <strong>your</strong> teachers, parents and friends told you, then tell Leila\'s first week at university in pictures.',
+                                        ],
+                                    ],
+                                    'bridge_note' => 'You\'ll use this right away — in the Picture Story next, and in AI Conversation #1.',
+                                ],
+                                'frequency_starters' => [
+                                    'My first teacher told me that', 'My parents always said that', 'Once a teacher asked me',
+                                    'At school they told us not to', 'A friend told me to', 'Someone once asked me if',
+                                ],
+                                'grammar_judgment' => 'Judge whether the learner finished this sentence starter into '
+                                    .'a true, natural personal sentence about what someone said or asked them (school, study, '
+                                    .'family or friends), using basic reported speech: the verb usually one step back (is → was, '
+                                    .'can → could, will → would), pronouns changed to fit, tell + a person, told someone (not) to '
+                                    .'+ verb, and reported questions with if or a wh-word and normal word order.',
+                                'grammar_major_criteria' => 'said + a person without to ("she said me"), told without a '
+                                    .'person ("he told that"), "told me don\'t…" instead of "told me not to…", question word order '
+                                    .'or do / did in a reported question ("asked me where did I live", "asked me was I…"), a '
+                                    .'pronoun that still points to the speaker ("Sara said that I was busy" for "I\'m busy"), the '
+                                    .'sentence does not actually continue the given starter, or it is not a genuine personal statement',
+                                'grammar_context' => 'continues with reported speech that fits the starter: that + a clause '
+                                    .'usually one step back, (not) to + verb after told, or if / a wh-word + normal word order after asked',
+                                'quick_check' => [
+                                    [
+                                        'wrong' => 'She said me that she was tired.',
+                                        'options' => ['She said me that she was tired.', 'She told me that she was tired.', 'She told that she was tired.'],
+                                        'correct' => 1,
+                                        'difficulty' => 'easy',
+                                    ],
+                                    [
+                                        'wrong' => 'He said he will call me, but he didn\'t.',
+                                        'options' => ['He said he will call me, but he didn\'t.', 'He said he would call me, but he didn\'t.', 'He said he calls me, but he didn\'t.'],
+                                        'correct' => 1,
+                                        'difficulty' => 'medium',
+                                    ],
+                                    [
+                                        'wrong' => 'The teacher told us don\'t talk.',
+                                        'options' => ['The teacher told us not to talk.', 'The teacher told us don\'t talk.', 'The teacher said us not to talk.'],
+                                        'correct' => 0,
+                                        'difficulty' => 'medium',
+                                    ],
+                                    [
+                                        'wrong' => 'She asked me where did I live.',
+                                        'options' => ['She asked me where did I live.', 'She asked me where do I live.', 'She asked me where I lived.'],
+                                        'correct' => 2,
+                                        'difficulty' => 'hard',
+                                    ],
+                                ],
+                                'word_order' => [
+                                    ['words' => ['told', 'she', 'tired.', 'She', 'that', 'me', 'was'], 'answer' => 'She told me that she was tired.'],
+                                    ['words' => ['not', 'The', 'us', 'talk.', 'told', 'to', 'teacher'], 'answer' => 'The teacher told us not to talk.'],
+                                    ['words' => ['asked', 'ready.', 'He', 'I', 'if', 'me', 'was'], 'answer' => 'He asked me if I was ready.'],
+                                ],
+                            ],
+                            [
+                                'key' => 'story_sequence',
+                                'label' => 'Picture Story',
+                                // Kept for M12 (see M01's, M06's and M07's notes): a first week
+                                // at university is full of people telling you things and asking
+                                // you questions, so the pictures come right after the lesson as
+                                // fresh reported-speech practice.
+                                'duration_minutes' => 10,
+                                'hook' => 'You just learned "she told her that…". Now say what people told Leila in her first week at university.',
+                                // Captions are ground truth for the AI feedback prompt only —
+                                // never rendered to the learner (see the step's own docblock).
+                                // Each query was checked against its real first Pexels result
+                                // (square), so the picture matches its caption.
+                                'sequence_images' => [
+                                    ['image_query' => 'college professor lecture', 'caption' => 'On Monday, the lecturer told Leila that the first essay was due on Friday', 'hint' => 'told her that', 'alt_description' => 'A lecturer in glasses pointing at maths on a green board'],
+                                    ['image_query' => 'students talking campus', 'caption' => 'On Tuesday, a classmate asked her if she wanted to join the film club', 'hint' => 'asked her if', 'alt_description' => 'A smiling young man with glasses in a school corridor'],
+                                    ['image_query' => 'two students talking', 'caption' => 'On Wednesday, in the library, a friend said that he could help her with the essay', 'hint' => 'said that', 'alt_description' => 'Two students talking with books between library shelves'],
+                                    ['image_query' => 'woman talking on phone smiling', 'caption' => 'On Friday evening, her mum phoned and asked her how her first week was', 'hint' => 'asked her how', 'alt_description' => 'A smiling woman on an old blue phone, writing in a notebook'],
+                                ],
+                                'sequencing_words' => ['On Monday', 'Then, on Tuesday', 'After that', 'At the end of the week'],
+                                'narration_tense' => 'Reported Speech',
+                                'narration_kind' => 'what people told or asked someone during her first week at university',
+                                'narration_example' => 'On Monday, the lecturer told Leila that the first essay was due on Friday...',
+                                'narration_not' => 'direct speech with quotation marks',
+                            ],
+                            [
+                                // A real teacher on the TED stage: Rita Pierson tells classroom
+                                // stories full of "she said to me…", "I told my students…" — cut
+                                // from 7:48 to about 6 minutes (TED intro and outro, famous-name
+                                // quotes and the slang left out). TED's human subtitles, re-timed
+                                // to the cut.
+                                'key' => 'video_shadowing',
+                                'label' => 'Video Shadowing',
+                                'duration_minutes' => 14,
+                                'hook' => 'A teacher with 40 years in the classroom tells you what she said to her students — and what they said back.',
+                                'source' => 'TED — Rita Pierson, "Every kid needs a champion"',
+                                'video_url' => $shadowingVideoUrl,
+                                'captions_url' => $shadowingCaptionsUrl,
+                                'video_segments' => $this->shadowTimestampsFor('M12', 'video_shadowing_segments'),
+                                'topic_summary' => 'Rita Pierson, a teacher for 40 years, tells how a colleague once said to her, '
+                                    .'"They don\'t pay me to like the kids," and she answered that kids don\'t learn from people '
+                                    .'they don\'t like. She once taught a lesson wrong and said sorry to her class. She told a weak '
+                                    .'class that they were the best students, and she put "+2" and a smiley face on a quiz with 18 '
+                                    .'mistakes. Years later, her mother\'s old students told her she had made a difference in their '
+                                    .'lives. Every child, she says, deserves a champion.',
+                                'comprehension_check' => [
+                                    ['statement' => 'A colleague told Rita that she didn\'t need to like the kids.', 'correct' => true],
+                                    ['statement' => 'Rita put "-18" on the student\'s quiz.', 'correct' => false],
+                                    ['statement' => 'Old students told Rita\'s mother that she made a difference in their lives.', 'correct' => true],
+                                ],
+                                // Real phrases Rita Pierson uses on stage.
+                                'target_phrases' => [
+                                    ['phrase' => 'needless to say', 'meaning' => 'of course, as you can guess'],
+                                    ['phrase' => 'case closed', 'meaning' => 'there is nothing more to say about it'],
+                                    ['phrase' => 'on a roll', 'meaning' => 'having a run of success'],
+                                    ['phrase' => 'make a difference', 'meaning' => 'to change something in a good way'],
+                                    ['phrase' => 'give up on', 'meaning' => 'to stop hoping that someone can do well'],
+                                ],
+                                // Real verbatim lines from the video — shadowing means mimicking
+                                // the exact audio just heard, and the auto-pause timestamps
+                                // (missions:cache-shadow-timestamps) only land on words people
+                                // actually say. Chosen for this mission's grammar: what someone
+                                // said, said to me, told my students, a question someone asked.
+                                // Bold marks naturally-stressed content words (rendered by
+                                // <x-stress-marked-line>).
+                                'shadow_lines' => [
+                                    'A **colleague** said to me one time, "They don\'t **pay** me to like the kids."',
+                                    'You know, kids don\'t **learn** from people they don\'t **like**.',
+                                    'I **told** all my students, "You were **chosen** to be in my class."',
+                                    'He said, "Ms. Pierson, is this an **F**?"',
+                                    'He said, "Yes, **ma\'am**, I can do **better**."',
+                                    'Every child **deserves** a **champion**.',
+                                ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M12', 'video_shadowing'),
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'practice',
+                        'label' => 'Day 3',
+                        'mode' => 'ai',
+                        'pair_speaking' => [
+                            ['question' => 'Have you got a degree, or would you like one?', 'answer' => 'Not yet. My teacher told me that a degree was useful, so I\'d like one.', 'words' => ['degree', 'told me that']],
+                            ['question' => 'What did a teacher say about your essays?', 'answer' => 'She said that my essays were too long.', 'words' => ['essays', 'said that']],
+                            ['question' => 'What qualification would you like to get?', 'answer' => 'An English qualification. My boss asked me if I had one.', 'words' => ['qualification', 'asked me if']],
+                            ['question' => 'When did you graduate, or when will you graduate?', 'answer' => 'I graduated in 2020. My parents said they were very happy.', 'words' => ['graduated', 'said they were']],
+                        ],
+                        'steps' => [
+                            [
+                                'key' => 'vocabulary_builder_3',
+                                'label' => 'New Words',
+                                'duration_minutes' => 10,
+                                'hook' => 'Last set — the words for university: degree, lecture, essay, graduate…',
+                                // Vocabulary in Use unit 34 (University education), our own
+                                // sentences.
+                                'story' => 'My friend Reza **graduated** last year with a **degree** in psychology. At university '
+                                    .'he went to three **lectures** a day and wrote an **essay** every week. Now he wants another '
+                                    .'**qualification**, a Master\'s. "I want to **do research** on how children learn," he told me.',
+                                'words' => [
+                                    ['phrase' => 'degree', 'meaning' => 'what you get when you finish a university course', 'meaning_fa' => 'مدرک دانشگاهی', 'pos' => 'noun', 'example' => 'She has a degree in economics.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'graduate', 'meaning' => 'to finish university (or school) and get your degree', 'meaning_fa' => 'فارغ‌التحصیل شدن', 'pos' => 'verb', 'example' => 'My brother graduated last summer.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'lecture', 'meaning' => 'a talk to a big group of students about a subject', 'meaning_fa' => 'کلاس سخنرانی استاد', 'pos' => 'noun', 'example' => 'Our first lecture starts at nine.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'qualification', 'meaning' => 'an exam or course you passed that shows you can do a job', 'meaning_fa' => 'مدرک، صلاحیت', 'pos' => 'noun', 'example' => 'You need a qualification to teach English.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'essay', 'meaning' => 'a short piece of writing about one subject', 'meaning_fa' => 'مقاله، انشا', 'pos' => 'noun', 'example' => 'I have to write an essay about my city.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'do research', 'meaning' => 'to study one subject carefully to find new facts', 'meaning_fa' => 'تحقیق کردن، پژوهش کردن', 'pos' => 'phrase', 'example' => 'She is doing research on sleep.', 'difficulty' => 'medium'],
+                                ],
+                            ],
+                            [
+                                'key' => 'daily_listen_3',
+                                'label' => 'Listen Again',
+                                'duration_minutes' => 7,
+                                'hook' => 'Same talk, one more time — now copy Vanessa on college debt and what everyone says about a gap year.',
+                                'image_query' => 'university graduation ceremony',
+                                'shadow_lines' => [
+                                    'I still had college **debt** that I had to pay **back**.',
+                                    'If you don\'t go to **college** now, you\'re **never** going to do it.',
+                                ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M12', 'daily_listen_3'),
+                            ],
+                            [
+                                'key' => 'ai_conversation_1',
+                                'label' => 'Talk It Out',
+                                'duration_minutes' => 18,
+                                'hook' => 'Say it here, alone, before you have to say it to the AI Instructor for real.',
+                                'warm_up_task' => 'Record 2 minutes of solo speaking about your school or studies: '
+                                    .'a teacher you remember, what your teachers and parents told you, and a question someone '
+                                    .'asked you about your studies — using the new vocabulary, without reading.',
+                                'interview_questions' => [
+                                    'What did your parents say about school?',
+                                    'What did your favourite teacher tell you?',
+                                    'Did you ever get into trouble at school?',
+                                    'What rules did your school have?',
+                                    'What do people ask you about your studies or work?',
+                                    'Would you like to get a degree or another qualification?',
+                                ],
+                            ],
+                            [
+                                'key' => 'reading_comprehension',
+                                'label' => 'Reading',
+                                'duration_minutes' => 12,
+                                'hook' => 'Nima\'s mum goes to parents\' evening. What did the teacher tell her?',
+                                'passage_title' => 'Parents\' evening',
+                                'image_query' => 'teacher talking with parents',
+                                // Written fresh for this app (EOS-009 §14) — reuses the Vocabulary
+                                // Builder words in a new context, with reported speech in
+                                // almost every sentence.
+                                'passage' => 'Last Thursday was parents\' evening at Nima\'s secondary school, a big state school '
+                                    .'near the park. His mum, Shirin, met his English teacher, Mr Karimi. "He told me that Nima '
+                                    .'was a clever boy," she says, "but he said that Nima sometimes got into trouble for talking '
+                                    .'in class." Mr Karimi also asked her if Nima read books at home. "I said that he only read '
+                                    .'football news!" This term, the class is writing a long essay about a famous person, and the '
+                                    .'teacher told the students not to copy from the internet. "Students who break the rules get '
+                                    .'zero," he said. On the way home, Shirin asked Nima why he talked so much in class. He '
+                                    .'laughed and said that his friends were very funny. Then he asked her if she had a degree. '
+                                    .'"Yes, I graduated twenty years ago," she said. "And I wrote a lot of essays, too!"',
+                                'highlighted_phrases' => [
+                                    ['phrase' => 'secondary school', 'type' => 'reused'],
+                                    ['phrase' => 'state school', 'type' => 'reused'],
+                                    ['phrase' => 'got into trouble', 'type' => 'reused'],
+                                    ['phrase' => 'term', 'type' => 'reused'],
+                                    ['phrase' => 'essay', 'type' => 'reused'],
+                                    ['phrase' => 'break the rules', 'type' => 'reused'],
+                                    ['phrase' => 'degree', 'type' => 'reused'],
+                                    ['phrase' => 'graduated', 'type' => 'reused'],
+                                    ['phrase' => 'parents\' evening', 'type' => 'new', 'definition' => 'a meeting at school where parents talk to their children\'s teachers', 'pos' => 'noun', 'example' => 'At parents\' evening, the teacher said my son was doing well.'],
+                                    ['phrase' => 'copy', 'type' => 'new', 'definition' => 'to take someone else\'s work and say it is yours', 'pos' => 'verb', 'example' => 'Don\'t copy your friend\'s homework.'],
+                                ],
+                                'topic_summary' => 'At parents\' evening, Nima\'s English teacher told his mum that Nima was clever '
+                                    .'but sometimes got into trouble for talking in class. He told the students not to copy their '
+                                    .'essays from the internet. On the way home, Nima asked his mum if she had a degree.',
+                                'comprehension_check' => [
+                                    ['statement' => 'Nima goes to a state school near the park.', 'correct' => true, 'difficulty' => 'easy'],
+                                    ['statement' => 'Shirin said that Nima read a lot of books at home.', 'correct' => false, 'difficulty' => 'medium'],
+                                    ['statement' => 'The teacher said that students who copy from the internet get zero.', 'correct' => true, 'difficulty' => 'hard'],
+                                ],
+                                'questions' => [
+                                    'What did Mr Karimi tell Shirin about Nima?',
+                                    'What did Nima ask his mum on the way home?',
+                                ],
+                                // Multiple choice instead of written answers (reading task 11,
+                                // 2026-11-10): one tap each, graded in the browser like the true/false
+                                // round above. Every right answer is stated in the passage; the wrong
+                                // ones are things the passage mentions or plausibly could.
+                                'choice_questions' => [
+                                    ['prompt' => 'What did Mr Karimi tell Shirin about Nima?', 'options' => ['That he was clever but talked in class', 'That he never did his homework', 'That he was very quiet'], 'correct' => 0, 'difficulty' => 'easy'],
+                                    ['prompt' => 'What did the teacher tell the students not to do?', 'options' => ['Talk about football', 'Copy from the internet', 'Write a long essay'], 'correct' => 1, 'difficulty' => 'medium'],
+                                    ['prompt' => 'What did Nima ask his mum on the way home?', 'options' => ['Why she was angry', 'If she liked his teacher', 'If she had a degree'], 'correct' => 2, 'difficulty' => 'hard'],
+                                ],
+                            ],
+                            [
+                                'key' => 'writing',
+                                'label' => 'Writing',
+                                'duration_minutes' => 12,
+                                'hook' => 'Teachers, parents, friends — write what they told you about school and studying.',
+                                'title' => 'What people told me about school',
+                                'prompts' => [
+                                    ['label' => 'A teacher I remember', 'image_query' => 'school children classroom'],
+                                    ['label' => 'Something a teacher told me', 'image_query' => 'student exam writing'],
+                                    ['label' => 'What my parents said about school', 'image_query' => 'mother helping child homework'],
+                                    ['label' => 'A rule at my school', 'image_query' => 'students school uniform corridor'],
+                                    ['label' => 'A question someone asked me', 'image_query' => 'two students talking'],
+                                    ['label' => 'What I want to study next', 'image_query' => 'young woman studying laptop'],
+                                ],
+                                // Grammar connectors only — see M01's try_to_use note.
+                                'try_to_use' => ['said (that)…', 'told me (that)…', 'told me (not) to…', 'asked me if…', 'state school', 'get into trouble', 'degree'],
+                                'min_words' => 100,
+                                'max_words' => 150,
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'challenge',
+                        'label' => 'Day 4',
+                        'mode' => 'ai',
+                        'pair_speaking' => [
+                            ['question' => 'What did someone tell you this week?', 'answer' => 'My friend told me that she was moving to a new city.', 'words' => ['told me that']],
+                            ['question' => 'Has a child ever asked you a funny question?', 'answer' => 'Yes, my nephew asked me if I was a teacher!', 'words' => ['asked me if']],
+                            ['question' => 'What did your parents always say about school?', 'answer' => 'They always said that school was important.', 'words' => ['said that']],
+                            ['question' => 'What do you remember from primary school?', 'answer' => 'In primary school, our teacher told us to read every day.', 'words' => ['told us to', 'primary school']],
+                        ],
+                        'steps' => [
+                            [
+                                'key' => 'picture_description',
+                                'label' => 'Picture Description',
+                                'duration_minutes' => 10,
+                                'hook' => 'A teacher, a board and a lot of hands up — what is he telling the class, and what are they asking?',
+                                'image_query' => 'teacher classroom students',
+                                'guiding_questions' => [
+                                    'Look at the teacher. What is he telling the class, do you think?',
+                                    'Look at the board. What did the teacher ask them to do?',
+                                    'Look at the boy in orange. What does he want to ask?',
+                                    'Look at the hands up. What did your teachers say when you knew the answer?',
+                                ],
+                                // Hand-checked against the real first Pexels result for this
+                                // exact query + orientation (landscape): a classroom — a bald
+                                // teacher in a grey jacket and yellow shirt in the middle, a black
+                                // board behind him with "Classwork" written on it, a globe on a
+                                // shelf on the left, children at desks with hands up — a girl in
+                                // white on the left, a boy in an orange shirt on the right.
+                                // Changing the query or orientation invalidates these coordinates.
+                                'hotspots' => [
+                                    ['x' => 47, 'y' => 32, 'question_index' => 0],
+                                    ['x' => 58, 'y' => 14, 'question_index' => 1],
+                                    ['x' => 86, 'y' => 62, 'question_index' => 2],
+                                    ['x' => 18, 'y' => 55, 'question_index' => 3],
+                                ],
+                            ],
+                            [
+                                'key' => 'error_log',
+                                'label' => 'My Fixes',
+                                'duration_minutes' => 7,
+                                'hook' => "Every mistake here is one you won't make in tomorrow's Final Challenge.",
+                            ],
+                            [
+                                'key' => 'ai_conversation_2',
+                                'label' => 'Final Talk',
+                                'duration_minutes' => 12,
+                                'hook' => "This one's harder on purpose — real conversations don't come with warm-up questions.",
+                                'round_pool' => [
+                                    'Tell me about a teacher you remember. What did he or she tell you?',
+                                    'What did your parents say about school and university when you were young?',
+                                    'What rules did your school have? Did you ever break the rules?',
+                                    'What do people ask you about your studies or your work? What do you tell them?',
+                                    'Would you like to get a degree or another qualification? What did your family say about it?',
+                                    'Is a gap year a good idea? What did people tell you about it?',
+                                ],
+                                'role_reversal_topic' => 'school, studying and what teachers and parents said',
+                                'final_prompt' => 'Speak for 3 minutes without stopping about your school or studies: a teacher you remember, what your teachers and parents told you, and a question someone asked you about your future.',
+                                'requirements' => [
+                                    '5+ vocabulary expressions',
+                                    'said (that)… with the verb one step back',
+                                    'told me (that)… / told me (not) to…',
+                                    'asked me if… / asked me where / why…',
+                                    'A teacher you remember',
+                                    'What your parents said about school',
                                 ],
                             ],
                             [

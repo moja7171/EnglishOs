@@ -163,4 +163,15 @@ return [
             ['wrong' => 'I\'ll start a new course next month — I signed up last week.', 'right' => 'I\'m going to start a new course next month — I signed up last week.', 'why' => 'Decided before speaking → going to.'],
         ],
     ],
+    'M12' => [
+        0 => [
+            ['wrong' => 'Mina said that my exam was hard, and she was worried about it.', 'right' => 'Mina said that her exam was hard, and she was worried about it.', 'why' => 'Change the people to fit: Mina\'s "my" → her.'],
+        ],
+        1 => [
+            ['wrong' => 'My dad told that school was important.', 'right' => 'My dad told me that school was important.', 'why' => 'tell needs a person: told me / told us.'],
+        ],
+        2 => [
+            ['wrong' => 'The teacher asked us did we finish the essay.', 'right' => 'The teacher asked us if we finished the essay.', 'why' => 'A yes / no question → if + normal word order, no did.'],
+        ],
+    ],
 ];

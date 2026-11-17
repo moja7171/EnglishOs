@@ -25,4 +25,5 @@ return [
     'M09' => ['Describe your personality', 'How you feel on a Monday', 'Something that makes you proud', 'Introverts and extroverts'],
     'M10' => ['A wedding you went to', 'How couples meet these days', 'A special anniversary or celebration', 'Good advice for a happy relationship'],
     'M11' => ['Working from home or the office', 'Your plans for next year', 'A job interview you had', 'Your dream job in five years'],
+    'M12' => ['Your best teacher', 'A subject you loved or hated', 'Something useful a teacher told you', 'How you learn English'],
 ];

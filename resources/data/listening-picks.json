@@ -243,24 +243,24 @@
   ],
   "M12" : [
     [
-      {"src":"sme","title":"The school that puts the kids in charge","url":"https://podcasts.apple.com/us/podcast/the-school-that-puts-the-kids-in-charge/id262026947?i=1000661885085","min":6,"apple":true},
-      {"src":"voa","title":"Finnish Students Go Back to School with Books, Not Screens","url":"https://learningenglish.voanews.com/a/finnish-students-go-back-to-school-with-books-not-screens/7780131.html","min":4,"tx":"page"},
-      {"src":"teded","title":"3 tips on how to study effectively","url":"https://ed.ted.com/lessons/3-tips-on-how-to-study-effectively","min":8}
+      {"src":"lee","title":"Talking about your brain","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/250627","min":6,"tx":"page"},
+      {"src":"sme","title":"The school that puts the kids in charge","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2024/ep-240711","min":6,"tx":"page"},
+      {"src":"voa","title":"Finnish Students Go Back to School with Books, Not Screens","url":"https://learningenglish.voanews.com/a/finnish-students-go-back-to-school-with-books-not-screens/7780131.html","min":4,"tx":"page"}
     ],
     [
+      {"src":"lee","title":"Talking about the news","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/240705","min":6,"tx":"page"},
       {"src":"sme","title":"Rethinking dyslexia","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2026/ep-260205","min":7,"tx":"page"},
-      {"src":"voa","title":"Everyday Grammar: Mastering Reported Speech","url":"https://learningenglish.voanews.com/a/everyday-grammar-reported-speech/2856671.html","tx":"page","grammar":true},
-      {"src":"teded","title":"How comic books can improve your learning","url":"https://ed.ted.com/lessons/how-comic-books-can-help-you-learn-gene-luen-yang","min":8}
+      {"src":"voa","title":"Everyday Grammar: Mastering Reported Speech","url":"https://learningenglish.voanews.com/a/everyday-grammar-reported-speech/2856671.html","tx":"page","grammar":true}
     ],
     [
+      {"src":"lee","title":"Talking about creativity","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/250808","min":6,"tx":"page"},
       {"src":"sme","title":"How reading shapes your brain","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2026/ep-260514","min":7,"tx":"page"},
-      {"src":"voa","title":"For Some Retirees, It's Not Time to Stop Learning","url":"https://learningenglish.voanews.com/a/for-some-retirees-it-s-not-time-to-stop-learning/7014637.html","min":6,"tx":"page"},
-      {"src":"teded","title":"How to learn? From mistakes","url":"https://ed.ted.com/lessons/how-to-learn-from-mistakes-diana-laufenberg","min":14}
+      {"src":"voa","title":"For Some Retirees, It's Not Time to Stop Learning","url":"https://learningenglish.voanews.com/a/for-some-retirees-it-s-not-time-to-stop-learning/7014637.html","min":6,"tx":"page"}
     ],
     [
+      {"src":"lee","title":"Talking about complaining","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/260904","min":6,"tx":"page"},
       {"src":"sme","title":"What makes a great library?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2024/ep-240314","min":6,"tx":"page"},
-      {"src":"voa","title":"Debate Brings Many Benefits to Students","url":"https://learningenglish.voanews.com/a/debate-brings-many-benefits-to-students/7075563.html","min":8,"tx":"page"},
-      {"src":"teded","title":"The sweaty teacher's lament","url":"https://ed.ted.com/lessons/the-sweaty-teacher-s-lament-justin-lamb","min":5}
+      {"src":"voa","title":"Debate Brings Many Benefits to Students","url":"https://learningenglish.voanews.com/a/debate-brings-many-benefits-to-students/7075563.html","min":8,"tx":"page"}
     ]
   ],
   "M13" : [

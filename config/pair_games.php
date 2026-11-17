@@ -26,5 +26,6 @@ return [
         ['When you were a child', 'I was… I lived… I liked…', 6],
         ['Places you have been', 'I have been to… I have never…', 10],
         ['Your plans for next week', 'I am going to… I will…', 11],
+        ['What your teachers told you', 'My teacher said that… She told me to…', 12],
     ],
 ];

@@ -224,4 +224,23 @@ return [
             'b' => ['The candidate', 'Ask for one more week to decide and a better salary.', ['I’m going to think about it.', 'I’ll call you next week.', 'Could the salary be higher?'], ['Ask about holidays.', 'Find out if you can work part-time.']],
         ],
     ],
+
+    'M12' => [
+        ['Parents’ evening',
+            'a' => ['A parent', 'Find out what the teacher said about your child’s maths, but say no to an extra class.', ['What did the maths teacher say?', 'My son told me that he liked maths.', 'He has no time for an extra class.'], ['Ask for a new teacher.', 'Find out about the school trip.']],
+            'b' => ['The teacher', 'Make the parent agree to check the homework every night.', ['I told him to practise every day.', 'He said that he understood, but…', 'Could you check his homework?'], ['Ask the parent to give a talk.', 'Find out about the child’s friends.']],
+        ],
+        ['A missed class',
+            'a' => ['A student who missed a class', 'Find out what the teacher said about the exam.', ['What did the teacher say?', 'Did she tell us the date?', 'I was ill yesterday.'], ['Borrow their phone charger.', 'Ask them to do your homework.']],
+            'b' => ['A classmate', 'Tell them only if they give you their notes next week.', ['She said that the exam was on…', 'She told us to read…', 'Can I have your notes next week?'], ['Find out why they were ill.', 'Invite them to a party.']],
+        ],
+        ['Late homework',
+            'a' => ['A student', 'Get two more days for your essay.', ['My mum said I had to help her.', 'I told you I was busy.', 'Could I have two more days?'], ['Ask for a better grade.', 'Change your essay topic.']],
+            'b' => ['The teacher', 'Give only one more day.', ['You said that it was nearly finished.', 'I told the class the date last month.', 'You can have one more day.'], ['Find out what their mum does.', 'Ask them to join the school team.']],
+        ],
+        ['Choosing a subject',
+            'a' => ['A young student', 'Make your parent agree that you can study art.', ['My teacher said that I was good at drawing.', 'The adviser told me to follow my dream.', 'Please let me try.'], ['Ask for a new phone.', 'Get money for a trip.']],
+            'b' => ['A parent', 'Make them choose medicine, or at least think about it.', ['Your uncle told me that doctors always find jobs.', 'Your teacher said you were good at science, too.', 'Will you think about it?'], ['Find out about their friends.', 'Ask them to get a part-time job.']],
+        ],
+    ],
 ];

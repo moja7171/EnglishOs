@@ -80,4 +80,10 @@ return [
         ['have a job interview in English', 'give a presentation in English'],
         ['get a pay rise', 'get two more weeks of holiday'],
     ],
+    'M12' => [
+        ['study alone', 'study in a group'],
+        ['have an exam every week', 'have one big exam at the end of the year'],
+        ['learn online', 'learn in a classroom'],
+        ['have a strict teacher who teaches well', 'have a kind teacher who teaches badly'],
+    ],
 ];
