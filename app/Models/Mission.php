@@ -533,6 +533,7 @@ class Mission extends Model
             'M10' => 'bond',
             'M11' => 'ahead',
             'M12' => 'quote',
+            'M13' => 'circuit',
             default => 'daily-life',
         };
     }

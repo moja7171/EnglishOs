@@ -66,5 +66,9 @@ return [
         // M12 · Education
         ['classroom', 'place', 12], ['headteacher', 'job', 12], ['classmate', 'person', 12], ['homework', 'thing', 12],
         ['exam', 'thing', 12], ['whiteboard', 'thing', 12], ['school bag', 'thing', 12], ['dictionary', 'thing', 12],
+
+        // M13 · Technology (phone and laptop are already there from M01)
+        ['tablet', 'thing', 13], ['camera', 'thing', 13], ['keyboard', 'thing', 13], ['charger', 'thing', 13],
+        ['headphones', 'thing', 13], ['printer', 'thing', 13], ['remote control', 'thing', 13], ['smartwatch', 'thing', 13],
     ],
 ];

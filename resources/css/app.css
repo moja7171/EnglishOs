@@ -295,6 +295,26 @@
     --mood-texture-size: 34px 34px;
 }
 
+/* M13 "Technology" — a dark phosphor green (a circuit board, a charging
+   light), lighter and yellower than M06's chalkboard green, paired with
+   small circuit traces: a solder dot with two thin lines leaving it at a
+   right angle — thin L-shapes, so they never read as the dots, rings,
+   wedges or speech marks of the other moods. The lines are 3-degree conic
+   rays from the dot, which stay hairline-thin inside one tile. */
+[data-mood='circuit'] {
+    --color-accent: #4f9a1e;
+    --color-accent-dark: #7cc84a;
+    --color-accent-soft: #e3f2d6;
+    --color-accent-soft-dark: #22381a;
+    --color-accent-ink: #3a7413;
+    --color-accent-ink-dark: #b6ec8e;
+    --color-dawn: #9ccf6a;
+    --color-dusk: #3d6e18;
+    --mood-texture: radial-gradient(circle at 35% 35%, color-mix(in srgb, var(--color-accent) calc(14% * var(--mood-boost)), transparent) 2px, transparent 2.6px),
+        conic-gradient(at 35% 35%, transparent 0deg 88.5deg, color-mix(in srgb, var(--color-accent) calc(12% * var(--mood-boost)), transparent) 88.5deg 91.5deg, transparent 91.5deg 178.5deg, color-mix(in srgb, var(--color-accent) calc(12% * var(--mood-boost)), transparent) 178.5deg 181.5deg, transparent 181.5deg);
+    --mood-texture-size: 36px 36px;
+}
+
 [data-mood] {
     background-image: var(--mood-texture);
     background-size: var(--mood-texture-size);

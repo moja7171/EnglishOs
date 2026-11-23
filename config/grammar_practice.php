@@ -174,4 +174,15 @@ return [
             ['wrong' => 'The teacher asked us did we finish the essay.', 'right' => 'The teacher asked us if we finished the essay.', 'why' => 'A yes / no question → if + normal word order, no did.'],
         ],
     ],
+    'M13' => [
+        0 => [
+            ['wrong' => 'Oh no! I\'ve forget my password.', 'right' => 'Oh no! I\'ve forgotten my password.', 'why' => 'have + past participle: forget → forgotten.'],
+        ],
+        1 => [
+            ['wrong' => 'My phone has crashed last night.', 'right' => 'My phone crashed last night.', 'why' => 'last night is a finished time → past simple, no has.'],
+        ],
+        2 => [
+            ['wrong' => 'Where have you bought your new laptop?', 'right' => 'Where did you buy your new laptop?', 'why' => 'Details of the news (where, when, how) → past simple: Where did you…?'],
+        ],
+    ],
 ];

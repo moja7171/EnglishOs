@@ -166,4 +166,23 @@ return [
     'qualification' => ['exam', 'certificate'],
     'essay' => ['writing', 'subject'],
     'do research' => ['study', 'facts'],
+
+    // M13 · Technology
+    'notification' => ['phone', 'message'],
+    'distraction' => ['attention', 'stop'],
+    'stay focused' => ['attention', 'one'],
+    'waste time' => ['time', 'useless'],
+    'game changer' => ['change', 'big'],
+    'log in' => ['password', 'start'],
+    'password' => ['secret', 'word'],
+    'install' => ['app', 'put'],
+    'back up' => ['copy', 'files'],
+    'crash' => ['stop', 'computer'],
+    'switch off' => ['button', 'off'],
+    'go online' => ['internet', 'start'],
+    'download' => ['internet', 'copy'],
+    'reply to' => ['answer', 'email'],
+    'delete' => ['remove', 'file'],
+    'attachment' => ['email', 'file'],
+    'post a comment' => ['write', 'online'],
 ];

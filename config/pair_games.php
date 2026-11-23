@@ -27,5 +27,6 @@ return [
         ['Places you have been', 'I have been to… I have never…', 10],
         ['Your plans for next week', 'I am going to… I will…', 11],
         ['What your teachers told you', 'My teacher said that… She told me to…', 12],
+        ['My tech life', 'I’ve never… / I lost my phone last year…', 13],
     ],
 ];
