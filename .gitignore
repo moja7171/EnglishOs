@@ -50,3 +50,6 @@ Thumbs.db
 
 # Host logins (FTP passwords etc.) — never in git
 /document/*.local.md
+
+# Vocab in Use: the book text/data built from the PDF stays local (see the textbook rule above)
+/document/vocab/

@@ -39,6 +39,18 @@ class ExtraEnglishTest extends TestCase
         $this->assertStringNotContainsString(',', $vtt);
     }
 
+    public function test_the_courses_page_lists_extra_english_next_to_vocab_in_use(): void
+    {
+        ExtraEpisode::factory()->create();
+
+        $this->actingAs(User::factory()->create())->get(route('courses.index'))
+            ->assertOk()
+            ->assertSee('Vocab in Use')
+            ->assertSee('Extra English')
+            ->assertSee('1 episode')
+            ->assertSeeHtml('href="'.route('courses.extra').'"');
+    }
+
     public function test_the_grid_shows_every_episode_with_number_title_and_length(): void
     {
         ExtraEpisode::factory()->create(['number' => 1, 'title' => "Hector's Arrival", 'duration_seconds' => 1438]);
