@@ -326,7 +326,15 @@ new class extends Component
             </div>
         @endforeach
     </div>
-@elseif (! $generated || $error)
+@else
+{{-- One root for the whole non-read-only step, never swapped by a morph: the
+     screen number lives here, so the waiting screen turning into the first
+     fix (and every check after it) can't start the fixes over at Fix 1. --}}
+<div
+    wire:ignore.self
+    x-data="{ screen: 0, filled: {} }"
+>
+@if (! $generated || $error)
     {{-- The waiting screen: the review starts on its own (a review already
          made comes back from the step's draft, so a revisit never calls
          the AI again). --}}
@@ -367,8 +375,6 @@ new class extends Component
     @php $total = count($mistakes); @endphp
     <div
         wire:key="error-log-fixes"
-        wire:ignore.self
-        x-data="{ screen: 0, filled: @js(collect($newExamples)->map(fn ($e) => trim((string) $e) !== '')->all()) }"
         x-effect="$dispatch('step-progress', { share: (screen + 0.5) / {{ $total + 1 }} })"
         x-back-close.step="{ open: screen > 0, close: () => screen-- }"
     >
@@ -437,4 +443,6 @@ new class extends Component
             </x-slot:actions>
         </x-lesson-screen>
     </div>
+@endif
+</div>
 @endif

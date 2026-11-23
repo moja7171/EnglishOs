@@ -563,7 +563,7 @@ new class extends Component
                 :cards="$choiceCards"
                 label="Choose the answer"
                 draft-key="{{ $draftPrefix }}choices"
-                on-complete="if (screen === {{ $firstQuestionScreen }}) $wire.finishChoices(correctCount, firstTries)"
+                on-complete="if (screen === {{ $firstQuestionScreen }}) $wire.finishChoices(this.correctCount, this.firstTries)"
                 on-skip="$wire.finishChoices(0, 0)"
             />
         </section>
