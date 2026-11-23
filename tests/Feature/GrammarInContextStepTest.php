@@ -819,7 +819,7 @@ class GrammarInContextStepTest extends TestCase
 
         Livewire::test('missions.steps.grammar-in-context', ['run' => $run->fresh()])
             ->assertSeeHtml('Add <strong>-s</strong> for he / she / it.')
-            ->assertSee('به فعل s اضافه کن.')
+            ->assertSee('به فعل <bdi dir="ltr">s</bdi> اضافه کن.', false)
             ->assertSee('The pattern')
             ->assertSee('verb + s')
             ->assertSee('She wake up.')

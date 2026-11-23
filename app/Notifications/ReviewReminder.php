@@ -56,15 +56,15 @@ class ReviewReminder extends Notification
 
     private function title(): string
     {
-        return $this->forWords ? 'مرور کلمه‌ها' : 'مرور گفتار و گرامر';
+        return $this->forWords ? 'مرور کلمه‌ها' : 'خواندن اشتباه‌ها و گرامر';
     }
 
     private function body(): string
     {
         if (! $this->forWords) {
             return $this->dueCount === 1
-                ? 'یه تمرین گفتار و گرامر منتظره؛ یه دقیقه کافیه.'
-                : "{$this->persianNumber($this->dueCount)} تمرین گفتار و گرامر منتظره؛ چند دقیقه بیشتر نمی‌شه.";
+                ? 'یه کارت اشتباه و گرامر منتظر خوندنه؛ یه دقیقه کافیه.'
+                : "{$this->persianNumber($this->dueCount)} کارت اشتباه و گرامر منتظر خوندنن؛ چند دقیقه بیشتر نمی‌شه.";
         }
 
         return $this->dueCount === 1

@@ -44,6 +44,24 @@ class MediaHost
         return $this->url(strtolower($missionCode), 'picks', rawurlencode($slug).'.mp3');
     }
 
+    /**
+     * The book audio of the Vocab in Use course: one flat folder,
+     * `{base}/vocab/U_016.A.mp3`, the book's own file names.
+     */
+    public function vocabAudioUrl(string $filename): ?string
+    {
+        return $this->url('vocab', rawurlencode($filename));
+    }
+
+    /**
+     * One Extra English episode: `{base}/extra/<file name>`, the file's own
+     * name (spaces and brackets included).
+     */
+    public function extraVideoUrl(string $filename): ?string
+    {
+        return $this->url('extra', rawurlencode($filename));
+    }
+
     private function url(string ...$segments): ?string
     {
         $baseUrl = $this->baseUrl();

@@ -31,6 +31,7 @@ Thumbs.db
 # never distributed via this repo. See document/Requirements/ EOS-009 §14.
 /document/English_Vocabulary_in_Use.pdf
 /document/English Vocabulary in Use*.pdf
+/document/English Vocabulary in Use*Audio*/
 /document/Intermediate_Grammar_in_Use.pdf
 
 # In-app listening picks: audio, transcripts and PDFs stay out of git — audio is served from the
@@ -44,5 +45,11 @@ Thumbs.db
 /document/*/*.mp3
 /document/*/*.mp4
 
+# Extra English episodes (on the download host at englishos/extra/): videos never in git.
+/document/extra/*.mp4
+
 # Host logins (FTP passwords etc.) — never in git
 /document/*.local.md
+
+# Vocab in Use: the book text/data built from the PDF stays local (see the textbook rule above)
+/document/vocab/

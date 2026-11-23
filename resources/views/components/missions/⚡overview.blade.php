@@ -3,6 +3,7 @@
 use App\Models\Mission;
 use App\Models\MissionRun;
 use App\Models\User;
+use App\Services\Courses;
 use App\Services\ListeningPicks;
 use App\Services\PexelsClient;
 use App\Services\PiPractice;
@@ -23,6 +24,17 @@ new class extends Component
     public function program(): array
     {
         return app(ProgramPlanner::class)->plan(auth()->user());
+    }
+
+    /**
+     * The one line under the mission's work that opens Courses (standalone
+     * studies outside the 24 missions, see App\Services\Courses). Its due
+     * cards are counted there only, never in the Review row above.
+     */
+    #[Computed]
+    public function coursesLine(): string
+    {
+        return app(Courses::class)->homeLine(auth()->user());
     }
 
     /**
@@ -804,6 +816,16 @@ new class extends Component
             <span aria-hidden="true">🧊</span> A freeze saved your streak yesterday.
         </p>
     @endif
+
+    {{-- Courses: standalone studies outside the mission path, opened any time. --}}
+    <a href="{{ route('courses.index') }}" wire:navigate data-testid="courses-row" class="flex min-h-14 items-center gap-3 rounded-2xl bg-surface px-3.5 py-2.5 transition-colors hover:bg-surface-sunken dark:bg-surface-dark dark:hover:bg-surface-sunken-dark">
+        <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent-soft text-accent dark:bg-accent-soft-dark dark:text-accent-dark">@svg('heroicon-o-book-open', 'h-5 w-5')</span>
+        <span class="min-w-0 flex-1">
+            <span class="block text-sm font-extrabold text-ink dark:text-ink-dark">Courses</span>
+            <span class="block truncate text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">{{ $this->coursesLine }}</span>
+        </span>
+        @svg('heroicon-o-chevron-right', 'h-4 w-4 shrink-0 text-ink-faint dark:text-ink-faint-dark')
+    </a>
 
     {{-- A1: where friends are right now — one tap to the Friends tab. --}}
     @if ($friendsNow = $this->friendsNow)

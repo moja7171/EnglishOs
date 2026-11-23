@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -185,11 +186,40 @@ class Mission extends Model
         ];
     }
 
-    protected function casts(): array
+    /**
+     * The mission's days and steps as authored, minus the steps listed in
+     * config('missions.hidden_steps'). The stored JSON is never changed.
+     *
+     * @return Attribute<array<int, array<string, mixed>>|null, array<int, array<string, mixed>>|null>
+     */
+    protected function phases(): Attribute
     {
-        return [
-            'phases' => 'array',
-        ];
+        return Attribute::make(
+            get: fn (?string $value): ?array => $value === null ? null : $this->withoutHiddenSteps($this->fromJson($value)),
+            set: fn (?array $value): ?string => $value === null ? null : $this->asJson($value),
+        );
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $phases
+     * @return array<int, array<string, mixed>>
+     */
+    private function withoutHiddenSteps(array $phases): array
+    {
+        $hidden = config('missions.hidden_steps', []);
+
+        if ($hidden === []) {
+            return $phases;
+        }
+
+        foreach ($phases as $index => $phase) {
+            $phases[$index]['steps'] = array_values(array_filter(
+                $phase['steps'] ?? [],
+                fn ($step) => ! in_array(is_array($step) ? ($step['key'] ?? null) : $step, $hidden, true),
+            ));
+        }
+
+        return $phases;
     }
 
     /**

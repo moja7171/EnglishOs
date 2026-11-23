@@ -517,8 +517,16 @@ class User extends Authenticatable
      */
     public const REVIEW_TRACKS = [
         'words' => ['word'],
-        'talk' => ['speaking', 'error', 'grammar', 'note'],
+        'talk' => ['error', 'grammar', 'note'],
     ];
+
+    /**
+     * The "Mistakes & reminders" path is only read, never graded: a card the
+     * learner has read stays away for this many days (it is stamped with
+     * last_reviewed_at, the schedule itself is never touched), then comes
+     * round again.
+     */
+    public const READING_REPEAT_DAYS = 3;
 
     /**
      * How many items count as "today's review" in each track — a finishable
@@ -650,6 +658,10 @@ class User extends Authenticatable
             return $this->dailyReviewItems('words')->concat($this->dailyReviewItems('talk'))->values();
         }
 
+        if ($track === 'talk') {
+            return $this->readingItems()->take($this->dailyReviewAllowance($track, $more))->values();
+        }
+
         $allowance = $this->dailyReviewAllowance($track, $more);
 
         if ($allowance === 0) {
@@ -685,6 +697,45 @@ class User extends Authenticatable
     }
 
     /**
+     * What "Mistakes & reminders" has to read: the learner's active
+     * mistakes, grammar reminders and repeated mistake patterns that were
+     * not read in the last READING_REPEAT_DAYS days — the longest unread
+     * first, the three kinds taken in turns so a long mistake list can't
+     * push the grammar out. Shrinks as cards are read (see markRead() on
+     * the models), like a due list does.
+     *
+     * @return Collection<int, array{type: string, id: int}>
+     */
+    private function readingItems(): Collection
+    {
+        $cutoff = now()->subDays(self::READING_REPEAT_DAYS);
+
+        $lists = collect([
+            'note' => $this->notebookEntries()->inReview(),
+            'grammar' => $this->grammarPoints(),
+            'error' => $this->errorPatternReviews()->whereNotNull('last_error')->where('last_error', '!=', ''),
+        ])->map(fn ($relation) => $relation
+            ->where(fn ($query) => $query->whereNull('last_reviewed_at')->orWhere('last_reviewed_at', '<', $cutoff))
+            ->orderByRaw('last_reviewed_at is not null')
+            ->orderBy('last_reviewed_at')
+            ->orderBy('id')
+            ->pluck('id')
+            ->values());
+
+        $items = collect();
+
+        foreach (range(0, max(0, (int) $lists->map->count()->max() - 1)) as $position) {
+            foreach ($lists as $type => $ids) {
+                if ($ids->has($position)) {
+                    $items->push(['type' => $type, 'id' => $ids->get($position)]);
+                }
+            }
+        }
+
+        return $items;
+    }
+
+    /**
      * The words coming due soonest that were not reviewed today — what
      * "6 more" practises early when nothing else is due.
      *
@@ -712,6 +763,10 @@ class User extends Authenticatable
             return $this->dailyReviewCount('words') + $this->dailyReviewCount('talk');
         }
 
+        if ($track === 'talk') {
+            return min($this->readingItems()->count(), $this->dailyReviewAllowance($track));
+        }
+
         $sources = $this->reviewSources($track);
         $dueNotes = isset($sources['note']) ? $sources['note']->where('next_review_at', '<=', now())->count() : 0;
         unset($sources['note']);
@@ -731,6 +786,14 @@ class User extends Authenticatable
      */
     public function dueReviewCount(?string $track = null): int
     {
+        if ($track === 'talk') {
+            return $this->readingItems()->count();
+        }
+
+        if ($track === null) {
+            return $this->dueReviewCount('words') + $this->dueReviewCount('talk');
+        }
+
         return collect($this->reviewSources($track))
             ->sum(fn (HasMany $relation) => $relation->where('next_review_at', '<=', now())->count());
     }

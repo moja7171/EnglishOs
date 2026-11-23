@@ -7,8 +7,13 @@
     sheet.
 
     @param array{heading?: string, blocks?: array} $section
+    @param bool $withExamples The Notebook's Grammar tab also lists the
+        section's right/wrong pairs and example sentences, each with its
+        Persian line when it has one, hidden by that tab's Persian switch
+        (Alpine `fa`).
 --}}
 @php
+    $withExamples ??= false;
     $heading = preg_replace('/^[A-Z]\s·\s/u', '', $section['heading'] ?? '');
     $blocks = collect($section['blocks'] ?? []);
     $formulaTones = [
@@ -32,7 +37,9 @@
         <div class="flex flex-col gap-2 rounded-3xl bg-accent-soft p-4 dark:bg-accent-soft-dark">
             <p class="text-lg leading-snug font-semibold text-ink dark:text-ink-dark [&_strong]:text-accent-ink dark:[&_strong]:text-accent-ink-dark">{!! $rule['text'] !!}</p>
             @if (! empty($rule['fa']))
-                <p dir="rtl" class="font-fa border-t border-accent/20 pt-2 text-sm leading-loose text-ink-soft dark:border-accent-dark/30 dark:text-ink-soft-dark">{!! $rule['fa'] !!}</p>
+                <div @if ($withExamples) x-show="fa" @endif>
+                    <x-fa-text :text="$rule['fa']" :markup="true" class="border-t border-accent/20 pt-2 text-sm text-ink-soft dark:border-accent-dark/30 dark:text-ink-soft-dark" />
+                </div>
             @endif
         </div>
     @endforeach
@@ -67,4 +74,55 @@
             </div>
         @endforeach
     @endforeach
+    @if ($withExamples)
+        @foreach ($blocks->where('type', 'do_dont') as $block)
+            <div class="flex flex-col gap-2">
+                @foreach ($block['items'] ?? [] as $item)
+                    <div class="flex flex-col gap-1 rounded-2xl bg-surface p-3 dark:bg-surface-dark">
+                        <p dir="ltr" lang="en" class="text-sm text-danger-ink line-through decoration-danger">{{ $item['wrong'] }}</p>
+                        <p dir="ltr" lang="en" class="text-base font-bold text-ink dark:text-ink-dark">{{ $item['right'] }}</p>
+                        @if (! empty($item['fa']))
+                            <div x-show="fa"><x-fa-text :text="$item['fa']" class="text-sm text-ink-soft dark:text-ink-soft-dark" /></div>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+        @endforeach
+
+        @foreach ($blocks->where('type', 'pairs') as $block)
+            <div class="flex flex-col gap-2">
+                @foreach ($block['pairs'] ?? [] as $pair)
+                    <div class="flex flex-col gap-1 rounded-2xl bg-surface p-3 dark:bg-surface-dark">
+                        <p dir="ltr" lang="en" class="text-base font-semibold text-ink dark:text-ink-dark">{{ $pair['left'] }}</p>
+                        <p dir="ltr" lang="en" class="text-base text-ink-soft dark:text-ink-soft-dark">{{ $pair['right'] }}</p>
+                        @if (! empty($pair['fa']))
+                            <div x-show="fa"><x-fa-text :text="$pair['fa']" class="text-sm text-ink-soft dark:text-ink-soft-dark" /></div>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+        @endforeach
+
+        @foreach ($blocks->where('type', 'examples') as $block)
+            @foreach ($block['groups'] ?? [] as $group)
+                <div class="flex flex-col gap-1.5">
+                    @if (! empty($group['label']))
+                        <p class="text-xs font-bold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">{{ $group['label'] }}</p>
+                    @endif
+                    @foreach ($group['items'] ?? [] as $example)
+                        @php
+                            $exampleText = is_array($example) ? $example['text'] : $example;
+                            $exampleFa = is_array($example) ? ($example['fa'] ?? null) : null;
+                        @endphp
+                        <div class="flex flex-col gap-1 rounded-2xl bg-surface px-3 py-2.5 dark:bg-surface-dark">
+                            <p dir="ltr" lang="en" class="text-base font-semibold text-ink dark:text-ink-dark">{{ $exampleText }}</p>
+                            @if ($exampleFa)
+                                <div x-show="fa"><x-fa-text :text="$exampleFa" class="text-sm text-ink-soft dark:text-ink-soft-dark" /></div>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+            @endforeach
+        @endforeach
+    @endif
 </div>

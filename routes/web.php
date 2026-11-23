@@ -10,6 +10,7 @@ use App\Http\Controllers\ServiceHealthController;
 use App\Http\Controllers\VocabularyWordController;
 use App\Models\AiPractice;
 use App\Models\DirectMessage;
+use App\Models\ExtraEpisode;
 use App\Models\InstructorMessage;
 use App\Models\Mission;
 use App\Models\PairGame;
@@ -17,9 +18,12 @@ use App\Models\PairPracticeSession;
 use App\Models\PartnerSession;
 use App\Models\PartnerSessionAnswer;
 use App\Models\User;
+use App\Models\VocabUnit;
 use App\Models\VoiceFeedback;
 use App\Notifications\PartnerSessionStarted;
+use App\Services\Courses;
 use App\Services\MissionGrid;
+use App\Services\VocabCourse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
@@ -80,6 +84,44 @@ Route::middleware(['auth', 'session.absolute_timeout', 'ai_keys.saved'])->group(
     Route::get('/missions/{mission:code}/{step?}', function (Mission $mission, ?string $step = null) {
         return view('mission-runner', compact('mission', 'step'));
     })->name('missions.show');
+
+    // Courses: standalone studies outside the 24 missions, opened any time
+    // (App\Services\Courses). Vocab in Use is the first one; none of them
+    // counts toward the streak, the daily ring, the reminders or Review.
+    Route::get('/courses', function (Courses $courses) {
+        return view('courses', ['courses' => $courses->for(auth()->user())]);
+    })->name('courses.index');
+
+    Route::get('/courses/vocab', function (VocabCourse $course) {
+        $user = auth()->user();
+
+        return view('courses-vocab', [
+            'sections' => $course->sections($user),
+            'totalUnits' => $course->totalUnits(),
+            'openedUnits' => $course->openedUnits($user),
+            'dueCards' => $course->dueCards($user),
+            'stats' => $course->stats($user),
+            'tricky' => $course->trickyPhrases($user),
+        ]);
+    })->name('courses.vocab');
+
+    Route::get('/courses/extra', function () {
+        return view('courses-extra', ['episodes' => ExtraEpisode::query()->orderBy('number')->get()]);
+    })->name('courses.extra');
+
+    Route::get('/courses/extra/{episode:number}', function (ExtraEpisode $episode) {
+        return view('courses-extra-episode', compact('episode'));
+    })->where('episode', '[0-9]+')->name('courses.extra.episode');
+
+    Route::get('/courses/vocab/review', function () {
+        return view('courses-vocab-review');
+    })->name('courses.vocab.review');
+
+    Route::get('/courses/vocab/{unit:number}/{step?}', function (VocabUnit $unit, ?string $step = null) {
+        abort_unless($unit->texts()->exists(), 404);
+
+        return view('courses-vocab-unit', compact('unit', 'step'));
+    })->where(['unit' => '[0-9]+', 'step' => 'listen|read|words'])->name('courses.vocab.unit');
 
     Route::get('/profile', function () {
         return view('profile');
