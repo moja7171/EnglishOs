@@ -43,6 +43,9 @@
     @param array{mission_code: string, source: string, day_number?: int, manual_report?: bool, own_report_button?: bool}|null $listen Counts
         real watches (at least 90% played through, never skipped to) and
         shows a "Listens: N" chip — see <x-audio-player>. null = no counting.
+    @param bool $skipButtons Adds "-10" / "+10" second buttons next to play —
+        for long videos that are watched on a phone, where dragging the thin
+        seek bar is hard (Extra English).
     @param string|null $resumeKey Comes back where the learner left the
         video — see <x-audio-player>'s $resumeKey, same behavior.
 --}}
@@ -59,12 +62,15 @@
     'shadowTimestamps' => [],
     'shadowActive' => 'true',
     'resumeKey' => null,
+    'skipButtons' => false,
 ])
 
 @if (! empty($url))
     <div
         :class="mode === 'focus' ? 'fixed inset-0 z-50 flex flex-col overflow-hidden bg-ground p-3 sm:p-6 landscape:flex-row landscape:gap-4 dark:bg-ground-dark' : ''"
         x-on:keydown.escape.window="closeExpanded()"
+        x-on:resize.window="updatePortrait()"
+        x-on:fullscreenchange.document="onFullscreenChange()"
         x-back-close="{ open: mode !== 'inline', close: () => closeExpanded() }"
         x-data="{
             playing: false,
@@ -79,6 +85,9 @@
             hideTimer: null,
             mode: 'inline',
             returnMode: 'inline',
+            portrait: false,
+            landscapeLocked: false,
+            nativeFullscreen: false,
             hasSegments: {{ count($segments) ? 'true' : 'false' }},
             showText: {{ $textHidden ? 'false' : 'true' }},
             segments: {{ Illuminate\Support\Js::from($segments) }},
@@ -163,13 +172,16 @@
                     this.$nextTick(() => this.centerSegment(index));
                 });
 
-                this.$watch('mode', (mode) => {
+                this.$watch('mode', (mode, previous) => {
                     document.documentElement.classList.toggle('overflow-hidden', mode !== 'inline');
+                    if (mode === 'video') this.enterLandscape();
+                    else if (previous === 'video') this.leaveLandscape();
                     this.$nextTick(() => this.centerSegment(this.activeSegmentIndex));
                 });
             },
             destroy() {
                 if (this.mode !== 'inline') document.documentElement.classList.remove('overflow-hidden');
+                if (this.mode === 'video') this.leaveLandscape();
                 this.stopResume?.();
             },
             centerSegment(index) {
@@ -259,6 +271,49 @@
                 this.captionsOn = ! this.captionsOn;
                 if (this.$refs.track) this.$refs.track.track.mode = this.captionsOn ? 'showing' : 'hidden';
             },
+            // The big video turns the phone sideways: real full screen plus a
+            // landscape lock where the browser allows it (Android); where it
+            // does not (iPhone), the picture itself is turned a quarter while
+            // the phone is held upright (see `turned`). Desktop is untouched.
+            async enterLandscape() {
+                this.updatePortrait();
+                if (! window.matchMedia('(pointer: coarse)').matches) return;
+                try {
+                    const stage = this.$refs.stage;
+                    if (! document.fullscreenElement && stage.requestFullscreen) {
+                        await stage.requestFullscreen();
+                        this.nativeFullscreen = true;
+                    }
+                    if (typeof screen.orientation?.lock === 'function') {
+                        await screen.orientation.lock('landscape');
+                        this.landscapeLocked = true;
+                    }
+                } catch (error) {
+                    this.landscapeLocked = false;
+                }
+                this.updatePortrait();
+            },
+            leaveLandscape() {
+                try { screen.orientation?.unlock?.(); } catch (error) {}
+                this.landscapeLocked = false;
+                if (this.nativeFullscreen && document.fullscreenElement) {
+                    this.nativeFullscreen = false;
+                    document.exitFullscreen?.().catch(() => {});
+                }
+                this.nativeFullscreen = false;
+                this.updatePortrait();
+            },
+            onFullscreenChange() {
+                if (document.fullscreenElement || ! this.nativeFullscreen) return;
+                this.nativeFullscreen = false;
+                if (this.mode === 'video') this.closeExpanded();
+            },
+            updatePortrait() {
+                this.portrait = window.innerHeight > window.innerWidth;
+            },
+            get turned() {
+                return this.mode === 'video' && this.portrait && ! this.landscapeLocked && window.matchMedia('(pointer: coarse)').matches;
+            },
             toggleVideoFullscreen() {
                 if (this.mode === 'video') {
                     this.mode = this.returnMode;
@@ -325,10 +380,12 @@
     @endif
 
     <div
+        x-ref="stage"
         tabindex="0"
         x-on:keydown="onKeydown($event)"
         x-on:mousemove="showControls()"
         x-on:mouseleave="if (playing) controlsVisible = false"
+        :style="turned ? 'inset:0 auto auto 0;width:100dvh;height:100dvw;transform-origin:0 0;transform:translateX(100dvw) rotate(90deg)' : ''"
         :class="{
             'fixed! inset-0 z-50 aspect-auto! rounded-none!': mode === 'video',
             'h-[33dvh] shrink-0 aspect-auto! landscape:h-auto landscape:w-1/2 landscape:self-stretch': mode === 'focus',
@@ -408,6 +465,11 @@
                     <span x-show="!playing">@svg('heroicon-s-play', 'h-5 w-5')</span>
                     <span x-show="playing" x-cloak>@svg('heroicon-s-pause', 'h-5 w-5')</span>
                 </button>
+
+                @if ($skipButtons)
+                    <button type="button" x-on:click="skip(-10); showControls()" class="cursor-pointer text-xs font-bold tabular-nums" title="Back 10 seconds" aria-label="Back 10 seconds">&minus;10</button>
+                    <button type="button" x-on:click="skip(10); showControls()" class="cursor-pointer text-xs font-bold tabular-nums" title="Forward 10 seconds" aria-label="Forward 10 seconds">+10</button>
+                @endif
 
                 <button type="button" x-on:click="toggleMute()" class="cursor-pointer" title="Mute (m)">
                     <span x-show="!muted">@svg('heroicon-o-speaker-wave', 'h-5 w-5')</span>

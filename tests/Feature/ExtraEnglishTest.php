@@ -3,11 +3,13 @@
 namespace Tests\Feature;
 
 use App\Models\ExtraEpisode;
+use App\Models\ExtraWatch;
 use App\Models\User;
 use App\Services\SrtToVtt;
 use Database\Seeders\ExtraEnglishSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 /**
@@ -76,7 +78,10 @@ class ExtraEnglishTest extends TestCase
             ->assertSee("Hector's Arrival")
             ->assertSeeHtml('https://dl.example.test/englishos/extra/01%20-%20Hectors_arrival%20%5Bwww.languagecentre.ir%5D.mp4')
             ->assertSeeHtml('extra/01.vtt')
-            ->assertSee('CC');
+            ->assertSee('CC')
+            ->assertSeeHtml('eos.extra.1.position')
+            ->assertSeeHtml('Back 10 seconds')
+            ->assertSeeHtml('Forward 10 seconds');
     }
 
     public function test_an_episode_without_captions_has_no_cc_button_and_without_a_host_says_so(): void
@@ -93,5 +98,41 @@ class ExtraEnglishTest extends TestCase
     public function test_a_guest_is_sent_to_log_in(): void
     {
         $this->get(route('courses.extra'))->assertRedirect();
+    }
+
+    public function test_a_really_watched_episode_is_ticked_once_for_that_learner_only(): void
+    {
+        $learner = User::factory()->create();
+        $other = User::factory()->create();
+        $episode = ExtraEpisode::factory()->create(['number' => 1]);
+
+        $this->actingAs($learner);
+        Livewire::test('courses.extra-episode', ['episodeId' => $episode->id])
+            ->assertSet('watched', false)
+            ->call('markWatched')
+            ->call('markWatched')
+            ->assertSet('watched', true);
+
+        $this->assertSame(1, ExtraWatch::where('user_id', $learner->id)->count());
+        $this->assertSame(0, ExtraWatch::where('user_id', $other->id)->count());
+
+        $this->actingAs($learner);
+        Livewire::test('courses.extra-episode', ['episodeId' => $episode->id])->assertSet('watched', true);
+
+        $this->actingAs($other);
+        Livewire::test('courses.extra-episode', ['episodeId' => $episode->id])->assertSet('watched', false);
+    }
+
+    public function test_the_grid_ticks_only_the_episodes_this_learner_watched(): void
+    {
+        $learner = User::factory()->create();
+        $watched = ExtraEpisode::factory()->create(['number' => 1]);
+        ExtraEpisode::factory()->create(['number' => 2]);
+        ExtraWatch::factory()->create(['user_id' => $learner->id, 'extra_episode_id' => $watched->id]);
+        ExtraWatch::factory()->create(['extra_episode_id' => ExtraEpisode::where('number', 2)->value('id')]);
+
+        $html = $this->actingAs($learner)->get(route('courses.extra'))->assertOk()->getContent();
+
+        $this->assertSame(1, substr_count($html, 'data-testid="extra-watched"'));
     }
 }

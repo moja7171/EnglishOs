@@ -66,7 +66,9 @@ class CoursesTest extends TestCase
             ->assertSee('Vocab in Use')
             ->assertSee('1 of 1 units opened')
             ->assertSee('1 card due')
-            ->assertSeeHtml('href="'.route('courses.vocab').'"');
+            ->assertSeeHtml('href="'.route('courses.vocab').'"')
+            ->assertSeeHtml('images/courses/vocab.jpg')
+            ->assertSeeHtml('images/extra/01.jpg');
     }
 
     public function test_due_course_cards_never_count_in_the_review_tab(): void
@@ -194,6 +196,21 @@ class CoursesTest extends TestCase
         $this->assertNotNull($run->read_done_at);
     }
 
+    public function test_a_unit_gets_its_tick_on_the_map_once_the_lesson_was_read(): void
+    {
+        $learner = User::factory()->create();
+        $unit = $this->readyUnit();
+        $stateOfUnit = fn (): string => collect(app(VocabCourse::class)->sections($learner))->flatMap(fn (array $section) => $section['units'])->firstWhere('number', $unit->number)['state'];
+
+        $this->assertSame('new', $stateOfUnit());
+
+        Livewire::actingAs($learner)->test('courses.vocab-unit', ['unitId' => $unit->id, 'step' => 'read']);
+        $this->assertSame('open', $stateOfUnit());
+
+        Livewire::actingAs($learner)->test('courses.vocab-unit', ['unitId' => $unit->id, 'step' => 'words']);
+        $this->assertSame('done', $stateOfUnit());
+    }
+
     public function test_the_words_step_without_saved_words_points_back_to_read(): void
     {
         $unit = $this->readyUnit();
@@ -218,5 +235,15 @@ class CoursesTest extends TestCase
             ->assertSee('فا')
             ->assertSee('من معمولاً ساعت هفت و نیم بیدار می‌شوم.')
             ->assertSee('بیدار شدن');
+    }
+
+    public function test_a_unit_opened_from_the_map_without_a_step_starts_on_listen(): void
+    {
+        $unit = $this->readyUnit();
+
+        $this->actingAs(User::factory()->create())
+            ->get(route('courses.vocab.unit', $unit->number))
+            ->assertOk()
+            ->assertSee('Step 1 of 3');
     }
 }
