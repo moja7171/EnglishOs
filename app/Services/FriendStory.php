@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\AudioListen;
 use App\Models\DayActivity;
+use App\Models\ExtraWatch;
 use App\Models\NotebookEntry;
 use App\Models\PairGame;
 use App\Models\PairPracticeSession;
@@ -45,6 +46,8 @@ class FriendStory
         'listening' => 'گوش دادن',
         'pi' => 'گفتگوی روزانه',
         'review' => 'مرور',
+        'vocab' => 'Vocab in Use',
+        'extra' => 'Extra English',
         'pair' => 'تمرین دونفره',
         'game' => 'بازی',
         'ai-practice' => 'تمرین با Teddy',
@@ -161,6 +164,8 @@ class FriendStory
                 'listening' => $heard === [] ? ['گوش دادن', 'یک لیسنینگ روزانه'] : null,
                 'pi' => ['گفتگوی روزانه', $this->piLine($friend, $date)],
                 'review' => ['مرور', $this->reviewLine($friend)],
+                'vocab' => ['Vocab in Use', $this->vocabLine($friend)],
+                'extra' => ['Extra English', $this->extraLine($friend)],
                 'pair' => ['تمرین دونفره', $this->pairLine($friend)],
                 'ai-practice' => ['تمرین با Teddy', 'هم‌کلاسی هوشمند'],
                 'game' => $item['title'] === 'A game'
@@ -241,10 +246,30 @@ class FriendStory
     private function reviewLine(User $friend): string
     {
         $start = $this->dayStart($friend);
-        $count = VocabularyWord::where('learner_id', $friend->id)->where('last_reviewed_at', '>=', $start)->count()
+        $words = VocabularyWord::where('learner_id', $friend->id)->where('last_reviewed_at', '>=', $start);
+        $vocab = (clone $words)->fromVocabCourse()->count();
+        $count = (clone $words)->lessonWords()->count() + $vocab
             + NotebookEntry::where('learner_id', $friend->id)->where('last_reviewed_at', '>=', $start)->count();
 
-        return $count > 0 ? "{$count} واژه و جمله مرور شد" : 'واژه‌ها و جمله‌ها';
+        return match (true) {
+            $count === 0 => 'واژه‌ها و جمله‌ها',
+            $vocab > 0 => "{$count} مورد مرور شد · {$vocab} واژهٔ Vocab in Use",
+            default => "{$count} واژه و جمله مرور شد",
+        };
+    }
+
+    private function vocabLine(User $friend): string
+    {
+        $added = VocabularyWord::where('learner_id', $friend->id)->fromVocabCourse()->where('created_at', '>=', $this->dayStart($friend))->count();
+
+        return $added > 0 ? "درس واژه‌ها · {$added} واژه اضافه شد" : 'یک درس از کتاب خوانده شد';
+    }
+
+    private function extraLine(User $friend): string
+    {
+        $watch = ExtraWatch::with('episode')->where('user_id', $friend->id)->where('watched_at', '>=', $this->dayStart($friend))->latest('watched_at')->first();
+
+        return $watch?->episode ? "قسمت {$watch->episode->number} · «{$watch->episode->title}»" : 'یک قسمت دیده شد';
     }
 
     private function piLine(User $friend, string $date): string

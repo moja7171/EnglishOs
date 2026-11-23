@@ -3,8 +3,14 @@
 
     $tracks = [
         'words' => ['title' => 'Words', 'icon' => 'language'],
+        'vocab' => ['title' => 'Vocab in Use', 'icon' => 'academic-cap'],
         'talk' => ['title' => 'Mistakes & reminders', 'icon' => 'book-open'],
     ];
+
+    // A path counts for today when it has something left or was worked on; the ring slice needs all of them done.
+    $summaries = collect($tracks)->map(fn (array $card, string $track): array => $user->reviewTrackSummary($track));
+    $active = $summaries->filter(fn (array $summary): bool => $summary['remaining'] > 0 || $summary['reviewedToday'] > 0);
+    $finished = $active->filter(fn (array $summary): bool => $summary['remaining'] === 0)->count();
 @endphp
 
 {{-- Daily Review's two paths: the learner's words (ten a day, quick enough
@@ -14,14 +20,19 @@
     <div class="mx-auto flex max-w-2xl flex-col gap-4 p-4 sm:p-6">
         <div class="flex items-center justify-between gap-2">
             <h1 class="font-display text-2xl font-semibold text-ink dark:text-ink-dark">Review</h1>
-            <x-usage-guide-button />
+            <div class="flex items-center gap-2">
+                @if ($active->count() > 1)
+                    <span class="rounded-full bg-accent-soft px-3 py-1 text-xs font-extrabold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark" data-testid="review-progress">{{ $finished }} of {{ $active->count() }} done today</span>
+                @endif
+                <x-usage-guide-button />
+            </div>
         </div>
         <livewire:usage-guide guide="review" />
 
         <div class="grid gap-3">
             @foreach ($tracks as $track => $card)
                 @php
-                    $summary = $user->reviewTrackSummary($track);
+                    $summary = $summaries[$track];
                     $total = $summary['reviewedToday'] + $summary['remaining'];
                     $isNext = $summary['remaining'] > 0 && $summary['reviewedToday'] === 0;
                 @endphp
@@ -57,5 +68,9 @@
                 </a>
             @endforeach
         </div>
+
+        @if ($active->count() > 1)
+            <p class="rounded-2xl bg-accent-soft px-4 py-3 text-sm font-bold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">Finish every path to complete today's review ring.</p>
+        @endif
     </div>
 </x-layouts.app>

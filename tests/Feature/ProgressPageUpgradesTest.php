@@ -19,8 +19,10 @@ class ProgressPageUpgradesTest extends TestCase
         $this->actingAs(User::factory()->create());
 
         Livewire::test('progress.index')
-            ->assertSee('This week')
-            ->assertSee('Last 12 weeks')
+            ->assertSee('practiced in the last 12 weeks')
+            ->assertSee('days this week')
+            ->assertSee('Courses')
+            ->assertDontSee('Last 12 weeks')
             ->assertDontSee('Overview')
             ->assertDontSee('Memory freshness')
             ->assertDontSee('Vocabulary growth')

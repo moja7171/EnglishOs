@@ -69,7 +69,7 @@ class VocabText extends Model
         $cursor = $from;
 
         foreach ($this->items as $item) {
-            if ($item->start < $cursor || $item->end > $to || ($only !== null && ! in_array($item->id, $only, true))) {
+            if (! $item->isInText() || $item->start < $cursor || $item->end > $to || ($only !== null && ! in_array($item->id, $only, true))) {
                 continue;
             }
 
@@ -100,17 +100,18 @@ class VocabText extends Model
     /**
      * The sentences the synced-text panel of the audio player expects.
      *
-     * @return list<array{text: string, start: float, end: float}>
+     * @return list<array{text: string, start: float, end: float, fa?: string}>
      */
     public function playerSegments(): array
     {
         return collect($this->sentences)
             ->filter(fn (array $sentence): bool => isset($sentence['audio_start'], $sentence['audio_end']))
-            ->map(fn (array $sentence): array => [
+            ->map(fn (array $sentence): array => array_filter([
                 'text' => $sentence['text'],
                 'start' => (float) $sentence['audio_start'],
                 'end' => (float) $sentence['audio_end'],
-            ])
+                'fa' => $sentence['fa'] ?? null,
+            ]))
             ->values()
             ->all();
     }

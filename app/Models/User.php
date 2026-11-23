@@ -517,6 +517,7 @@ class User extends Authenticatable
      */
     public const REVIEW_TRACKS = [
         'words' => ['word'],
+        'vocab' => ['word'],
         'talk' => ['error', 'grammar', 'note'],
     ];
 
@@ -536,7 +537,11 @@ class User extends Authenticatable
      */
     public const DAILY_WORD_LIMIT = 12;
 
-    public const DAILY_TALK_LIMIT = 6;
+    /** Vocab in Use words a day (the words added from the course's lessons). */
+    public const DAILY_VOCAB_LIMIT = 12;
+
+    /** Mistakes and reminders to read a day: at least this many (fewer only when fewer exist). */
+    public const DAILY_TALK_LIMIT = 10;
 
     /**
      * The spaced-repetition systems Daily Review mixes, keyed by the type
@@ -549,7 +554,11 @@ class User extends Authenticatable
     private function reviewSources(?string $track = null): array
     {
         $sources = [
-            'word' => $this->vocabularyWords(),
+            'word' => match ($track) {
+                'words' => $this->vocabularyWords()->lessonWords()->whereRaw($this->notReviewedAsTwin(VocabularyWord::SOURCE_VOCAB)),
+                'vocab' => $this->vocabularyWords()->fromVocabCourse()->whereRaw($this->notReviewedAsTwin(VocabularyWord::SOURCE_LESSON)),
+                default => $this->vocabularyWords(),
+            },
             'speaking' => $this->speakingPrompts(),
             'error' => $this->errorPatternReviews(),
             'grammar' => $this->grammarPoints(),
@@ -557,6 +566,19 @@ class User extends Authenticatable
         ];
 
         return $track === null ? $sources : array_intersect_key($sources, array_flip(self::REVIEW_TRACKS[$track]));
+    }
+
+    /**
+     * A word that is both a lesson word and a Vocab in Use word is asked once
+     * a day: this leaves a card out of today's queue when its twin of the other
+     * source was already reviewed today.
+     */
+    private function notReviewedAsTwin(string $otherSource): string
+    {
+        $dayStart = $this->localDayStart()->toDateTimeString();
+
+        return 'lower(vocabulary_words.word) not in (select lower(twin.word) from vocabulary_words twin where twin.learner_id = '.(int) $this->id
+            ." and twin.source = '{$otherSource}' and twin.last_reviewed_at >= '{$dayStart}')";
     }
 
     /**
@@ -581,7 +603,7 @@ class User extends Authenticatable
 
         // Every notebook line, so one that became learned by this very
         // review still counts as reviewed today.
-        return collect(['note' => $this->notebookEntries()] + $this->reviewSources())
+        return collect(['note' => $this->notebookEntries()] + $this->reviewSources($track))
             ->when($types, fn ($sources) => $sources->only($types))
             ->sum(fn (HasMany $relation) => $relation->where('last_reviewed_at', '>=', $dayStart)->count());
     }
@@ -593,10 +615,14 @@ class User extends Authenticatable
     public function dailyReviewAllowance(?string $track = null, int $more = 0): int
     {
         if ($track === null) {
-            return $this->dailyReviewAllowance('words') + $this->dailyReviewAllowance('talk');
+            return collect(array_keys(self::REVIEW_TRACKS))->sum(fn (string $each) => $this->dailyReviewAllowance($each));
         }
 
-        $limit = ($track === 'words' ? self::DAILY_WORD_LIMIT : self::DAILY_TALK_LIMIT) * (1 + $more);
+        $limit = match ($track) {
+            'words' => self::DAILY_WORD_LIMIT,
+            'vocab' => self::DAILY_VOCAB_LIMIT,
+            default => self::DAILY_TALK_LIMIT,
+        } * (1 + $more);
 
         return max(0, $limit - $this->reviewedTodayCount($track));
     }
@@ -655,7 +681,7 @@ class User extends Authenticatable
     public function dailyReviewItems(?string $track = null, int $more = 0): Collection
     {
         if ($track === null) {
-            return $this->dailyReviewItems('words')->concat($this->dailyReviewItems('talk'))->values();
+            return collect(array_keys(self::REVIEW_TRACKS))->flatMap(fn (string $each) => $this->dailyReviewItems($each))->values();
         }
 
         if ($track === 'talk') {
@@ -689,8 +715,8 @@ class User extends Authenticatable
             ->map(fn (array $entry) => ['type' => $entry['type'], 'id' => $entry['id']])
             ->values();
 
-        if ($more > 0 && $track === 'words' && $items->count() < $allowance) {
-            $items = $items->concat($this->upcomingWordItems($allowance - $items->count()));
+        if ($more > 0 && in_array($track, ['words', 'vocab'], true) && $items->count() < $allowance) {
+            $items = $items->concat($this->upcomingWordItems($allowance - $items->count(), $track));
         }
 
         return $items;
@@ -741,9 +767,9 @@ class User extends Authenticatable
      *
      * @return Collection<int, array{type: string, id: int}>
      */
-    private function upcomingWordItems(int $limit): Collection
+    private function upcomingWordItems(int $limit, string $track = 'words'): Collection
     {
-        return $this->vocabularyWords()
+        return $this->reviewSources($track)['word']
             ->where('next_review_at', '>', now())
             ->where(fn ($words) => $words->whereNull('last_reviewed_at')->orWhere('last_reviewed_at', '<', $this->localDayStart()))
             ->orderBy('next_review_at')
@@ -760,7 +786,7 @@ class User extends Authenticatable
     public function dailyReviewCount(?string $track = null): int
     {
         if ($track === null) {
-            return $this->dailyReviewCount('words') + $this->dailyReviewCount('talk');
+            return collect(array_keys(self::REVIEW_TRACKS))->sum(fn (string $each) => $this->dailyReviewCount($each));
         }
 
         if ($track === 'talk') {
@@ -791,7 +817,7 @@ class User extends Authenticatable
         }
 
         if ($track === null) {
-            return $this->dueReviewCount('words') + $this->dueReviewCount('talk');
+            return collect(array_keys(self::REVIEW_TRACKS))->sum(fn (string $each) => $this->dueReviewCount($each));
         }
 
         return collect($this->reviewSources($track))

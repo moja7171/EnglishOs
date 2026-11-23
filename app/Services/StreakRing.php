@@ -12,7 +12,7 @@ use Throwable;
 
 /**
  * The daily streak ring: every activity the learner finishes in a day is
- * one slice — a mission step, today's review (all of it, or 10 cards), the
+ * one slice — a mission step, today's review (every path that had work), the
  * listening tick, the Pi tick, a Pair Practice round — each kind at most
  * once a day, every mission step on its own. SLICES_TO_KEEP slices keep
  * the streak, SLICES_FOR_FULL fill the ring (and celebrate).
@@ -33,8 +33,6 @@ class StreakRing
     public const SLICES_TO_KEEP = 2;
 
     public const SLICES_FOR_FULL = 3;
-
-    public const REVIEW_CARDS_FOR_A_SLICE = 10;
 
     public const STARTING_FREEZES = 1;
 
@@ -89,20 +87,19 @@ class StreakRing
     }
 
     /**
-     * After any review: today's review counts once either track (words, or
-     * speaking and grammar) is all done, or after REVIEW_CARDS_FOR_A_SLICE
-     * cards of it.
+     * After any review: today's review counts once every path that had
+     * something to do today (words, Vocab in Use, mistakes and reminders) is
+     * finished. A path with nothing due does not hold the ring back.
      */
     public function recordReview(User $learner): void
     {
-        foreach (array_keys(User::REVIEW_TRACKS) as $track) {
-            $reviewed = $learner->reviewedTodayCount($track);
+        $tracks = array_keys(User::REVIEW_TRACKS);
 
-            if ($reviewed > 0 && ($reviewed >= self::REVIEW_CARDS_FOR_A_SLICE || $learner->dailyReviewCount($track) === 0)) {
-                $this->record($learner, 'review');
+        $workedOn = collect($tracks)->contains(fn (string $track): bool => $learner->reviewedTodayCount($track) > 0);
+        $allDone = collect($tracks)->every(fn (string $track): bool => $learner->dailyReviewCount($track) === 0);
 
-                return;
-            }
+        if ($workedOn && $allDone) {
+            $this->record($learner, 'review');
         }
     }
 

@@ -101,8 +101,6 @@ Route::middleware(['auth', 'session.absolute_timeout', 'ai_keys.saved'])->group(
             'totalUnits' => $course->totalUnits(),
             'openedUnits' => $course->openedUnits($user),
             'dueCards' => $course->dueCards($user),
-            'stats' => $course->stats($user),
-            'tricky' => $course->trickyPhrases($user),
         ]);
     })->name('courses.vocab');
 
@@ -117,15 +115,11 @@ Route::middleware(['auth', 'session.absolute_timeout', 'ai_keys.saved'])->group(
         return view('courses-extra-episode', compact('episode'));
     })->where('episode', '[0-9]+')->name('courses.extra.episode');
 
-    Route::get('/courses/vocab/review', function () {
-        return view('courses-vocab-review');
-    })->name('courses.vocab.review');
-
-    Route::get('/courses/vocab/{unit:number}/{step?}', function (VocabUnit $unit, ?string $step = null) {
+    Route::get('/courses/vocab/{unit:number}/{part?}', function (VocabUnit $unit, ?string $part = null) {
         abort_unless($unit->texts()->exists(), 404);
 
-        return view('courses-vocab-unit', compact('unit', 'step'));
-    })->where(['unit' => '[0-9]+', 'step' => 'listen|read|words'])->name('courses.vocab.unit');
+        return view('courses-vocab-unit', compact('unit', 'part'));
+    })->where(['unit' => '[0-9]+', 'part' => '[A-E]|words'])->name('courses.vocab.unit');
 
     Route::get('/profile', function () {
         return view('profile');

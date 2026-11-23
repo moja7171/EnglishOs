@@ -98,10 +98,10 @@ class ReviewReadingTest extends TestCase
             ->assertSee('I have lost my phone.');
     }
 
-    public function test_a_day_has_six_cards_taken_from_every_kind_in_turn_and_six_more_can_be_asked_for(): void
+    public function test_a_day_has_ten_cards_taken_from_every_kind_in_turn_and_ten_more_can_be_asked_for(): void
     {
         $learner = $this->learner();
-        foreach (range(1, 8) as $number) {
+        foreach (range(1, 12) as $number) {
             $this->mistake($learner, "Wrong {$number}.", "Right {$number}.");
         }
         GrammarPoint::create(['learner_id' => $learner->id, 'mission_code' => 'M01', 'focus' => 'Present simple', 'example_sentence' => 'He works.', 'rule_reminder' => 'Add -s.', 'next_review_at' => now()]);
@@ -111,8 +111,8 @@ class ReviewReadingTest extends TestCase
 
         $this->assertCount(User::DAILY_TALK_LIMIT, $today);
         $this->assertEqualsCanonicalizing(['note', 'grammar', 'error'], $today->take(3)->pluck('type')->all());
-        $this->assertSame(6, $learner->dailyReviewCount('talk'));
-        $this->assertCount(10, $learner->dailyReviewItems('talk', 1));
+        $this->assertSame(10, $learner->dailyReviewCount('talk'));
+        $this->assertCount(14, $learner->dailyReviewItems('talk', 1));
     }
 
     public function test_a_card_read_today_stays_away_for_a_few_days_and_then_comes_round_again(): void

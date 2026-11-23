@@ -124,7 +124,7 @@ new class extends Component
     public ?string $previousRecordingUrl = null;
 
     /**
-     * Which of Daily Review's two paths this is — 'words' or 'talk' (see
+     * Which of Daily Review's paths this is — 'words', 'vocab' or 'talk' (see
      * User::REVIEW_TRACKS); null runs both in one queue.
      */
     public ?string $track = null;
@@ -154,7 +154,7 @@ new class extends Component
         $wordIds = auth()->user()->dailyReviewItems($track, $this->more)->where('type', 'word')->pluck('id');
 
         if ($wordIds->isNotEmpty()) {
-            app(WordDetails::class)->fillLaterFor(auth()->id(), VocabularyWord::whereIn('id', $wordIds)->get());
+            app(WordDetails::class)->fillLaterFor(auth()->id(), VocabularyWord::whereIn('id', $wordIds)->lessonWords()->get());
         }
     }
 
@@ -265,7 +265,11 @@ new class extends Component
     #[Computed]
     public function waitingDays(): int
     {
-        $batch = $this->track === 'talk' ? User::DAILY_TALK_LIMIT : User::DAILY_WORD_LIMIT;
+        $batch = match ($this->track) {
+            'talk' => User::DAILY_TALK_LIMIT,
+            'vocab' => User::DAILY_VOCAB_LIMIT,
+            default => User::DAILY_WORD_LIMIT,
+        };
 
         return max(1, (int) ceil($this->waitingCount / $batch));
     }
@@ -346,7 +350,7 @@ new class extends Component
         }
 
         $model = match ($entry['type']) {
-            'word', 'dictation', 'build' => VocabularyWord::with(['sourceMissionRun.mission:id,code,title', 'addedInMission:id,code,title'])->find($entry['id']),
+            'word', 'dictation', 'build' => VocabularyWord::with(['sourceMissionRun.mission:id,code,title', 'addedInMission:id,code,title', 'vocabItem.text.unit'])->find($entry['id']),
             'speaking' => SpeakingPrompt::find($entry['id']),
             'error' => ErrorPatternReview::find($entry['id']),
             'grammar' => GrammarPoint::find($entry['id']),
@@ -767,7 +771,7 @@ new class extends Component
                     @endif
                 </div>
                 @if ($this->moreAvailable)
-                    <button type="button" wire:click="loadMore" wire:loading.attr="disabled" class="cursor-pointer rounded-2xl border-2 border-line px-5 py-2.5 text-sm font-extrabold text-ink-soft hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">@svg('heroicon-o-plus', 'mr-1 inline h-4 w-4') {{ $track === 'words' ? User::DAILY_WORD_LIMIT.' more words' : User::DAILY_TALK_LIMIT.' more' }}</button>
+                    <button type="button" wire:click="loadMore" wire:loading.attr="disabled" class="cursor-pointer rounded-2xl border-2 border-line px-5 py-2.5 text-sm font-extrabold text-ink-soft hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">@svg('heroicon-o-plus', 'mr-1 inline h-4 w-4') {{ match ($track) { 'words' => User::DAILY_WORD_LIMIT.' more words', 'vocab' => User::DAILY_VOCAB_LIMIT.' more words', default => User::DAILY_TALK_LIMIT.' more' } }}</button>
                 @endif
             </div>
             <a href="{{ route('home') }}" wire:navigate class="sticky bottom-[calc(5.5rem+env(safe-area-inset-bottom))] w-full rounded-2xl bg-accent py-3.5 text-center text-base font-bold text-white shadow-[0_4px_0_color-mix(in_srgb,var(--color-accent)_60%,black)] dark:bg-accent-dark">Done</a>
@@ -784,7 +788,7 @@ new class extends Component
                     <p class="text-sm text-ink-faint dark:text-ink-faint-dark">Nothing is due right now — come back later.</p>
                 @endif
                 @if ($this->moreAvailable)
-                    <button type="button" wire:click="loadMore" wire:loading.attr="disabled" class="cursor-pointer rounded-2xl border-2 border-line px-5 py-2.5 text-sm font-extrabold text-ink-soft hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">@svg('heroicon-o-plus', 'mr-1 inline h-4 w-4') {{ $track === 'words' ? User::DAILY_WORD_LIMIT.' more words' : User::DAILY_TALK_LIMIT.' more' }}</button>
+                    <button type="button" wire:click="loadMore" wire:loading.attr="disabled" class="cursor-pointer rounded-2xl border-2 border-line px-5 py-2.5 text-sm font-extrabold text-ink-soft hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark">@svg('heroicon-o-plus', 'mr-1 inline h-4 w-4') {{ match ($track) { 'words' => User::DAILY_WORD_LIMIT.' more words', 'vocab' => User::DAILY_VOCAB_LIMIT.' more words', default => User::DAILY_TALK_LIMIT.' more' } }}</button>
                 @endif
             </div>
         @endif
@@ -841,7 +845,9 @@ new class extends Component
                             @endfor
                         </span>
                     @endif
-                    @if ($wordMission)
+                    @if ($model instanceof \App\Models\VocabularyWord && $model->isFromVocabCourse() && $model->vocabItem)
+                        <span data-word-mission class="ml-auto min-w-0 truncate rounded-full bg-surface-sunken px-2.5 py-0.5 tracking-normal text-ink-soft normal-case dark:bg-surface-sunken-dark dark:text-ink-soft-dark">Unit {{ $model->vocabItem->text->unit->number }} · {{ $model->vocabItem->text->letter }}</span>
+                    @elseif ($wordMission)
                         <span data-word-mission class="ml-auto min-w-0 truncate rounded-full bg-surface-sunken px-2.5 py-0.5 tracking-normal text-ink-soft normal-case dark:bg-surface-sunken-dark dark:text-ink-soft-dark">{{ $wordMission->code }} · {{ $wordMission->title }}</span>
                     @endif
                 </p>

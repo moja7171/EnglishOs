@@ -231,7 +231,7 @@ new class extends Component
                 $items = $activity->dayItems($user, $me, $day);
                 $missionItems = collect($items)->where('kind', 'mission');
                 $otherItems = collect($items)->where('kind', '!=', 'mission');
-                $icons = ['listening' => 'heroicon-o-musical-note', 'pi' => 'heroicon-o-chat-bubble-left-ellipsis', 'review' => 'heroicon-o-bolt', 'pair' => 'heroicon-o-user-group', 'game' => 'heroicon-o-puzzle-piece'];
+                $icons = ['listening' => 'heroicon-o-musical-note', 'pi' => 'heroicon-o-chat-bubble-left-ellipsis', 'review' => 'heroicon-o-bolt', 'vocab' => 'heroicon-o-academic-cap', 'extra' => 'heroicon-o-film', 'pair' => 'heroicon-o-user-group', 'game' => 'heroicon-o-puzzle-piece'];
             @endphp
             <div wire:loading.remove wire:target="pickDay" class="space-y-3">
                 <div class="flex items-center gap-3">
