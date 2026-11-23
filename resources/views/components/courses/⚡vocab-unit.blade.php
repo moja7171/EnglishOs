@@ -110,13 +110,18 @@ new class extends Component
     public function markup(VocabText $text): HtmlString
     {
         $html = '';
+        $pieces = $text->pieces();
 
-        foreach ($text->pieces() as $piece) {
-            $escaped = e($piece['text']);
+        foreach ($pieces as $index => $piece) {
+            if ($piece['item'] === null) {
+                // Words printed one after another in the book (the labels of a picture) get a dot between them.
+                $between = $index > 0 && isset($pieces[$index + 1]) && $pieces[$index - 1]['item'] !== null && $pieces[$index + 1]['item'] !== null && trim($piece['text']) === '';
+                $html .= $between ? '<span class="px-0.5 text-ink-faint dark:text-ink-faint-dark" aria-hidden="true"> · </span>' : e($piece['text']);
 
-            $html .= $piece['item'] === null
-                ? $escaped
-                : '<button type="button" x-on:click="pick('.$piece['item']->id.')" class="cursor-pointer rounded-sm font-bold underline decoration-dotted decoration-2 underline-offset-4">'.$escaped.'</button>';
+                continue;
+            }
+
+            $html .= '<button type="button" x-on:click="pick('.$piece['item']->id.')" class="cursor-pointer rounded-sm font-bold underline decoration-dotted decoration-2 underline-offset-4">'.e($piece['text']).'</button>';
         }
 
         return new HtmlString($html);
@@ -169,11 +174,24 @@ new class extends Component
             }"
         >
             @if ($audioUrl)
-                <x-audio-player :url="$audioUrl" :segments="$text->playerSegments()" :text-hidden="true" />
+                <x-audio-player :url="$audioUrl" />
                 <audio x-ref="hear" src="{{ $audioUrl }}" preload="none"></audio>
             @endif
 
+            @php $persianLines = collect($text->sentences)->pluck('fa')->filter()->values(); @endphp
+            @if ($persianLines->isNotEmpty())
+                <div class="flex justify-end"><x-fa-toggle /></div>
+            @endif
+
             <div class="card px-4 py-4 text-lg leading-9 whitespace-pre-line text-ink dark:text-ink-dark">{!! $this->markup($text) !!}</div>
+
+            @if ($persianLines->isNotEmpty())
+                <div x-show="$store.fa.on" x-cloak dir="rtl" class="font-fa space-y-1 text-sm leading-8 text-ink-soft dark:text-ink-soft-dark" data-testid="vocab-section-fa">
+                    @foreach ($persianLines as $line)
+                        <p>{{ $line }}</p>
+                    @endforeach
+                </div>
+            @endif
 
             @if ($text->items->contains(fn ($item) => $item->isInText()))
                 <p class="text-center text-sm text-ink-faint dark:text-ink-faint-dark">Tap an underlined word</p>
