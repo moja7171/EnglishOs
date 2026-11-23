@@ -9,12 +9,8 @@ use App\Models\MissionRun;
 use App\Models\SpeakingPrompt;
 use App\Models\User;
 use App\Models\VocabularyWord;
-use App\Services\GeminiClient;
-use App\Services\GroqClient;
 use Database\Seeders\MissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
@@ -62,39 +58,11 @@ class DailyReviewTest extends TestCase
         );
     }
 
-    private function makeDuePrompt(User $learner, string $prompt = 'What time do you usually wake up?'): SpeakingPrompt
-    {
-        return SpeakingPrompt::create([
-            'learner_id' => $learner->id,
-            'prompt' => $prompt,
-            'next_review_at' => now()->subMinute(),
-        ]);
-    }
-
-    /**
-     * Stands in for the Whisper + judge calls a speaking recording
-     * triggers, so no test ever reaches a real AI. Null feedback means
-     * the transcription itself fails.
-     */
-    private function fakeSpeakingAi(?string $feedback = null): void
-    {
-        $this->mock(GroqClient::class, function ($mock) use ($feedback) {
-            $expectation = $mock->shouldReceive('transcribe');
-            $feedback === null
-                ? $expectation->andThrow(new \RuntimeException('Whisper is down.'))
-                : $expectation->andReturn('I wakes up at seven.');
-        });
-
-        if ($feedback !== null) {
-            $this->mock(GeminiClient::class, fn ($mock) => $mock->shouldReceive('chat')->once()->andReturn($feedback));
-        }
-    }
-
-    private function makeDueError(User $learner): ErrorPatternReview
+    private function makeDueError(User $learner, string $category = 'third-person-s'): ErrorPatternReview
     {
         return ErrorPatternReview::create([
             'learner_id' => $learner->id,
-            'category' => 'third-person-s',
+            'category' => $category,
             'last_error' => 'He walk fast.',
             'last_correction' => 'He walks fast.',
             'next_review_at' => now()->subMinute(),
@@ -126,15 +94,14 @@ class DailyReviewTest extends TestCase
     {
         $learner = User::factory()->create();
         $this->makeDueWord($learner);
-        $this->makeDuePrompt($learner);
         $this->makeDueError($learner);
         $this->makeDueGrammarPoint($learner);
         $this->actingAs($learner);
 
         $queue = Livewire::test('review.index')->instance()->queue();
 
-        $this->assertCount(4, $queue);
-        $this->assertEqualsCanonicalizing(['word', 'speaking', 'error', 'grammar'], array_column($queue, 'type'));
+        $this->assertCount(3, $queue);
+        $this->assertEqualsCanonicalizing(['word', 'error', 'grammar'], array_column($queue, 'type'));
     }
 
     public function test_a_word_card_says_which_mission_the_word_is_from(): void
@@ -489,88 +456,6 @@ class DailyReviewTest extends TestCase
         $this->assertSame(1, $point->fresh()->repetitions);
     }
 
-    public function test_a_speaking_prompt_requires_a_fresh_recording_before_continuing(): void
-    {
-        $learner = User::factory()->create();
-        $prompt = $this->makeDuePrompt($learner);
-        $this->actingAs($learner);
-
-        Livewire::test('review.index')
-            ->assertSee('What time do you usually wake up?')
-            ->assertDontSee('How did that feel?')
-            ->call('continueSpeaking');
-
-        $this->assertSame(0, $prompt->fresh()->repetitions);
-    }
-
-    public function test_recording_a_speaking_prompt_then_continuing_grades_it_good_without_self_grading_buttons(): void
-    {
-        Storage::fake('public');
-        $this->fakeSpeakingAi();
-        $learner = User::factory()->create();
-        $prompt = $this->makeDuePrompt($learner);
-        $this->actingAs($learner);
-
-        Livewire::test('review.index')
-            ->set('recording', UploadedFile::fake()->create('answer.webm', 100, 'audio/webm'))
-            ->call('recorded')
-            ->assertSee('Continue')
-            ->assertDontSee('✓ I know')
-            ->assertDontSee('✕ Forget')
-            ->call('continueSpeaking');
-
-        $this->assertSame(1, $prompt->fresh()->repetitions);
-        $this->assertNotNull($prompt->fresh()->last_recording_url);
-    }
-
-    public function test_a_speaking_question_is_heard_first_and_its_text_stays_blurred_until_tapped(): void
-    {
-        $learner = User::factory()->create();
-        $this->makeDuePrompt($learner);
-        $this->actingAs($learner);
-
-        Livewire::test('review.index', ['track' => 'talk'])
-            ->assertSee('What time do you usually wake up?')
-            ->assertSeeHtml('heardText(')
-            ->assertSee('Tap to read the text')
-            ->assertSee('Hear “What time do you usually wake up?”', false);
-    }
-
-    public function test_a_speaking_recording_gets_one_line_of_ai_feedback_that_goes_away_with_the_card(): void
-    {
-        Storage::fake('public');
-        $this->fakeSpeakingAi('Say "I wake up at seven" instead of "I wakes up at seven".');
-        $learner = User::factory()->create();
-        $this->makeDuePrompt($learner);
-        $this->actingAs($learner);
-
-        Livewire::test('review.index')
-            ->assertDontSee('instead of')
-            ->set('recording', UploadedFile::fake()->create('answer.webm', 100, 'audio/webm'))
-            ->call('recorded')
-            ->assertSee('I wake up at seven', false)
-            ->call('continueSpeaking')
-            ->assertSet('feedback', null);
-    }
-
-    public function test_a_dead_ai_only_means_no_feedback_line_and_never_blocks_grading(): void
-    {
-        Storage::fake('public');
-        $this->fakeSpeakingAi();
-        $learner = User::factory()->create();
-        $prompt = $this->makeDuePrompt($learner);
-        $this->actingAs($learner);
-
-        Livewire::test('review.index')
-            ->set('recording', UploadedFile::fake()->create('answer.webm', 100, 'audio/webm'))
-            ->call('recorded')
-            ->assertSet('feedback', null)
-            ->assertSee('Continue')
-            ->call('continueSpeaking');
-
-        $this->assertSame(1, $prompt->fresh()->repetitions);
-    }
-
     public function test_only_the_learners_own_items_are_shown(): void
     {
         $learner = User::factory()->create();
@@ -586,7 +471,7 @@ class DailyReviewTest extends TestCase
     {
         $learner = User::factory()->create();
         $this->makeDueWord($learner);
-        $this->makeDuePrompt($learner);
+        $this->makeDueGrammarPoint($learner);
         $this->makeDueError($learner);
         $this->actingAs($learner);
 
@@ -670,7 +555,7 @@ class DailyReviewTest extends TestCase
     {
         $learner = User::factory()->create();
         $this->makeDueWord($learner, ['word' => 'commute', 'repetitions' => 2]);
-        $this->makeDuePrompt($learner);
+        $this->makeDueError($learner);
         $this->actingAs($learner);
 
         $test = Livewire::test('review.index');
@@ -699,7 +584,7 @@ class DailyReviewTest extends TestCase
     {
         $learner = User::factory()->create();
         $this->makeDueWord($learner, ['word' => 'commute', 'repetitions' => 2]);
-        $this->makeDuePrompt($learner);
+        $this->makeDueError($learner);
         $this->actingAs($learner);
 
         $test = Livewire::test('review.index');
@@ -724,7 +609,7 @@ class DailyReviewTest extends TestCase
     {
         $learner = User::factory()->create();
         $word = $this->makeDueWord($learner, ['word' => 'commute', 'repetitions' => 2]);
-        $prompt = $this->makeDuePrompt($learner);
+        $prompt = $this->makeDueError($learner);
         $this->actingAs($learner);
 
         $test = Livewire::test('review.index')
@@ -750,7 +635,7 @@ class DailyReviewTest extends TestCase
     {
         $learner = User::factory()->create();
         $this->makeDueWord($learner, ['word' => 'commute', 'repetitions' => 2]);
-        $this->makeDuePrompt($learner);
+        $this->makeDueError($learner);
         $this->actingAs($learner);
 
         Livewire::test('review.index')->call('skip')->call('skip');
@@ -1068,14 +953,14 @@ class DailyReviewTest extends TestCase
     {
         $learner = User::factory()->create();
         $this->makeDueWord($learner);
-        $this->makeDuePrompt($learner);
+        $this->makeDueError($learner);
         $this->actingAs($learner);
 
         $words = Livewire::test('review.index', ['track' => 'words'])->instance()->queue();
-        $talk = Livewire::test('review.index', ['track' => 'talk'])->instance()->queue();
+        $talk = $learner->dailyReviewItems('talk');
 
         $this->assertSame(['word'], collect($words)->pluck('type')->all());
-        $this->assertSame(['speaking'], collect($talk)->pluck('type')->all());
+        $this->assertSame(['error'], $talk->pluck('type')->all());
     }
 
     public function test_the_two_paths_have_their_own_daily_limits(): void
@@ -1085,7 +970,7 @@ class DailyReviewTest extends TestCase
             $this->makeDueWord($learner, ['word' => "word{$number}"]);
         }
         foreach (range(1, User::DAILY_TALK_LIMIT + 2) as $number) {
-            $this->makeDuePrompt($learner, "Question {$number}?");
+            $this->makeDueError($learner, "category-{$number}");
         }
 
         $this->assertCount(User::DAILY_WORD_LIMIT, $learner->dailyReviewItems('words'));
@@ -1120,31 +1005,31 @@ class DailyReviewTest extends TestCase
         $this->assertSame($expected, $words);
     }
 
-    public function test_six_more_on_the_speaking_and_grammar_path_brings_the_next_due_ones_only(): void
+    public function test_six_more_on_the_mistakes_and_reminders_path_brings_the_next_cards_only(): void
     {
         $learner = User::factory()->create();
         foreach (range(1, 8) as $number) {
-            $this->makeDuePrompt($learner, "Question {$number}?");
+            $this->makeDueError($learner, "category-{$number}");
         }
         $this->actingAs($learner);
 
-        $page = Livewire::test('review.index', ['track' => 'talk']);
+        $page = Livewire::test('review.reading');
 
-        $this->assertCount(6, $page->instance()->queue());
-        $this->assertTrue($page->instance()->moreAvailable());
+        $this->assertCount(6, $page->instance()->queue);
+        $this->assertTrue($page->instance()->moreAvailable);
 
         $page->call('loadMore')->assertSet('more', 1);
 
-        $this->assertCount(8, $page->instance()->queue());
+        $this->assertCount(8, $page->instance()->queue);
     }
 
-    public function test_six_more_is_not_offered_when_nothing_more_is_due_on_the_speaking_and_grammar_path(): void
+    public function test_six_more_is_not_offered_when_nothing_more_is_left_to_read(): void
     {
         $learner = User::factory()->create();
-        $this->makeDuePrompt($learner);
+        $this->makeDueError($learner);
         $this->actingAs($learner);
 
-        Livewire::test('review.index', ['track' => 'talk'])
+        Livewire::test('review.reading')
             ->call('loadMore')
             ->assertSet('more', 0);
     }
@@ -1152,7 +1037,7 @@ class DailyReviewTest extends TestCase
     public function test_finishing_one_path_fills_the_streak_ring_even_with_the_other_still_waiting(): void
     {
         $learner = User::factory()->create();
-        $this->makeDuePrompt($learner);
+        $this->makeDueError($learner);
         $this->makeDueWord($learner, ['repetitions' => 1]);
         $this->actingAs($learner);
 
@@ -1165,13 +1050,14 @@ class DailyReviewTest extends TestCase
     {
         $learner = User::factory()->create();
         $this->makeDueWord($learner);
-        $this->makeDuePrompt($learner);
+        $this->makeDueError($learner);
 
         $this->actingAs($learner)->get(route('review.index'))
             ->assertOk()
             ->assertSee('Words')
-            ->assertSee('Speaking &amp; grammar', false)
+            ->assertSee('Mistakes &amp; reminders', false)
             ->assertSee('1 left today')
+            ->assertSee('1 to read today')
             ->assertSee(route('review.track', 'words'), false)
             ->assertSee(route('review.track', 'talk'), false);
     }

@@ -628,11 +628,18 @@ new class extends Component
     @endphp
 
     {{-- Grammar: every mission's grammar point in course order. The ones the learner has started open to their rules; the rest are greyed so the learner sees what is coming. --}}
-    <div x-show="notebookTab === 'grammar'" x-cloak class="space-y-3">
+    <div x-show="notebookTab === 'grammar'" x-cloak class="space-y-3" x-data="{ fa: (() => { try { return localStorage.getItem('eos-grammar-fa') !== '0'; } catch (e) { return true; } })(), toggleFa() { this.fa = ! this.fa; try { localStorage.setItem('eos-grammar-fa', this.fa ? '1' : '0'); } catch (e) {} } }">
         @php
             $shelf = collect($this->grammarShelf);
             $openFirst = $shelf->where('current', true)->first()['code'] ?? null;
         @endphp
+        {{-- The Persian lines (rules, examples) show by default; this switch hides them, kept in this browser. --}}
+        <div class="flex justify-end">
+            <button type="button" x-on:click="toggleFa()" x-bind:aria-pressed="fa" x-bind:class="fa ? 'border-sky-700 bg-sky-100 text-sky-800 dark:border-sky-300 dark:bg-sky-950 dark:text-sky-300' : 'border-line text-ink-soft hover:bg-surface-sunken dark:border-line-dark dark:text-ink-soft-dark dark:hover:bg-surface-sunken-dark'" class="font-fa inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors">
+                <span x-show="fa" x-cloak>@svg('heroicon-s-check', 'h-3.5 w-3.5')</span>
+                ترجمه فارسی
+            </button>
+        </div>
         @if ($shelf->where('open', true)->isEmpty())
             <p class="py-2 text-center text-sm text-ink-faint dark:text-ink-faint-dark">The grammar of each mission you start shows up here.</p>
         @endif
@@ -657,7 +664,7 @@ new class extends Component
                                 @endif
                             </span>
                             @if ($item['focusFa'])
-                                <span dir="rtl" class="font-fa text-[13px] text-ink-soft dark:text-ink-soft-dark">{{ $item['focusFa'] }}</span>
+                                <x-fa-text tag="span" :text="$item['focusFa']" class="text-[13px] leading-normal text-ink-soft dark:text-ink-soft-dark" />
                             @endif
                             <span class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">{{ $item['title'] }}</span>
                         </span>
@@ -668,7 +675,7 @@ new class extends Component
                             <p class="text-base leading-relaxed text-ink-soft dark:text-ink-soft-dark">{{ $item['intro'] }}</p>
                         @endif
                         @foreach ($item['sections'] as $section)
-                            @include('missions.steps.partials.grammar-rule-card', ['section' => $section])
+                            @include('missions.steps.partials.grammar-rule-card', ['section' => $section, 'withExamples' => true])
                         @endforeach
                         @if ($item['canPractice'])
                             <a href="{{ route('notebook.grammar', $item['code']) }}" wire:navigate class="flex w-full items-center justify-center gap-2 rounded-2xl bg-accent py-3.5 text-base font-bold text-white shadow-[0_4px_0_color-mix(in_srgb,var(--color-accent)_60%,black)] transition-colors hover:opacity-90 dark:bg-accent-dark">@svg('heroicon-o-pencil-square', 'h-5 w-5') Practice</a>
@@ -681,7 +688,7 @@ new class extends Component
                     <span class="flex min-w-0 flex-1 flex-col gap-0.5">
                         <span class="truncate text-base font-extrabold text-ink-soft dark:text-ink-soft-dark">{{ $item['focus'] }}</span>
                         @if ($item['focusFa'])
-                            <span dir="rtl" class="font-fa text-[13px] text-ink-faint dark:text-ink-faint-dark">{{ $item['focusFa'] }}</span>
+                            <x-fa-text tag="span" :text="$item['focusFa']" class="text-[13px] leading-normal text-ink-faint dark:text-ink-faint-dark" />
                         @endif
                         <span class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">{{ $item['code'] }} · {{ $item['title'] }}{{ $item['built'] ? '' : ' · soon' }}</span>
                     </span>

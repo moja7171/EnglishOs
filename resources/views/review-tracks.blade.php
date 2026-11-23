@@ -3,13 +3,12 @@
 
     $tracks = [
         'words' => ['title' => 'Words', 'icon' => 'language'],
-        'talk' => ['title' => 'Speaking & grammar', 'icon' => 'chat-bubble-left-right'],
+        'talk' => ['title' => 'Mistakes & reminders', 'icon' => 'book-open'],
     ];
 @endphp
 
 {{-- Daily Review's two paths: the learner's words (ten a day, quick enough
-     for a bus) and everything spoken or about grammar (needs a quiet spot
-     and the mic). A path nobody has touched today but has something waiting
+     for a bus) and the mistakes and grammar reminders to read (no mic, no answers). A path nobody has touched today but has something waiting
      gets the accent border. --}}
 <x-layouts.app :refresh-on-return="true">
     <div class="mx-auto flex max-w-2xl flex-col gap-4 p-4 sm:p-6">
@@ -43,11 +42,11 @@
                         <span class="text-lg font-extrabold text-ink dark:text-ink-dark">{{ $card['title'] }}</span>
                         <span class="text-sm text-ink-soft dark:text-ink-soft-dark">
                             @if ($summary['remaining'] > 0)
-                                {{ $summary['remaining'] }} left today
+                                {{ $summary['remaining'] }} {{ $track === 'talk' ? 'to read today' : 'left today' }}
                             @elseif ($summary['reviewedToday'] > 0)
-                                Done for today
+                                {{ $track === 'talk' ? 'All read today' : 'Done for today' }}
                             @else
-                                Nothing due
+                                {{ $track === 'talk' ? 'Nothing to read yet' : 'Nothing due' }}
                             @endif
                         </span>
                         @if ($summary['waiting'] > 0)

@@ -142,6 +142,22 @@ trait HasSpacedRepetition
     }
 
     /**
+     * The learner read this card (the "Mistakes & reminders" path): only
+     * stamps last_reviewed_at — the schedule is never touched, because
+     * reading is not a graded answer. It counts for today's review and the
+     * streak ring like any other review.
+     */
+    public function markRead(): void
+    {
+        $this->last_reviewed_at = now();
+        $this->save();
+
+        if ($this->learner) {
+            app(StreakRing::class)->recordReview($this->learner);
+        }
+    }
+
+    /**
      * The gap a review graded $quality would schedule, as a short label
      * for a grade button: "1d", "6d", "3mo", "1y".
      */

@@ -19,7 +19,10 @@ class NotebookGrammarTabTest extends TestCase
 {
     use RefreshDatabase;
 
-    private function missionWithLesson(string $code, string $title, string $focus): Mission
+    /**
+     * @param  list<array<string, mixed>>  $moreBlocks
+     */
+    private function missionWithLesson(string $code, string $title, string $focus, array $moreBlocks = []): Mission
     {
         return Mission::create([
             'code' => $code,
@@ -34,7 +37,7 @@ class NotebookGrammarTabTest extends TestCase
                         'intro' => 'Two small things.',
                         'sections' => [[
                             'heading' => 'A · The -s with he / she',
-                            'blocks' => [['type' => 'rule', 'text' => 'He <strong>works</strong> every day.', 'fa' => 'با he یک s اضافه می‌شود.']],
+                            'blocks' => [['type' => 'rule', 'text' => 'He <strong>works</strong> every day.', 'fa' => 'با he یک s اضافه می‌شود.'], ...$moreBlocks],
                         ]],
                     ],
                 ]],
@@ -73,6 +76,25 @@ class NotebookGrammarTabTest extends TestCase
         $this->assertFalse($shelf['M01']['done']);
         $this->assertFalse($shelf['M02']['open']);
         $this->assertSame([], $shelf['M02']['sections']);
+    }
+
+    public function test_an_open_lesson_lists_its_examples_with_the_persian_line_kept_apart_from_the_english(): void
+    {
+        $learner = User::factory()->create();
+        $this->actingAs($learner);
+        $mission = $this->missionWithLesson('M01', 'My Daily Life', 'Present Simple + Adverbs of Frequency', [
+            ['type' => 'do_dont', 'items' => [['wrong' => 'He go to work.', 'right' => 'He goes to work.', 'fa' => 'بعد از he فعل s می‌گیرد.']]],
+            ['type' => 'examples', 'groups' => [['label' => 'Examples', 'items' => ['She works late.', ['text' => 'I\'ve lost my phone.', 'fa' => 'گوشی‌ام را گم کرده‌ام.']]]]],
+        ]);
+        MissionRun::findOrStart($learner, $mission);
+
+        Livewire::test('notebook.index')
+            ->assertSee('He go to work.')
+            ->assertSee('He goes to work.')
+            ->assertSee('She works late.')
+            ->assertSee('I\'ve lost my phone.')
+            ->assertSee('<bdi dir="ltr">he</bdi> یک <bdi dir="ltr">s</bdi>', false)
+            ->assertSee('گوشی‌ام را گم کرده‌ام.');
     }
 
     public function test_a_finished_mission_is_done_and_not_current(): void
