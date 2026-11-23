@@ -16,7 +16,9 @@
     dispatched "quick-round-completed" / "quick-round-skipped" browser
     events, or supplies raw Alpine via $onComplete/$onSkip.
 
-    @param list<array{prompt: string, options: list<string>, correct: int, optionType?: 'text'|'image', difficulty?: 'easy'|'medium'|'hard'}> $cards
+    @param list<array{prompt: string, options: list<string>, correct: int, optionType?: 'text'|'image', difficulty?: 'easy'|'medium'|'hard', why?: string}> $cards
+        why is optional per card: a one-line reason shown under the
+        "Not quite" line after a wrong answer.
         optionType defaults to 'text'; 'image' renders each option as a
         picture (options holds image URLs, not label strings) instead of a
         text button — same tap/color-feedback mechanics either way.
@@ -269,6 +271,7 @@
 
                 <div x-show="missed" x-cloak class="mt-4 flex flex-col gap-3 rounded-2xl bg-accent-soft p-4 dark:bg-accent-soft-dark">
                     <p class="text-base font-extrabold text-accent-ink dark:text-accent-ink-dark">Not quite — the right one is green. It comes back at the end.</p>
+                    <p x-show="card.why" x-text="card.why" dir="auto" class="text-sm font-semibold text-ink dark:text-ink-dark"></p>
                     <button type="button" x-on:click="advance()" class="w-full cursor-pointer rounded-2xl bg-accent py-3.5 text-base font-bold text-white shadow-[0_4px_0_color-mix(in_srgb,var(--color-accent)_60%,black)] transition-colors hover:opacity-90 dark:bg-accent-dark">Continue</button>
                 </div>
 

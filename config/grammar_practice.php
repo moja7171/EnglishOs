@@ -60,14 +60,14 @@ return [
         ],
     ],
     'M04' => [
-        0 => [
-            ['wrong' => 'I drink two waters a day.', 'right' => 'I drink two glasses of water a day.', 'why' => 'water is uncountable → count the glasses.'],
-            ['wrong' => 'Can you give me an advice about healthy food?', 'right' => 'Can you give me some advice about healthy food?', 'why' => 'advice is uncountable → some advice, not an advice.'],
-        ],
         1 => [
             ['wrong' => 'There isn\'t many milk in the fridge.', 'right' => 'There isn\'t much milk in the fridge.', 'why' => 'milk is uncountable → much.'],
             ['wrong' => 'I eat a little apples every day.', 'right' => 'I eat a few apples every day.', 'why' => 'apples are countable → a few.'],
             ['wrong' => 'How much eggs do we need?', 'right' => 'How many eggs do we need?', 'why' => 'eggs are countable → how many.'],
+        ],
+        2 => [
+            ['wrong' => 'I drink two waters a day.', 'right' => 'I drink two glasses of water a day.', 'why' => 'water is uncountable → count the glasses.'],
+            ['wrong' => 'Can you give me an advice about healthy food?', 'right' => 'Can you give me some advice about healthy food?', 'why' => 'advice is uncountable → some advice, not an advice.'],
         ],
     ],
     'M05' => [
@@ -171,7 +171,7 @@ return [
             ['wrong' => 'My dad told that school was important.', 'right' => 'My dad told me that school was important.', 'why' => 'tell needs a person: told me / told us.'],
         ],
         2 => [
-            ['wrong' => 'The teacher asked us did we finish the essay.', 'right' => 'The teacher asked us if we finished the essay.', 'why' => 'A yes / no question → if + normal word order, no did.'],
+            ['wrong' => 'The teacher asked us did we finish the essay.', 'right' => 'The teacher asked us if we had finished the essay.', 'why' => 'A yes / no question → if + normal word order, one step back: had finished.'],
         ],
     ],
     'M13' => [

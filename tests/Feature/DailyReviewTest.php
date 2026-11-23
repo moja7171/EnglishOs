@@ -671,7 +671,7 @@ class DailyReviewTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('review.index')
-            ->call('pickOption', 1)
+            ->call('pickOption', 0)
             ->assertSee('Yes — that')
             ->assertSeeHtml('<strong>he / she / it</strong>')
             ->call('continueGrammar')
@@ -690,8 +690,8 @@ class DailyReviewTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('review.index')
-            ->call('pickOption', 0)
-            ->call('pickOption', 1) // the first tap is final
+            ->call('pickOption', 1)
+            ->call('pickOption', 0) // the first tap is final
             ->assertSee('Not quite')
             ->call('continueGrammar')
             ->assertSet('sessionRemembered', 0);

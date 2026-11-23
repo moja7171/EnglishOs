@@ -86,7 +86,7 @@ new class extends Component
     }
 
     /**
-     * @return list<array{prompt: string, options: list<string>, correct: int, difficulty?: string}>
+     * @return list<array{prompt: string, options: list<string>, correct: int, difficulty?: string, why?: string}>
      */
     public function quickCheckCards(): array
     {
@@ -98,6 +98,7 @@ new class extends Component
                 'options' => $item['options'],
                 'correct' => $item['correct'],
                 ...(isset($item['difficulty']) ? ['difficulty' => $item['difficulty']] : []),
+                ...(isset($item['why']) ? ['why' => $item['why']] : []),
             ])
             ->all();
     }

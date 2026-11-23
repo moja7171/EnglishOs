@@ -269,6 +269,10 @@ new class extends Component
             <button type="button" wire:click="startGame" wire:loading.attr="disabled" wire:target="startGame" @disabled($this->isAhead) class="block w-full cursor-pointer rounded-2xl bg-accent px-5 py-4 text-base font-extrabold text-white shadow-[0_4px_0_color-mix(in_srgb,var(--color-accent)_60%,black)] disabled:opacity-50 dark:bg-accent-dark">With Teddy</button>
             <a href="{{ route('games.setup', ['game' => PairGame::GAME_ASK]) }}" wire:navigate class="block text-center text-sm font-bold text-accent-ink dark:text-accent-ink-dark">With a friend ›</a>
         </div>
+        <a href="{{ route('games.index') }}" wire:navigate class="flex items-center justify-between rounded-2xl bg-surface px-4 py-3 text-sm font-extrabold text-ink shadow-sm dark:bg-surface-dark dark:text-ink-dark">
+            <span>More games</span>
+            @svg('heroicon-o-chevron-right', 'h-5 w-5 text-ink-faint dark:text-ink-faint-dark')
+        </a>
         <details class="group">
             <summary class="cursor-pointer text-center text-sm font-bold text-ink-soft dark:text-ink-soft-dark">Free talk with Pi (optional)</summary>
             <div class="mt-4">

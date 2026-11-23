@@ -100,7 +100,7 @@ class GrammarInContextStepTest extends TestCase
                                 .'does not actually continue the given starter, or it is not a genuine personal statement',
                             'grammar_context' => 'continues in the present simple tense',
                             'quick_check' => [
-                                ['wrong' => 'She go to work.', 'options' => ['She goes to work.', 'She gos to work.'], 'correct' => 0, 'difficulty' => 'easy'],
+                                ['wrong' => 'She go to work.', 'options' => ['She goes to work.', 'She gos to work.'], 'correct' => 0, 'difficulty' => 'easy', 'why' => 'he / she / it → goes.'],
                                 ['wrong' => 'He wake up late.', 'options' => ['He wakes up late.', 'He waking up late.'], 'correct' => 0, 'difficulty' => 'hard'],
                             ],
                             'word_order' => [
@@ -429,6 +429,33 @@ class GrammarInContextStepTest extends TestCase
 
         $this->assertSame('easy', $cards[0]['difficulty']);
         $this->assertSame('hard', $cards[1]['difficulty']);
+    }
+
+    public function test_a_quick_check_card_carries_its_why_for_a_wrong_answer(): void
+    {
+        $cards = Livewire::test('missions.steps.grammar-in-context', ['run' => $this->makeRun()])
+            ->instance()
+            ->quickCheckCards();
+
+        $this->assertSame('he / she / it → goes.', $cards[0]['why']);
+        $this->assertArrayNotHasKey('why', $cards[1]);
+    }
+
+    public function test_no_seeded_quick_check_card_offers_the_wrong_sentence_it_shows(): void
+    {
+        $this->seed(MissionSeeder::class);
+        $checked = 0;
+
+        foreach (Mission::all() as $mission) {
+            foreach ($mission->stepContent('grammar_in_context')['quick_check'] ?? [] as $card) {
+                $this->assertNotContains($card['wrong'], $card['options'], "{$mission->code}: \"{$card['wrong']}\" is among its own options.");
+                $this->assertArrayHasKey($card['correct'], $card['options']);
+                $this->assertNotEmpty($card['why'] ?? null, "{$mission->code}: \"{$card['wrong']}\" has no why.");
+                $checked++;
+            }
+        }
+
+        $this->assertGreaterThan(0, $checked);
     }
 
     public function test_the_sentence_screens_have_no_word_chips(): void
