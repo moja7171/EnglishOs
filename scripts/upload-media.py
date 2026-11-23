@@ -30,6 +30,12 @@ def plan(code: str):
             for f in sorted(folder.rglob("*.mp3")):
                 yield f, f"{REMOTE_BASE}/vocab/{f.name}"
         return
+    if code == "extra":
+        # The Extra English course videos: document/extra/*.mp4 -> extra/<same name>
+        # (the .srt captions stay on the app).
+        for f in sorted((DOCUMENT / "extra").glob("*.mp4")):
+            yield f, f"{REMOTE_BASE}/extra/{f.name}"
+        return
     folder = DOCUMENT / code
     for f in sorted(folder.iterdir()):
         if f.is_file() and f.suffix.lower() in (".mp3", ".mp4"):

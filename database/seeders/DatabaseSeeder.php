@@ -31,5 +31,6 @@ class DatabaseSeeder extends Seeder
         $this->call(PersianGlossSeeder::class);
         $this->call(PhraseFormSeeder::class);
         $this->call(AskAnswerSeeder::class);
+        $this->call(ExtraEnglishSeeder::class);
     }
 }

@@ -45,5 +45,8 @@ Thumbs.db
 /document/*/*.mp3
 /document/*/*.mp4
 
+# Extra English episodes (on the download host at englishos/extra/): videos never in git.
+/document/extra/*.mp4
+
 # Host logins (FTP passwords etc.) — never in git
 /document/*.local.md

@@ -10,6 +10,7 @@ use App\Http\Controllers\ServiceHealthController;
 use App\Http\Controllers\VocabularyWordController;
 use App\Models\AiPractice;
 use App\Models\DirectMessage;
+use App\Models\ExtraEpisode;
 use App\Models\InstructorMessage;
 use App\Models\Mission;
 use App\Models\PairGame;
@@ -80,6 +81,15 @@ Route::middleware(['auth', 'session.absolute_timeout', 'ai_keys.saved'])->group(
     Route::get('/missions/{mission:code}/{step?}', function (Mission $mission, ?string $step = null) {
         return view('mission-runner', compact('mission', 'step'));
     })->name('missions.show');
+
+    // Extra English: a standalone course of 30 sitcom episodes, every one open.
+    Route::get('/courses/extra', function () {
+        return view('courses-extra', ['episodes' => ExtraEpisode::query()->orderBy('number')->get()]);
+    })->name('courses.extra');
+
+    Route::get('/courses/extra/{episode:number}', function (ExtraEpisode $episode) {
+        return view('courses-extra-episode', compact('episode'));
+    })->where('episode', '[0-9]+')->name('courses.extra.episode');
 
     Route::get('/profile', function () {
         return view('profile');

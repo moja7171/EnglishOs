@@ -44,6 +44,15 @@ class MediaHost
         return $this->url(strtolower($missionCode), 'picks', rawurlencode($slug).'.mp3');
     }
 
+    /**
+     * One Extra English episode: `{base}/extra/<file name>`, the file's own
+     * name (spaces and brackets included).
+     */
+    public function extraVideoUrl(string $filename): ?string
+    {
+        return $this->url('extra', rawurlencode($filename));
+    }
+
     private function url(string ...$segments): ?string
     {
         $baseUrl = $this->baseUrl();
