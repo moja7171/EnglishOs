@@ -332,6 +332,7 @@ new class extends Component
      fix (and every check after it) can't start the fixes over at Fix 1. --}}
 <div
     wire:ignore.self
+    x-scroll-top="screen"
     x-data="{ screen: 0, filled: {} }"
 >
 @if (! $generated || $error)

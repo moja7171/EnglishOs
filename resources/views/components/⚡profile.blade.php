@@ -364,6 +364,7 @@ new class extends Component
      screen with ‹ back. ?tab= still opens a screen directly. --}}
 <div
     class="mx-auto max-w-2xl p-4 sm:p-6"
+    x-scroll-top="screen"
     x-data="{ screen: @js($tabs)[new URLSearchParams(window.location.search).get('tab')] ?? '', avatarSheet: false }"
     x-back-close="{ open: screen !== '', close: () => screen = '' }"
 >

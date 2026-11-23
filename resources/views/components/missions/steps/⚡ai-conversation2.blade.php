@@ -587,7 +587,7 @@ new class extends Component
 @else
 <div
     wire:ignore.self x-data="{ screen: {{ $startScreen }}, idea: false, noPrep: false }"
-    x-init="$watch('screen', () => $nextTick(() => window.scrollTo({ top: 0, behavior: 'instant' })))"
+    x-scroll-top="screen"
     x-effect="$dispatch('step-progress', { share: screen === 1 ? (1 + {{ $chatDone / $chatTotal }}) / 4 : (screen + 0.5) / 4 })"
     x-back-close.step="{ open: screen === 1, close: () => screen-- }"
 >

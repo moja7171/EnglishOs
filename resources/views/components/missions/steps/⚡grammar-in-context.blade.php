@@ -520,6 +520,7 @@ new class extends Component
 @else
 <div
     wire:ignore.self
+    x-scroll-top="screen"
     data-round-screens="{{ $roundScreens->toJson() }}"
     x-data="{
         screen: {{ $startScreen }},

@@ -105,6 +105,7 @@ new class extends Component
 <div
     wire:ignore.self
     class="mx-auto flex max-w-2xl flex-col gap-4 p-4 sm:p-6"
+    x-scroll-top="screen"
     x-data="{
         screen: 0,
         total: {{ $total }},
