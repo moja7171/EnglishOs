@@ -456,12 +456,23 @@ class PiPracticePageTest extends TestCase
             ->assertDontSee('Ask & Answer');
     }
 
+    public function test_a_day_with_cards_links_to_the_games_page_below_the_ask_and_answer_card(): void
+    {
+        $this->seed(AskAnswerSeeder::class);
+        $this->actingAs($this->learnerWhoFinishedDay1());
+
+        Livewire::test('pi-practice.index')
+            ->assertSee('More games')
+            ->assertSeeHtml('href="'.route('games.index').'"');
+    }
+
     public function test_a_day_without_cards_stays_a_plain_pi_page(): void
     {
         AskAnswerItem::query()->delete();
         $this->actingAs($this->learnerWhoFinishedDay1());
 
         Livewire::test('pi-practice.index')
+            ->assertDontSee('More games')
             ->assertDontSee('With Teddy')
             ->assertDontSee('Free talk with Pi (optional)');
     }
