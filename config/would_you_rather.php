@@ -86,4 +86,10 @@ return [
         ['learn online', 'learn in a classroom'],
         ['have a strict teacher who teaches well', 'have a kind teacher who teaches badly'],
     ],
+    'M13' => [
+        ['lose your phone', 'lose your wallet'],
+        ['call someone', 'send someone a message'],
+        ['read a paper book', 'read on a screen'],
+        ['have an old phone that never breaks', 'have a new phone that often crashes'],
+    ],
 ];

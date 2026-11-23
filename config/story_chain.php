@@ -61,4 +61,8 @@ return [
         'On the first day of school, the teacher told Sara that she had to sit next to the quietest boy in the class.',
         'Ali\'s mum said she had a surprise for him, but she asked him not to tell his sister.',
     ],
+    'M13' => [
+        'Last night Reza dropped his phone in the bath, and now he has lost all his photos.',
+        'Mina has never used a computer, but yesterday her grandson gave her a laptop.',
+    ],
 ];

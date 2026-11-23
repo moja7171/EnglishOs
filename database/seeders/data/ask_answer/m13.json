@@ -1,0 +1,3370 @@
+{
+ "mission": 13,
+ "items": [
+  {
+   "d": 1,
+   "k": "s",
+   "s": "phone-morning",
+   "c": null,
+   "q": [
+    [
+     "بپرس صبح‌ها گوشی‌اش را چک می‌کند",
+     "بپرس اول از همه",
+     "Do you check your phone in the morning?",
+     "First thing?",
+     [],
+     [
+      [
+       "You check your phone in the morning?",
+       "سؤال حال ساده با «Do you» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس صبح‌ها گوشی‌اش را چک می‌کند و چرا",
+     "بپرس در تخت",
+     "Do you check your phone in the morning, and why?",
+     "In bed?",
+     [],
+     [
+      [
+       "Do you check your phone in the morning, and why you check it?",
+       "سؤال دوم کوتاه است: and why?"
+      ]
+     ]
+    ],
+    [
+     "بپرس گوشی‌اش را قبل از صبحانه چک می‌کند یا بعدش، و چرا",
+     "بپرس چند دقیقه",
+     "Do you check your phone before or after breakfast? Why?",
+     "For how many minutes?",
+     [],
+     [
+      [
+       "Do you check your phone before or after the breakfast? Why?",
+       "قبل از اسم وعده‌ی غذا «the» نمی‌آید: after breakfast."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو هر روز",
+     "Yes, I do.",
+     "Every day.",
+     [],
+     []
+    ],
+    [
+     "بگو بله، چون می‌خواهم پیام‌هایم را ببینم",
+     "بگو و اخبار را",
+     "Yes, I do, because I want to see my messages.",
+     "And the news.",
+     [],
+     [
+      [
+       "Yes, I do, because I want see my messages.",
+       "بعد از «want» باید «to» بیاید: want to see."
+      ]
+     ]
+    ],
+    [
+     "بگو بعد از صبحانه، چون موقع غذا خوردن حواس‌پرتی نمی‌خواهم",
+     "بگو حدود ده دقیقه",
+     "After breakfast, because I don't want a distraction while I eat.",
+     "For about ten minutes.",
+     [],
+     [
+      [
+       "After breakfast, because I don't want distraction while I eat.",
+       "«distraction» قابل شمارش است: a distraction."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "s",
+   "s": "phone-off-study",
+   "c": null,
+   "q": [
+    [
+     "بپرس وقتی درس می‌خواند گوشی‌اش را خاموش می‌کند",
+     "بپرس همیشه",
+     "Do you switch off your phone when you study?",
+     "Always?",
+     [],
+     [
+      [
+       "You switch off your phone when you study?",
+       "سؤال حال ساده با «Do you» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس وقتی درس می‌خواند گوشی‌اش را خاموش می‌کند و چرا",
+     "بپرس در امتحان‌ها",
+     "Do you switch off your phone when you study, and why?",
+     "Before exams?",
+     [],
+     [
+      [
+       "Do you switch off your phone when you study, and why you do?",
+       "سؤال دوم کوتاه است: and why?"
+      ]
+     ]
+    ],
+    [
+     "بپرس گوشی‌اش را در اتاق دیگر می‌گذارد یا در کیفش، و چرا",
+     "بپرس تمام روز",
+     "Do you put your phone in another room or in your bag? Why?",
+     "All day?",
+     [],
+     [
+      [
+       "Do you put your phone in other room or in your bag? Why?",
+       "«یک اتاق دیگر» می‌شود another room."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو بیشتر وقت‌ها",
+     "Yes, I do.",
+     "Most of the time.",
+     [],
+     []
+    ],
+    [
+     "بگو بله، چون هر اعلان حواسم را پرت می‌کند",
+     "بگو حتی یک پیام کوتاه",
+     "Yes, I do, because every notification is a distraction.",
+     "Even a short message.",
+     [],
+     [
+      [
+       "Yes, I do, because every notification are a distraction.",
+       "بعد از «every» فعل مفرد می‌آید: is."
+      ]
+     ]
+    ],
+    [
+     "بگو در اتاق دیگر، چون وقتی نزدیکم است نمی‌توانم تمرکز کنم",
+     "بگو حتی وقتی خاموش است",
+     "In another room, because I can't stay focused when it's near me.",
+     "Even when it's off.",
+     [],
+     [
+      [
+       "In another room, because I can't stay focused when it near me.",
+       "بعد از «when» فعل لازم است: when it's near me."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "s",
+   "s": "stay-focused-where",
+   "c": null,
+   "q": [
+    [
+     "بپرس کجا می‌تواند تمرکزش را حفظ کند",
+     "بپرس در خانه",
+     "Where can you stay focused?",
+     "At home?",
+     [],
+     [
+      [
+       "Where you can stay focused?",
+       "در سؤال اول «can» بعد «you»: Where can you…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس کجا می‌تواند تمرکزش را حفظ کند و چرا",
+     "بپرس ساکت است",
+     "Where can you stay focused, and why?",
+     "Is it quiet?",
+     [],
+     [
+      [
+       "Where can you stay focused, and why you can?",
+       "سؤال دوم کوتاه است: and why?"
+      ]
+     ]
+    ],
+    [
+     "بپرس با موسیقی بهتر تمرکز می‌کند یا در سکوت، و چرا",
+     "بپرس چه موسیقی‌ای",
+     "Can you stay focused better with music or in silence? Why?",
+     "What music?",
+     [],
+     [
+      [
+       "Can you stay focus better with music or in silence? Why?",
+       "«stay focused» با -ed است."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو در کتابخانه",
+     "بگو نزدیک خانه‌ام",
+     "In the library.",
+     "Near my home.",
+     [],
+     []
+    ],
+    [
+     "بگو در کتابخانه، چون آنجا ساکت است",
+     "بگو و گوشی‌ها خاموش‌اند",
+     "In the library, because it's quiet there.",
+     "And phones are off.",
+     [],
+     [
+      [
+       "In the library, because it quiet there.",
+       "بعد از «because» فعل لازم است: it's quiet."
+      ]
+     ]
+    ],
+    [
+     "بگو در سکوت بهتر تمرکز می‌کنم، چون با موسیقی همراهش می‌خوانم",
+     "بگو فقط گاهی موسیقی آرام",
+     "I can stay focused better in silence, because with music I sing along.",
+     "Only soft music sometimes.",
+     [],
+     [
+      [
+       "I can stay focused better in silence, because with music I sings along.",
+       "با «I» فعل «-s» نمی‌گیرد: I sing."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "s",
+   "s": "waste-time-online",
+   "c": null,
+   "q": [
+    [
+     "بپرس روی چه چیزی وقت تلف می‌کند",
+     "بپرس روی گوشی",
+     "What do you waste time on?",
+     "On your phone?",
+     [],
+     [
+      [
+       "What you waste time on?",
+       "سؤال حال ساده با «Do you» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس روی چه چیزی وقت تلف می‌کند و هر روز چقدر",
+     "بپرس شب‌ها",
+     "What do you waste time on, and how long every day?",
+     "At night?",
+     [],
+     [
+      [
+       "What do you waste time on, and how long every days?",
+       "بعد از «every» اسم مفرد می‌آید: every day."
+      ]
+     ]
+    ],
+    [
+     "بپرس این هفته وقت تلف کرده و چه کار کرده که تمرکز کند",
+     "بپرس جواب داد",
+     "Have you wasted time this week? What have you done to stay focused?",
+     "Did it work?",
+     [],
+     [
+      [
+       "Did you waste time this week? What have you done to stay focused?",
+       "«this week» تمام نشده، پس حال کامل: Have you wasted…؟"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو روی ویدیوهای کوتاه",
+     "بگو خیلی",
+     "On short videos.",
+     "A lot.",
+     [],
+     []
+    ],
+    [
+     "بگو روی ویدیوهای کوتاه، حدود یک ساعت در روز",
+     "بگو بعد از کار",
+     "On short videos, about an hour a day.",
+     "After work.",
+     [],
+     [
+      [
+       "On short videos, about a hour a day.",
+       "قبل از «hour» (صدای اول a) می‌گوییم «an»: an hour."
+      ]
+     ]
+    ],
+    [
+     "بگو بله، وقت تلف کرده‌ام، پس آن اپ را از گوشی‌ام پاک کرده‌ام",
+     "بگو دو روز پیش",
+     "Yes, I have, so I've removed the app from my phone.",
+     "Two days ago.",
+     [],
+     [
+      [
+       "Yes, I have, so I've remove the app from my phone.",
+       "حال کامل: have / has + قسمت سوم فعل. removed."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "s",
+   "s": "game-changer-app",
+   "c": null,
+   "q": [
+    [
+     "بپرس کدام اپ برایش همه‌چیز را عوض کرد",
+     "بپرس برای کار",
+     "Which app was a game changer for you?",
+     "For work?",
+     [],
+     [
+      [
+       "Which app were a game changer for you?",
+       "با «app» (مفرد) فعل «was» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس کدام اپ برایش همه‌چیز را عوض کرد و چطور",
+     "بپرس کی نصبش کرد",
+     "Which app was a game changer for you, and how?",
+     "When did you get it?",
+     [],
+     [
+      [
+       "Which app was a game changer for you, and how it was?",
+       "سؤال دوم کوتاه است: and how?"
+      ]
+     ]
+    ],
+    [
+     "بپرس چه چیزی زندگی‌اش را بیشتر عوض کرده، گوشی یا لپ‌تاپ، و چرا",
+     "بپرس کدام را اول خرید",
+     "What has changed your life more, your phone or your laptop? Why?",
+     "Which did you buy first?",
+     [],
+     [
+      [
+       "What has change your life more, your phone or your laptop? Why?",
+       "حال کامل: have / has + قسمت سوم فعل. changed."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو اپ نقشه",
+     "بگو هر روز استفاده‌اش می‌کنم",
+     "The map app.",
+     "I use it every day.",
+     [],
+     []
+    ],
+    [
+     "بگو اپ نقشه؛ دیگر هیچ‌وقت گم نمی‌شوم",
+     "بگو حتی در شهرهای جدید",
+     "The map app. I never get lost now.",
+     "Even in new cities.",
+     [],
+     [
+      [
+       "The map app. I don't never get lost now.",
+       "«never» خودش منفی است؛ «don't» نمی‌خواهد."
+      ]
+     ]
+    ],
+    [
+     "بگو گوشی‌ام بیشتر عوض کرده، چون همه‌جا با من است",
+     "بگو لپ‌تاپ را برای کار دارم",
+     "My phone has changed my life more, because it's with me everywhere.",
+     "I have my laptop for work.",
+     [],
+     [
+      [
+       "My phone has changed my life more, because it with me everywhere.",
+       "بعد از «because» فعل لازم است: it's with me."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "lost-hours",
+   "c": "دوستت گفت: «دیشب سه ساعت روی گوشی‌ام وقت تلف کردم.»",
+   "q": [
+    [
+     "بگو وای و بپرس چه کار می‌کرد",
+     "بپرس ویدیو",
+     "Wow! What were you doing?",
+     "Videos?",
+     [],
+     [
+      [
+       "Wow! What you were doing?",
+       "در سؤال، «were» قبل از «you» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بگو وای و بپرس چه کار می‌کرد و چرا نگذاشت کنار",
+     "بپرس خسته بود",
+     "Wow! What were you doing, and why didn't you stop?",
+     "Were you tired?",
+     [],
+     [
+      [
+       "Wow! What were you doing, and why you didn't stop?",
+       "سؤال دوم: why didn't you stop?"
+      ]
+     ]
+    ],
+    [
+     "بپرس این اولین بار بود یا زیاد این کار را کرده است",
+     "بپرس این هفته",
+     "Was it the first time, or have you done it a lot?",
+     "This week?",
+     [],
+     [
+      [
+       "Was it the first time, or did you done it a lot?",
+       "حال کامل: have you done."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو ویدیو تماشا می‌کردم",
+     "بگو ویدیوهای آشپزی",
+     "I was watching videos.",
+     "Cooking videos.",
+     [],
+     [
+      [
+       "I watching videos.",
+       "گذشته‌ی استمراری «was» لازم دارد: I was watching."
+      ]
+     ]
+    ],
+    [
+     "بگو ویدیو تماشا می‌کردم و حواسم به ساعت نبود",
+     "بگو تا دیر وقت",
+     "I was watching videos, and I didn't look at the time.",
+     "Until very late.",
+     [],
+     [
+      [
+       "I was watching videos, and I didn't looked at the time.",
+       "بعد از «didn't» فعل ساده می‌آید: look."
+      ]
+     ]
+    ],
+    [
+     "بگو اولین بار نبود؛ این هفته سه بار این کار را کرده‌ام",
+     "بگو باید درستش کنم",
+     "It wasn't the first time. I've done it three times this week.",
+     "I need to fix it.",
+     [],
+     [
+      [
+       "It wasn't the first time. I did it three times this week.",
+       "«this week» هنوز تمام نشده: I've done it."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "new-rule",
+   "c": "دوستت گفت: «سر شام دیگر گوشی‌ام را چک نمی‌کنم.»",
+   "q": [
+    [
+     "بگو فکر خوبی است و بپرس از کی",
+     "بپرس از این هفته",
+     "Good idea! Since when?",
+     "This week?",
+     [],
+     [
+      [
+       "Good idea! From when?",
+       "«از کی؟» در انگلیسی: Since when?"
+      ]
+     ]
+    ],
+    [
+     "بگو فکر خوبی است و بپرس چرا تصمیم گرفت",
+     "بپرس کسی گفت",
+     "Good idea! Why did you decide that?",
+     "Did someone tell you?",
+     [],
+     [
+      [
+       "Good idea! Why you decided that?",
+       "سؤال گذشته با «did» است."
+      ]
+     ]
+    ],
+    [
+     "بپرس سخت بوده یا راحت، و خانواده‌اش چه گفتند",
+     "بپرس خوشحال‌اند",
+     "Has it been hard or easy? What did your family say?",
+     "Are they happy?",
+     [],
+     [
+      [
+       "Has it been hard or easy? What your family said?",
+       "سؤال دوم «did» می‌خواهد: What did your family say?"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو از دوشنبه",
+     "بگو فقط چند روز است",
+     "Since Monday.",
+     "Only a few days.",
+     [],
+     []
+    ],
+    [
+     "بگو چون گوشی سر شام حواس‌پرتی بزرگی بود",
+     "بگو برای همه",
+     "Because my phone was a big distraction at dinner.",
+     "For everyone.",
+     [],
+     [
+      [
+       "Because my phone was big distraction at dinner.",
+       "«distraction» قابل شمارش است: a big distraction."
+      ]
+     ]
+    ],
+    [
+     "بگو راحت بوده و خانواده‌ام گفتند خیلی خوشحال‌اند",
+     "بگو حالا بیشتر حرف می‌زنیم",
+     "It has been easy, and my family said they were very happy.",
+     "We talk more now.",
+     [],
+     [
+      [
+       "It has been easy, and my family said they are very happy.",
+       "حرف را یک قدم عقب نقل کن: were."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "exam-focus",
+   "c": "دوستت گفت: «فردا امتحان دارم، ولی نمی‌توانم تمرکز کنم.»",
+   "q": [
+    [
+     "بپرس گوشی‌اش را خاموش کرده",
+     "بپرس صدایش را هم",
+     "Have you switched off your phone?",
+     "And the sound?",
+     [],
+     [
+      [
+       "Have you switch off your phone?",
+       "حال کامل: have / has + قسمت سوم فعل. switched."
+      ]
+     ]
+    ],
+    [
+     "بپرس گوشی‌اش را خاموش کرده و کجا درس می‌خواند",
+     "بپرس در اتاقش",
+     "Have you switched off your phone, and where are you studying?",
+     "In your room?",
+     [],
+     [
+      [
+       "Have you switched off your phone, and where you are studying?",
+       "سؤال دوم: where are you studying?"
+      ]
+     ]
+    ],
+    [
+     "بپرس چه چیزی حواسش را پرت می‌کند، و قبلاً چه کار کرده که تمرکز کند",
+     "بپرس جواب داد",
+     "What is your distraction, and what did you do last time to stay focused?",
+     "Did it work?",
+     [],
+     [
+      [
+       "What is your distraction, and what you did last time to stay focused?",
+       "با «last time» گذشته‌ی ساده و «did» لازم است."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو نه، هنوز نه",
+     "بگو الان می‌کنم",
+     "No, not yet.",
+     "I will now.",
+     [],
+     []
+    ],
+    [
+     "بگو نه خاموش نکرده‌ام و در آشپزخانه درس می‌خوانم",
+     "بگو شلوغ است",
+     "No, I haven't, and I'm studying in the kitchen.",
+     "It's noisy.",
+     [],
+     [
+      [
+       "No, I haven't, and I studying in the kitchen.",
+       "حال استمراری «am» لازم دارد: I'm studying."
+      ]
+     ]
+    ],
+    [
+     "بگو حواس‌پرتی‌ام پیام‌هاست و دفعه‌ی قبل در کتابخانه درس خواندم",
+     "بگو و جواب داد",
+     "My distraction is messages, and last time I studied in the library.",
+     "And it worked.",
+     [],
+     [
+      [
+       "My distraction is messages, and last time I have studied in the library.",
+       "«last time» زمانِ تمام‌شده است: I studied."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "sister-phone",
+   "c": "دوستت گفت: «خواهرم همه‌ی روز روی گوشی است.»",
+   "q": [
+    [
+     "بپرس چند سالش است",
+     "بپرس هنوز مدرسه می‌رود",
+     "How old is she?",
+     "Is she still at school?",
+     [],
+     [
+      [
+       "How old she is?",
+       "سؤال: How old is she?"
+      ]
+     ]
+    ],
+    [
+     "بپرس چند سالش است و روی گوشی چه کار می‌کند",
+     "بپرس با دوست‌هایش",
+     "How old is she, and what does she do on it?",
+     "With her friends?",
+     [],
+     [
+      [
+       "How old is she, and what she does on it?",
+       "سؤال دوم «does» می‌خواهد: what does she do?"
+      ]
+     ]
+    ],
+    [
+     "بپرس با او حرف زده یا هنوز نه، و او چه گفت",
+     "بپرس عصبانی شد",
+     "Have you talked to her yet? What did she say?",
+     "Was she angry?",
+     [],
+     [
+      [
+       "Have you talk to her yet? What did she say?",
+       "حال کامل: have / has + قسمت سوم فعل. talked."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو پانزده",
+     "بگو دبیرستانی است",
+     "She's fifteen.",
+     "She's in secondary school.",
+     [],
+     [
+      [
+       "She has fifteen.",
+       "سن با «be» گفته می‌شود: She's fifteen."
+      ]
+     ]
+    ],
+    [
+     "بگو پانزده سالش است و ویدیو تماشا می‌کند",
+     "بگو و پیام می‌فرستد",
+     "She's fifteen, and she watches videos.",
+     "And she sends messages.",
+     [],
+     [
+      [
+       "She's fifteen, and she watch videos.",
+       "با «she» فعل «-es» می‌گیرد: watches."
+      ]
+     ]
+    ],
+    [
+     "بگو بله دیروز حرف زدم و گفت می‌تواند هر وقت بخواهد تمرکز کند",
+     "بگو باور نکردم",
+     "Yes, I talked to her yesterday. She said she could stay focused when she wanted.",
+     "I didn't believe her.",
+     [],
+     [
+      [
+       "Yes, I have talked to her yesterday. She said she could stay focused when she wanted.",
+       "با «yesterday» گذشته‌ی ساده: I talked."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "maps-changer",
+   "c": "دوستت گفت: «اپ نقشه برایم همه‌چیز را عوض کرد.»",
+   "q": [
+    [
+     "بپرس از کی دارد",
+     "بپرس از پارسال",
+     "How long have you had it?",
+     "Since last year?",
+     [],
+     [
+      [
+       "How long do you have it?",
+       "مدت تا الان با حال کامل: How long have you had it?"
+      ]
+     ]
+    ],
+    [
+     "بپرس از کی دارد و چطور کمکش کرد",
+     "بپرس در سفر",
+     "How long have you had it, and how did it help you?",
+     "On holiday?",
+     [],
+     [
+      [
+       "How long have you had it, and how it helped you?",
+       "سؤال دوم «did» می‌خواهد: how did it help you?"
+      ]
+     ]
+    ],
+    [
+     "بپرس تا حالا با آن گم شده یا نه، و چه شد",
+     "بپرس کجا",
+     "Have you ever got lost with it? What happened?",
+     "Where?",
+     [],
+     [
+      [
+       "Have you ever get lost with it? What happened?",
+       "قسمت سوم «get» می‌شود «got»: Have you ever got lost?"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو دو سال",
+     "بگو از وقتی گوشی جدید خریدم",
+     "For two years.",
+     "Since I got my new phone.",
+     [],
+     [
+      [
+       "Since two years.",
+       "برای مدت از «for» استفاده کن: for two years."
+      ]
+     ]
+    ],
+    [
+     "بگو دو سال است دارمش و کمک کرد مسیر محل کار جدیدم را پیدا کنم",
+     "بگو در روز اول",
+     "I've had it for two years, and it helped me find my new office.",
+     "On my first day.",
+     [],
+     [
+      [
+       "I've had it for two years, and it helped me finding my new office.",
+       "بعد از «help me» فعل ساده می‌آید: find."
+      ]
+     ]
+    ],
+    [
+     "بگو بله یک بار؛ مسیر را اشتباه زدم و یک ساعت دیر رسیدم",
+     "بگو ولی تقصیر من بود",
+     "Yes, once. I typed the wrong street, and I arrived an hour late.",
+     "But it was my mistake.",
+     [],
+     [
+      [
+       "Yes, once. I typed the wrong street, and I have arrived an hour late.",
+       "داستانِ تمام‌شده با گذشته‌ی ساده: I arrived."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "forgot-password",
+   "c": null,
+   "q": [
+    [
+     "بپرس تا حالا رمزش را فراموش کرده",
+     "بپرس رمز ایمیلش",
+     "Have you ever forgotten a password?",
+     "Your email password?",
+     [],
+     [
+      [
+       "Have you ever forget a password?",
+       "حال کامل: have / has + قسمت سوم فعل. forgotten."
+      ]
+     ]
+    ],
+    [
+     "بپرس تا حالا رمزش را فراموش کرده و آخرین بار کی بود",
+     "بپرس این ماه",
+     "Have you ever forgotten a password? When was the last time?",
+     "This month?",
+     [],
+     [
+      [
+       "Have you ever forgotten a password? When has been the last time?",
+       "برای «کی؟» بپرس When did…؟ نه When have…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس رمزهایش را یادداشت می‌کند یا حفظ می‌کند، و چرا",
+     "بپرس روی کاغذ",
+     "Do you write your passwords down, or do you remember them? Why?",
+     "On paper?",
+     [],
+     [
+      [
+       "Do you write down your passwords, or you remember them? Why?",
+       "سؤال دوم هم «do you» می‌خواهد."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله، زیاد",
+     "بگو خیلی زیاد",
+     "Yes, a lot.",
+     "Too many times.",
+     [],
+     []
+    ],
+    [
+     "بگو بله فراموش کرده‌ام؛ آخرین بار هفته‌ی پیش بود",
+     "بگو رمز بانکم بود",
+     "Yes, I have. The last time was last week.",
+     "It was my bank password.",
+     [],
+     [
+      [
+       "Yes, I have. The last time has been last week.",
+       "با زمانِ تمام‌شده (yesterday، ago، last…) گذشته‌ی ساده می‌آید، نه have."
+      ]
+     ]
+    ],
+    [
+     "بگو حفظشان می‌کنم، چون یادداشت کردنشان امن نیست، ولی گاهی فراموش می‌کنم",
+     "بگو آن‌وقت یک رمز جدید می‌سازم",
+     "I remember them, because writing them down isn't safe, but sometimes I forget.",
+     "Then I make a new one.",
+     [],
+     [
+      [
+       "I remember them, because write them down isn't safe, but sometimes I forget.",
+       "وقتی فعل فاعل جمله است -ing می‌گیرد: writing them down."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "laptop-crashed",
+   "c": null,
+   "q": [
+    [
+     "بپرس تا حالا لپ‌تاپش کرش کرده",
+     "بپرس وسط کار",
+     "Has your laptop ever crashed?",
+     "In the middle of work?",
+     [],
+     [
+      [
+       "Has your laptop ever crash?",
+       "حال کامل: have / has + قسمت سوم فعل. crashed."
+      ]
+     ]
+    ],
+    [
+     "بپرس تا حالا لپ‌تاپش کرش کرده و کی",
+     "بپرس این هفته",
+     "Has your laptop ever crashed? When did it happen?",
+     "This week?",
+     [],
+     [
+      [
+       "Has your laptop ever crashed? When has it happened?",
+       "برای «کی؟» بپرس When did…؟ نه When have…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس آخرین باری که کرش کرد کارش را از دست داد یا نه، و بعد چه کرد",
+     "بپرس دوباره نوشت",
+     "Did you lose your work the last time it crashed? What did you do then?",
+     "Did you write it again?",
+     [],
+     [
+      [
+       "Did you lost your work the last time it crashed? What did you do then?",
+       "بعد از «did» فعل ساده می‌آید: lose."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله، یک بار",
+     "بگو پارسال",
+     "Yes, once.",
+     "Last year.",
+     [],
+     []
+    ],
+    [
+     "بگو بله کرش کرده؛ ماه پیش اتفاق افتاد",
+     "بگو وسط یک جلسه",
+     "Yes, it has. It happened last month.",
+     "In the middle of a meeting.",
+     [],
+     [
+      [
+       "Yes, it has. It has happened last month.",
+       "با زمانِ تمام‌شده (yesterday، ago، last…) گذشته‌ی ساده می‌آید، نه have."
+      ]
+     ]
+    ],
+    [
+     "بگو بله، همه‌ی کارم را از دست دادم، پس از آن روز همه‌چیز را بکاپ می‌گیرم",
+     "بگو هر جمعه",
+     "Yes, I lost all my work, so since that day I back up everything.",
+     "Every Friday.",
+     [],
+     [
+      [
+       "Yes, I lost all my work, so since that day I backup everything.",
+       "فعل دوکلمه‌ای است: back up."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "new-app-week",
+   "c": null,
+   "q": [
+    [
+     "بپرس این هفته اپ جدیدی نصب کرده",
+     "بپرس روی گوشی",
+     "Have you installed a new app this week?",
+     "On your phone?",
+     [],
+     [
+      [
+       "Did you install a new app this week?",
+       "«this week» هنوز تمام نشده: Have you installed…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس این هفته اپ جدیدی نصب کرده و کدام",
+     "بپرس برای کار",
+     "Have you installed a new app this week, and which one?",
+     "For work?",
+     [],
+     [
+      [
+       "Have you installed a new app this week, and which?",
+       "سؤال دوم: and which one?"
+      ]
+     ]
+    ],
+    [
+     "بپرس آخرین اپی که نصب کرد چه بود و کی نصبش کرد",
+     "بپرس هنوز دارد",
+     "What was the last app you installed, and when did you install it?",
+     "Do you still have it?",
+     [],
+     [
+      [
+       "What was the last app you installed, and when have you installed it?",
+       "برای «کی؟» بپرس When did…؟ نه When have…؟"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو نه، نکرده‌ام",
+     "بگو این ماه هم نه",
+     "No, I haven't.",
+     "Not this month.",
+     [],
+     []
+    ],
+    [
+     "بگو بله، یک اپ آشپزی نصب کرده‌ام",
+     "بگو دوستم پیشنهاد کرد",
+     "Yes, I've installed a cooking app.",
+     "My friend told me about it.",
+     [],
+     [
+      [
+       "Yes, I've install a cooking app.",
+       "حال کامل: have / has + قسمت سوم فعل. installed."
+      ]
+     ]
+    ],
+    [
+     "بگو یک اپ ورزش بود و دوشنبه نصبش کردم، ولی هنوز استفاده‌اش نکرده‌ام",
+     "بگو شاید فردا",
+     "It was a sports app. I installed it on Monday, but I haven't used it yet.",
+     "Maybe tomorrow.",
+     [],
+     [
+      [
+       "It was a sports app. I installed it on Monday, but I didn't use it yet.",
+       "با «yet» حال کامل می‌آید: I haven't used it yet."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "switch-off-night",
+   "c": null,
+   "q": [
+    [
+     "بپرس شب‌ها کامپیوترش را خاموش می‌کند",
+     "بپرس هر شب",
+     "Do you switch off your computer at night?",
+     "Every night?",
+     [],
+     [
+      [
+       "You switch off your computer at night?",
+       "سؤال حال ساده با «Do you» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس شب‌ها کامپیوترش را خاموش می‌کند و چرا",
+     "بپرس به‌خاطر برق",
+     "Do you switch off your computer at night, and why?",
+     "To save power?",
+     [],
+     [
+      [
+       "Do you switch off your computer at night, and why you do?",
+       "سؤال دوم کوتاه است: and why?"
+      ]
+     ]
+    ],
+    [
+     "بپرس دیشب کامپیوترش را خاموش کرد یا روشن گذاشت",
+     "بپرس تا صبح",
+     "Did you switch off your computer last night, or did you leave it on?",
+     "Until the morning?",
+     [],
+     [
+      [
+       "Have you switched off your computer last night, or did you leave it on?",
+       "با زمانِ تمام‌شده (yesterday، ago، last…) گذشته‌ی ساده می‌آید، نه have."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو نه، نه همیشه",
+     "بگو گاهی یادم می‌رود",
+     "No, not always.",
+     "Sometimes I forget.",
+     [],
+     []
+    ],
+    [
+     "بگو بله، چون بعد از آن بهتر کار می‌کند",
+     "بگو و کمتر کرش می‌کند",
+     "Yes, I do, because it works better after that.",
+     "And it crashes less.",
+     [],
+     [
+      [
+       "Yes, I do, because it work better after that.",
+       "با «it» فعل «-s» می‌گیرد: works."
+      ]
+     ]
+    ],
+    [
+     "بگو روشن گذاشتم، چون داشتم فیلم تماشا می‌کردم",
+     "بگو و خوابم برد",
+     "I left it on, because I was watching a film.",
+     "And I fell asleep.",
+     [],
+     [
+      [
+       "I have left it on, because I was watching a film.",
+       "با «last night» گذشته‌ی ساده: I left it on."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "log-in-today",
+   "c": null,
+   "q": [
+    [
+     "بپرس امروز به ایمیلش لاگین کرده",
+     "بپرس روی گوشی",
+     "Have you logged in to your email today?",
+     "On your phone?",
+     [],
+     [
+      [
+       "Have you log in to your email today?",
+       "حال کامل: have / has + قسمت سوم فعل. logged in."
+      ]
+     ]
+    ],
+    [
+     "بپرس امروز به ایمیلش لاگین کرده و چند بار",
+     "بپرس منتظر پیام است",
+     "Have you logged in to your email today, and how many times?",
+     "Are you waiting for an email?",
+     [],
+     [
+      [
+       "Did you log in to your email today, and how many times?",
+       "«today» هنوز تمام نشده: Have you logged in…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس دیروز بیشتر از امروز ایمیلش را چک کرد و چرا",
+     "بپرس امروز تعطیل است",
+     "Did you check your email more yesterday than today? Why?",
+     "Is today your day off?",
+     [],
+     [
+      [
+       "Have you checked your email more yesterday than today? Why?",
+       "با زمانِ تمام‌شده (yesterday، ago، last…) گذشته‌ی ساده می‌آید، نه have."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله، سه بار",
+     "بگو تا الان",
+     "Yes, three times.",
+     "So far.",
+     [],
+     []
+    ],
+    [
+     "بگو بله، پنج بار، چون منتظر یک پیام از رئیسم هستم",
+     "بگو درباره‌ی یک جلسه",
+     "Yes, five times, because I'm waiting for an email from my boss.",
+     "About a meeting.",
+     [],
+     [
+      [
+       "Yes, five times, because I waiting for an email from my boss.",
+       "حال استمراری «am» لازم دارد: I'm waiting."
+      ]
+     ]
+    ],
+    [
+     "بگو بله، چون دیروز روز کاری بود",
+     "بگو امروز تعطیلم",
+     "Yes, I did, because yesterday was a work day.",
+     "Today is my day off.",
+     [],
+     [
+      [
+       "Yes, I have, because yesterday was a work day.",
+       "جواب کوتاه با همان «did»: Yes, I did."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "phone-dropped",
+   "c": "دوستت گفت: «گوشی‌ام را شکستم.»",
+   "q": [
+    [
+     "بگو ای وای و بپرس چطور",
+     "بپرس افتاد",
+     "Oh no! How did it happen?",
+     "Did you drop it?",
+     [],
+     [
+      [
+       "Oh no! How has it happened?",
+       "جزئیاتِ خبر با گذشته‌ی ساده: How did it happen?"
+      ]
+     ]
+    ],
+    [
+     "بگو ای وای و بپرس کی شکست و هنوز کار می‌کند یا نه",
+     "بپرس صفحه‌اش",
+     "Oh no! When did it break, and does it still work?",
+     "The screen?",
+     [],
+     [
+      [
+       "Oh no! When has it broken, and does it still work?",
+       "برای «کی؟» بپرس When did…؟ نه When have…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس عکس‌هایش را بکاپ گرفته یا همه را از دست داده",
+     "بپرس روی لپ‌تاپ",
+     "Have you backed up your photos, or have you lost them all?",
+     "On your laptop?",
+     [],
+     [
+      [
+       "Have you back up your photos, or have you lost them all?",
+       "حال کامل: have / has + قسمت سوم فعل. backed up."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو از دستم افتاد",
+     "بگو در خیابان",
+     "I dropped it.",
+     "In the street.",
+     [],
+     [
+      [
+       "I drop it.",
+       "گذشته است: dropped."
+      ]
+     ]
+    ],
+    [
+     "بگو امروز صبح شکست و دیگر کار نمی‌کند",
+     "بگو صفحه‌اش سیاه است",
+     "It broke this morning, and it doesn't work now.",
+     "The screen is black.",
+     [],
+     [
+      [
+       "It broke this morning, and it don't work now.",
+       "با «it» می‌گوییم doesn't."
+      ]
+     ]
+    ],
+    [
+     "بگو ماه پیش همه را بکاپ گرفتم، پس هیچ‌کدام را از دست نداده‌ام",
+     "بگو خوش‌شانس بودم",
+     "I backed them up last month, so I haven't lost any.",
+     "I was lucky.",
+     [],
+     [
+      [
+       "I have backed them up last month, so I haven't lost any.",
+       "با زمانِ تمام‌شده (yesterday، ago، last…) گذشته‌ی ساده می‌آید، نه have."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "new-laptop",
+   "c": "دوستت گفت: «یک لپ‌تاپ جدید خریده‌ام!»",
+   "q": [
+    [
+     "بگو عالی است و بپرس کی خرید",
+     "بپرس این هفته",
+     "Great! When did you buy it?",
+     "This week?",
+     [],
+     [
+      [
+       "Great! When have you bought it?",
+       "برای «کی؟» بپرس When did…؟ نه When have…؟"
+      ]
+     ]
+    ],
+    [
+     "بگو عالی است و بپرس کی و کجا خرید",
+     "بپرس آنلاین",
+     "Great! When did you buy it, and where?",
+     "Online?",
+     [],
+     [
+      [
+       "Great! When did you buy it, and where you bought it?",
+       "سؤال دوم کوتاه است: and where?"
+      ]
+     ]
+    ],
+    [
+     "بپرس همه‌ی فایل‌هایش را منتقل کرده یا هنوز روی لپ‌تاپ قدیمی است",
+     "بپرس عکس‌ها",
+     "Have you moved all your files, or are they still on the old laptop?",
+     "Your photos?",
+     [],
+     [
+      [
+       "Have you move all your files, or are they still on the old laptop?",
+       "حال کامل: have / has + قسمت سوم فعل. moved."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو دیروز",
+     "بگو بعد از کار",
+     "Yesterday.",
+     "After work.",
+     [],
+     []
+    ],
+    [
+     "بگو شنبه از یک مغازه‌ی نزدیک خانه‌ام خریدم",
+     "بگو قیمتش خوب بود",
+     "I bought it on Saturday from a shop near my home.",
+     "The price was good.",
+     [],
+     [
+      [
+       "I have bought it on Saturday from a shop near my home.",
+       "با زمانِ تمام‌شده (yesterday، ago، last…) گذشته‌ی ساده می‌آید، نه have."
+      ]
+     ]
+    ],
+    [
+     "بگو هنوز نه؛ دیشب یک برنامه نصب کردم، ولی هنوز فایل‌ها را منتقل نکرده‌ام",
+     "بگو امشب انجامش می‌دهم",
+     "Not yet. I installed a program last night, but I haven't moved the files yet.",
+     "I'll do it tonight.",
+     [],
+     [
+      [
+       "Not yet. I installed a program last night, but I didn't move the files yet.",
+       "با «yet» حال کامل: I haven't moved them yet."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "cant-log-in",
+   "c": "دوستت گفت: «نمی‌توانم به حسابم لاگین کنم.»",
+   "q": [
+    [
+     "بپرس رمزش را عوض کرده",
+     "بپرس امروز",
+     "Have you changed your password?",
+     "Today?",
+     [],
+     [
+      [
+       "Have you change your password?",
+       "حال کامل: have / has + قسمت سوم فعل. changed."
+      ]
+     ]
+    ],
+    [
+     "بپرس رمزش را عوض کرده و آخرین بار کی لاگین کرد",
+     "بپرس دیروز",
+     "Have you changed your password? When did you last log in?",
+     "Yesterday?",
+     [],
+     [
+      [
+       "Have you changed your password? When have you last logged in?",
+       "برای «کی؟» بپرس When did…؟ نه When have…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس چند بار امتحان کرده و چه پیامی دید",
+     "بپرس به بانک زنگ زد",
+     "How many times have you tried, and what message did you see?",
+     "Did you call the bank?",
+     [],
+     [
+      [
+       "How many times have you tried, and what message you saw?",
+       "سؤال دوم «did» می‌خواهد: what message did you see?"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو نه، عوض نکرده‌ام",
+     "بگو فکر نمی‌کنم",
+     "No, I haven't.",
+     "I don't think so.",
+     [],
+     []
+    ],
+    [
+     "بگو نه عوض نکرده‌ام؛ آخرین بار دیروز لاگین کردم",
+     "بگو و مشکلی نبود",
+     "No, I haven't. I last logged in yesterday.",
+     "And it was fine.",
+     [],
+     [
+      [
+       "No, I haven't. I have last logged in yesterday.",
+       "با زمانِ تمام‌شده (yesterday، ago، last…) گذشته‌ی ساده می‌آید، نه have."
+      ]
+     ]
+    ],
+    [
+     "بگو چهار بار امتحان کرده‌ام و دیدم که رمز اشتباه است",
+     "بگو ولی مطمئنم درست است",
+     "I've tried four times, and I saw that the password was wrong.",
+     "But I'm sure it's right.",
+     [],
+     [
+      [
+       "I've tried four times, and I saw that the password is wrong.",
+       "حرف را یک قدم عقب نقل کن: was wrong."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "game-installed",
+   "c": "دوستت گفت: «پسرم بدون اجازه یک بازی نصب کرده.»",
+   "q": [
+    [
+     "بپرس کی نصبش کرد",
+     "بپرس دیشب",
+     "When did he install it?",
+     "Last night?",
+     [],
+     [
+      [
+       "When has he installed it?",
+       "برای «کی؟» بپرس When did…؟ نه When have…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس کی نصبش کرد و به او چه گفت",
+     "بپرس عصبانی شد",
+     "When did he install it, and what did you tell him?",
+     "Were you angry?",
+     [],
+     [
+      [
+       "When did he install it, and what you told him?",
+       "سؤال دوم «did» می‌خواهد: what did you tell him?"
+      ]
+     ]
+    ],
+    [
+     "بپرس بازی را پاک کرده یا هنوز روی گوشی است",
+     "بپرس پسرش ناراحت شد",
+     "Have you deleted the game, or is it still on the phone?",
+     "Was he sad?",
+     [],
+     [
+      [
+       "Have you delete the game, or is it still on the phone?",
+       "حال کامل: have / has + قسمت سوم فعل. deleted."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو دیروز",
+     "بگو بعد از مدرسه",
+     "Yesterday.",
+     "After school.",
+     [],
+     []
+    ],
+    [
+     "بگو دیروز نصب کرد و به او گفتم اول از من بپرسد",
+     "بگو همیشه",
+     "He installed it yesterday, and I told him to ask me first.",
+     "Always.",
+     [],
+     [
+      [
+       "He installed it yesterday, and I told him ask me first.",
+       "بعد از «told him» باید «to» بیاید: told him to ask."
+      ]
+     ]
+    ],
+    [
+     "بگو هنوز روی گوشی است، چون قول داده فقط آخر هفته‌ها بازی کند",
+     "بگو یک ساعت",
+     "It's still on the phone, because he has promised to play only at weekends.",
+     "For one hour.",
+     [],
+     [
+      [
+       "It's still on the phone, because he has promise to play only at weekends.",
+       "حال کامل: have / has + قسمت سوم فعل. promised."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "work-lost",
+   "c": "دوستت گفت: «دیروز کامپیوترم کرش کرد.»",
+   "q": [
+    [
+     "بپرس کارش را از دست داد",
+     "بپرس همه‌اش",
+     "Did you lose your work?",
+     "All of it?",
+     [],
+     [
+      [
+       "Have you lost your work yesterday?",
+       "با زمانِ تمام‌شده (yesterday، ago، last…) گذشته‌ی ساده می‌آید، نه have."
+      ]
+     ]
+    ],
+    [
+     "بپرس کارش را از دست داد و چه کار کرد",
+     "بپرس دوباره نوشت",
+     "Did you lose your work, and what did you do?",
+     "Did you write it again?",
+     [],
+     [
+      [
+       "Did you lose your work, and what you did?",
+       "سؤال دوم «did» می‌خواهد: what did you do?"
+      ]
+     ]
+    ],
+    [
+     "بپرس از آن موقع کامپیوترش را درست کرده یا یک کامپیوتر جدید لازم دارد",
+     "بپرس گران است",
+     "Have you fixed it since then, or do you need a new one?",
+     "Is it expensive?",
+     [],
+     [
+      [
+       "Did you fix it since then, or do you need a new one?",
+       "با «since then» حال کامل: Have you fixed it?"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله، یک گزارش",
+     "بگو دو ساعت کار",
+     "Yes, a report.",
+     "Two hours of work.",
+     [],
+     []
+    ],
+    [
+     "بگو بله، و دوباره نوشتمش",
+     "بگو تا نیمه‌شب",
+     "Yes, and I wrote it again.",
+     "Until midnight.",
+     [],
+     [
+      [
+       "Yes, and I written it again.",
+       "گذشته‌ی ساده‌ی «write» می‌شود «wrote»."
+      ]
+     ]
+    ],
+    [
+     "بگو درستش کرده‌ام؛ یک برنامه‌ی جدید نصب کردم و حالا خوب کار می‌کند",
+     "بگو امروز صبح",
+     "I've fixed it. I installed a new program, and now it works well.",
+     "This morning.",
+     [],
+     [
+      [
+       "I've fixed it. I've installed a new program this morning, and now it works well.",
+       "جزئیاتِ خبر با گذشته‌ی ساده: I installed…"
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "first-online",
+   "c": null,
+   "q": [
+    [
+     "بپرس اولین بار کی آنلاین شد",
+     "بپرس بچه بود",
+     "When did you first go online?",
+     "As a child?",
+     [],
+     [
+      [
+       "When have you first gone online?",
+       "برای «کی؟» بپرس When did…؟ نه When have…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس اولین بار کی آنلاین شد و کجا",
+     "بپرس در مدرسه",
+     "When did you first go online, and where?",
+     "At school?",
+     [],
+     [
+      [
+       "When did you first go online, and where you went?",
+       "سؤال دوم کوتاه است: and where?"
+      ]
+     ]
+    ],
+    [
+     "بپرس اینترنت از آن موقع زندگی‌اش را عوض کرده یا نه، و چطور",
+     "بپرس برای کار",
+     "Has the internet changed your life since then? How?",
+     "For work?",
+     [],
+     [
+      [
+       "Has the internet change your life since then? How?",
+       "حال کامل: have / has + قسمت سوم فعل. changed."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو حدود پانزده سال پیش",
+     "بگو وقتی نوجوان بودم",
+     "About fifteen years ago.",
+     "When I was a teenager.",
+     [],
+     [
+      [
+       "About before fifteen years.",
+       "«… سال پیش» می‌شود «… years ago»، نه before."
+      ]
+     ]
+    ],
+    [
+     "بگو اولین بار ده‌ساله بودم، در خانه‌ی عمویم",
+     "بگو با کامپیوتر قدیمی‌اش",
+     "I first went online at ten, at my uncle's house.",
+     "On his old computer.",
+     [],
+     [
+      [
+       "I have first gone online at ten, at my uncle's house.",
+       "با زمانِ تمام‌شده (yesterday، ago، last…) گذشته‌ی ساده می‌آید، نه have."
+      ]
+     ]
+    ],
+    [
+     "بگو بله خیلی؛ پارسال کار جدیدم را از طریق اینترنت پیدا کردم و انگلیسی یاد گرفته‌ام",
+     "بگو و دوست‌های جدید",
+     "Yes, a lot. I found my new job online last year, and I've learned English.",
+     "And new friends.",
+     [],
+     [
+      [
+       "Yes, a lot. I have found my new job online last year, and I've learned English.",
+       "با زمانِ تمام‌شده (yesterday، ago، last…) گذشته‌ی ساده می‌آید، نه have."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "reply-quickly",
+   "c": null,
+   "q": [
+    [
+     "بپرس به ایمیل‌ها زود جواب می‌دهد",
+     "بپرس همان روز",
+     "Do you reply to emails quickly?",
+     "On the same day?",
+     [],
+     [
+      [
+       "Do you reply emails quickly?",
+       "بعد از «reply» حرف «to» لازم است: reply to emails."
+      ]
+     ]
+    ],
+    [
+     "بپرس به ایمیل‌ها زود جواب می‌دهد و چرا",
+     "بپرس به‌خاطر کار",
+     "Do you reply to emails quickly, and why?",
+     "Because of work?",
+     [],
+     [
+      [
+       "Do you reply to emails quickly, and why you do?",
+       "سؤال دوم کوتاه است: and why?"
+      ]
+     ]
+    ],
+    [
+     "بپرس امروز به همه‌ی ایمیل‌هایش جواب داده یا هنوز چند تا مانده",
+     "بپرس چند تا",
+     "Have you answered all your emails today, or are there still some?",
+     "How many?",
+     [],
+     [
+      [
+       "Did you answer all your emails today, or are there still some?",
+       "«today» هنوز تمام نشده: Have you replied…؟"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله، معمولاً",
+     "بگو در یک ساعت",
+     "Yes, usually.",
+     "Within an hour.",
+     [],
+     []
+    ],
+    [
+     "بگو بله، چون رئیسم جواب سریع می‌خواهد",
+     "بگو حتی آخر هفته",
+     "Yes, I do, because my boss wants a quick answer.",
+     "Even at weekends.",
+     [],
+     [
+      [
+       "Yes, I do, because my boss want a quick answer.",
+       "با «my boss» فعل «-s» می‌گیرد: wants."
+      ]
+     ]
+    ],
+    [
+     "بگو هنوز سه تا مانده، چون امروز صبح جلسه داشتم",
+     "بگو بعد از ناهار جواب می‌دهم",
+     "There are still three, because I had a meeting this morning.",
+     "I'll reply after lunch.",
+     [],
+     [
+      [
+       "There are still three, because I have had a meeting this morning.",
+       "«this morning» تمام شده (الان بعدازظهر است): I had a meeting."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "delete-emails",
+   "c": null,
+   "q": [
+    [
+     "بپرس ایمیل‌های قدیمی‌اش را پاک می‌کند",
+     "بپرس هر هفته",
+     "Do you delete your old emails?",
+     "Every week?",
+     [],
+     [
+      [
+       "Do you delete your olds emails?",
+       "صفت در انگلیسی جمع نمی‌شود: old emails."
+      ]
+     ]
+    ],
+    [
+     "بپرس ایمیل‌های قدیمی‌اش را پاک می‌کند و چند وقت یک بار",
+     "بپرس هر ماه",
+     "Do you delete your old emails, and how often?",
+     "Every month?",
+     [],
+     [
+      [
+       "Do you delete your old emails, and how often you do?",
+       "سؤال دوم کوتاه است: and how often?"
+      ]
+     ]
+    ],
+    [
+     "بپرس تا حالا یک ایمیل مهم را اشتباهی پاک کرده و چه شد",
+     "بپرس پیدایش کرد",
+     "Have you ever deleted an important email by mistake? What happened?",
+     "Did you find it again?",
+     [],
+     [
+      [
+       "Have you ever deleted an important email by mistake? What has happened?",
+       "جزئیاتِ اتفاق با گذشته‌ی ساده: What happened?"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو نه، هیچ‌وقت",
+     "بگو هزار ایمیل دارم",
+     "No, never.",
+     "I have a thousand emails.",
+     [],
+     []
+    ],
+    [
+     "بگو بله، ماهی یک بار پاکشان می‌کنم",
+     "بگو آخر ماه",
+     "Yes, I delete them once a month.",
+     "At the end of the month.",
+     [],
+     [
+      [
+       "Yes, I delete it once a month.",
+       "چند ایمیل است: delete them."
+      ]
+     ]
+    ],
+    [
+     "بگو بله، یک بار یک ایمیل از بانک را پاک کردم و دوباره خواستمش",
+     "بگو یک روز طول کشید",
+     "Yes, once. I deleted an email from the bank, and I asked for it again.",
+     "It took a day.",
+     [],
+     [
+      [
+       "Yes, once. I've deleted an email from the bank last year, and I asked for it again.",
+       "داستانِ تمام‌شده با گذشته‌ی ساده: I deleted…"
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "download-films",
+   "c": null,
+   "q": [
+    [
+     "بپرس فیلم دانلود می‌کند",
+     "بپرس آخر هفته‌ها",
+     "Do you download films?",
+     "At weekends?",
+     [],
+     [
+      [
+       "You download films?",
+       "سؤال حال ساده با «Do you» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس فیلم دانلود می‌کند و چرا",
+     "بپرس اینترنتش کند است",
+     "Do you download films, and why?",
+     "Is your internet slow?",
+     [],
+     [
+      [
+       "Do you download films, and why you do?",
+       "سؤال دوم کوتاه است: and why?"
+      ]
+     ]
+    ],
+    [
+     "بپرس برای سفرهای طولانی چه چیزی دانلود می‌کند و چرا",
+     "بپرس با قطار",
+     "What do you download for long trips, and why?",
+     "On the train?",
+     [],
+     [
+      [
+       "What you download for long trips, and why?",
+       "سؤال حال ساده «do» می‌خواهد: What do you download?"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو نه",
+     "بگو آنلاین تماشا می‌کنم",
+     "No, I don't.",
+     "I watch them online.",
+     [],
+     []
+    ],
+    [
+     "بگو نه، چون آنلاین تماشایشان می‌کنم",
+     "بگو در تلویزیون",
+     "No, I don't, because I watch them online.",
+     "On my TV.",
+     [],
+     [
+      [
+       "No, I don't, because I watch it online.",
+       "چند فیلم است: watch them."
+      ]
+     ]
+    ],
+    [
+     "بگو موسیقی دانلود می‌کنم، چون اینترنت قطار خیلی بد است",
+     "بگو و یک کتاب",
+     "I download music, because the internet on the train is very bad.",
+     "And a book.",
+     [],
+     [
+      [
+       "I download musics, because the internet on the train is very bad.",
+       "«music» شمردنی نیست و جمع نمی‌شود."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "post-comment",
+   "c": null,
+   "q": [
+    [
+     "بپرس زیر پست‌ها کامنت می‌گذارد",
+     "بپرس زیاد",
+     "Do you post comments online?",
+     "Often?",
+     [],
+     [
+      [
+       "Do you post comment online?",
+       "«comment» قابل شمارش است: comments."
+      ]
+     ]
+    ],
+    [
+     "بپرس زیر پست‌ها کامنت می‌گذارد و کجا",
+     "بپرس زیر ویدیوها",
+     "Do you post comments online, and where?",
+     "Under videos?",
+     [],
+     [
+      [
+       "Do you post comments online, and where you post?",
+       "سؤال دوم کوتاه است: and where?"
+      ]
+     ]
+    ],
+    [
+     "بپرس آخرین کامنتش کی بود و چه نوشت",
+     "بپرس کسی جواب داد",
+     "When did you last post a comment, and what did you write?",
+     "Did anyone reply?",
+     [],
+     [
+      [
+       "When have you last posted a comment, and what did you write?",
+       "برای «کی؟» بپرس When did…؟ نه When have…؟"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو نه، زیاد نه",
+     "بگو فقط می‌خوانم",
+     "No, not often.",
+     "I just read.",
+     [],
+     []
+    ],
+    [
+     "بگو بله، گاهی زیر ویدیوهای آشپزی",
+     "بگو وقتی یک غذا را درست می‌کنم",
+     "Yes, sometimes, under cooking videos.",
+     "When I make the dish.",
+     [],
+     [
+      [
+       "Yes, sometimes, under cooking video.",
+       "چند ویدیو است: videos."
+      ]
+     ]
+    ],
+    [
+     "بگو دیروز یک کامنت گذاشتم و نوشتم که کیک خیلی خوب شد",
+     "بگو و آشپز جواب داد",
+     "I posted a comment yesterday, and I wrote that the cake was very good.",
+     "And the cook answered.",
+     [],
+     [
+      [
+       "I've posted a comment yesterday, and I wrote that the cake was very good.",
+       "با زمانِ تمام‌شده (yesterday، ago، last…) گذشته‌ی ساده می‌آید، نه have."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "no-reply",
+   "c": "دوستت گفت: «سه روز پیش به رئیسم ایمیل زدم، ولی هنوز جواب نداده.»",
+   "q": [
+    [
+     "بپرس دوباره ایمیل زده",
+     "بپرس امروز",
+     "Have you written to him again?",
+     "Today?",
+     [],
+     [
+      [
+       "Have you wrote to him again?",
+       "قسمت سوم «write» می‌شود «written»."
+      ]
+     ]
+    ],
+    [
+     "بپرس دوباره ایمیل زده و ایمیل درباره‌ی چه بود",
+     "بپرس مهم بود",
+     "Have you written to him again? What was the email about?",
+     "Was it important?",
+     [],
+     [
+      [
+       "Have you written to him again? What the email was about?",
+       "سؤال دوم: What was the email about?"
+      ]
+     ]
+    ],
+    [
+     "بپرس فایل پیوست را فرستاد یا یادش رفت",
+     "بپرس شاید ایمیل نرسیده",
+     "Did you send the attachment, or did you forget it?",
+     "Maybe it didn't arrive?",
+     [],
+     [
+      [
+       "Did you send the attachment, or you forgot it?",
+       "سؤال دوم هم «did you» می‌خواهد: or did you forget it?"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو نه، هنوز نه",
+     "بگو شاید فردا",
+     "No, not yet.",
+     "Maybe tomorrow.",
+     [],
+     []
+    ],
+    [
+     "بگو نه هنوز ننوشته‌ام؛ درباره‌ی یک روز مرخصی بود",
+     "بگو ماه بعد",
+     "No, I haven't. It was about a day off.",
+     "Next month.",
+     [],
+     [
+      [
+       "No, I didn't. It was about a day off.",
+       "جوابِ «Have you…?» با «I haven't» است."
+      ]
+     ]
+    ],
+    [
+     "بگو سه روز پیش فایل پیوست را فرستادم، ولی شاید خیلی بزرگ بود",
+     "بگو یک ویدیو بود",
+     "I sent the attachment three days ago, but maybe it was too big.",
+     "It was a video.",
+     [],
+     [
+      [
+       "I've sent the attachment three days ago, but maybe it was too big.",
+       "با زمانِ تمام‌شده (yesterday، ago، last…) گذشته‌ی ساده می‌آید، نه have."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "deleted-photos",
+   "c": "دوستت گفت: «همه‌ی عکس‌های سفرم را اشتباهی پاک کردم!»",
+   "q": [
+    [
+     "بگو ای وای و بپرس کی",
+     "بپرس امروز",
+     "Oh no! When did it happen?",
+     "Today?",
+     [],
+     [
+      [
+       "Oh no! When has it happened?",
+       "برای «کی؟» بپرس When did…؟ نه When have…؟"
+      ]
+     ]
+    ],
+    [
+     "بگو ای وای و بپرس کی و چطور",
+     "بپرس روی گوشی",
+     "Oh no! When did it happen, and how?",
+     "On your phone?",
+     [],
+     [
+      [
+       "Oh no! When did it happen, and how it happened?",
+       "سؤال دوم کوتاه است: and how?"
+      ]
+     ]
+    ],
+    [
+     "بپرس بکاپ داشت یا همه‌شان از دست رفته‌اند",
+     "بپرس دوستانش عکس دارند",
+     "Did you have a backup, or have you lost them all?",
+     "Do your friends have photos?",
+     [],
+     [
+      [
+       "Did you have a backup, or did you lost them all?",
+       "بعد از «did» فعل ساده می‌آید: lose."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو امروز صبح",
+     "بگو قبل از کار",
+     "This morning.",
+     "Before work.",
+     [],
+     []
+    ],
+    [
+     "بگو امروز صبح، وقتی داشتم فضای گوشی را خالی می‌کردم",
+     "بگو خیلی عصبانی‌ام",
+     "This morning, when I was making space on my phone.",
+     "I'm very angry.",
+     [],
+     [
+      [
+       "This morning, when I making space on my phone.",
+       "گذشته‌ی استمراری «was» لازم دارد: I was making."
+      ]
+     ]
+    ],
+    [
+     "بگو بکاپ نداشتم، ولی دوستم ده تا عکس برایم فرستاده",
+     "بگو بقیه از دست رفته‌اند",
+     "I didn't have a backup, but my friend has sent me ten photos.",
+     "The rest are gone.",
+     [],
+     [
+      [
+       "I didn't have a backup, but my friend has send me ten photos.",
+       "حال کامل: have / has + قسمت سوم فعل. sent."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "comment-angry",
+   "c": "دوستت گفت: «یک نفر زیر عکسم یک کامنت بد گذاشت.»",
+   "q": [
+    [
+     "بپرس جوابش را داد",
+     "بپرس عصبانی بود",
+     "Did you reply to it?",
+     "Were you angry?",
+     [],
+     [
+      [
+       "Did you replied to it?",
+       "بعد از «did» فعل ساده می‌آید: reply."
+      ]
+     ]
+    ],
+    [
+     "بپرس جوابش را داد و چه نوشت",
+     "بپرس کوتاه",
+     "Did you reply to it, and what did you write?",
+     "Was it short?",
+     [],
+     [
+      [
+       "Did you reply to it, and what you wrote?",
+       "سؤال دوم «did» می‌خواهد: what did you write?"
+      ]
+     ]
+    ],
+    [
+     "بپرس کامنت را پاک کرده یا هنوز آنجاست",
+     "بپرس بقیه دیدند",
+     "Have you deleted the comment, or is it still there?",
+     "Did others see it?",
+     [],
+     [
+      [
+       "Have you deleted the comment, or it is still there?",
+       "سؤال دوم: or is it still there?"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو نه",
+     "بگو نمی‌خواستم",
+     "No, I didn't.",
+     "I didn't want to.",
+     [],
+     []
+    ],
+    [
+     "بگو بله، و نوشتم که حرفش مؤدبانه نبود",
+     "بگو فقط یک خط",
+     "Yes, I did, and I wrote that it wasn't polite.",
+     "Just one line.",
+     [],
+     [
+      [
+       "Yes, I did, and I wrote that it isn't polite.",
+       "حرف را یک قدم عقب نقل کن: wasn't."
+      ]
+     ]
+    ],
+    [
+     "بگو یک ساعت پیش پاکش کردم، چون خیلی ناراحتم کرد",
+     "بگو حالا بهترم",
+     "I deleted it an hour ago, because it made me very sad.",
+     "I feel better now.",
+     [],
+     [
+      [
+       "I've deleted it an hour ago, because it made me very sad.",
+       "با زمانِ تمام‌شده (yesterday، ago، last…) گذشته‌ی ساده می‌آید، نه have."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "mum-online",
+   "c": "دوستت گفت: «مادرم این ماه اولین بار آنلاین شده.»",
+   "q": [
+    [
+     "بگو عالی است و بپرس چه کار کرده",
+     "بپرس ایمیل",
+     "Great! What has she done?",
+     "Email?",
+     [],
+     [
+      [
+       "Great! What she has done?",
+       "سؤال: What has she done?"
+      ]
+     ]
+    ],
+    [
+     "بگو عالی است و بپرس چه کار کرده و کی یادش داد",
+     "بپرس خودش",
+     "Great! What has she done, and who taught her?",
+     "You?",
+     [],
+     [
+      [
+       "Great! What has she done, and who did teach her?",
+       "وقتی «who» فاعل است «did» نمی‌خواهد: who taught her?"
+      ]
+     ]
+    ],
+    [
+     "بپرس اولین روز سخت بود یا آسان، و چه چیزی را از همه بیشتر دوست داشت",
+     "بپرس ویدیوکال",
+     "Was the first day hard or easy? What did she like most?",
+     "Video calls?",
+     [],
+     [
+      [
+       "Was the first day hard or easy? What she liked most?",
+       "سؤال دوم «did» می‌خواهد: What did she like most?"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو چند ایمیل فرستاده",
+     "بگو به من و خواهرم",
+     "She has sent some emails.",
+     "To me and my sister.",
+     [],
+     [
+      [
+       "She has send some emails.",
+       "حال کامل: have / has + قسمت سوم فعل. sent."
+      ]
+     ]
+    ],
+    [
+     "بگو چند ایمیل فرستاده و من یادش دادم",
+     "بگو هفته‌ی پیش",
+     "She has sent some emails, and I taught her.",
+     "Last week.",
+     [],
+     [
+      [
+       "She has sent some emails, and I teached her.",
+       "گذشته‌ی «teach» می‌شود «taught»."
+      ]
+     ]
+    ],
+    [
+     "بگو اولین روز سخت بود، ولی کامنت گذاشتن را از همه بیشتر دوست داشت",
+     "بگو زیر عکس نوه‌هایش",
+     "The first day was hard, but she liked posting comments most.",
+     "Under her grandchildren's photos.",
+     [],
+     [
+      [
+       "The first day was hard, but she liked post comments most.",
+       "بعد از «like» فعل -ing می‌گیرد: posting."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "attachment-open",
+   "c": "دوستت گفت: «نمی‌توانم فایل پیوست ایمیلم را باز کنم.»",
+   "q": [
+    [
+     "بپرس سعی کرده دانلودش کند",
+     "بپرس روی لپ‌تاپ",
+     "Have you tried to download it?",
+     "On your laptop?",
+     [],
+     [
+      [
+       "Have you try to download it?",
+       "حال کامل: have / has + قسمت سوم فعل. tried."
+      ]
+     ]
+    ],
+    [
+     "بپرس سعی کرده دانلودش کند و چه نوع فایلی است",
+     "بپرس عکس است",
+     "Have you tried to download it, and what kind of file is it?",
+     "Is it a photo?",
+     [],
+     [
+      [
+       "Have you tried to download it, and what kind of file it is?",
+       "سؤال دوم: what kind of file is it?"
+      ]
+     ]
+    ],
+    [
+     "بپرس کی آن را فرستاد و به او ایمیل زده یا نه",
+     "بپرس دوباره بفرستد",
+     "Who sent it, and have you written to them?",
+     "Can they send it again?",
+     [],
+     [
+      [
+       "Who did send it, and have you written to them?",
+       "وقتی «who» فاعل است «did» نمی‌خواهد: Who sent it?"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله، دو بار",
+     "بگو هر دو بار مشکل داشت",
+     "Yes, twice.",
+     "Both times it was a problem.",
+     [],
+     []
+    ],
+    [
+     "بگو بله سعی کرده‌ام و یک فایل بزرگ ویدیویی است",
+     "بگو از همکارم",
+     "Yes, I have, and it's a big video file.",
+     "From my colleague.",
+     [],
+     [
+      [
+       "Yes, I have, and it a big video file.",
+       "فعل «is» لازم است: it's a big video file."
+      ]
+     ]
+    ],
+    [
+     "بگو همکارم دیروز فرستاد، و بله، امروز صبح به او ایمیل زدم",
+     "بگو هنوز جواب نداده",
+     "My colleague sent it yesterday, and yes, I wrote to her this morning.",
+     "She hasn't answered yet.",
+     [],
+     [
+      [
+       "My colleague has sent it yesterday, and yes, I wrote to her this morning.",
+       "با زمانِ تمام‌شده (yesterday، ago، last…) گذشته‌ی ساده می‌آید، نه have."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "today-done",
+   "c": null,
+   "q": [
+    [
+     "بپرس امروز چه کار کرده",
+     "بپرس تا الان",
+     "What have you done today?",
+     "So far?",
+     [],
+     [
+      [
+       "What you have done today?",
+       "در سؤال «have» قبل از «you» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس امروز چه کار کرده و بهترین قسمتش چه بود",
+     "بپرس ناهار",
+     "What have you done today, and what was the best part?",
+     "Lunch?",
+     [],
+     [
+      [
+       "What have you did today, and what was the best part?",
+       "حال کامل: have / has + قسمت سوم فعل. done."
+      ]
+     ]
+    ],
+    [
+     "بپرس دیروز چه کار کرد و امروز چه کار کرده",
+     "بپرس کدام روز بهتر بود",
+     "What did you do yesterday, and what have you done today?",
+     "Which day was better?",
+     [],
+     [
+      [
+       "What have you done yesterday, and what have you done today?",
+       "با زمانِ تمام‌شده (yesterday، ago، last…) گذشته‌ی ساده می‌آید، نه have."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو کار کرده‌ام و آشپزی کرده‌ام",
+     "بگو و کمی کتاب خوانده‌ام",
+     "I've worked and cooked.",
+     "And I've read a little.",
+     [],
+     [
+      [
+       "I've work and cook.",
+       "حال کامل: have / has + قسمت سوم فعل. worked, cooked."
+      ]
+     ]
+    ],
+    [
+     "بگو کار کرده‌ام و آشپزی کرده‌ام، و بهترین قسمت ناهار با یک دوست بود",
+     "بگو در یک کافه",
+     "I've worked and cooked, and the best part was lunch with a friend.",
+     "In a café.",
+     [],
+     [
+      [
+       "I've worked and cooked, and the best part has been lunch with a friend.",
+       "ناهار تمام شده، پس گذشته‌ی ساده: was."
+      ]
+     ]
+    ],
+    [
+     "بگو دیروز در خانه ماندم، ولی امروز سر کار و باشگاه رفته‌ام",
+     "بگو خسته‌ام",
+     "Yesterday I stayed at home, but today I've been to work and the gym.",
+     "I'm tired.",
+     [],
+     [
+      [
+       "Yesterday I've stayed at home, but today I've been to work and the gym.",
+       "با زمانِ تمام‌شده (yesterday، ago، last…) گذشته‌ی ساده می‌آید، نه have."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "ever-abroad",
+   "c": null,
+   "q": [
+    [
+     "بپرس تا حالا خارج از کشور رفته",
+     "بپرس برای کار",
+     "Have you ever been abroad?",
+     "For work?",
+     [],
+     [
+      [
+       "Have you ever went abroad?",
+       "قسمت سوم «go» می‌شود «been / gone»: Have you ever been…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس تا حالا خارج رفته و کی رفت",
+     "بپرس با خانواده",
+     "Have you ever been abroad? When did you go?",
+     "With your family?",
+     [],
+     [
+      [
+       "Have you ever been abroad? When have you gone?",
+       "برای «کی؟» بپرس When did…؟ نه When have…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس آخرین بار کجا رفت و آنجا چه چیزی را از همه بیشتر دوست داشت",
+     "بپرس دوباره می‌رود",
+     "Where did you go last time, and what did you like most there?",
+     "Will you go again?",
+     [],
+     [
+      [
+       "Where did you go last time, and what you liked most there?",
+       "سؤال دوم «did» می‌خواهد: what did you like most?"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله، رفته‌ام",
+     "بگو دو بار",
+     "Yes, I have.",
+     "Twice.",
+     [],
+     []
+    ],
+    [
+     "بگو بله رفته‌ام؛ سال ۲۰۱۹ رفتم",
+     "بگو یک هفته",
+     "Yes, I have. I went in 2019.",
+     "For a week.",
+     [],
+     [
+      [
+       "Yes, I have. I have gone in 2019.",
+       "با زمانِ تمام‌شده (yesterday، ago، last…) گذشته‌ی ساده می‌آید، نه have."
+      ]
+     ]
+    ],
+    [
+     "بگو با خانواده‌ام کنار دریا رفتیم و غذا را از همه بیشتر دوست داشتم",
+     "بگو مخصوصاً ماهی",
+     "I went to the sea with my family, and I liked the food most.",
+     "Especially the fish.",
+     [],
+     [
+      [
+       "I have gone to the sea with my family, and I liked the food most.",
+       "داستانِ «last time» با گذشته‌ی ساده: I went."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "new-dish-month",
+   "c": null,
+   "q": [
+    [
+     "بپرس این ماه غذای جدیدی پخته",
+     "بپرس برای خانواده",
+     "Have you cooked anything new this month?",
+     "For your family?",
+     [],
+     [
+      [
+       "Did you cook anything new this month?",
+       "«this month» هنوز تمام نشده: Have you cooked…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس این ماه غذای جدیدی پخته و چه بود",
+     "بپرس سخت بود",
+     "Have you cooked anything new this month? What was it?",
+     "Was it hard?",
+     [],
+     [
+      [
+       "Have you cooked anything new this month? What it was?",
+       "سؤال دوم: What was it?"
+      ]
+     ]
+    ],
+    [
+     "بپرس آخرین بار کی برای دوستانش آشپزی کرد و آن‌ها چه گفتند",
+     "بپرس دوباره خواستند",
+     "When did you last cook for friends, and what did they say?",
+     "Did they want more?",
+     [],
+     [
+      [
+       "When have you last cooked for friends, and what did they say?",
+       "برای «کی؟» بپرس When did…؟ نه When have…؟"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله، یک سوپ",
+     "بگو با سبزی",
+     "Yes, a soup.",
+     "With vegetables.",
+     [],
+     []
+    ],
+    [
+     "بگو بله پخته‌ام؛ یک سوپ ماهی بود",
+     "بگو از یک ویدیو یاد گرفتم",
+     "Yes, I have. It was a fish soup.",
+     "I learned it from a video.",
+     [],
+     [
+      [
+       "Yes, I have. It has been a fish soup.",
+       "غذا را پختی و تمام شد: It was."
+      ]
+     ]
+    ],
+    [
+     "بگو جمعه‌ی پیش برایشان آشپزی کردم و گفتند خیلی خوشمزه بود",
+     "بگو و دستور پخت را خواستند",
+     "I cooked for them last Friday, and they said it was delicious.",
+     "And they asked for the recipe.",
+     [],
+     [
+      [
+       "I've cooked for them last Friday, and they said it was delicious.",
+       "با زمانِ تمام‌شده (yesterday، ago، last…) گذشته‌ی ساده می‌آید، نه have."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "last-film",
+   "c": null,
+   "q": [
+    [
+     "بپرس آخرین بار کی فیلم دید",
+     "بپرس در سینما",
+     "When did you last see a film?",
+     "At the cinema?",
+     [],
+     [
+      [
+       "When have you last seen a film?",
+       "برای «کی؟» بپرس When did…؟ نه When have…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس آخرین بار کی فیلم دید و خوب بود یا نه",
+     "بپرس با کی",
+     "When did you last see a film, and was it good?",
+     "Who with?",
+     [],
+     [
+      [
+       "When did you last see a film, and it was good?",
+       "سؤال دوم با «was it» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس امسال فیلم خوبی دیده و بهترینش کدام بود",
+     "بپرس چرا",
+     "Have you seen any good films this year? Which was the best?",
+     "Why?",
+     [],
+     [
+      [
+       "Did you see any good films this year? Which was the best?",
+       "«this year» هنوز تمام نشده: Have you seen…؟"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو آخر هفته‌ی پیش",
+     "بگو در خانه",
+     "Last weekend.",
+     "At home.",
+     [],
+     []
+    ],
+    [
+     "بگو آخر هفته‌ی پیش، و خیلی خوب بود",
+     "بگو خیلی خندیدیم",
+     "Last weekend, and it was very good.",
+     "We laughed a lot.",
+     [],
+     [
+      [
+       "Last weekend, and it has been very good.",
+       "فیلم تمام شده، پس گذشته‌ی ساده: it was."
+      ]
+     ]
+    ],
+    [
+     "بگو بله دیده‌ام؛ بهترینش یک فیلم خنده‌دار درباره‌ی یک خانواده بود",
+     "بگو دو بار دیدمش",
+     "Yes, I have. The best was a funny film about a family.",
+     "I saw it twice.",
+     [],
+     [
+      [
+       "Yes, I saw. The best was a funny film about a family.",
+       "جوابِ «Have you…?» با «I have» است."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "learned-week",
+   "c": null,
+   "q": [
+    [
+     "بپرس این هفته چه چیزی یاد گرفته",
+     "بپرس در انگلیسی",
+     "What have you learned this week?",
+     "In English?",
+     [],
+     [
+      [
+       "What did you learned this week?",
+       "حال کامل: What have you learned?"
+      ]
+     ]
+    ],
+    [
+     "بپرس این هفته چه چیزی یاد گرفته و چطور",
+     "بپرس از ویدیو",
+     "What have you learned this week, and how?",
+     "From videos?",
+     [],
+     [
+      [
+       "What have you learn this week, and how?",
+       "حال کامل: have / has + قسمت سوم فعل. learned."
+      ]
+     ]
+    ],
+    [
+     "بپرس هفته‌ی پیش بیشتر یاد گرفت یا این هفته، و چرا",
+     "بپرس هر روز تمرین کرده",
+     "Did you learn more last week or this week? Why?",
+     "Have you practised every day?",
+     [],
+     [
+      [
+       "Have you learned more last week or this week? Why?",
+       "با زمانِ تمام‌شده (yesterday، ago، last…) گذشته‌ی ساده می‌آید، نه have."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو چند لغت جدید",
+     "بگو درباره‌ی تکنولوژی",
+     "Some new words.",
+     "About technology.",
+     [],
+     []
+    ],
+    [
+     "بگو چند لغت جدید از یک ویدیو یاد گرفته‌ام",
+     "بگو و یک آهنگ",
+     "I've learned some new words from a video.",
+     "And a song.",
+     [],
+     [
+      [
+       "I've learned some new word from a video.",
+       "«some new» با اسم جمع: words."
+      ]
+     ]
+    ],
+    [
+     "بگو این هفته، چون هر روز تمرین کرده‌ام",
+     "بگو حتی آخر هفته",
+     "This week, because I've practised every day.",
+     "Even at the weekend.",
+     [],
+     [
+      [
+       "This week, because I've practise every day.",
+       "حال کامل: have / has + قسمت سوم فعل. practised."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "new-flat",
+   "c": "دوستت گفت: «ما به یک آپارتمان جدید رفته‌ایم!»",
+   "q": [
+    [
+     "بگو عالی است و بپرس کی رفتند",
+     "بپرس این ماه",
+     "Great! When did you move?",
+     "This month?",
+     [],
+     [
+      [
+       "Great! When have you moved?",
+       "برای «کی؟» بپرس When did…؟ نه When have…؟"
+      ]
+     ]
+    ],
+    [
+     "بگو عالی است و بپرس کی رفتند و دوستش دارند یا نه",
+     "بپرس بزرگ است",
+     "Great! When did you move, and do you like it?",
+     "Is it big?",
+     [],
+     [
+      [
+       "Great! When did you move, and you like it?",
+       "سؤال دوم «do» می‌خواهد: do you like it?"
+      ]
+     ]
+    ],
+    [
+     "بپرس همسایه‌ها را دیده‌اند و چطور آدم‌هایی هستند",
+     "بپرس مهربان‌اند",
+     "Have you met your neighbours yet? What are they like?",
+     "Are they kind?",
+     [],
+     [
+      [
+       "Have you meet your neighbours yet? What are they like?",
+       "حال کامل: have / has + قسمت سوم فعل. met."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو ماه پیش",
+     "بگو اول ماه",
+     "Last month.",
+     "At the start of the month.",
+     [],
+     []
+    ],
+    [
+     "بگو ماه پیش رفتیم و خیلی دوستش داریم",
+     "بگو بالکن دارد",
+     "We moved last month, and we love it.",
+     "It has a balcony.",
+     [],
+     [
+      [
+       "We have moved last month, and we love it.",
+       "با زمانِ تمام‌شده (yesterday، ago، last…) گذشته‌ی ساده می‌آید، نه have."
+      ]
+     ]
+    ],
+    [
+     "بگو بله دیده‌ایم؛ یکشنبه دیدیمشان و خیلی مهربان‌اند",
+     "بگو برایمان کیک آوردند",
+     "Yes, we have. We met them on Sunday, and they're very kind.",
+     "They brought us a cake.",
+     [],
+     [
+      [
+       "Yes, we have. We have met them on Sunday, and they're very kind.",
+       "با زمانِ تمام‌شده (yesterday، ago، last…) گذشته‌ی ساده می‌آید، نه have."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "found-keys",
+   "c": "دوستت گفت: «کلیدهایم را پیدا کردم!»",
+   "q": [
+    [
+     "بگو خوب است و بپرس کجا بودند",
+     "بپرس در خانه",
+     "Oh good! Where were they?",
+     "At home?",
+     [],
+     [
+      [
+       "Oh good! Where they were?",
+       "سؤال: Where were they?"
+      ]
+     ]
+    ],
+    [
+     "بگو خوب است و بپرس کجا بودند و کی پیدایشان کرد",
+     "بپرس امروز",
+     "Oh good! Where were they, and when did you find them?",
+     "Today?",
+     [],
+     [
+      [
+       "Oh good! Where were they, and when have you found them?",
+       "برای «کی؟» بپرس When did…؟ نه When have…؟"
+      ]
+     ]
+    ],
+    [
+     "بپرس چقدر دنبالشان گشت و قبلاً هم گمشان کرده یا نه",
+     "بپرس چند بار",
+     "How long did you look for them? Have you lost them before?",
+     "How many times?",
+     [],
+     [
+      [
+       "How long did you look for them? Did you lose them before?",
+       "تجربه تا الان با حال کامل: Have you lost them before?"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو در جیب کتم",
+     "بگو کت زمستانی‌ام",
+     "In my coat pocket.",
+     "My winter coat.",
+     [],
+     [
+      [
+       "In my pocket of coat.",
+       "ترتیب انگلیسی: my coat pocket."
+      ]
+     ]
+    ],
+    [
+     "بگو در جیب کتم بودند و امروز صبح پیدایشان کردم",
+     "بگو قبل از کار",
+     "They were in my coat pocket, and I found them this morning.",
+     "Before work.",
+     [],
+     [
+      [
+       "They were in my coat pocket, and I've found them this morning.",
+       "«this morning» تمام شده (الان بعدازظهر است): I found."
+      ]
+     ]
+    ],
+    [
+     "بگو دو روز گشتم، و بله، بارها گمشان کرده‌ام",
+     "بگو باید مراقب‌تر باشم",
+     "I looked for two days, and yes, I've lost them many times.",
+     "I need to be more careful.",
+     [],
+     [
+      [
+       "I looked for two days, and yes, I lost them many times before.",
+       "تجربه تا الان: I've lost them many times."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "job-started",
+   "c": "دوستت گفت: «کار جدیدم را شروع کرده‌ام.»",
+   "q": [
+    [
+     "بگو تبریک می‌گویم و بپرس کی شروع کرد",
+     "بپرس این هفته",
+     "Congratulations! When did you start?",
+     "This week?",
+     [],
+     [
+      [
+       "Congratulations! When have you started?",
+       "برای «کی؟» بپرس When did…؟ نه When have…؟"
+      ]
+     ]
+    ],
+    [
+     "بگو تبریک می‌گویم و بپرس کی شروع کرد و تا حالا چطور بوده",
+     "بپرس سخت است",
+     "Congratulations! When did you start, and how has it been?",
+     "Is it hard?",
+     [],
+     [
+      [
+       "Congratulations! When did you start, and how it has been?",
+       "سؤال دوم: how has it been?"
+      ]
+     ]
+    ],
+    [
+     "بپرس رئیسش را دیده و رئیس به او چه گفت",
+     "بپرس مهربان است",
+     "Have you met your boss yet? What did she say to you?",
+     "Is she nice?",
+     [],
+     [
+      [
+       "Have you met your boss yet? What did she said to you?",
+       "بعد از «did» فعل ساده می‌آید: say."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو دوشنبه",
+     "بگو ساعت نه",
+     "On Monday.",
+     "At nine o'clock.",
+     [],
+     []
+    ],
+    [
+     "بگو دوشنبه شروع کردم و تا حالا عالی بوده",
+     "بگو همکارها خوب‌اند",
+     "I started on Monday, and it has been great.",
+     "My colleagues are nice.",
+     [],
+     [
+      [
+       "I have started on Monday, and it has been great.",
+       "با زمانِ تمام‌شده (yesterday، ago، last…) گذشته‌ی ساده می‌آید، نه have."
+      ]
+     ]
+    ],
+    [
+     "بگو بله دیده‌ام؛ گفت خوشحال است که من آنجا هستم",
+     "بگو و به من گفت هر سؤالی دارم بپرسم",
+     "Yes, I have. She said she was happy to have me there.",
+     "And she told me to ask any questions.",
+     [],
+     [
+      [
+       "Yes, I have. She said she is happy to have me there.",
+       "حرف را یک قدم عقب نقل کن: was."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "back-trip",
+   "c": "دوستت گفت: «تازه از سفر برگشته‌ام.»",
+   "q": [
+    [
+     "بگو خوش برگشتی و بپرس کجا رفت",
+     "بپرس شمال",
+     "Welcome back! Where did you go?",
+     "To the north?",
+     [],
+     [
+      [
+       "Welcome back! Where have you gone?",
+       "جزئیاتِ سفرِ تمام‌شده با گذشته‌ی ساده: Where did you go?"
+      ]
+     ]
+    ],
+    [
+     "بگو خوش برگشتی و بپرس کجا رفت و با کی",
+     "بپرس با خانواده",
+     "Welcome back! Where did you go, and who with?",
+     "With your family?",
+     [],
+     [
+      [
+       "Welcome back! Where did you go, and who you went with?",
+       "سؤال دوم کوتاه است: and who with?"
+      ]
+     ]
+    ],
+    [
+     "بپرس عکس زیاد گرفت و هنوز آن‌ها را برای دوستانش فرستاده یا نه",
+     "بپرس چند تا",
+     "Did you take a lot of photos? Have you sent them to your friends yet?",
+     "How many?",
+     [],
+     [
+      [
+       "Did you take a lot of photos? Did you send them to your friends yet?",
+       "با «yet» حال کامل: Have you sent them yet?"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو به شمال",
+     "بگو کنار دریا",
+     "To the north.",
+     "By the sea.",
+     [],
+     []
+    ],
+    [
+     "بگو با خواهرم به شمال رفتم",
+     "بگو یک هفته",
+     "I went to the north with my sister.",
+     "For a week.",
+     [],
+     [
+      [
+       "I go to the north with my sister.",
+       "گذشته است: went."
+      ]
+     ]
+    ],
+    [
+     "بگو بله صد تا گرفتم، ولی هنوز نفرستاده‌ام",
+     "بگو امشب می‌فرستم",
+     "Yes, I took a hundred, but I haven't sent them yet.",
+     "I'll send them tonight.",
+     [],
+     [
+      [
+       "Yes, I took a hundred, but I didn't send them yet.",
+       "با «yet» حال کامل: I haven't sent them yet."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "brother-leg",
+   "c": "دوستت گفت: «برادرم پایش را شکسته.»",
+   "q": [
+    [
+     "بگو ای وای و بپرس چه شد",
+     "بپرس کی",
+     "Oh no! What happened?",
+     "When?",
+     [],
+     [
+      [
+       "Oh no! What did happen?",
+       "وقتی «what» فاعل است «did» نمی‌خواهد: What happened?"
+      ]
+     ]
+    ],
+    [
+     "بگو ای وای و بپرس چه شد و الان حالش خوب است یا نه",
+     "بپرس درد دارد",
+     "Oh no! What happened, and is he OK now?",
+     "Is he in pain?",
+     [],
+     [
+      [
+       "Oh no! What happened, and he is OK now?",
+       "سؤال دوم با «is he» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس پیش دکتر رفته و دکتر چه گفت",
+     "بپرس چقدر طول می‌کشد",
+     "Has he been to the doctor? What did the doctor say?",
+     "How long will it take?",
+     [],
+     [
+      [
+       "Has he went to the doctor? What did the doctor say?",
+       "قسمت سوم «go» اینجا «been» است: Has he been…؟"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو از دوچرخه افتاد",
+     "بگو دیروز",
+     "He fell off his bike.",
+     "Yesterday.",
+     [],
+     [
+      [
+       "He falled off his bike.",
+       "گذشته‌ی «fall» می‌شود «fell»."
+      ]
+     ]
+    ],
+    [
+     "بگو از دوچرخه افتاد و الان حالش خوب است",
+     "بگو ولی نمی‌تواند راه برود",
+     "He fell off his bike, and he's OK now.",
+     "But he can't walk.",
+     [],
+     [
+      [
+       "He fall off his bike, and he's OK now.",
+       "گذشته‌ی «fall» می‌شود «fell»."
+      ]
+     ]
+    ],
+    [
+     "بگو بله رفته؛ دکتر گفت یک ماه باید استراحت کند",
+     "بگو کار نمی‌کند",
+     "Yes, he has. The doctor said he needed to rest for a month.",
+     "He isn't working.",
+     [],
+     [
+      [
+       "Yes, he has. The doctor said he need to rest for a month.",
+       "حرف را یک قدم عقب نقل کن: needed."
+      ]
+     ]
+    ]
+   ]
+  }
+ ]
+}

@@ -2900,6 +2900,7 @@ class MissionSeeder extends Seeder
         $this->seedM10();
         $this->seedM11();
         $this->seedM12();
+        $this->seedM13();
     }
 
     /**
@@ -8591,6 +8592,689 @@ class MissionSeeder extends Seeder
                                     'asked me if… / asked me where / why…',
                                     'A teacher you remember',
                                     'What your parents said about school',
+                                ],
+                            ],
+                            [
+                                'key' => 'mission_result',
+                                'label' => 'Mission Result',
+                                'duration_minutes' => 5,
+                                'hook' => "You started this mission with a number — let's see how far it moved.",
+                                'skills' => ['Listening', 'Vocabulary', 'Grammar', 'Speaking', 'Writing'],
+                                'reflection_questions' => [
+                                    'became_easier' => ['label' => 'What became easier?', 'type' => 'skills'],
+                                    'still_difficult' => ['label' => 'What is still difficult?', 'type' => 'skills'],
+                                    'expression_to_keep' => ['label' => 'One expression I want to keep using', 'type' => 'vocabulary'],
+                                    'grammar_to_review' => ['label' => 'One grammar point I need to review', 'type' => 'errors'],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ]
+        );
+    }
+
+    private function seedM13(): void
+    {
+        $audioUrl = $this->publishMissionAsset('M13', 'Speak English with Vanessa - Tech Habits.mp3');
+        $shadowingVideoUrl = $this->publishMissionAsset('M13', 'TEDx - Ann Makosinski Why I Dont Use a Smart Phone.mp4');
+        $shadowingCaptionsUrl = $this->publishMissionAsset('M13', 'TEDx - Ann Makosinski Why I Dont Use a Smart Phone.en.vtt');
+
+        Mission::updateOrCreate(
+            ['code' => 'M13'],
+            [
+                'title' => 'Technology',
+                'module' => 'Technology',
+                'outcome' => 'I can talk about my phone, my computer and the internet: what I have done, and what happened and when.',
+                'phases' => [
+                    [
+                        'phase' => 'foundation',
+                        'label' => 'Day 1',
+                        'mode' => 'solo',
+                        'pair_speaking' => [
+                            ['question' => 'Do you turn off notifications when you study?', 'answer' => 'Yes, I turn off my notifications. They are a big distraction.', 'words' => ['notifications', 'distraction']],
+                            ['question' => 'Where can you stay focused?', 'answer' => 'I can stay focused in the library because it\'s quiet.', 'words' => ['stay focused']],
+                            ['question' => 'Do you waste time on your phone?', 'answer' => 'Yes, I waste time on short videos every evening.', 'words' => ['waste time']],
+                            ['question' => 'What was a game changer for you?', 'answer' => 'My laptop was a game changer. I can work from home now.', 'words' => ['game changer']],
+                        ],
+                        'steps' => [
+                            [
+                                'key' => 'mission_brief',
+                                'label' => 'Get Ready',
+                                'duration_minutes' => 5,
+                                'hook' => 'How many times have you checked your phone today? Could you say it in English?',
+                                'image_query' => 'laptop smartphone technology desk',
+                                'ambient_video_query' => 'person using smartphone',
+                                'warm_up_questions' => [
+                                    'What phone do you have?',
+                                    'Which app do you use most?',
+                                    'Do you have a laptop?',
+                                    'How long are you online every day?',
+                                ],
+                            ],
+                            [
+                                'key' => 'vocabulary_builder_1',
+                                'label' => 'New Words',
+                                'duration_minutes' => 9,
+                                'hook' => 'Five words Vanessa uses about her phone habits.',
+                                // Day 1 = the Listening episode's own 5 target_phrases (see M01's
+                                // vocabulary_builder_1), so every learner meets them here first.
+                                'story' => 'Every evening I wanted to study, but my phone was a big **distraction**. Every '
+                                    .'**notification** made me pick it up, so I couldn\'t **stay focused**. I didn\'t want to '
+                                    .'**waste time**, but I watched videos for hours. Then I turned off my notifications. It was '
+                                    .'a **game changer**!',
+                                'words' => [
+                                    ['phrase' => 'notification', 'meaning' => 'a short message on your phone or computer that tells you something new has happened', 'meaning_fa' => 'اعلان، نوتیفیکیشن', 'pos' => 'noun', 'example' => 'I got a notification from the bank.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'distraction', 'meaning' => 'something that takes your attention away from what you are doing', 'meaning_fa' => 'عامل حواس‌پرتی', 'pos' => 'noun', 'example' => 'My phone is a big distraction when I study.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'stay focused', 'meaning' => 'to keep your attention on one thing', 'meaning_fa' => 'تمرکز را حفظ کردن', 'pos' => 'phrase', 'example' => 'It\'s hard to stay focused in a noisy room.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'waste time', 'meaning' => 'to use your time badly, on things that are not useful', 'meaning_fa' => 'وقت تلف کردن', 'pos' => 'phrase', 'example' => 'Don\'t waste time on your phone before bed.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'game changer', 'meaning' => 'something that changes a situation in a very big, good way', 'meaning_fa' => 'چیزی که همه‌چیز را عوض می‌کند', 'pos' => 'noun', 'example' => 'Online maps were a game changer for me.', 'difficulty' => 'medium'],
+                                ],
+                            ],
+                            [
+                                'key' => 'listening',
+                                'label' => 'Listening',
+                                'duration_minutes' => 18,
+                                'hook' => 'Vanessa tells the story of her bad phone habits, and how she fixed them. Listen for what she has done and what she did.',
+                                'source' => 'Speak English with Vanessa — "THINK and SPEAK in English: technology"',
+                                'image_query' => 'woman using phone in bed',
+                                'audio_url' => $audioUrl,
+                                'listening_segments' => $this->shadowTimestampsFor('M13', 'listening_segments'),
+                                // The same chunks tagged with who is talking — see
+                                // missions:align-listening-speakers. One speaker: Vanessa.
+                                'listening_turns' => $this->shadowTimestampsFor('M13', 'listening_turns'),
+                                // The parts kept in the cut (0:01-0:25, 0:54-2:04, 2:31-2:57,
+                                // 4:02-4:55, 5:23-5:46, 6:23-6:41, 7:51-8:44, 8:52-9:26,
+                                // 10:43-11:01, 12:35-12:46 and 13:17-13:45 of the original;
+                                // the PDF adverts and most word explanations left out), written
+                                // from the video's human captions and checked against a Whisper
+                                // pass of the cut audio.
+                                'transcript' => [
+                                    ['speaker' => 'Vanessa', 'text' => 'Oh, I didn\'t hear what you said. Sorry. What was that? Has that ever happened to you? Have you been lost in your phone and you didn\'t hear what was going on in the world around you? Unfortunately, this has happened to me too. But never fear, today I\'m going to help you learn how to think and speak in English while talking about our tech habits. Are you ready? Let\'s do it.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'In this lesson, I\'m going to tell you a little story about my journey with using technology, and I will explain some key vocabulary along the way. I hope that you too will feel confident thinking and speaking in English about the topic of technology by the end of this lesson. Let\'s start with the story.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'So I need to watch YouTube for work, but I would oftentimes log on to YouTube for work and end up watching tons of other videos unrelated to work. It was a time suck. Can you guess what this word time suck means? Take a look at this sentence: I removed all unnecessary apps from my phone because they were just a time suck. We can kind of imagine a vacuum sucking away your time, and that\'s what it is. It\'s just something that wastes your time. I was wasting time on YouTube. It was a time suck.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'For me, I was developing a reliance on technology because I felt like it was important for my job. Have you ever said something like this? I realized that I have a reliance on technology when I use Google Maps to get anywhere. Google Maps has saved me so many times. I have a reliance on Google Maps technology.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'All right, let\'s go to the next part of the story. But the thing was, I couldn\'t stay focused using the apps that I thought I needed for work. There were too many distractions.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'This is the problem with the internet, right? There are too many distractions. If you\'ve ever worked online, I\'m sure that distractions have been a problem for you. What are distractions? Well, they are things that are trying to take your attention away from what you need to be focusing on. Right now, you need to be focusing on this English lesson on YouTube. But do you know what? There are recommended videos. There are other things online. Everything might be popping up and moving. There are so many distractions that it\'s hard to stay focused and learn English. I know, it\'s hard to stay focused. But we need to push aside distractions, and I\'m going to give you a solution for this in just a minute, telling you about what I did.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'Let\'s move on to the story. Even worse, my bad tech habits were making me miss out on real-life interactions with my friends and family. Whenever I heard a notification on my phone, ding, I felt like I needed to check it, but the problem was I wasn\'t being present, and I needed to do something about it. This word notification is highly linked to technology nowadays. We get lots of notifications on our phone all the time.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'So what\'s the solution? Well, I decided to read a book called Digital Minimalism, and it inspired me to add a block on my phone so that I could only use YouTube for a specific amount of time at a specific amount of time per day.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'The most useful thing is that the block turns off all apps at night so that I don\'t start doom scrolling or get sucked into news articles late at night. Has this ever happened to you? You\'re looking at something, and then all of a sudden the internet shows you terrible things happening around the world. Oh no. Bad, bad, bad. And you have to click on it. You have to know what it is. So you start reading more and more bad things. This is doom scrolling, and unfortunately it\'s something that social media does really well, because as humans we want to click on bad things. We want to find out all of the terrible things that are happening. So it brings a lot of attention and eyeballs to social media, but it\'s not good for us as humans to be doom scrolling and feel really anxious.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'Our attention and our brain is being sucked into these news articles or whatever else you might be looking at, and all of a sudden, three hours passes just like that. And we haven\'t really noticed the world around us. We\'re not being present. This app block was a game changer. I felt free, finally, from the pull of unlimited media. I\'m more productive during my workday, and I\'m more present when it comes to time with my family and friends. And you know what? I can even sleep better at night.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'And most importantly, I was able to set a good example for my kids, who are growing up with more technology than I could ever have imagined having as a kid. When I was a kid, there was a TV and a phone on the wall, and that was it.'],
+                                    ['speaker' => 'Vanessa', 'text' => 'And finally, I want to show my kids and anyone else that technology is a great tool that you can use when you establish boundaries. And for me, it was really useful to have this AppBlock that was able to help me establish boundaries with technology. So now I feel a lot healthier, and I\'m able to use it in a better way. So now I want to know for you: do you have healthy boundaries around technology and your technology use? Or do you need to establish more boundaries with technology, like I did? Let me know in the comments.'],
+                                ],
+                                // The same 5 phrases vocabulary_builder_1 taught, each a real
+                                // substring of this transcript.
+                                'target_phrases' => [
+                                    [
+                                        'phrase' => 'wasting time', 'meaning' => 'using time badly',
+                                        'gap_before' => 'I was ',
+                                        'gap_after' => ' on YouTube.',
+                                    ],
+                                    [
+                                        'phrase' => 'stay focused', 'meaning' => 'keep your attention on one thing',
+                                        'gap_before' => 'But the thing was, I couldn\'t ',
+                                        'gap_after' => ' using the apps that I thought I needed for work.',
+                                    ],
+                                    [
+                                        'phrase' => 'distractions', 'meaning' => 'things that take your attention away',
+                                        'gap_before' => 'There were too many ',
+                                        'gap_after' => '.',
+                                    ],
+                                    [
+                                        'phrase' => 'notification', 'meaning' => 'a short "something new" message on your phone',
+                                        'gap_before' => 'Whenever I heard a ',
+                                        'gap_after' => ' on my phone, ding, I felt like I needed to check it',
+                                    ],
+                                    [
+                                        'phrase' => 'game changer', 'meaning' => 'something that changes everything',
+                                        'gap_before' => 'This app block was a ',
+                                        'gap_after' => '.',
+                                    ],
+                                ],
+                                'topic_summary' => 'Vanessa needed YouTube for her work, but she often wasted hours watching other '
+                                    .'videos. There were too many distractions, and every notification made her check her phone, '
+                                    .'so she wasn\'t present with her family. After she read the book Digital Minimalism, she '
+                                    .'added an app block: she can use YouTube only at a set time, and her apps turn off at night. '
+                                    .'It was a game changer. She is more productive, she sleeps better, and she wants to set a '
+                                    .'good example for her kids.',
+                                'comprehension_check' => [
+                                    ['statement' => 'Vanessa needs YouTube for her work.', 'correct' => true, 'difficulty' => 'easy'],
+                                    ['statement' => 'The app block turns off her apps in the morning.', 'correct' => false, 'difficulty' => 'medium'],
+                                    ['statement' => 'When Vanessa was a kid, there was a TV and a phone on the wall.', 'correct' => true, 'difficulty' => 'hard'],
+                                ],
+                                'detail_question' => [
+                                    'question' => 'What did Vanessa read?',
+                                    'options' => ['A book called Digital Minimalism', 'A news article about phones', 'A blog about YouTube'],
+                                    'correct' => 0,
+                                ],
+                                // No shadow_lines here — Day 1 Listening is comprehension-only;
+                                // shadowing is Listen Again's job (daily_listen_2/3).
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'build',
+                        'label' => 'Day 2',
+                        'mode' => 'solo',
+                        'pair_speaking' => [
+                            ['question' => 'Have you ever forgotten a password?', 'answer' => 'Yes, I have. I forgot my email password last week.', 'words' => ['password', 'forgot']],
+                            ['question' => 'Have you installed any new apps this week?', 'answer' => 'Yes, I\'ve installed a map app. I installed it on Monday.', 'words' => ['installed', 'I\'ve']],
+                            ['question' => 'Has your computer ever crashed?', 'answer' => 'Yes, it has. It crashed yesterday, and I lost my work.', 'words' => ['crashed', 'it has']],
+                            ['question' => 'Do you back up your photos?', 'answer' => 'Yes. I\'ve backed up all my photos this month.', 'words' => ['backed up', 'this month']],
+                        ],
+                        'steps' => [
+                            [
+                                'key' => 'vocabulary_builder_2',
+                                'label' => 'New Words',
+                                'duration_minutes' => 10,
+                                'hook' => 'Six words for using a computer, from your password to the day it crashes.',
+                                // Vocabulary in Use unit 54 (Computers), our own sentences.
+                                'story' => 'This morning I sat down, **logged in** with my **password** and **installed** a new '
+                                    .'program. Suddenly the screen went black: my laptop **crashed**! Luckily, I **back up** my '
+                                    .'files every Friday, so I didn\'t lose anything. Now I always **switch off** my laptop at night.',
+                                'words' => [
+                                    ['phrase' => 'log in', 'meaning' => 'to type your name and password to start using a computer, app or website', 'meaning_fa' => 'وارد حساب شدن (لاگین کردن)', 'pos' => 'phrasal verb', 'example' => 'Log in with your email address.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'password', 'meaning' => 'a secret word you type to open your account or your phone', 'meaning_fa' => 'رمز عبور', 'pos' => 'noun', 'example' => 'Don\'t tell anyone your password.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'install', 'meaning' => 'to put a new program or app on a computer or phone', 'meaning_fa' => 'نصب کردن', 'pos' => 'verb', 'example' => 'I installed a new app on my phone.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'back up', 'meaning' => 'to make an extra copy of your files, so you don\'t lose them', 'meaning_fa' => 'نسخه‌ی پشتیبان گرفتن (بکاپ گرفتن)', 'pos' => 'phrasal verb', 'example' => 'Back up your photos every week.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'crash', 'meaning' => '(of a computer or app) to suddenly stop working', 'meaning_fa' => 'ناگهان از کار افتادن (کرش کردن)', 'pos' => 'verb', 'example' => 'My laptop crashed, and I lost my work.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'switch off', 'meaning' => 'to make a machine stop working, usually with a button', 'meaning_fa' => 'خاموش کردن', 'pos' => 'phrasal verb', 'example' => 'Please switch off your phones.', 'difficulty' => 'easy'],
+                                ],
+                            ],
+                            [
+                                'key' => 'daily_listen_2',
+                                'label' => 'Listen Again',
+                                'duration_minutes' => 7,
+                                'hook' => 'Same story, one more time — now copy how Vanessa asks "Has that ever happened…?"',
+                                'image_query' => 'notification',
+                                'shadow_lines' => [
+                                    'Has that ever **happened** to you?',
+                                    'Google Maps has **saved** me so many times.',
+                                ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M13', 'daily_listen_2'),
+                            ],
+                            [
+                                'key' => 'grammar_in_context',
+                                'label' => 'Grammar Time',
+                                'duration_minutes' => 15,
+                                'hook' => 'Two past tenses, one question: does it matter now, or is it a finished story? "I\'ve lost my phone" or "I lost it yesterday".',
+                                'focus' => 'Present Perfect vs Past Simple',
+                                // Our own explanation and examples (EOS-009 §14); the order
+                                // follows Grammar in Use units 13 (present perfect and past 1:
+                                // the result now vs the finished past), 14 (present perfect and
+                                // past 2: finished and unfinished time words) and 7C (news with
+                                // the present perfect, then details in the past simple). for /
+                                // since and ever / just / already / yet were M10's lesson.
+                                'lesson' => [
+                                    'intro' => 'You know both tenses. Now choose: the present perfect when the past matters now or the time is not finished (today, this week); the past simple for a finished story with a finished time (yesterday, last year, in 2020).',
+                                    'sections' => [
+                                        [
+                                            'heading' => 'A · I\'ve lost it (now) or I lost it (then)?',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'Use <strong>have / has + past participle</strong> when the past action matters <strong>now</strong>: <strong>I\'ve lost my phone.</strong> (I don\'t have it now.) Use the <strong>past simple</strong> to tell a <strong>finished</strong> story: <strong>I lost my phone on the bus last year.</strong> (I have a new one now.)',
+                                                    'fa' => 'اگر نتیجه‌ی کارِ گذشته الان مهم است، حال کامل: I\'ve lost my phone (الان گوشی ندارم). اگر داستانِ تمام‌شده‌ی گذشته را تعریف می‌کنی، گذشته‌ی ساده: I lost my phone last year. فارسی هر دو را «گم کردم» می‌گوید؛ انگلیسی فرق می‌گذارد.',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'result now: have / has + past participle',
+                                                    'parts' => [
+                                                        ['text' => 'My laptop', 'caption' => 'thing'],
+                                                        ['text' => 'has crashed', 'caption' => 'has + past participle', 'tone' => 'accent'],
+                                                        ['text' => '— I can\'t work now.', 'caption' => 'the result now', 'tone' => 'accent'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'Oh no, my laptop has crash!', 'right' => 'Oh no, my laptop has crashed!', 'highlight' => 'has crashed'],
+                                                        ['wrong' => 'Look, I\'ve broke the screen of my phone.', 'right' => 'Look, I\'ve broken the screen of my phone.', 'highlight' => 'broken'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'pairs',
+                                                    'pairs' => [
+                                                        ['left' => 'I\'ve lost my phone. (I don\'t have it now.)', 'right' => 'I lost my phone last year. (I have a new one now.)'],
+                                                        ['left' => 'My laptop has crashed. (It isn\'t working.)', 'right' => 'My laptop crashed yesterday. (It\'s OK now.)'],
+                                                        ['left' => 'She\'s gone home. (She isn\'t here.)', 'right' => 'She went home at five.'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'From the listening', 'items' => [
+                                                            'Google Maps has saved me so many times.',
+                                                        ]],
+                                                        ['label' => 'Examples', 'items' => [
+                                                            'I\'ve forgotten my password, so I can\'t log in.',
+                                                            'I forgot my password last week, but I remembered it the next day.',
+                                                        ]],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'B · Finished time or not?',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'With a <strong>finished time</strong> (<strong>yesterday, last week, two days ago, in 2020, when I was a child</strong>), use the past simple, never have / has. With a time that is <strong>not finished</strong> (<strong>today, this week, this year</strong>), use the present perfect. Ask about a finished time with <strong>When did…?</strong>',
+                                                    'fa' => 'با زمانِ تمام‌شده (yesterday، last week، two days ago، in 2020، when I was a child) فقط گذشته‌ی ساده؛ have/has با این کلمه‌ها غلط است. با زمانی که هنوز تمام نشده (today، this week، this year) حال کامل. برای «کی؟» بپرس When did…? نه When have…?',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'past simple + finished time',
+                                                    'parts' => [
+                                                        ['text' => 'I', 'caption' => 'person'],
+                                                        ['text' => 'installed', 'caption' => 'past simple', 'tone' => 'accent'],
+                                                        ['text' => 'the app', 'caption' => 'rest'],
+                                                        ['text' => 'two days ago', 'caption' => 'finished time', 'tone' => 'accent'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'I have installed the app two days ago.', 'right' => 'I installed the app two days ago.', 'highlight' => 'installed'],
+                                                        ['wrong' => 'When have you bought your laptop?', 'right' => 'When did you buy your laptop?', 'highlight' => 'When did you buy'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'pairs',
+                                                    'pairs' => [
+                                                        ['left' => 'I\'ve sent ten emails today.', 'right' => 'I sent ten emails yesterday.'],
+                                                        ['left' => 'It hasn\'t crashed this week.', 'right' => 'It didn\'t crash last week.'],
+                                                        ['left' => 'I\'ve watched a lot of videos this year.', 'right' => 'I watched a lot of videos in 2020.'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'From the video', 'items' => [
+                                                            'I just got my first phone ever this September, just four months ago.',
+                                                        ]],
+                                                        ['label' => 'Examples', 'items' => [
+                                                            'My phone crashed last night.',
+                                                            'I haven\'t checked my email today.',
+                                                        ]],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'C · News first, then the story',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'In conversation, give the <strong>news</strong> with the present perfect, then tell the <strong>details</strong> (when, where, how) with the past simple: <strong>I\'ve got a new laptop! I bought it on Monday.</strong> Questions work the same way: <strong>Have you ever lost your phone?</strong> → <strong>Where did you lose it?</strong>',
+                                                    'fa' => 'در گفتگو خبر را با حال کامل می‌دهیم، بعد جزئیات (کی؟ کجا؟ چطور؟) را با گذشته‌ی ساده تعریف می‌کنیم: I\'ve broken my phone. I dropped it in the kitchen. سؤال هم همین‌طور: Have you ever…? بعد When / Where did you…?',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'news (present perfect) → details (past simple)',
+                                                    'parts' => [
+                                                        ['text' => 'I\'ve broken my phone.', 'caption' => 'news: have + past participle', 'tone' => 'accent'],
+                                                        ['text' => 'I dropped it', 'caption' => 'details: past simple', 'tone' => 'accent'],
+                                                        ['text' => 'in the kitchen.', 'caption' => 'where / when'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'I\'ve lost my wallet. I\'ve left it on the bus.', 'right' => 'I\'ve lost my wallet. I left it on the bus.', 'highlight' => 'I left it'],
+                                                        ['wrong' => 'You\'ve lost your phone? Where have you lost it?', 'right' => 'You\'ve lost your phone? Where did you lose it?', 'highlight' => 'Where did you lose it'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'From the video', 'items' => [
+                                                            'And I was just given a skateboard. It is still sitting in my room in the corner, and I have never touched it.',
+                                                        ]],
+                                                        ['label' => 'Examples', 'items' => [
+                                                            'Have you ever lost your phone? — Yes. I left it in a taxi last year.',
+                                                            'I\'ve installed a new app. My friend told me about it.',
+                                                        ]],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'D · Make it personal',
+                                            'body' => 'Next you\'ll finish sentences about <strong>your</strong> phone, your computer and the internet, then tell the story of Sara\'s bad day with technology in pictures.',
+                                        ],
+                                    ],
+                                    'bridge_note' => 'You\'ll use this right away — in the Picture Story next, and in AI Conversation #1.',
+                                ],
+                                'frequency_starters' => [
+                                    'Today I have', 'This week I haven\'t', 'Yesterday I',
+                                    'I have never', 'My first phone was', 'Last year my phone',
+                                ],
+                                'grammar_judgment' => 'Judge whether the learner finished this sentence starter into '
+                                    .'a true, natural personal sentence about technology or their day (phone, computer, apps, '
+                                    .'email, the internet), choosing between the present perfect (have / has + past participle: '
+                                    .'a result now, an experience, or a time that is not finished like today / this week) and the '
+                                    .'past simple (a finished time like yesterday, last year, two days ago, when I was…).',
+                                'grammar_major_criteria' => 'the present perfect with a finished time ("I have bought it '
+                                    .'yesterday", "I\'ve seen it two days ago"), "When have you…?" for a finished time, a wrong '
+                                    .'past participle ("I\'ve broke", "has went", "has crash"), have + a past simple form ("I have '
+                                    .'went"), the sentence does not actually continue the given starter, or it is not a genuine '
+                                    .'personal statement. Do not mark the past simple wrong just because the present perfect would '
+                                    .'also be possible (both "I lost my keys" and "I\'ve lost my keys" are fine)',
+                                'grammar_context' => 'continues with the tense the starter calls for: have / has + past '
+                                    .'participle after "Today I have", "This week I haven\'t" and "I have never"; the past simple '
+                                    .'after "Yesterday I", "My first phone was" and "Last year my phone"',
+                                'quick_check' => [
+                                    [
+                                        'wrong' => 'I have bought this laptop last year.',
+                                        'options' => ['I have bought this laptop last year.', 'I bought this laptop last year.', 'I have buy this laptop last year.'],
+                                        'correct' => 1,
+                                        'difficulty' => 'easy',
+                                    ],
+                                    [
+                                        'wrong' => 'When have you installed the app?',
+                                        'options' => ['When did you install the app?', 'When have you installed the app?', 'When you installed the app?'],
+                                        'correct' => 0,
+                                        'difficulty' => 'medium',
+                                    ],
+                                    [
+                                        'wrong' => 'Look, I\'ve broke my phone.',
+                                        'options' => ['Look, I\'ve broke my phone.', 'Look, I\'ve broken my phone.', 'Look, I broken my phone.'],
+                                        'correct' => 1,
+                                        'difficulty' => 'medium',
+                                    ],
+                                    [
+                                        'wrong' => 'I\'ve lost my phone. I\'ve left it on the bus.',
+                                        'options' => ['I\'ve lost my phone. I\'ve left it on the bus.', 'I lost my phone. I\'ve left it on the bus.', 'I\'ve lost my phone. I left it on the bus.'],
+                                        'correct' => 2,
+                                        'difficulty' => 'hard',
+                                    ],
+                                ],
+                                'word_order' => [
+                                    ['words' => ['the', 'installed', 'ago.', 'I', 'days', 'app', 'two'], 'answer' => 'I installed the app two days ago.'],
+                                    ['words' => ['crashed', 'My', 'again!', 'has', 'laptop'], 'answer' => 'My laptop has crashed again!'],
+                                    ['words' => ['buy', 'When', 'phone?', 'you', 'your', 'did'], 'answer' => 'When did you buy your phone?'],
+                                ],
+                            ],
+                            [
+                                'key' => 'story_sequence',
+                                'label' => 'Picture Story',
+                                // Kept for M13 (see M01's, M11's and M12's notes): a bad day with
+                                // technology is a finished story told in the past simple, with
+                                // the result now in the present perfect — the exact contrast of
+                                // this lesson, right after it.
+                                'duration_minutes' => 10,
+                                'hook' => 'You just learned "she dropped it" and "she has backed it up". Now tell Sara\'s bad day with technology.',
+                                // Captions are ground truth for the AI feedback prompt only —
+                                // never rendered to the learner (see the step's own docblock).
+                                // Each query was checked against its real first Pexels result
+                                // (square), so the picture matches its caption.
+                                'sequence_images' => [
+                                    ['image_query' => 'cracked smartphone', 'caption' => 'On Saturday morning, Sara dropped her phone in the street', 'hint' => 'dropped', 'alt_description' => 'A phone falling onto a street, with city lights behind it'],
+                                    ['image_query' => 'phone repair technician', 'caption' => 'She took it to a phone shop, and the man said it would take three days', 'hint' => 'took', 'alt_description' => 'A smiling man holding up a phone and pointing at it'],
+                                    ['image_query' => 'worried woman laptop', 'caption' => 'In the evening, her laptop crashed, and she lost her work', 'hint' => 'crashed', 'alt_description' => 'A worried woman with her hand on her head at a desk with a laptop'],
+                                    ['image_query' => 'saving files on laptop', 'caption' => 'Now she has backed up all her files, so she can\'t lose them again', 'hint' => 'has backed up', 'alt_description' => 'Hands typing on a laptop on a table outside'],
+                                ],
+                                'sequencing_words' => ['On Saturday morning', 'Then', 'In the evening', 'Now'],
+                                'narration_tense' => 'Past Simple, then Present Perfect for the result now',
+                                'narration_kind' => 'a bad day with technology: what happened, and what is true now',
+                                'narration_example' => 'On Saturday morning, Sara dropped her phone in the street...',
+                                'narration_not' => 'the present perfect with a finished time ("she has dropped it on Saturday")',
+                            ],
+                            [
+                                // A real 18-year-old inventor on the TEDxTeen stage: Ann Makosinski
+                                // has never had a smartphone, and tells what she did instead — cut
+                                // from 11:57 to about 6 minutes (the video clip of her toy, the
+                                // Ravi Shankar part and the science-fair photos left out). TEDx's
+                                // human subtitles, re-timed to the cut.
+                                'key' => 'video_shadowing',
+                                'label' => 'Video Shadowing',
+                                'duration_minutes' => 14,
+                                'hook' => 'An 18-year-old inventor who has never had a smartphone tells you what she did instead.',
+                                'source' => 'TEDxTeen — Ann Makosinski, "Why I don\'t use a smart phone"',
+                                'video_url' => $shadowingVideoUrl,
+                                'captions_url' => $shadowingCaptionsUrl,
+                                'video_segments' => $this->shadowTimestampsFor('M13', 'video_shadowing_segments'),
+                                'topic_summary' => 'Ann Makosinski, an 18-year-old inventor from Canada, got her first phone, an '
+                                    .'old flip phone, only four months before this talk. Her parents gave her very few toys, so '
+                                    .'she made her own, and she has never touched the skateboard they gave her. She has never '
+                                    .'watched Star Wars, and she never felt she was missing out without a phone. A friend in the '
+                                    .'Philippines failed at school because she had no light at night, so Ann made a flashlight '
+                                    .'that runs on the heat of your hand. She believes that disconnecting helps you connect and '
+                                    .'create more.',
+                                'comprehension_check' => [
+                                    ['statement' => 'Ann got her first phone when she went to college.', 'correct' => true],
+                                    ['statement' => 'Ann\'s parents gave her a lot of toys.', 'correct' => false],
+                                    ['statement' => 'Ann\'s flashlight runs on the heat of your hand.', 'correct' => true],
+                                ],
+                                // Real phrases Ann Makosinski uses on stage.
+                                'target_phrases' => [
+                                    ['phrase' => 'cool kid', 'meaning' => 'a popular young person'],
+                                    ['phrase' => 'missing out', 'meaning' => 'not having the fun other people are having'],
+                                    ['phrase' => 'hang out with', 'meaning' => 'to spend free time with someone'],
+                                    ['phrase' => 'add up', 'meaning' => 'to put numbers together to get a total'],
+                                    ['phrase' => 'pick up your phone', 'meaning' => 'to take your phone in your hand to use it'],
+                                ],
+                                // Real verbatim lines from the video — shadowing means mimicking
+                                // the exact audio just heard, and the auto-pause timestamps
+                                // (missions:cache-shadow-timestamps) only land on words people
+                                // actually say. Chosen for this mission's grammar: a finished time
+                                // in the past simple against I've never… / I have never….
+                                // Bold marks naturally-stressed content words (rendered by
+                                // <x-stress-marked-line>).
+                                'shadow_lines' => [
+                                    'I just **got** my first phone ever this September.',
+                                    'I\'m 18 years old, and I\'ve **never** had a phone.',
+                                    'It is still sitting in my room in the corner, and I have **never** touched it.',
+                                    'I\'ve **never** watched Star Wars or Star Trek.',
+                                    'When I was in middle school, I **started** making stuff with electronics.',
+                                    'Think of all the possibilities **off** your phone and not **on** it.',
+                                ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M13', 'video_shadowing'),
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'practice',
+                        'label' => 'Day 3',
+                        'mode' => 'ai',
+                        'pair_speaking' => [
+                            ['question' => 'When did you first go online?', 'answer' => 'I first went online in 2010, at my uncle\'s house.', 'words' => ['went online']],
+                            ['question' => 'Have you downloaded anything this week?', 'answer' => 'Yes, I\'ve downloaded two podcasts this week.', 'words' => ['downloaded', 'this week']],
+                            ['question' => 'Do you reply to emails quickly?', 'answer' => 'Not always. I haven\'t replied to my boss\'s email yet!', 'words' => ['replied to', 'haven\'t']],
+                            ['question' => 'Have you ever deleted an important email?', 'answer' => 'Yes, I have. I deleted an email with an attachment last month.', 'words' => ['deleted', 'attachment']],
+                        ],
+                        'steps' => [
+                            [
+                                'key' => 'vocabulary_builder_3',
+                                'label' => 'New Words',
+                                'duration_minutes' => 10,
+                                'hook' => 'Last set — the words for email and the internet: go online, download, reply…',
+                                // Vocabulary in Use unit 55 (Email and the Internet), our own
+                                // sentences.
+                                'story' => 'This morning I **went online** before breakfast. My boss sent me an email with an '
+                                    .'**attachment**, so I **downloaded** it and **replied to** him. Then I **deleted** fifty old '
+                                    .'emails! Later, I **posted a comment** under a cooking video. I\'ve done a lot today, and '
+                                    .'it\'s only ten o\'clock!',
+                                'words' => [
+                                    ['phrase' => 'go online', 'meaning' => 'to start using the internet', 'meaning_fa' => 'آنلاین شدن، وارد اینترنت شدن', 'pos' => 'phrase', 'example' => 'I go online every evening to read the news.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'download', 'meaning' => 'to copy a file, app or song from the internet onto your phone or computer', 'meaning_fa' => 'دانلود کردن', 'pos' => 'verb', 'example' => 'I downloaded the photos from my email.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'reply to', 'meaning' => 'to answer an email or a message', 'meaning_fa' => 'جواب دادن به (ایمیل یا پیام)', 'pos' => 'verb', 'example' => 'Please reply to my email today.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'delete', 'meaning' => 'to remove something from a computer or phone', 'meaning_fa' => 'پاک کردن، حذف کردن', 'pos' => 'verb', 'example' => 'I deleted all the old messages.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'attachment', 'meaning' => 'a file that you send with an email', 'meaning_fa' => 'فایل پیوست', 'pos' => 'noun', 'example' => 'Open the attachment to see the photos.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'post a comment', 'meaning' => 'to write a message under a photo, video or article online', 'meaning_fa' => 'کامنت گذاشتن', 'pos' => 'phrase', 'example' => 'She posted a comment under my photo.', 'difficulty' => 'medium'],
+                                ],
+                            ],
+                            [
+                                'key' => 'daily_listen_3',
+                                'label' => 'Listen Again',
+                                'duration_minutes' => 7,
+                                'hook' => 'Same story, one more time — now copy Vanessa on her solution and what she hasn\'t noticed.',
+                                'image_query' => 'woman reading book coffee',
+                                'shadow_lines' => [
+                                    'I **decided** to read a book called Digital Minimalism.',
+                                    'And we haven\'t really **noticed** the world around us.',
+                                ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M13', 'daily_listen_3'),
+                            ],
+                            [
+                                'key' => 'ai_conversation_1',
+                                'label' => 'Talk It Out',
+                                'duration_minutes' => 18,
+                                'hook' => 'Say it here, alone, before you have to say it to the AI Instructor for real.',
+                                'warm_up_task' => 'Record 2 minutes of solo speaking about you and technology: your phone and '
+                                    .'computer, something technology has changed in your life, and a time when it went wrong — '
+                                    .'using the new vocabulary, without reading.',
+                                'interview_questions' => [
+                                    'What phone do you have now?',
+                                    'When did you get your first phone?',
+                                    'Which apps have you used today?',
+                                    'Have you ever lost your phone?',
+                                    'How has the internet changed your life?',
+                                    'What do you do when your computer crashes?',
+                                ],
+                            ],
+                            [
+                                'key' => 'reading_comprehension',
+                                'label' => 'Reading',
+                                'duration_minutes' => 12,
+                                'hook' => 'Grandma Parvin has her first tablet. What has she learned, and what went wrong?',
+                                'passage_title' => 'Grandma goes online',
+                                'image_query' => 'grandmother smartphone',
+                                // Written fresh for this app (EOS-009 §14) — reuses the Vocabulary
+                                // Builder words in a new context, with the present perfect and the
+                                // past simple side by side.
+                                'passage' => 'Last month, my grandmother Parvin bought her first tablet. She is 72, and she has '
+                                    .'never used a computer, so I went to her flat to help her. First, we chose a password, and I '
+                                    .'showed her how to log in to her email. Then we installed a video-call app, so she can see '
+                                    .'my cousins in Canada. On the first day, she deleted all her contacts by mistake! We found '
+                                    .'them again, and after that I backed up her tablet every week. Since then, she has learned a '
+                                    .'lot. She has sent me twenty emails, and she has posted a comment under every photo of her '
+                                    .'grandchildren. Yesterday she called me and said, "Your laptop is very old. I\'ve found a '
+                                    .'better one online. Shall I send you the link?" I laughed. Three weeks ago, she didn\'t know '
+                                    .'how to switch off her tablet!',
+                                'highlighted_phrases' => [
+                                    ['phrase' => 'password', 'type' => 'reused'],
+                                    ['phrase' => 'log in', 'type' => 'reused'],
+                                    ['phrase' => 'installed', 'type' => 'reused'],
+                                    ['phrase' => 'deleted', 'type' => 'reused'],
+                                    ['phrase' => 'backed up', 'type' => 'reused'],
+                                    ['phrase' => 'posted a comment', 'type' => 'reused'],
+                                    ['phrase' => 'switch off', 'type' => 'reused'],
+                                    ['phrase' => 'by mistake', 'type' => 'new', 'definition' => 'without wanting to, because of an error', 'pos' => 'phrase', 'example' => 'I sent the email to my boss by mistake.'],
+                                    ['phrase' => 'video-call', 'type' => 'new', 'definition' => 'a call where you can see the other person on the screen', 'pos' => 'noun', 'example' => 'We have a video call with my sister every Sunday.'],
+                                ],
+                                'topic_summary' => 'Grandma Parvin, who is 72, bought her first tablet last month, and her '
+                                    .'grandchild helped her to set it up. On the first day, she deleted all her contacts by '
+                                    .'mistake. Since then, she has learned a lot: she has sent twenty emails and has posted '
+                                    .'comments under her grandchildren\'s photos.',
+                                'comprehension_check' => [
+                                    ['statement' => 'Parvin used a computer a lot before.', 'correct' => false, 'difficulty' => 'easy'],
+                                    ['statement' => 'On the first day, Parvin deleted her contacts by mistake.', 'correct' => true, 'difficulty' => 'medium'],
+                                    ['statement' => 'Parvin has sent her grandchild twenty emails.', 'correct' => true, 'difficulty' => 'hard'],
+                                ],
+                                'questions' => [
+                                    'What happened on Parvin\'s first day with the tablet?',
+                                    'What has Parvin learned to do since then?',
+                                ],
+                                // Multiple choice instead of written answers (reading task 11,
+                                // 2026-11-10): one tap each, graded in the browser like the true/false
+                                // round above. Every right answer is stated in the passage; the wrong
+                                // ones are things the passage mentions or plausibly could.
+                                'choice_questions' => [
+                                    ['prompt' => 'Why did they install a video-call app?', 'options' => ['To see the cousins in Canada', 'To watch films', 'To call her doctor'], 'correct' => 0, 'difficulty' => 'easy'],
+                                    ['prompt' => 'What did Parvin delete by mistake?', 'options' => ['Her photos', 'Her contacts', 'Her emails'], 'correct' => 1, 'difficulty' => 'medium'],
+                                    ['prompt' => 'What did Parvin say on the phone yesterday?', 'options' => ['Her tablet crashed again', 'She wants a new password', 'She found a better laptop online'], 'correct' => 2, 'difficulty' => 'hard'],
+                                ],
+                            ],
+                            [
+                                'key' => 'writing',
+                                'label' => 'Writing',
+                                'duration_minutes' => 12,
+                                'hook' => 'Your phone, your computer, your life online — write what has changed and what happened.',
+                                'title' => 'Me and technology',
+                                'prompts' => [
+                                    ['label' => 'My first phone', 'image_query' => 'old mobile phone'],
+                                    ['label' => 'Something I have done online this week', 'image_query' => 'woman laptop online shopping'],
+                                    ['label' => 'An app that was a game changer', 'image_query' => 'smartphone apps screen'],
+                                    ['label' => 'A day when technology went wrong', 'image_query' => 'stressed man with laptop'],
+                                    ['label' => 'How the internet has changed my life', 'image_query' => 'teenager phone'],
+                                    ['label' => 'My rules for my phone', 'image_query' => 'phone on table'],
+                                ],
+                                // Grammar connectors only — see M01's try_to_use note.
+                                'try_to_use' => ['I\'ve… / I haven\'t…', '…yesterday / …ago / last…', 'When I was…', 'back up', 'crash', 'download', 'game changer'],
+                                'min_words' => 100,
+                                'max_words' => 150,
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'challenge',
+                        'label' => 'Day 4',
+                        'mode' => 'ai',
+                        'pair_speaking' => [
+                            ['question' => 'What have you done on your phone today?', 'answer' => 'I\'ve read the news and replied to three messages.', 'words' => ['I\'ve read', 'replied to']],
+                            ['question' => 'When did you buy your laptop?', 'answer' => 'I bought it two years ago. It has never crashed!', 'words' => ['bought', 'has never']],
+                            ['question' => 'Has technology changed your job or your studies?', 'answer' => 'Yes, it has. Last year I started to work from home.', 'words' => ['it has', 'started']],
+                            ['question' => 'Have you ever lost your work on a computer?', 'answer' => 'Yes. My computer crashed in 2021, so now I back up everything.', 'words' => ['crashed', 'back up']],
+                        ],
+                        'steps' => [
+                            [
+                                'key' => 'picture_description',
+                                'label' => 'Picture Description',
+                                'duration_minutes' => 10,
+                                'hook' => 'Two grandparents, two phones and one bored child — what has everyone just done?',
+                                'image_query' => 'family using phones on sofa',
+                                'guiding_questions' => [
+                                    'Look at the grandfather. What has he just read on his phone?',
+                                    'Look at the child. Why has the child hidden under the pillow?',
+                                    'Look at the grandmother. Who has she sent a message to?',
+                                    'When did you last sit with your family without phones?',
+                                ],
+                                // Hand-checked against the real first Pexels result for this
+                                // exact query + orientation (landscape): an old couple on a brown
+                                // sofa in a wooden room — a bald grandfather in glasses and a blue
+                                // shirt on the left, looking at his phone; a child in the middle
+                                // hiding behind a big striped pillow; a grandmother with grey hair,
+                                // glasses and a yellow shirt on the right, holding a phone and
+                                // looking at the child.
+                                // Changing the query or orientation invalidates these coordinates.
+                                'hotspots' => [
+                                    ['x' => 31, 'y' => 30, 'question_index' => 0],
+                                    ['x' => 51, 'y' => 47, 'question_index' => 1],
+                                    ['x' => 79, 'y' => 33, 'question_index' => 2],
+                                    ['x' => 91, 'y' => 78, 'question_index' => 3],
+                                ],
+                            ],
+                            [
+                                'key' => 'error_log',
+                                'label' => 'My Fixes',
+                                'duration_minutes' => 7,
+                                'hook' => "Every mistake here is one you won't make in tomorrow's Final Challenge.",
+                            ],
+                            [
+                                'key' => 'ai_conversation_2',
+                                'label' => 'Final Talk',
+                                'duration_minutes' => 12,
+                                'hook' => "This one's harder on purpose — real conversations don't come with warm-up questions.",
+                                'round_pool' => [
+                                    'Tell me about your first phone. When did you get it, and what could it do?',
+                                    'How has technology changed your life in the last ten years?',
+                                    'Have you ever lost your phone or your work on a computer? What happened?',
+                                    'Which apps have you used this week? Which one was a game changer for you?',
+                                    'Do you waste time online? What have you done to stay focused?',
+                                    'What did people use before smartphones? What did your parents use?',
+                                ],
+                                'role_reversal_topic' => 'phones, computers, the internet and what has changed',
+                                'final_prompt' => 'Speak for 3 minutes without stopping about you and technology: your first phone, how technology has changed your life, and a time when something went wrong.',
+                                'requirements' => [
+                                    '5+ vocabulary expressions',
+                                    'have / has + past participle for news, results and experiences',
+                                    'the past simple with a finished time (yesterday, ago, last…, in…)',
+                                    'Have you ever…? → When did you…?',
+                                    'Your first phone or computer',
+                                    'A time when technology went wrong',
                                 ],
                             ],
                             [

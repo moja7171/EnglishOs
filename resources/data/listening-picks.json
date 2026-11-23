@@ -265,24 +265,24 @@
   ],
   "M13" : [
     [
+      {"src":"lee","title":"Talking about technology","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/241115","min":6,"tx":"page"},
       {"src":"sme","title":"Tech that refuses to die","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2024/ep-241017","min":7,"tx":"page"},
-      {"src":"voa","title":"30 Phrasal Verbs to Help You With Technology","url":"https://learningenglish.voanews.com/a/phrasal-verbs-to-help-you-with-technology/3085650.html","tx":"page"},
-      {"src":"teded","title":"The shape-shifting future of the mobile phone","url":"https://ed.ted.com/lessons/the-shape-shifting-future-of-the-mobile-phone-fabian-hemmert","min":6}
+      {"src":"voa","title":"30 Phrasal Verbs to Help You With Technology","url":"https://learningenglish.voanews.com/a/phrasal-verbs-to-help-you-with-technology/3085650.html","tx":"page"}
     ],
     [
+      {"src":"lee","title":"Talking about games","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/250411","min":6,"tx":"page"},
       {"src":"sme","title":"Is social media dead?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2026/ep-260108","min":7,"tx":"page"},
-      {"src":"voa","title":"Simple Past and Present Perfect","url":"https://learningenglish.voanews.com/a/everyday-grammar-simple-past-and-present-perfect/2752310.html","min":4,"tx":"page","grammar":true},
-      {"src":"teded","title":"A brief history of video games (Part I)","url":"https://ed.ted.com/lessons/a-brief-history-of-video-games-part-i-safwat-saleem","min":7}
+      {"src":"voa","title":"Simple Past and Present Perfect","url":"https://learningenglish.voanews.com/a/everyday-grammar-simple-past-and-present-perfect/2752310.html","min":4,"tx":"page","grammar":true}
     ],
     [
+      {"src":"lee","title":"Talking about social media","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/240621","min":6,"tx":"page"},
       {"src":"sme","title":"Sharing the road with driverless cars","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2026/ep-260820","min":7,"tx":"page"},
-      {"src":"voa","title":"Talking Robot Helps Seniors Fight Loneliness","url":"https://learningenglish.voanews.com/a/talking-robot-helps-seniors-fight-loneliness/7409230.html","min":7,"tx":"page"},
-      {"src":"teded","title":"How will AI impact the world?","url":"https://ed.ted.com/lessons/things-are-going-to-get-weird","min":9}
+      {"src":"voa","title":"Talking Robot Helps Seniors Fight Loneliness","url":"https://learningenglish.voanews.com/a/talking-robot-helps-seniors-fight-loneliness/7409230.html","min":7,"tx":"page"}
     ],
     [
-      {"src":"sme","title":"Doomscrolling: Why do we do it?","url":"https://podcasts.apple.com/us/podcast/doomscrolling-why-do-we-do-it/id262026947?i=1000598836530","min":6,"apple":true},
-      {"src":"voa","title":"Should Schools Ban Mobile Phones?","url":"https://learningenglish.voanews.com/a/should-schools-ban-mobile-phones-/5273391.html","tx":"page"},
-      {"src":"teded","title":"What happens if you forget airplane mode on your phone?","url":"https://ed.ted.com/lessons/what-happens-if-you-don-t-put-your-phone-in-airplane-mode-lindsay-demarchi","min":7}
+      {"src":"lee","title":"Talking about phone habits","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/260703","min":6,"tx":"page"},
+      {"src":"sme","title":"Doomscrolling: Why do we do it?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2023/ep-230209","min":6,"tx":"page"},
+      {"src":"voa","title":"Should Schools Ban Mobile Phones?","url":"https://learningenglish.voanews.com/a/should-schools-ban-mobile-phones-/5273391.html","tx":"page"}
     ]
   ],
   "M14" : [
