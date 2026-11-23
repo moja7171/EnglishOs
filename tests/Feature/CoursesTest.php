@@ -228,4 +228,18 @@ class CoursesTest extends TestCase
             ->assertSeeHtml('data-testid="vocab-section-fa"')
             ->assertSee('من معمولاً بیدار می‌شوم.');
     }
+
+    public function test_words_printed_one_after_another_in_the_book_are_told_apart_by_a_dot(): void
+    {
+        $unit = VocabUnit::factory()->create(['number' => 9]);
+        $text = VocabText::factory()->for($unit, 'unit')->create(['body' => 'forehead cheek lips', 'sentences' => [], 'audio_file' => null]);
+        foreach ([['forehead', 0, 8], ['cheek', 9, 14], ['lips', 15, 19]] as $position => [$phrase, $start, $end]) {
+            VocabItem::factory()->for($text, 'text')->create(['position' => $position + 1, 'phrase' => $phrase, 'start' => $start, 'end' => $end]);
+        }
+
+        $html = $this->actingAs(User::factory()->create())->get(route('courses.vocab.unit', 9))->assertOk()->getContent();
+
+        $this->assertSame(2, substr_count($html, ' · </span>'));
+        $this->assertStringContainsString('>forehead</button>', $html);
+    }
 }

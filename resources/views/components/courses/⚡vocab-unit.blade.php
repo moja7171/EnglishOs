@@ -110,13 +110,18 @@ new class extends Component
     public function markup(VocabText $text): HtmlString
     {
         $html = '';
+        $pieces = $text->pieces();
 
-        foreach ($text->pieces() as $piece) {
-            $escaped = e($piece['text']);
+        foreach ($pieces as $index => $piece) {
+            if ($piece['item'] === null) {
+                // Words printed one after another in the book (the labels of a picture) get a dot between them.
+                $between = $index > 0 && isset($pieces[$index + 1]) && $pieces[$index - 1]['item'] !== null && $pieces[$index + 1]['item'] !== null && trim($piece['text']) === '';
+                $html .= $between ? '<span class="px-0.5 text-ink-faint dark:text-ink-faint-dark" aria-hidden="true"> · </span>' : e($piece['text']);
 
-            $html .= $piece['item'] === null
-                ? $escaped
-                : '<button type="button" x-on:click="pick('.$piece['item']->id.')" class="cursor-pointer rounded-sm font-bold underline decoration-dotted decoration-2 underline-offset-4">'.$escaped.'</button>';
+                continue;
+            }
+
+            $html .= '<button type="button" x-on:click="pick('.$piece['item']->id.')" class="cursor-pointer rounded-sm font-bold underline decoration-dotted decoration-2 underline-offset-4">'.e($piece['text']).'</button>';
         }
 
         return new HtmlString($html);
