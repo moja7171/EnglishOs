@@ -82,7 +82,7 @@ class VocabCourse
                         'number' => $unit->number,
                         'title' => $unit->title,
                         'ready' => (bool) $unit->texts_exists,
-                        'state' => $run === null ? 'new' : ($run->finished_at ? 'done' : 'open'),
+                        'state' => $run === null ? 'new' : ($run->read_done_at || $run->finished_at ? 'done' : 'open'),
                         'review' => $reviewStates[$unit->id] ?? null,
                         'url' => $unit->texts_exists ? route('courses.vocab.unit', $unit->number) : null,
                     ];

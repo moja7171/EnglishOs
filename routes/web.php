@@ -11,6 +11,7 @@ use App\Http\Controllers\VocabularyWordController;
 use App\Models\AiPractice;
 use App\Models\DirectMessage;
 use App\Models\ExtraEpisode;
+use App\Models\ExtraWatch;
 use App\Models\InstructorMessage;
 use App\Models\Mission;
 use App\Models\PairGame;
@@ -106,7 +107,10 @@ Route::middleware(['auth', 'session.absolute_timeout', 'ai_keys.saved'])->group(
     })->name('courses.vocab');
 
     Route::get('/courses/extra', function () {
-        return view('courses-extra', ['episodes' => ExtraEpisode::query()->orderBy('number')->get()]);
+        return view('courses-extra', [
+            'episodes' => ExtraEpisode::query()->orderBy('number')->get(),
+            'watchedIds' => ExtraWatch::query()->where('user_id', auth()->id())->pluck('extra_episode_id')->all(),
+        ]);
     })->name('courses.extra');
 
     Route::get('/courses/extra/{episode:number}', function (ExtraEpisode $episode) {

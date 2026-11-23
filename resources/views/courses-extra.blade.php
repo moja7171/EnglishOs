@@ -11,7 +11,12 @@
             @foreach ($episodes as $episode)
                 <li wire:key="extra-episode-{{ $episode->number }}">
                     <a href="{{ route('courses.extra.episode', $episode->number) }}" wire:navigate data-testid="extra-episode" class="card block h-full overflow-hidden transition-colors hover:border-accent dark:hover:border-accent-dark">
-                        <img src="{{ $episode->posterUrl() }}" alt="" loading="lazy" width="320" height="180" class="aspect-video w-full bg-surface-sunken object-cover dark:bg-surface-sunken-dark">
+                        <span class="relative block">
+                            <img src="{{ $episode->posterUrl() }}" alt="" loading="lazy" width="320" height="180" class="aspect-video w-full bg-surface-sunken object-cover dark:bg-surface-sunken-dark">
+                            @if (in_array($episode->id, $watchedIds, true))
+                                <span data-testid="extra-watched" aria-label="Watched" class="absolute end-2 top-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-success text-white dark:bg-success-dark">@svg('heroicon-s-check', 'h-4 w-4')</span>
+                            @endif
+                        </span>
                         <span class="block space-y-0.5 p-3">
                             <span class="block text-xs font-extrabold text-accent dark:text-accent-dark">{{ $episode->number }}</span>
                             <span class="block text-sm font-extrabold text-ink dark:text-ink-dark">{{ $episode->title }}</span>

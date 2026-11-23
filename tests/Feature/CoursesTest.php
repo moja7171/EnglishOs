@@ -196,6 +196,21 @@ class CoursesTest extends TestCase
         $this->assertNotNull($run->read_done_at);
     }
 
+    public function test_a_unit_gets_its_tick_on_the_map_once_the_lesson_was_read(): void
+    {
+        $learner = User::factory()->create();
+        $unit = $this->readyUnit();
+        $stateOfUnit = fn (): string => collect(app(VocabCourse::class)->sections($learner))->flatMap(fn (array $section) => $section['units'])->firstWhere('number', $unit->number)['state'];
+
+        $this->assertSame('new', $stateOfUnit());
+
+        Livewire::actingAs($learner)->test('courses.vocab-unit', ['unitId' => $unit->id, 'step' => 'read']);
+        $this->assertSame('open', $stateOfUnit());
+
+        Livewire::actingAs($learner)->test('courses.vocab-unit', ['unitId' => $unit->id, 'step' => 'words']);
+        $this->assertSame('done', $stateOfUnit());
+    }
+
     public function test_the_words_step_without_saved_words_points_back_to_read(): void
     {
         $unit = $this->readyUnit();

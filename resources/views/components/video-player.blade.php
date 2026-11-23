@@ -43,6 +43,9 @@
     @param array{mission_code: string, source: string, day_number?: int, manual_report?: bool, own_report_button?: bool}|null $listen Counts
         real watches (at least 90% played through, never skipped to) and
         shows a "Listens: N" chip — see <x-audio-player>. null = no counting.
+    @param bool $skipButtons Adds "-10" / "+10" second buttons next to play —
+        for long videos that are watched on a phone, where dragging the thin
+        seek bar is hard (Extra English).
     @param string|null $resumeKey Comes back where the learner left the
         video — see <x-audio-player>'s $resumeKey, same behavior.
 --}}
@@ -59,6 +62,7 @@
     'shadowTimestamps' => [],
     'shadowActive' => 'true',
     'resumeKey' => null,
+    'skipButtons' => false,
 ])
 
 @if (! empty($url))
@@ -461,6 +465,11 @@
                     <span x-show="!playing">@svg('heroicon-s-play', 'h-5 w-5')</span>
                     <span x-show="playing" x-cloak>@svg('heroicon-s-pause', 'h-5 w-5')</span>
                 </button>
+
+                @if ($skipButtons)
+                    <button type="button" x-on:click="skip(-10); showControls()" class="cursor-pointer text-xs font-bold tabular-nums" title="Back 10 seconds" aria-label="Back 10 seconds">&minus;10</button>
+                    <button type="button" x-on:click="skip(10); showControls()" class="cursor-pointer text-xs font-bold tabular-nums" title="Forward 10 seconds" aria-label="Forward 10 seconds">+10</button>
+                @endif
 
                 <button type="button" x-on:click="toggleMute()" class="cursor-pointer" title="Mute (m)">
                     <span x-show="!muted">@svg('heroicon-o-speaker-wave', 'h-5 w-5')</span>
