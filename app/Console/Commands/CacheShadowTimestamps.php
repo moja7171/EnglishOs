@@ -129,6 +129,13 @@ class CacheShadowTimestamps extends Command
             }
         }
 
+        // Day 1 Listening's synced text (and missions:align-listening-speakers)
+        // needs listening_segments even when no daily_listen_N step asked for
+        // them: from M14 on, the hidden Listen Again steps are not authored.
+        if (! isset($cache['listening_segments']) && filled($mission->stepContent('listening')['audio_url'] ?? null)) {
+            $changed = $this->listeningWords($mission, $groq, $cache) !== null || $changed;
+        }
+
         if (! $changed) {
             $this->warn("{$mission->code}: no shadow_lines found anywhere — skipping.");
 

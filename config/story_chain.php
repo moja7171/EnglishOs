@@ -65,4 +65,8 @@ return [
         'Last night Reza dropped his phone in the bath, and now he has lost all his photos.',
         'Mina has never used a computer, but yesterday her grandson gave her a laptop.',
     ],
+    'M14' => [
+        'If Sara saves her money for one more month, she will have enough for a new bike, but today her brother wants to borrow some.',
+        'As soon as Reza gets paid on Friday, he will pay back his friend, but on Thursday night he loses his wallet.',
+    ],
 ];

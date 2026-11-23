@@ -185,4 +185,23 @@ return [
     'delete' => ['remove', 'file'],
     'attachment' => ['email', 'file'],
     'post a comment' => ['write', 'online'],
+
+    // M14 · Money
+    'tempting' => ['want', 'shouldn’t'],
+    'payday' => ['salary', 'day'],
+    'budget' => ['plan', 'spend'],
+    'set aside' => ['keep', 'save'],
+    'in the long run' => ['future', 'time'],
+    'bank account' => ['bank', 'money'],
+    'cash' => ['notes', 'coins'],
+    'earn' => ['work', 'money'],
+    'save up' => ['keep', 'buy'],
+    'borrow' => ['take', 'back'],
+    'lend' => ['give', 'back'],
+    'owe' => ['pay', 'back'],
+    'loan' => ['bank', 'borrow'],
+    'interest' => ['bank', 'extra'],
+    'deposit' => ['flat', 'rent'],
+    'value for money' => ['price', 'good'],
+    'go up' => ['prices', 'higher'],
 ];

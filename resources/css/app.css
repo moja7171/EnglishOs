@@ -315,6 +315,27 @@
     --mood-texture-size: 36px 36px;
 }
 
+/* M14 "Money" — a muted banknote green-teal (an old banknote, a bank
+   passbook), darker and greyer than M06's chalkboard green and M02's
+   teal, paired with little stacks of coins seen from the side: three flat
+   ovals on top of each other — wide and flat, so they never read as
+   M12's tall speech-mark ovals, the round dots and rings, or the line
+   patterns of the other moods. */
+[data-mood='coin'] {
+    --color-accent: #3f7f6e;
+    --color-accent-dark: #6fb8a3;
+    --color-accent-soft: #dcefe9;
+    --color-accent-soft-dark: #1c3a33;
+    --color-accent-ink: #2b5e50;
+    --color-accent-ink-dark: #a9e3d2;
+    --color-dawn: #8cc9b6;
+    --color-dusk: #2f6455;
+    --mood-texture: radial-gradient(ellipse 6px 2px at 50% 40%, color-mix(in srgb, var(--color-accent) calc(13% * var(--mood-boost)), transparent) 98%, transparent),
+        radial-gradient(ellipse 6px 2px at 50% 50%, color-mix(in srgb, var(--color-accent) calc(13% * var(--mood-boost)), transparent) 98%, transparent),
+        radial-gradient(ellipse 6px 2px at 50% 60%, color-mix(in srgb, var(--color-accent) calc(13% * var(--mood-boost)), transparent) 98%, transparent);
+    --mood-texture-size: 38px 38px;
+}
+
 [data-mood] {
     background-image: var(--mood-texture);
     background-size: var(--mood-texture-size);

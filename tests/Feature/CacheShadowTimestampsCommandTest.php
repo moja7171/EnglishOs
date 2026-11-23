@@ -105,6 +105,32 @@ class CacheShadowTimestampsCommandTest extends TestCase
         $this->assertEquals([['text' => 'Hello.', 'start' => 0.0, 'end' => 1.0]], $cache['listening_segments']);
     }
 
+    public function test_the_listening_text_is_cached_for_a_mission_with_no_listen_again_step(): void
+    {
+        Mission::create([
+            'code' => self::CODE,
+            'title' => 'Test mission',
+            'module' => 'Me',
+            'outcome' => 'I can test.',
+            'phases' => [[
+                'phase' => 'foundation',
+                'steps' => [['key' => 'listening', 'audio_url' => '/storage/missions/t99/episode.mp3']],
+            ]],
+        ]);
+        File::ensureDirectoryExists(base_path('document/'.self::CODE));
+        File::put(base_path('document/'.self::CODE.'/episode.mp3'), 'audio');
+        $segments = [['text' => 'The very first thing I do.', 'start' => 44.84, 'end' => 46.58]];
+        $groq = $this->mock(GroqClient::class);
+        $groq->shouldReceive('transcribeSegmentsWithTimestamps')->once()->andReturn($segments);
+        $groq->shouldReceive('transcribeWordsWithTimestamps')->once()->andReturn($this->words());
+
+        $this->artisan('missions:cache-shadow-timestamps', ['code' => self::CODE])->assertSuccessful();
+
+        $cache = json_decode(File::get(base_path('document/'.self::CODE.'/shadow_timestamps.json')), true);
+        $this->assertEquals($segments, $cache['listening_segments']);
+        $this->assertCount(count(self::WORDS), $cache['listening_words']);
+    }
+
     public function test_a_normal_length_word_keeps_its_own_start(): void
     {
         $trimmed = CacheShadowTimestamps::trimSilenceFromWords($this->words());

@@ -92,4 +92,10 @@ return [
         ['read a paper book', 'read on a screen'],
         ['have an old phone that never breaks', 'have a new phone that often crashes'],
     ],
+    'M14' => [
+        ['pay with cash', 'pay with a card'],
+        ['save money for a big holiday', 'spend a little money every weekend'],
+        ['borrow money from a friend', 'borrow money from a bank'],
+        ['have a job you love that pays a little', 'have a boring job that pays a lot'],
+    ],
 ];

@@ -564,6 +564,7 @@ class Mission extends Model
             'M11' => 'ahead',
             'M12' => 'quote',
             'M13' => 'circuit',
+            'M14' => 'coin',
             default => 'daily-life',
         };
     }

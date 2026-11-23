@@ -3019,6 +3019,7 @@ class MissionSeeder extends Seeder
         $this->seedM11();
         $this->seedM12();
         $this->seedM13();
+        $this->seedM14();
     }
 
     /**
@@ -9453,6 +9454,643 @@ class MissionSeeder extends Seeder
                                     'Have you ever…? → When did you…?',
                                     'Your first phone or computer',
                                     'A time when technology went wrong',
+                                ],
+                            ],
+                            [
+                                'key' => 'mission_result',
+                                'label' => 'Mission Result',
+                                'duration_minutes' => 5,
+                                'hook' => "You started this mission with a number — let's see how far it moved.",
+                                'skills' => ['Listening', 'Vocabulary', 'Grammar', 'Speaking', 'Writing'],
+                                'reflection_questions' => [
+                                    'became_easier' => ['label' => 'What became easier?', 'type' => 'skills'],
+                                    'still_difficult' => ['label' => 'What is still difficult?', 'type' => 'skills'],
+                                    'expression_to_keep' => ['label' => 'One expression I want to keep using', 'type' => 'vocabulary'],
+                                    'grammar_to_review' => ['label' => 'One grammar point I need to review', 'type' => 'errors'],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ]
+        );
+    }
+
+    /**
+     * Seeds M14 "Money" — the zero and first conditional, with unless /
+     * when / as soon as (the M14–M24 grammar list approved 2026-11-23). The
+     * first mission authored after the "Light" package (config/missions.php
+     * hidden_steps): story_sequence, picture_description, daily_listen_2 and
+     * daily_listen_3 are hidden from learners, so they are not authored here
+     * at all — 13 steps, 32 / 39 / 52 / 24 minutes. Media: the Easy English
+     * Podcast's "Why Is It So Hard to Save Money?" (Oliver, cut from 25 to
+     * about 6.5 minutes: Marta the accountant and the Black Friday
+     * headphones, "tempting", paying by card, "budget", "set aside" and "in
+     * the long run") and Yashvi Gangar's TEDxCNMS Youth talk "The Basics of
+     * Budgeting, Saving and Investing for Young Adults" (cut from 12:28 to
+     * about 6 minutes: her stickers, her dad, the 50-30-20 rule and a
+     * grandmother who borrowed money to buy cows). Vocabulary days 2-3
+     * follow Vocabulary in Use units 19 (Money) and 40 (prices and
+     * interest), rewritten in our own sentences.
+     */
+    private function seedM14(): void
+    {
+        $audioUrl = $this->publishMissionAsset('M14', 'Easy English Podcast - Why Is It So Hard to Save Money.mp3');
+        $shadowingVideoUrl = $this->publishMissionAsset('M14', 'TEDx Youth - Yashvi Gangar Budgeting Saving and Investing.mp4');
+        $shadowingCaptionsUrl = $this->publishMissionAsset('M14', 'TEDx Youth - Yashvi Gangar Budgeting Saving and Investing.en.vtt');
+
+        Mission::updateOrCreate(
+            ['code' => 'M14'],
+            [
+                'title' => 'Money',
+                'module' => 'Money',
+                'outcome' => 'I can talk about money — saving, spending and borrowing — and say what happens if I do something, or what I will do when something happens.',
+                'phases' => [
+                    [
+                        'phase' => 'foundation',
+                        'label' => 'Day 1',
+                        'mode' => 'solo',
+                        'pair_speaking' => [
+                            ['question' => 'What do you do on payday?', 'answer' => 'On payday I buy food for the whole month.', 'words' => ['payday']],
+                            ['question' => 'What is tempting for you in a shop?', 'answer' => 'New shoes are very tempting for me.', 'words' => ['tempting']],
+                            ['question' => 'Do you have a budget for food?', 'answer' => 'Yes, I have a small budget for food every week.', 'words' => ['budget']],
+                            ['question' => 'Do you set aside money every month?', 'answer' => 'Yes, I set aside a little money. It helps in the long run.', 'words' => ['set aside', 'in the long run']],
+                        ],
+                        'steps' => [
+                            [
+                                'key' => 'mission_brief',
+                                'label' => 'Get Ready',
+                                'duration_minutes' => 5,
+                                'hook' => 'If you get some money today, will you spend it or save it? Could you say it in English?',
+                                'image_query' => 'money coins wallet savings',
+                                'ambient_video_query' => 'counting money',
+                                'warm_up_questions' => [
+                                    'Do you like shopping?',
+                                    'Do you save money every month?',
+                                    'Do you pay with cash or a card?',
+                                    'What did you buy last week?',
+                                ],
+                            ],
+                            [
+                                'key' => 'vocabulary_builder_1',
+                                'label' => 'New Words',
+                                'duration_minutes' => 9,
+                                'hook' => 'Five words Oliver uses about saving money.',
+                                // Day 1 = the Listening episode's own 5 target_phrases (see M01's
+                                // vocabulary_builder_1), so every learner meets them here first.
+                                'story' => 'Friday was **payday**. I had a **budget** for the month, but a new jacket in a '
+                                    .'shop window looked very **tempting**. I didn\'t buy it. I **set aside** some money for '
+                                    .'my savings instead. It\'s only a little, but **in the long run** it will make a big difference.',
+                                'words' => [
+                                    ['phrase' => 'tempting', 'meaning' => 'making you want it very much, even when you know you shouldn\'t have it', 'meaning_fa' => 'وسوسه‌انگیز', 'pos' => 'adjective', 'example' => 'That chocolate cake looks very tempting.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'payday', 'meaning' => 'the day when you get the money for your work', 'meaning_fa' => 'روز حقوق', 'pos' => 'noun', 'example' => 'I always pay my rent on payday.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'budget', 'meaning' => 'a plan for how much money you will spend, and on what', 'meaning_fa' => 'بودجه', 'pos' => 'noun', 'example' => 'Our budget for the holiday is small.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'set aside', 'meaning' => 'to keep some money for one special thing and not spend it on other things', 'meaning_fa' => 'کنار گذاشتن (پول)', 'pos' => 'phrasal verb', 'example' => 'I set aside some money every month.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'in the long run', 'meaning' => 'over a long time in the future, not now', 'meaning_fa' => 'در درازمدت', 'pos' => 'phrase', 'example' => 'Saving is hard now, but it helps in the long run.', 'difficulty' => 'medium'],
+                                ],
+                            ],
+                            [
+                                'key' => 'listening',
+                                'label' => 'Listening',
+                                'duration_minutes' => 18,
+                                'hook' => 'Marta is an accountant, but she can\'t save money. Listen for what happens if she buys the headphones.',
+                                'source' => 'Easy English Podcast — "Why Is It So Hard to Save Money?"',
+                                'image_query' => 'woman looking at phone kitchen',
+                                'audio_url' => $audioUrl,
+                                'listening_segments' => $this->shadowTimestampsFor('M14', 'listening_segments'),
+                                // The same chunks tagged with who is talking — see
+                                // missions:align-listening-speakers. One speaker: Oliver.
+                                'listening_turns' => $this->shadowTimestampsFor('M14', 'listening_turns'),
+                                // The parts kept in the cut (0:00-0:23, 1:09-3:40, 6:08-6:17,
+                                // 6:37-6:55, 7:46-8:08, 15:05-15:17, 15:27-15:52, 16:15-16:37,
+                                // 17:27-18:22, 18:37-18:53, 21:01-21:11 and 21:19-21:49 of the
+                                // original; the poll, the ratings and Patreon parts, the brain
+                                // studies and the quiz left out), written from a Whisper pass of
+                                // the cut audio and checked by ear-level word timings.
+                                'transcript' => [
+                                    ['speaker' => 'Oliver', 'text' => 'It\'s the end of the month. You open your banking app and you look at the number, and you think, where did it all go wrong? I didn\'t buy anything big. If that is a familiar feeling, you\'re not necessarily bad with money. Your brain is doing exactly what it was built to do.'],
+                                    ['speaker' => 'Oliver', 'text' => 'Let me tell you about Marta. Marta is 38, and she lives in Krakow, in Poland. And she works in an office as an accountant. Yes, an accountant. She\'s very good with other people\'s money. It\'s Friday evening and it\'s payday. Marta makes a cup of tea. She sits down in the kitchen and she opens up her banking app, because tonight is the night. Tonight she is finally going to start saving. And the plan is simple. Every month, about 500 zloty goes into a savings account. That\'s about 100 pounds or 120 euros. It\'s not a huge amount, but she has the number ready. Her finger is on the button, ready to save.'],
+                                    ['speaker' => 'Oliver', 'text' => 'But then her phone buzzes. A message from a shop: "Black Friday starts early for you. 40% off, today only." And it\'s the headphones, the headphones that she looked at last week. They\'re normally 600 zloty, but today they are 360. And she thinks, that\'s a saving of 240. If I buy them, I\'m actually saving money, right? Her thumb moves away from the savings option and onto the shop. And before she buys them, she does one last thing. She\'s an accountant, so she can\'t help it. She opens last month\'s spending in the app, just to check.'],
+                                    ['speaker' => 'Oliver', 'text' => 'And she sees it. Coffee on the way to work: she spent 180. Food delivery: 310. Two apps that she pays for every month and never opens: that\'s 60. A dress that she probably is going to wear once. Lots of little things, nothing big, but altogether they add up to more than 700 zloty. Marta puts down her tea, and then it hits her. She thought that she didn\'t have 500 to save, but she did have it, every single month. It just left the account in small little pieces, quietly, one coffee at a time. And the headphones, they weren\'t a saving. A saving is money that stays in your account.'],
+                                    ['speaker' => 'Oliver', 'text' => 'Tempting. If something is tempting, you really want it, even though you know that you probably shouldn\'t have it. So it might be so tempting to spend a lot of money on your payday. Things that are now are always more tempting than things that are later. The headphones are now. The savings are later. So the headphones will win.'],
+                                    ['speaker' => 'Oliver', 'text' => 'But here\'s the tricky part. When you pay with a card or your phone, you don\'t feel the money leave. A coffee is just a beep, so everything feels affordable. One coffee is affordable, one delivery is affordable, but 20 of them every month? That\'s a different number.'],
+                                    ['speaker' => 'Oliver', 'text' => 'Marta said, "If I buy these headphones, I\'m saving 240 zloty." But she wasn\'t saving anything at all. She was spending 360. So how do you protect yourself? The third word is budget. Budget. A budget is a plan for how much money you will spend, and on what, in a period of time, a week or a month. You might say, "Our budget for our holiday is 2,000 euros," or, "We need to make a budget for our expenses this month." And a budget is useful on days like Black Friday, when that temptation is very high, because if your plan has a limit on spending, 200 euros per month, for example, on random items, then you\'ll not spend more than 200 euros, even if it\'s Black Friday.'],
+                                    ['speaker' => 'Oliver', 'text' => 'There are some tips and some hope for us. The first way is to save first and not last. Most people spend first, so they get paid, and then they spend for the month, and whatever they have left is what they save. On payday, at the beginning of the month, you should take your savings immediately, so what you plan to save, and move it to your savings account. You can even set this up so it\'s done automatically for you.'],
+                                    ['speaker' => 'Oliver', 'text' => 'And that\'s our fourth phrase here: set aside, to set aside. And to set aside money means to keep it for a special purpose and not spend it on other things. So you might set aside 100 euros a month. You might set aside 250 pounds a month, whatever currency you\'re using. And if the money is set aside before you see it, or at the beginning of the month, you don\'t have to fight the temptation every day. And actually, if you need to go and take some of that money, you\'ll probably feel a little bit guilty or bad, and you might think twice about using it.'],
+                                    ['speaker' => 'Oliver', 'text' => 'That brings us to the last phrase: in the long run. In the long run means over a long period of time, in the future, not immediately. And that really is the whole story of saving. Spending wins in the short run, but saving wins in the long run. So what happened in this case to Marta? She didn\'t buy the headphones, but instead she pressed the button, and 500 zloty went straight to her savings. Then she cancelled the two apps that she never really used. And it was a small start, but in the long run, it will add up and make a bigger difference.'],
+                                ],
+                                // The same 5 phrases vocabulary_builder_1 taught, each a real
+                                // substring of this transcript.
+                                'target_phrases' => [
+                                    [
+                                        'phrase' => 'payday', 'meaning' => 'the day you get the money for your work',
+                                        'gap_before' => 'It\'s Friday evening and it\'s ',
+                                        'gap_after' => '.',
+                                    ],
+                                    [
+                                        'phrase' => 'tempting', 'meaning' => 'making you want it very much',
+                                        'gap_before' => 'If something is ',
+                                        'gap_after' => ', you really want it, even though you know that you probably shouldn\'t have it.',
+                                    ],
+                                    [
+                                        'phrase' => 'budget', 'meaning' => 'a plan for how much money you will spend',
+                                        'gap_before' => 'A ',
+                                        'gap_after' => ' is a plan for how much money you will spend, and on what, in a period of time, a week or a month.',
+                                    ],
+                                    [
+                                        'phrase' => 'set aside', 'meaning' => 'keep money for one special thing',
+                                        'gap_before' => 'And to ',
+                                        'gap_after' => ' money means to keep it for a special purpose and not spend it on other things.',
+                                    ],
+                                    [
+                                        'phrase' => 'in the long run', 'meaning' => 'over a long time in the future',
+                                        'gap_before' => 'Spending wins in the short run, but saving wins ',
+                                        'gap_after' => '.',
+                                    ],
+                                ],
+                                'topic_summary' => 'Marta, an accountant, opened her banking app on payday to start saving, but a '
+                                    .'message about cheap headphones almost made her spend the money. She checked last month\'s '
+                                    .'spending and saw that small things like coffee and food delivery added up to more than 700 '
+                                    .'zloty. Oliver explains why saving is hard: things that are now are more tempting than things '
+                                    .'that are later, and paying by card doesn\'t feel like spending. His tips: make a budget, and set '
+                                    .'aside your savings first, on payday. In the end, Marta saved her 500 zloty and cancelled two '
+                                    .'apps she never used.',
+                                'comprehension_check' => [
+                                    ['statement' => 'Marta works as an accountant.', 'correct' => true, 'difficulty' => 'easy'],
+                                    ['statement' => 'The headphones were more expensive on Black Friday.', 'correct' => false, 'difficulty' => 'medium'],
+                                    ['statement' => 'Oliver says it is a good idea to save first, on payday.', 'correct' => true, 'difficulty' => 'hard'],
+                                ],
+                                'detail_question' => [
+                                    'question' => 'Where did Marta\'s money go every month?',
+                                    'options' => ['On lots of small things, like coffee and food delivery', 'On one big holiday', 'On her rent'],
+                                    'correct' => 0,
+                                ],
+                                // No shadow_lines here — Day 1 Listening is comprehension-only.
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'build',
+                        'label' => 'Day 2',
+                        'mode' => 'solo',
+                        'pair_speaking' => [
+                            ['question' => 'Do you carry cash?', 'answer' => 'Not much. If I need cash, I go to the bank.', 'words' => ['If I need', 'cash']],
+                            ['question' => 'What will you buy if you save up enough money?', 'answer' => 'If I save up enough, I\'ll buy a new laptop.', 'words' => ['save up', 'I\'ll buy']],
+                            ['question' => 'Do you lend money to friends?', 'answer' => 'Only to close friends. I don\'t lend money unless I know the person well.', 'words' => ['lend', 'unless']],
+                            ['question' => 'Do you have a bank account?', 'answer' => 'Yes. When I earn money, it goes into my bank account.', 'words' => ['earn', 'bank account', 'When']],
+                        ],
+                        'steps' => [
+                            [
+                                'key' => 'vocabulary_builder_2',
+                                'label' => 'New Words',
+                                'duration_minutes' => 10,
+                                'hook' => 'Six words for your money, from your bank account to the money you borrow.',
+                                // Vocabulary in Use unit 19 (Money, B-C), our own sentences.
+                                'story' => 'I **earn** my money in a café, and it goes into my **bank account** every Friday. I '
+                                    .'don\'t carry much **cash**. I\'m **saving up** for a new phone, so I never **borrow** money '
+                                    .'from friends. But if my brother needs some money, I\'ll **lend** him a little.',
+                                'words' => [
+                                    ['phrase' => 'bank account', 'meaning' => 'the place in a bank where your money is kept for you', 'meaning_fa' => 'حساب بانکی', 'pos' => 'noun', 'example' => 'I opened a bank account last year.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'cash', 'meaning' => 'money in notes and coins', 'meaning_fa' => 'پول نقد', 'pos' => 'noun', 'example' => 'This shop only takes cash.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'earn', 'meaning' => 'to get money for the work you do', 'meaning_fa' => 'درآمد داشتن، پول درآوردن', 'pos' => 'verb', 'example' => 'She earns good money as a nurse.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'save up', 'meaning' => 'to keep money for some time so you can buy something later', 'meaning_fa' => 'پس‌انداز کردن (برای خرید چیزی)', 'pos' => 'phrasal verb', 'example' => 'I\'m saving up for a new bike.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'borrow', 'meaning' => 'to take money or a thing from someone and give it back later', 'meaning_fa' => 'قرض گرفتن', 'pos' => 'verb', 'example' => 'Can I borrow your pen?', 'difficulty' => 'medium'],
+                                    ['phrase' => 'lend', 'meaning' => 'to give money or a thing to someone who will give it back later', 'meaning_fa' => 'قرض دادن', 'pos' => 'verb', 'example' => 'My dad lent me some money for the bus.', 'difficulty' => 'medium'],
+                                ],
+                            ],
+                            [
+                                'key' => 'grammar_in_context',
+                                'label' => 'Grammar Time',
+                                'duration_minutes' => 15,
+                                'hook' => 'If you save, you\'ll have it later. One small "if" — and one big rule: no will after it.',
+                                'focus' => 'Zero & First Conditional (unless / when / as soon as)',
+                                // Our own explanation and examples (EOS-009 §14); the order
+                                // follows Grammar in Use units 25 (when I do / if and when) and
+                                // 38A (if I do…), plus the zero conditional for things that are
+                                // always true. The result with will / won't re-checks M11's
+                                // future; the second conditional is M18's lesson.
+                                'lesson' => [
+                                    'intro' => 'Use if to say what happens: always (the zero conditional) or in one real future situation (the first conditional). After if, when, unless and as soon as, use the present — never will.',
+                                    'sections' => [
+                                        [
+                                            'heading' => 'A · If + present → present or will',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'Something <strong>always true</strong> (a fact, a habit): <strong>if + present, present</strong> — <strong>If you pay by card, you don\'t feel the money leave.</strong> <strong>One real situation</strong> in the future: <strong>if + present, will + verb</strong> — <strong>If I save 100 a month, I\'ll have 1,200 next year.</strong> When the if part comes first, put a comma after it.',
+                                                    'fa' => 'چیزی که همیشه درست است (واقعیت یا عادت): هر دو بخش حال ساده — If you pay by card, you don\'t feel the money leave. یک موقعیت واقعی در آینده: بعد از if حال ساده، در نتیجه will — If I save 100 a month, I\'ll have 1,200 next year. اگر if اول جمله بیاید، بعد از آن بخش ویرگول بگذار.',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'first conditional: if + present, will + verb',
+                                                    'parts' => [
+                                                        ['text' => 'If I save 100 a month,', 'caption' => 'if + present simple', 'tone' => 'accent'],
+                                                        ['text' => 'I\'ll have 1,200', 'caption' => 'will + verb', 'tone' => 'accent'],
+                                                        ['text' => 'next year.', 'caption' => 'when'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'If I save money, I buy a car next year.', 'right' => 'If I save money, I\'ll buy a car next year.', 'highlight' => 'I\'ll buy', 'note' => 'One future situation (next year) → will + verb in the result.', 'fa' => 'برای یک موقعیت آینده (next year) در نتیجه will لازم است.'],
+                                                        ['wrong' => 'If it rain tomorrow, I\'ll stay at home.', 'right' => 'If it rains tomorrow, I\'ll stay at home.', 'highlight' => 'rains', 'note' => 'The if part is present simple: it rains (with -s).', 'fa' => 'بخش if حال ساده است و با it فعل -s می‌گیرد: it rains.'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'pairs',
+                                                    'pairs' => [
+                                                        ['left' => 'If I go shopping hungry, I spend too much. (always)', 'right' => 'If I go shopping today, I\'ll buy some milk. (this time)', 'fa' => 'اولی عادت همیشگی است (حال + حال)، دومی یک بار در آینده (حال + will).'],
+                                                        ['left' => 'If you leave money in a bank account, it\'s safe. (a fact)', 'right' => 'If you lend me 10 euros, I\'ll pay you back tomorrow. (one time)', 'fa' => 'اولی یک واقعیت است، دومی یک قول برای فردا.'],
+                                                        ['left' => 'If I save, I\'ll have more money.', 'right' => 'I\'ll have more money if I save.', 'fa' => 'ترتیب عوض می‌شود و معنا همان است؛ وقتی if دوم بیاید ویرگول لازم نیست.'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'From the listening', 'items' => [
+                                                            ['text' => 'If something is tempting, you really want it.', 'fa' => 'اگر چیزی وسوسه‌انگیز باشد، واقعاً آن را می‌خواهی.'],
+                                                            ['text' => 'When you pay with a card or your phone, you don\'t feel the money leave.', 'fa' => 'وقتی با کارت یا گوشی پرداخت می‌کنی، رفتن پول را حس نمی‌کنی.'],
+                                                        ]],
+                                                        ['label' => 'Examples', 'items' => [
+                                                            ['text' => 'If I get paid on Friday, I\'ll pay you back on Saturday.', 'fa' => 'اگر جمعه حقوق بگیرم، شنبه پولت را پس می‌دهم.'],
+                                                            ['text' => 'If I go shopping when I\'m hungry, I spend too much.', 'fa' => 'اگر گرسنه خرید بروم، زیادی خرج می‌کنم.'],
+                                                        ]],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'B · if, when, as soon as, unless',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => '<strong>if</strong> = maybe it will happen: <strong>If I get a pay rise, I\'ll save more.</strong> <strong>when</strong> = you are sure it will happen: <strong>When I get paid on Friday, I\'ll pay you back.</strong> <strong>as soon as</strong> = right after it happens: <strong>I\'ll call you as soon as the money arrives.</strong> <strong>unless</strong> = if … not: <strong>I won\'t buy it unless it\'s on sale.</strong> (= if it isn\'t on sale)',
+                                                    'fa' => 'if یعنی «اگر» (شاید بشود، شاید نه). when یعنی «وقتی که» (مطمئنی که می‌شود؛ حقوق جمعه حتماً می‌آید). as soon as یعنی «به‌محض اینکه». unless یعنی «مگر اینکه» = if … not؛ پس فعل بعد از unless مثبت است: unless it\'s on sale.',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'unless = if … not',
+                                                    'parts' => [
+                                                        ['text' => 'I won\'t buy it', 'caption' => 'result'],
+                                                        ['text' => 'unless', 'caption' => '= if … not', 'tone' => 'accent'],
+                                                        ['text' => 'it\'s on sale.', 'caption' => 'present, positive', 'tone' => 'accent'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'I won\'t buy it unless it isn\'t on sale.', 'right' => 'I won\'t buy it unless it\'s on sale.', 'highlight' => 'unless it\'s', 'note' => 'unless already means "if … not", so the verb after it is positive.', 'fa' => 'unless خودش منفی است («مگر اینکه»)؛ بعدش فعل را منفی نکن.'],
+                                                        ['wrong' => 'I\'ll call you as soon the money arrives.', 'right' => 'I\'ll call you as soon as the money arrives.', 'highlight' => 'as soon as', 'note' => 'as soon as is three words.', 'fa' => 'as soon as سه کلمه است؛ as آخر را جا نینداز.'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'pairs',
+                                                    'pairs' => [
+                                                        ['left' => 'If I find a cheaper flat, I\'ll move. (maybe)', 'right' => 'When I get paid, I\'ll buy the tickets. (sure)', 'fa' => 'if یعنی شاید، when یعنی حتماً اتفاق می‌افتد.'],
+                                                        ['left' => 'I\'ll buy the shoes if they\'re cheap.', 'right' => 'I won\'t buy the shoes unless they\'re cheap.', 'fa' => 'unless = if … not؛ هر دو جمله یک معنا دارند.'],
+                                                        ['left' => 'When the money arrives, I\'ll call you.', 'right' => 'As soon as the money arrives, I\'ll call you.', 'fa' => 'as soon as یعنی «همان لحظه»؛ از when فوری‌تر است.'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'From the video', 'items' => [
+                                                            ['text' => 'Stickers don\'t grow in value when you hide them in a box.', 'fa' => 'وقتی برچسب‌ها را در جعبه قایم می‌کنی، ارزششان بیشتر نمی‌شود.'],
+                                                        ]],
+                                                        ['label' => 'Examples', 'items' => [
+                                                            ['text' => 'I\'ll lend you the money as soon as I get paid.', 'fa' => 'به‌محض اینکه حقوق بگیرم، پول را به تو قرض می‌دهم.'],
+                                                            ['text' => 'I never borrow money unless I really need it.', 'fa' => 'هیچ‌وقت پول قرض نمی‌گیرم، مگر اینکه واقعاً لازمش داشته باشم.'],
+                                                        ]],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'C · No will after if, when or unless',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'After <strong>if, when, unless</strong> and <strong>as soon as</strong>, use the <strong>present</strong>, even about the future: <strong>If I have money next year, I\'ll buy a car.</strong> (not <em>If I will have</em>). Put <strong>will / won\'t</strong> only in the other part, the result: <strong>I\'ll call you when I get home.</strong>',
+                                                    'fa' => 'خطای رایج فارسی‌زبان‌ها: «اگر سال بعد پول داشته باشم» حس آینده دارد، پس می‌گوییم If I will have money — غلط است! بعد از if / when / unless / as soon as همیشه حال ساده: If I have money next year, I\'ll buy a car. will و won\'t (از ماموریت ۱۱) فقط در بخش نتیجه می‌آیند: I\'ll call you when I get home.',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'present after when — will only in the result',
+                                                    'parts' => [
+                                                        ['text' => 'When I get paid,', 'caption' => 'when + present (no will)', 'tone' => 'accent'],
+                                                        ['text' => 'I\'ll pay you back.', 'caption' => 'will + verb', 'tone' => 'accent'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'If I will have money next year, I\'ll buy a car.', 'right' => 'If I have money next year, I\'ll buy a car.', 'highlight' => 'If I have', 'note' => 'After if → present, even for the future.', 'fa' => 'بعد از if حال ساده، حتی برای آینده؛ نه If I will have.'],
+                                                        ['wrong' => 'I\'ll call you as soon as I will get home.', 'right' => 'I\'ll call you as soon as I get home.', 'highlight' => 'as soon as I get', 'note' => 'After as soon as → present.', 'fa' => 'بعد از as soon as هم حال ساده؛ will فقط در بخش نتیجه.'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'From the video', 'items' => [
+                                                            ['text' => 'If you don\'t start now, you won\'t magically wake up one day knowing how.', 'fa' => 'اگر الان شروع نکنی، یک روز به‌طور جادویی بیدار نمی‌شوی و بلد باشی.'],
+                                                        ]],
+                                                        ['label' => 'Examples', 'items' => [
+                                                            ['text' => 'When I find a job, I\'ll open a bank account.', 'fa' => 'وقتی کار پیدا کنم، یک حساب بانکی باز می‌کنم.'],
+                                                            ['text' => 'Unless you set aside money on payday, you won\'t save anything.', 'fa' => 'مگر اینکه روز حقوق پول کنار بگذاری، وگرنه چیزی پس‌انداز نمی‌کنی.'],
+                                                        ]],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'D · Make it personal',
+                                            'body' => 'Next you\'ll finish sentences about <strong>your</strong> money — saving, spending and borrowing — and soon use them in AI Conversation #1.',
+                                        ],
+                                    ],
+                                    'bridge_note' => 'You\'ll use this soon — in AI Conversation #1.',
+                                ],
+                                'frequency_starters' => [
+                                    'If I get some extra money this month,', 'When I get paid,', 'I won\'t buy a new phone unless',
+                                    'As soon as I have enough money,', 'If I go shopping when I\'m hungry,', 'If I lend my friend some money,',
+                                ],
+                                'grammar_judgment' => 'Judge whether the learner finished this sentence starter into '
+                                    .'a true, natural personal sentence about money (saving, spending, borrowing, lending, '
+                                    .'shopping, payday), using the zero conditional (if / when + present, present: always true, '
+                                    .'a habit) or the first conditional (if / when / unless / as soon as + present, will / won\'t + '
+                                    .'verb: one real future situation).',
+                                'grammar_major_criteria' => 'a verb with no subject, it or there left out ("If is cheap, I\'ll buy it", "Is important to save"), '
+                                    .'will or won\'t right after if / when / unless / as soon as ("If I will have money", "when I will '
+                                    .'get paid"), will + to or -ing ("I\'ll to buy", "I will buying"), "unless" + a negative verb that '
+                                    .'turns the meaning around ("unless it isn\'t on sale" meant as "if it isn\'t on sale"), a starter that '
+                                    .'needs a result left with no result, the sentence does not actually continue the given starter, '
+                                    .'or it is not a genuine personal statement. Do not mark the zero conditional wrong just because '
+                                    .'the first conditional would also be possible, or the other way round ("When I get paid, I pay my '
+                                    .'rent" and "When I get paid, I\'ll pay my rent" are both fine), and a negative result with unless '
+                                    .'("I won\'t buy it unless it\'s cheap") is right',
+                                'grammar_context' => 'continues with the present after "I won\'t buy a new phone unless" and '
+                                    .'finishes the clause; adds a result with will / won\'t after "If I get some extra money this month," '
+                                    .'"As soon as I have enough money," and "If I lend my friend some money,"; a result in the present '
+                                    .'(a habit) or with will after "When I get paid," and "If I go shopping when I\'m hungry,"',
+                                // Reminders only: SentenceChecker asks for at least "minor", never "major".
+                                'grammar_minor_criteria' => self::SLIP_ARTICLE.'; '.self::SLIP_HE_SHE.'; '.self::SLIP_WILL_CAN,
+                                'quick_check' => [
+                                    [
+                                        'wrong' => 'If I will have money, I\'ll buy a car.',
+                                        'options' => ['If I had money, I\'ll buy a car.', 'If I have money, I\'ll buying a car.', 'If I have money, I\'ll buy a car.'],
+                                        'correct' => 2,
+                                        'difficulty' => 'easy',
+                                        'why' => 'After if → present (I have), never will.',
+                                    ],
+                                    [
+                                        'wrong' => 'I won\'t buy it unless it isn\'t on sale.',
+                                        'options' => ['I won\'t buy it unless it will be on sale.', 'I won\'t buy it unless it\'s on sale.', 'I won\'t buy it unless not on sale.'],
+                                        'correct' => 1,
+                                        'difficulty' => 'medium',
+                                        'why' => 'unless = if … not, so the verb after it is positive: unless it\'s on sale.',
+                                    ],
+                                    [
+                                        'wrong' => 'I\'ll call you as soon as I will get home.',
+                                        'options' => ['I\'ll call you as soon I get home.', 'I call you as soon as I will get home.', 'I\'ll call you as soon as I get home.'],
+                                        'correct' => 2,
+                                        'difficulty' => 'medium',
+                                        'why' => 'as soon as + present (I get); will only in the result (I\'ll call).',
+                                    ],
+                                    [
+                                        'wrong' => 'If I save 100 a month, I have 1,200 next year.',
+                                        'options' => ['If I save 100 a month, I\'ll have 1,200 next year.', 'If I will save 100 a month, I have 1,200 next year.', 'If I save 100 a month, I\'ll to have 1,200 next year.'],
+                                        'correct' => 0,
+                                        'difficulty' => 'hard',
+                                        'why' => 'One future situation (next year) → will + verb in the result.',
+                                    ],
+                                ],
+                                'word_order' => [
+                                    ['words' => ['money,', 'If', 'I\'ll', 'save', 'I', 'car.', 'a', 'buy'], 'answer' => 'If I save money, I\'ll buy a car.'],
+                                    ['words' => ['soon', 'as', 'I\'ll', 'call', 'you', 'as', 'arrive.', 'I'], 'answer' => 'I\'ll call you as soon as I arrive.'],
+                                    ['words' => ['it\'s', 'won\'t', 'buy', 'I', 'cheap.', 'unless', 'it'], 'answer' => 'I won\'t buy it unless it\'s cheap.'],
+                                ],
+                            ],
+                            [
+                                // A real 17-year-old on the TEDxCNMS Youth stage in India: her
+                                // stickers, her dad, the 50-30-20 rule and a friend's grandma
+                                // who borrowed money to buy cows — cut from 12:28 to about 6
+                                // minutes (the host's introduction, the "Hunger Games" part, the
+                                // fixed-deposit and app parts and two jokes left out). Captions
+                                // written from a Whisper pass of the cut, checked against the
+                                // talk's YouTube captions.
+                                'key' => 'video_shadowing',
+                                'label' => 'Video Shadowing',
+                                'duration_minutes' => 14,
+                                'hook' => 'A 17-year-old tells a full hall what she learned about money from her stickers, her dad and a grandma with eight kids.',
+                                'source' => 'TEDxCNMS Youth — Yashvi Gangar, "The Basics of Budgeting, Saving and Investing for Young Adults"',
+                                'video_url' => $shadowingVideoUrl,
+                                'captions_url' => $shadowingCaptionsUrl,
+                                'video_segments' => $this->shadowTimestampsFor('M14', 'video_shadowing_segments'),
+                                'topic_summary' => 'Yashvi Gangar, a 17-year-old from India, kept a box of shiny stickers for '
+                                    .'years, waiting for a special day, until they weren\'t worth anything. She says money works '
+                                    .'the same way: if you only keep it, you waste it. Her dad works very hard and spends money on '
+                                    .'her, not on himself, but no matter how hard you work, if you don\'t manage your money, you '
+                                    .'lose it. She explains the 50-30-20 rule and tells the story of a friend\'s grandma, a young '
+                                    .'widow with eight children, who borrowed money to buy cows and built a business. Her message: '
+                                    .'if you don\'t start now, you won\'t learn how.',
+                                'comprehension_check' => [
+                                    ['statement' => 'Yashvi used her stickers on a special day.', 'correct' => false],
+                                    ['statement' => 'Yashvi\'s dad wore the same jeans for three years.', 'correct' => true],
+                                    ['statement' => 'The grandma borrowed money to buy cows.', 'correct' => true],
+                                ],
+                                // Real phrases Yashvi Gangar uses on stage.
+                                'target_phrases' => [
+                                    ['phrase' => 'grew out of', 'meaning' => 'became too old for something'],
+                                    ['phrase' => 'wake-up call', 'meaning' => 'something that shows you that you must change'],
+                                    ['phrase' => 'manage your money', 'meaning' => 'plan and control how you spend and save'],
+                                    ['phrase' => 'slip through your fingers', 'meaning' => 'be lost because you don\'t hold it carefully'],
+                                    ['phrase' => 'all on her own', 'meaning' => 'without help from anyone'],
+                                ],
+                                // Real verbatim lines from the video — shadowing means mimicking
+                                // the exact audio just heard, and the auto-pause timestamps
+                                // (missions:cache-shadow-timestamps) only land on words people
+                                // actually say. Chosen for this mission's grammar: when / if +
+                                // present, and if you don't…, it will / you won't….
+                                // Bold marks naturally-stressed content words (rendered by
+                                // <x-stress-marked-line>).
+                                'shadow_lines' => [
+                                    'Stickers don\'t **grow** in value when you hide them in a box.',
+                                    'If you don\'t know how to **manage** your money, it will slip through your fingers.',
+                                    'You don\'t have to be **rich** to invest.',
+                                    'Every rupee she **earned**, she saved and bought gold.',
+                                    'Seriously, if you don\'t start **now**, you won\'t magically wake up one day knowing how.',
+                                    'Don\'t work for money. Make money **work** for you.',
+                                ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M14', 'video_shadowing'),
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'practice',
+                        'label' => 'Day 3',
+                        'mode' => 'ai',
+                        'pair_speaking' => [
+                            ['question' => 'Do you owe anyone money?', 'answer' => 'No, I don\'t. If I owe money, I can\'t sleep!', 'words' => ['If I owe']],
+                            ['question' => 'When will you pay back your loan?', 'answer' => 'I\'ll pay back my loan as soon as I get a pay rise.', 'words' => ['loan', 'as soon as']],
+                            ['question' => 'Are prices going up where you live?', 'answer' => 'Yes. When prices go up, people buy less.', 'words' => ['go up', 'When']],
+                            ['question' => 'Do banks pay interest on savings?', 'answer' => 'Yes. If you leave money in the bank, you get a little interest.', 'words' => ['interest', 'If you leave']],
+                        ],
+                        'steps' => [
+                            [
+                                'key' => 'vocabulary_builder_3',
+                                'label' => 'New Words',
+                                'duration_minutes' => 10,
+                                'hook' => 'Last set — the words for debts and prices: owe, loan, interest…',
+                                // Vocabulary in Use units 19 (Money, C-D) and 40 (rise and fall,
+                                // interest), our own sentences.
+                                'story' => 'Last year I needed a car, so I got a **loan** from the bank. Now I **owe** the bank a '
+                                    .'lot of money, and I pay **interest** every month. Prices **go up** every year, so I also '
+                                    .'moved to a cheaper flat. It\'s small, but it\'s good **value for money**, and the owner only '
+                                    .'asked for a small **deposit**.',
+                                'words' => [
+                                    ['phrase' => 'owe', 'meaning' => 'to have to pay back money that someone gave you', 'meaning_fa' => 'بدهکار بودن', 'pos' => 'verb', 'example' => 'I owe my brother some money.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'loan', 'meaning' => 'money you borrow from a bank and pay back later', 'meaning_fa' => 'وام', 'pos' => 'noun', 'example' => 'They got a loan to buy a house.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'interest', 'meaning' => 'the extra money you pay when you borrow, or get when you save in a bank', 'meaning_fa' => 'سود بانکی، بهره', 'pos' => 'noun', 'example' => 'The bank pays interest on my savings.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'deposit', 'meaning' => 'money you pay first when you rent a flat; you get it back at the end', 'meaning_fa' => 'ودیعه، پول پیش', 'pos' => 'noun', 'example' => 'We paid a big deposit for the flat.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'value for money', 'meaning' => 'good for the amount of money you pay', 'meaning_fa' => 'به‌صرفه، ارزش پولش را دارد', 'pos' => 'phrase', 'example' => 'This phone is good value for money.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'go up', 'meaning' => '(of prices) to become higher', 'meaning_fa' => 'بالا رفتن (قیمت)', 'pos' => 'phrasal verb', 'example' => 'Food prices go up every year.', 'difficulty' => 'easy'],
+                                ],
+                            ],
+                            [
+                                'key' => 'ai_conversation_1',
+                                'label' => 'Talk It Out',
+                                'duration_minutes' => 18,
+                                'hook' => 'Say it here, alone, before you have to say it to the AI Instructor for real.',
+                                'warm_up_task' => 'Record 2 minutes of solo speaking about you and money: how you save, what is '
+                                    .'tempting for you, and what you will do if you get some extra money — using the new '
+                                    .'vocabulary, without reading.',
+                                'interview_questions' => [
+                                    'Do you have a budget every month?',
+                                    'What do you usually do on payday?',
+                                    'What is tempting for you in shops?',
+                                    'What will you do if you get some extra money?',
+                                    'Do you ever borrow money from friends?',
+                                    'Are prices going up where you live?',
+                                ],
+                            ],
+                            [
+                                'key' => 'reading_comprehension',
+                                'label' => 'Reading',
+                                'duration_minutes' => 12,
+                                'hook' => 'Amir wants a laptop, but prices keep going up. Will his plan work?',
+                                'passage_title' => 'Saving up for a laptop',
+                                'image_query' => 'young man using laptop',
+                                // Written fresh for this app (EOS-009 §14) — reuses the Vocabulary
+                                // Builder words in a new context, with zero and first conditionals,
+                                // unless and as soon as.
+                                'passage' => 'My brother Amir is 19, and he needs a laptop for university. He earns a little money '
+                                    .'in a coffee shop, but laptop prices go up every month. Our dad said, "If you save up for six '
+                                    .'months, I\'ll pay half." So Amir made a plan. On payday, he sets aside a third of his money '
+                                    .'in his bank account before he spends anything. He doesn\'t carry much cash, because if he has '
+                                    .'cash in his pocket, he spends it. Last month a friend asked to borrow some money. Amir said, '
+                                    .'"I\'ll lend you some as soon as I get paid, but you have to pay me back." His friend still owes '
+                                    .'him a little! A shop offered Amir a loan, but the interest was very high. "I won\'t take a loan '
+                                    .'unless there\'s no interest," he told me. Yesterday he found a good laptop online. It isn\'t new, '
+                                    .'but it\'s good value for money. If everything goes well, he\'ll buy it next week.',
+                                'highlighted_phrases' => [
+                                    ['phrase' => 'earns', 'type' => 'reused'],
+                                    ['phrase' => 'go up', 'type' => 'reused'],
+                                    ['phrase' => 'save up', 'type' => 'reused'],
+                                    ['phrase' => 'payday', 'type' => 'reused'],
+                                    ['phrase' => 'sets aside', 'type' => 'reused'],
+                                    ['phrase' => 'bank account', 'type' => 'reused'],
+                                    ['phrase' => 'cash', 'type' => 'reused'],
+                                    ['phrase' => 'borrow', 'type' => 'reused'],
+                                    ['phrase' => 'lend', 'type' => 'reused'],
+                                    ['phrase' => 'owes', 'type' => 'reused'],
+                                    ['phrase' => 'loan', 'type' => 'reused'],
+                                    ['phrase' => 'interest', 'type' => 'reused'],
+                                    ['phrase' => 'value for money', 'type' => 'reused'],
+                                    ['phrase' => 'a third', 'type' => 'new', 'definition' => 'one of three equal parts', 'pos' => 'phrase', 'example' => 'A third of the class was late today.'],
+                                    ['phrase' => 'goes well', 'type' => 'new', 'definition' => 'happens in the way you want', 'pos' => 'phrase', 'example' => 'If everything goes well, we\'ll finish today.'],
+                                ],
+                                'topic_summary' => 'Amir, a 19-year-old who works in a coffee shop, is saving up for a laptop for '
+                                    .'university. His dad will pay half if he saves for six months, so Amir sets aside part of his '
+                                    .'money on every payday. He didn\'t take a shop\'s loan because the interest was too high, and '
+                                    .'he has found a used laptop that is good value for money.',
+                                'comprehension_check' => [
+                                    ['statement' => 'Amir works in a coffee shop.', 'correct' => true, 'difficulty' => 'easy'],
+                                    ['statement' => 'Amir carries a lot of cash.', 'correct' => false, 'difficulty' => 'medium'],
+                                    ['statement' => 'Amir took a loan from a shop.', 'correct' => false, 'difficulty' => 'hard'],
+                                ],
+                                'questions' => [
+                                    'What did Amir\'s dad promise?',
+                                    'Why didn\'t Amir take the shop\'s loan?',
+                                ],
+                                // Multiple choice instead of written answers (reading task 11,
+                                // 2026-11-10): one tap each, graded in the browser like the true/false
+                                // round above. Every right answer is stated in the passage; the wrong
+                                // ones are things the passage mentions or plausibly could.
+                                'choice_questions' => [
+                                    ['prompt' => 'What will Dad do if Amir saves for six months?', 'options' => ['Pay half of the laptop', 'Buy him a new phone', 'Lend him money'], 'correct' => 0, 'difficulty' => 'easy'],
+                                    ['prompt' => 'Why doesn\'t Amir carry much cash?', 'options' => ['The bank is far away', 'If he has cash, he spends it', 'His dad says no'], 'correct' => 1, 'difficulty' => 'medium'],
+                                    ['prompt' => 'When will Amir buy the laptop?', 'options' => ['Today', 'Next month', 'Next week, if everything goes well'], 'correct' => 2, 'difficulty' => 'hard'],
+                                ],
+                            ],
+                            [
+                                'key' => 'writing',
+                                'label' => 'Writing',
+                                'duration_minutes' => 12,
+                                'hook' => 'Your money, your rules — write what you always do, and what you will do if…',
+                                'title' => 'Me and money',
+                                'prompts' => [
+                                    ['label' => 'How I save money', 'image_query' => 'piggy bank'],
+                                    ['label' => 'Something tempting I want to buy', 'image_query' => 'woman looking at shoes in store'],
+                                    ['label' => 'What I will do if I get extra money', 'image_query' => 'salary envelope cash'],
+                                    ['label' => 'My rules for spending', 'image_query' => 'budget planner notebook'],
+                                    ['label' => 'A time I borrowed or lent money', 'image_query' => 'lending money'],
+                                    ['label' => 'What I do on payday', 'image_query' => 'paying with credit card'],
+                                ],
+                                // Grammar connectors only — see M01's try_to_use note.
+                                'try_to_use' => ['If I…, I\'ll…', 'When… / As soon as…', '…unless…', 'budget', 'set aside', 'save up', 'value for money'],
+                                'min_words' => 100,
+                                'max_words' => 150,
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'challenge',
+                        'label' => 'Day 4',
+                        'mode' => 'ai',
+                        'pair_speaking' => [
+                            ['question' => 'What will you do if you get some extra money this month?', 'answer' => 'If I get extra money, I\'ll set aside half of it.', 'words' => ['If I get', 'I\'ll set aside']],
+                            ['question' => 'What do you do when something is tempting in a shop?', 'answer' => 'When something is tempting, I wait a day before I buy it.', 'words' => ['When', 'tempting']],
+                            ['question' => 'Do you borrow money from friends?', 'answer' => 'No. I don\'t borrow money unless I really need it.', 'words' => ['borrow', 'unless']],
+                            ['question' => 'Is a cheap phone good value for money?', 'answer' => 'Not always. If it breaks after a month, it isn\'t good value for money.', 'words' => ['If it breaks', 'value for money']],
+                        ],
+                        'steps' => [
+                            [
+                                'key' => 'error_log',
+                                'label' => 'My Fixes',
+                                'duration_minutes' => 7,
+                                'hook' => "Every mistake here is one you won't make in tomorrow's Final Challenge.",
+                            ],
+                            [
+                                'key' => 'ai_conversation_2',
+                                'label' => 'Final Talk',
+                                'duration_minutes' => 12,
+                                'hook' => "This one's harder on purpose — real conversations don't come with warm-up questions.",
+                                'round_pool' => [
+                                    'What do you do on payday? Do you save first or spend first?',
+                                    'What will you do if you get some extra money this month?',
+                                    'What is tempting for you? What do you do when you want something expensive?',
+                                    'Do you lend money to friends? What happens if they don\'t pay you back?',
+                                    'Prices are going up. What will you do if your rent goes up next year?',
+                                    'What will you buy as soon as you save up enough money?',
+                                ],
+                                'role_reversal_topic' => 'saving, spending, borrowing, and what will happen if…',
+                                'final_prompt' => 'Talk for 3 minutes about you and money: how you save, what tempts you, and what you will do if you get some extra money.',
+                                'requirements' => [
+                                    '5+ vocabulary expressions',
+                                    'if + present, will + verb for a future situation',
+                                    'if / when + present for something that is always true',
+                                    'when, as soon as or unless at least once',
+                                    'How you save (or don\'t!)',
+                                    'What you will do if you get extra money',
                                 ],
                             ],
                             [

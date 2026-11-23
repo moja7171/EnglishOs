@@ -185,4 +185,15 @@ return [
             ['wrong' => 'Where have you bought your new laptop?', 'right' => 'Where did you buy your new laptop?', 'why' => 'Details of the news (where, when, how) → past simple: Where did you…?'],
         ],
     ],
+    'M14' => [
+        0 => [
+            ['wrong' => 'If you heat ice, it melt.', 'right' => 'If you heat ice, it melts.', 'why' => 'Always true → present in both parts (it melts).'],
+        ],
+        1 => [
+            ['wrong' => 'I won\'t lend him money unless he doesn\'t pay me back.', 'right' => 'I won\'t lend him money unless he pays me back.', 'why' => 'unless = if … not, so the verb after it is positive.'],
+        ],
+        2 => [
+            ['wrong' => 'When I will get paid, I\'ll buy you lunch.', 'right' => 'When I get paid, I\'ll buy you lunch.', 'why' => 'After when → present, even about the future.'],
+        ],
+    ],
 ];

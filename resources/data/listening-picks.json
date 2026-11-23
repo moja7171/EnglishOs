@@ -287,24 +287,24 @@
   ],
   "M14" : [
     [
+      {"src":"lee","title":"Talking about money","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/250221","min":6,"tx":"page"},
       {"src":"sme","title":"Living with debt","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2026/ep-260528","min":7,"tx":"page"},
-      {"src":"voa","title":"Words and Their Stories: Money Talks","url":"https://learningenglish.voanews.com/a/money-talks/1681384.html","tx":"page"},
-      {"src":"teded","title":"How we became addicted to credit cards","url":"https://ed.ted.com/lessons/a-brief-history-of-credit-cards-nidhi-upadhyaya","min":7}
+      {"src":"voa","title":"Words and Their Stories: Money Talks","url":"https://learningenglish.voanews.com/a/money-talks/1681384.html","tx":"page"}
     ],
     [
-      {"src":"sme","title":"How green is your money?","url":"https://podcasts.apple.com/us/podcast/how-green-is-your-money/id262026947?i=1000631847356","min":6,"apple":true},
-      {"src":"voa","title":"If You Learn Conditionals, You'll Be Glad You Did!","url":"https://learningenglish.voanews.com/a/if-you-learn-conditionals-you-ll-be-glad-you-did-/3173342.html","tx":"page","grammar":true},
-      {"src":"teded","title":"What gives a dollar bill its value?","url":"https://ed.ted.com/lessons/what-gives-a-dollar-bill-its-value-doug-levinson","min":6}
+      {"src":"lee","title":"Talking about saving money","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/250919","min":6,"tx":"page"},
+      {"src":"sme","title":"How green is your money?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2023/ep-231019","min":6,"tx":"page"},
+      {"src":"voa","title":"If You Learn Conditionals, You'll Be Glad You Did!","url":"https://learningenglish.voanews.com/a/if-you-learn-conditionals-you-ll-be-glad-you-did-/3173342.html","tx":"page","grammar":true}
     ],
     [
+      {"src":"lee","title":"Talking about greed","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/251024","min":6,"tx":"page"},
       {"src":"sme","title":"Should we pay more for chocolate?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2026/ep-260312","min":6,"tx":"page"},
-      {"src":"voa","title":"Feel the Pinch","url":"https://learningenglish.voanews.com/a/words-and-their-stories-feel-the-pinch/2942530.html","tx":"page"},
-      {"src":"teded","title":"How does the stock market work?","url":"https://ed.ted.com/lessons/how-does-the-stock-market-work-oliver-elfenbaum","min":6}
+      {"src":"voa","title":"Feel the Pinch","url":"https://learningenglish.voanews.com/a/words-and-their-stories-feel-the-pinch/2942530.html","tx":"page"}
     ],
     [
-      {"src":"sme","title":"Why are billionaires building bunkers?","url":"https://podcasts.apple.com/us/podcast/why-are-billionaires-building-bunkers/id262026947?i=1000747153145","min":7,"apple":true},
-      {"src":"voa","title":"Be Careful What You 'Bank On'","url":"https://learningenglish.voanews.com/a/be-careful-what-you-bank-on-/7703514.html","min":5,"tx":"page"},
-      {"src":"teded","title":"Why can’t governments print an unlimited amount of money?","url":"https://ed.ted.com/lessons/how-do-governments-create-money-out-of-thin-air-jonathan-smith","min":7}
+      {"src":"lee","title":"Talking about waste","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/250704","min":6,"tx":"page"},
+      {"src":"sme","title":"Why are prices going up?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2022/ep-220929","min":6,"tx":"page"},
+      {"src":"voa","title":"Be Careful What You 'Bank On'","url":"https://learningenglish.voanews.com/a/be-careful-what-you-bank-on-/7703514.html","min":5,"tx":"page"}
     ]
   ],
   "M15" : [
