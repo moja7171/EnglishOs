@@ -450,21 +450,24 @@ class MissionSeeder extends Seeder
                                 'quick_check' => [
                                     [
                                         'wrong' => 'She go to work at eight.',
-                                        'options' => ['She gos to work at eight.', 'She goes to work at eight.', 'She go to work at eight.'],
-                                        'correct' => 1,
+                                        'options' => ['She goes to work at eight.', 'She is go to work at eight.', 'She going to work at eight.'],
+                                        'correct' => 0,
                                         'difficulty' => 'easy',
+                                        'why' => 'he / she / it → add -s: goes.',
                                     ],
                                     [
-                                        'wrong' => "I doesn't exercise every day.",
-                                        'options' => ["I doesn't exercises every day.", 'I not exercise every day.', "I don't exercise every day."],
-                                        'correct' => 2,
+                                        'wrong' => 'I doesn\'t exercise every day.',
+                                        'options' => ['I don\'t exercises every day.', 'I don\'t exercise every day.', 'I not exercise every day.'],
+                                        'correct' => 1,
                                         'difficulty' => 'medium',
+                                        'why' => 'I / you / we / they → don\'t + the plain verb.',
                                     ],
                                     [
                                         'wrong' => 'He usually wake up late.',
-                                        'options' => ['He usually waking up late.', 'He usually wakes up late.', 'He usually wake ups late.'],
-                                        'correct' => 1,
+                                        'options' => ['He wakes usually up late.', 'Usually he wake up late.', 'He usually wakes up late.'],
+                                        'correct' => 2,
                                         'difficulty' => 'hard',
+                                        'why' => 'usually goes before the verb, and he → wakes.',
                                     ],
                                 ],
                                 // "Build the sentence" round (Epic D) — reuses sentences already
@@ -1187,7 +1190,7 @@ class MissionSeeder extends Seeder
                                 'hook' => 'Every "she\'s living" you get right here is one less pause when you\'re talking about someone real.',
                                 'focus' => 'Present Simple vs Present Continuous',
                                 'lesson' => [
-                                    'intro' => 'Three small things: what each tense is for, how to ask in each, and how to pick the right one.',
+                                    'intro' => 'Four small things: what each tense is for, how to ask in each, how to pick the right one, and verbs that never take -ing.',
                                     'sections' => [
                                         [
                                             'heading' => 'A · Always true, or true right now?',
@@ -1259,8 +1262,8 @@ class MissionSeeder extends Seeder
                                             'blocks' => [
                                                 [
                                                     'type' => 'rule',
-                                                    'text' => 'Look for the <strong>time word</strong>. It tells you which tense to use.',
-                                                    'fa' => 'به قید زمان نگاه کن؛ مشخص می‌کند کدام زمان لازم است.',
+                                                    'text' => 'A <strong>time word</strong> often helps you choose — but the meaning decides.',
+                                                    'fa' => 'قید زمان اغلب کمک می‌کند، ولی تصمیم نهایی با معنی جمله است: همیشگی یا موقتی؟',
                                                 ],
                                                 [
                                                     'type' => 'chips',
@@ -1275,7 +1278,30 @@ class MissionSeeder extends Seeder
                                                         ['rule' => 'A general fact about a person → Present Simple', 'example' => 'My best friend lives in Manchester.', 'highlight' => 'lives'],
                                                         ['rule' => 'A temporary situation right now → Present Continuous', 'example' => 'My best friend is living in Manchester for a few months.', 'highlight' => 'is living'],
                                                         ['rule' => 'A habit → Present Simple', 'example' => 'She usually calls me on Sundays.', 'highlight' => 'calls'],
-                                                        ['rule' => 'Something happening around now → Present Continuous', 'example' => 'She\'s calling me a lot more since the wedding.', 'highlight' => 'calling'],
+                                                        ['rule' => 'Something happening around now → Present Continuous', 'example' => 'These days she\'s calling me a lot more.', 'highlight' => 'calling'],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'D · Some verbs are never -ing',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => '<strong>State verbs</strong> (know, like, want, need, believe, understand) stay in the <strong>Present Simple</strong>, even right now.',
+                                                    'fa' => 'فعل‌های حالتی (know, like, want, need, believe, understand) حتی برای «همین الان» هم ing نمی‌گیرند: I know her، نه I\'m knowing her.',
+                                                ],
+                                                [
+                                                    'type' => 'chips',
+                                                    'groups' => [
+                                                        ['label' => 'No -ing', 'words' => ['know', 'like', 'love', 'want', 'need', 'believe', 'understand', 'remember']],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'I\'m knowing her very well.', 'right' => 'I know her very well.', 'highlight' => 'know'],
+                                                        ['wrong' => 'She is wanting a new phone right now.', 'right' => 'She wants a new phone right now.', 'highlight' => 'wants'],
                                                     ],
                                                 ],
                                             ],
@@ -1298,27 +1324,25 @@ class MissionSeeder extends Seeder
                                     .'continuous tense, whichever fits the sentence starter given',
                                 'quick_check' => [
                                     [
-                                        // Was corrected to present perfect ("She's known him...") —
-                                        // a tense this mission never teaches. Fixed to present
-                                        // simple (Content audit, Epic H): "know" is a stative verb,
-                                        // so the real teaching point — never continuous, always
-                                        // simple — now stays inside this mission's own scope.
                                         'wrong' => 'She is knowing him very well.',
-                                        'options' => ['She is knowing him very well.', 'She know him very well.', 'She knows him very well.'],
-                                        'correct' => 2,
+                                        'options' => ['She knows him very well.', 'She is know him very well.', 'She knowing him very well.'],
+                                        'correct' => 0,
                                         'difficulty' => 'easy',
+                                        'why' => 'know is a state verb → never -ing: she knows.',
                                     ],
                                     [
                                         'wrong' => 'My friend works in London this month, just for a project.',
-                                        'options' => ['My friend works in London this month, just for a project.', 'My friend working in London this month.', 'My friend is working in London this month, just for a project.'],
-                                        'correct' => 2,
+                                        'options' => ['My friend is work in London this month, just for a project.', 'My friend is working in London this month, just for a project.', 'My friend has working in London this month, just for a project.'],
+                                        'correct' => 1,
                                         'difficulty' => 'medium',
+                                        'why' => 'Temporary (this month) → am / is / are + -ing.',
                                     ],
                                     [
                                         'wrong' => 'She usually is getting on well with her sister.',
-                                        'options' => ['She usually is getting on well with her sister.', 'She usually get on well with her sister.', 'She usually gets on well with her sister.'],
+                                        'options' => ['She is usually get on well with her sister.', 'She usually get on well with her sister.', 'She usually gets on well with her sister.'],
                                         'correct' => 2,
                                         'difficulty' => 'hard',
+                                        'why' => 'usually = a habit → Present Simple: she gets.',
                                     ],
                                 ],
                                 'word_order' => [
@@ -1875,7 +1899,7 @@ class MissionSeeder extends Seeder
                                 'hook' => "Every \"I don't eat much...\" you get right here is one less pause when you're talking about your own diet.",
                                 'focus' => 'Countable and Uncountable Nouns',
                                 'lesson' => [
-                                    'intro' => 'Three small things: can you count it, which word goes with which noun, and how to talk about your own food.',
+                                    'intro' => 'Three small things: can you count it, much / many / a few / a little, and a lot of, some / any and counting with a glass or a cup.',
                                     'sections' => [
                                         [
                                             'heading' => 'A · Can you count it?',
@@ -1943,7 +1967,38 @@ class MissionSeeder extends Seeder
                                             ],
                                         ],
                                         [
-                                            'heading' => 'C · Make it personal',
+                                            'heading' => 'C · a lot of, some / any, and a glass of…',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => '<strong>a lot of</strong>, <strong>some</strong> and <strong>any</strong> go with both kinds.<br>To count water, rice or bread, count the <strong>glass, bowl or piece</strong>.',
+                                                    'fa' => 'a lot of و some و any با هر دو نوع اسم می‌آیند (some در جمله‌ی مثبت، any در سؤال و منفی). در جمله‌ی مثبت a lot of طبیعی‌تر از much است. «دو تا آب» در انگلیسی two glasses of water است، نه two waters. advice و information هم غیرقابل‌شمارش‌اند.',
+                                                ],
+                                                [
+                                                    'type' => 'chips',
+                                                    'groups' => [
+                                                        ['label' => 'Count the container', 'words' => ['a glass of water', 'a cup of tea', 'a bowl of rice', 'a piece of bread', 'a bottle of milk']],
+                                                        ['label' => 'Uncountable — no an, no -s', 'words' => ['advice', 'information', 'news', 'bread']],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'I drink much water every day.', 'right' => 'I drink a lot of water every day.', 'highlight' => 'a lot of', 'note' => 'Positive sentence → a lot of. much is for questions and negatives.'],
+                                                        ['wrong' => 'I drink two waters a day.', 'right' => 'I drink two glasses of water a day.', 'highlight' => 'glasses of'],
+                                                        ['wrong' => 'Can you give me an advice?', 'right' => 'Can you give me some advice?', 'highlight' => 'some advice'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'some / any', 'items' => ['I\'d like some bread.', 'Is there any milk?', 'We don\'t have any eggs.']],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'D · Make it personal',
                                             'body' => 'Next you\'ll finish sentences about what <strong>you</strong> eat and drink — and use them out loud soon, in AI Conversation #1.',
                                         ],
                                     ],
@@ -1959,28 +2014,38 @@ class MissionSeeder extends Seeder
                                     .'correctly with the quantifier already given in the starter.',
                                 'grammar_major_criteria' => 'the noun given after the quantifier is grammatically wrong '
                                     .'for that quantifier (e.g. "much" or "many" with the wrong noun type, a plural '
-                                    .'-s added to an uncountable noun), the sentence does not actually continue the '
+                                    .'-s added to an uncountable noun, "waters" or "an advice"), the sentence does not actually continue the '
                                     .'given starter, or it is not a genuine personal statement',
                                 'grammar_context' => 'continues with a correct countable or uncountable food noun for '
                                     .'the quantifier already given',
                                 'quick_check' => [
                                     [
-                                        'wrong' => "I don't eat many rice.",
-                                        'options' => ["I don't eat many rice.", "I don't eat many rices.", "I don't eat much rice."],
-                                        'correct' => 2,
+                                        'wrong' => 'I don\'t eat many rice.',
+                                        'options' => ['I don\'t eat many rices.', 'I don\'t eat much rice.', 'I don\'t eat a few rice.'],
+                                        'correct' => 1,
                                         'difficulty' => 'easy',
+                                        'why' => 'rice is uncountable → much rice.',
                                     ],
                                     [
                                         'wrong' => 'She drinks a lot of coffees every morning.',
-                                        'options' => ['She drinks a lot of coffees every morning.', 'She drink a lot of coffee every morning.', 'She drinks a lot of coffee every morning.'],
-                                        'correct' => 2,
+                                        'options' => ['She drinks a lot of coffee every morning.', 'She drinks many coffee every morning.', 'She drinks a few coffee every morning.'],
+                                        'correct' => 0,
                                         'difficulty' => 'medium',
+                                        'why' => 'coffee (the drink) is uncountable → no -s.',
                                     ],
                                     [
                                         'wrong' => 'I need a few water.',
-                                        'options' => ['I need a few water.', 'I need a little water.', 'I need a few waters.'],
+                                        'options' => ['I need a few waters.', 'I need many water.', 'I need a little water.'],
+                                        'correct' => 2,
+                                        'difficulty' => 'hard',
+                                        'why' => 'water is uncountable → a little, not a few.',
+                                    ],
+                                    [
+                                        'wrong' => 'Can you give me an advice about my diet?',
+                                        'options' => ['Can you give me some advices about my diet?', 'Can you give me some advice about my diet?', 'Can you give me a few advice about my diet?'],
                                         'correct' => 1,
                                         'difficulty' => 'hard',
+                                        'why' => 'advice is uncountable → some advice, no -s.',
                                     ],
                                 ],
                                 'word_order' => [
@@ -2487,14 +2552,15 @@ class MissionSeeder extends Seeder
                                             'blocks' => [
                                                 [
                                                     'type' => 'rule',
-                                                    'text' => '<strong>have to / need to / must</strong> = required.<br><strong>don\'t have to</strong> = not required (it\'s your choice).',
-                                                    'fa' => 'have to / need to / must یعنی اجبار. don\'t have to یعنی اجباری نیست؛ انتخاب با خودت است.',
+                                                    'text' => '<strong>have to / need to / must</strong> = required.<br><strong>don\'t have to</strong> = not required (it\'s your choice).<br><strong>mustn\'t</strong> = not allowed.',
+                                                    'fa' => 'have to / need to / must یعنی اجبار. don\'t have to یعنی «لازم نیست»؛ انتخاب با خودت است. mustn\'t یعنی «نباید، ممنوع است» — این دو را قاطی نکن.',
                                                 ],
                                                 [
                                                     'type' => 'examples',
                                                     'groups' => [
                                                         ['label' => 'Required', 'items' => ['I have to finish this report by Friday.', 'You need to attend the training.', 'We must follow the safety rules.']],
                                                         ['label' => 'Not required', 'items' => ['I don\'t have to work on Saturdays.', 'You don\'t need to bring your own laptop.']],
+                                                        ['label' => 'Not allowed', 'items' => ['You mustn\'t use your phone in the exam.']],
                                                     ],
                                                 ],
                                                 [
@@ -2503,6 +2569,12 @@ class MissionSeeder extends Seeder
                                                     'wrong' => 'I have to finishing this report today.',
                                                     'right' => 'I have to finish this report today.',
                                                     'explanation' => 'After a modal or “have to”, the next verb stays plain — never the -ing form.',
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'It\'s a casual office — you mustn\'t wear a suit.', 'right' => 'It\'s a casual office — you don\'t have to wear a suit.', 'highlight' => 'don\'t have to', 'note' => 'Your choice → don\'t have to. Not allowed → mustn\'t.'],
+                                                    ],
                                                 ],
                                             ],
                                         ],
@@ -2574,7 +2646,7 @@ class MissionSeeder extends Seeder
                                     .'using the modal (obligation or ability/permission) that the starter itself '
                                     .'calls for, with the following verb in its bare form.',
                                 'grammar_major_criteria' => 'the modal is used incorrectly (wrong verb form after '
-                                    .'it, e.g. "to work" or "working" instead of "work"), the sentence does not '
+                                    .'it, e.g. "to work" or "working" instead of "work"), mustn\'t used for something that is only not necessary, the sentence does not '
                                     .'actually continue the given starter, or it is not a genuine personal '
                                     .'statement',
                                 'grammar_context' => 'continues appropriately using a modal of obligation (have to/'
@@ -2582,21 +2654,31 @@ class MissionSeeder extends Seeder
                                 'quick_check' => [
                                     [
                                         'wrong' => 'I have to finishing this report today.',
-                                        'options' => ['I have to finishing this report today.', 'I has to finish this report today.', 'I have to finish this report today.'],
-                                        'correct' => 2,
+                                        'options' => ['I have to finish this report today.', 'I have finish this report today.', 'I must to finish this report today.'],
+                                        'correct' => 0,
                                         'difficulty' => 'easy',
+                                        'why' => 'have to + the plain verb: have to finish.',
                                     ],
                                     [
                                         'wrong' => 'She can to speak three languages.',
-                                        'options' => ['She can to speak three languages.', 'She cans speak three languages.', 'She can speak three languages.'],
-                                        'correct' => 2,
+                                        'options' => ['She can speaks three languages.', 'She can speak three languages.', 'She is can speak three languages.'],
+                                        'correct' => 1,
                                         'difficulty' => 'medium',
+                                        'why' => 'can + the plain verb — no to, no -s.',
+                                    ],
+                                    [
+                                        'wrong' => 'It\'s Friday, so you mustn\'t get up early. Sleep in!',
+                                        'options' => ['It\'s Friday, so you don\'t have to get up early. Sleep in!', 'It\'s Friday, so you haven\'t to get up early. Sleep in!', 'It\'s Friday, so you don\'t must get up early. Sleep in!'],
+                                        'correct' => 0,
+                                        'difficulty' => 'medium',
+                                        'why' => 'Not needed → don\'t have to. mustn\'t = not allowed.',
                                     ],
                                     [
                                         'wrong' => 'Do you have to worked on weekends?',
-                                        'options' => ['Do you have to worked on weekends?', 'Do you have to work on weekends?', 'Have you to work on weekends?'],
-                                        'correct' => 1,
+                                        'options' => ['Do you must work on weekends?', 'Does you have to work on weekends?', 'Do you have to work on weekends?'],
+                                        'correct' => 2,
                                         'difficulty' => 'hard',
+                                        'why' => 'Do you have to + the plain verb?',
                                     ],
                                 ],
                                 'word_order' => [
@@ -3235,21 +3317,24 @@ class MissionSeeder extends Seeder
                                 'quick_check' => [
                                     [
                                         'wrong' => 'I enjoy to swim in the sea.',
-                                        'options' => ['I enjoy to swim in the sea.', 'I enjoy swimming in the sea.', 'I enjoy swim in the sea.'],
-                                        'correct' => 1,
+                                        'options' => ['I enjoy swimming in the sea.', 'I enjoy swim in the sea.', 'I enjoy to swimming in the sea.'],
+                                        'correct' => 0,
                                         'difficulty' => 'easy',
+                                        'why' => 'enjoy + -ing.',
                                     ],
                                     [
                                         'wrong' => 'She decided joining a dance class.',
-                                        'options' => ['She decided joining a dance class.', 'She decided join a dance class.', 'She decided to join a dance class.'],
+                                        'options' => ['She decided join a dance class.', 'She decided to joining a dance class.', 'She decided to join a dance class.'],
                                         'correct' => 2,
                                         'difficulty' => 'medium',
+                                        'why' => 'decide + to + the plain verb.',
                                     ],
                                     [
-                                        'wrong' => "I'm interested in learn Spanish.",
-                                        'options' => ["I'm interested in learning Spanish.", "I'm interested in learn Spanish.", "I'm interested to learning Spanish."],
-                                        'correct' => 0,
+                                        'wrong' => 'I\'m interested in learn Spanish.',
+                                        'options' => ['I\'m interested to learning Spanish.', 'I\'m interested in learning Spanish.', 'I\'m interested in to learn Spanish.'],
+                                        'correct' => 1,
                                         'difficulty' => 'hard',
+                                        'why' => 'After in / at / about → verb + -ing.',
                                     ],
                                 ],
                                 'word_order' => [
@@ -3877,10 +3962,10 @@ class MissionSeeder extends Seeder
                                         ],
                                         [
                                             'heading' => 'E · Make it personal',
-                                            'body' => 'Next you\'ll finish sentences about <strong>your</strong> English story — then tell a picture story in the past, and soon say it out loud in AI Conversation #1.',
+                                            'body' => 'Next you\'ll finish sentences about <strong>your</strong> English story, and soon say it out loud in AI Conversation #1.',
                                         ],
                                     ],
-                                    'bridge_note' => 'You\'ll use this right away — in the Picture Story next, and in AI Conversation #1.',
+                                    'bridge_note' => 'You\'ll use this soon — in AI Conversation #1.',
                                 ],
                                 'frequency_starters' => [
                                     'I started learning English when', 'My first English teacher', 'At school we',
@@ -3899,27 +3984,31 @@ class MissionSeeder extends Seeder
                                 'quick_check' => [
                                     [
                                         'wrong' => 'I goed to a language school for two years.',
-                                        'options' => ['I goed to a language school for two years.', 'I went to a language school for two years.', 'I gone to a language school for two years.'],
-                                        'correct' => 1,
+                                        'options' => ['I went to a language school for two years.', 'I gone to a language school for two years.', 'I was go to a language school for two years.'],
+                                        'correct' => 0,
                                         'difficulty' => 'easy',
+                                        'why' => 'go is irregular: go → went.',
                                     ],
                                     [
-                                        'wrong' => "I didn't understood the teacher.",
-                                        'options' => ["I didn't understood the teacher.", "I didn't understand the teacher.", 'I not understood the teacher.'],
+                                        'wrong' => 'I didn\'t understood the teacher.',
+                                        'options' => ['I not understood the teacher.', 'I didn\'t understand the teacher.', 'I don\'t understood the teacher.'],
                                         'correct' => 1,
                                         'difficulty' => 'medium',
+                                        'why' => 'After didn\'t → the plain verb: understand.',
                                     ],
                                     [
                                         'wrong' => 'Did you studied English at school?',
-                                        'options' => ['Did you study English at school?', 'Did you studied English at school?', 'You did study English at school?'],
-                                        'correct' => 0,
+                                        'options' => ['You did study English at school?', 'Were you study English at school?', 'Did you study English at school?'],
+                                        'correct' => 2,
                                         'difficulty' => 'medium',
+                                        'why' => 'Did + subject + the plain verb: did you study.',
                                     ],
                                     [
-                                        'wrong' => "I didn't be nervous in the exam.",
-                                        'options' => ["I didn't be nervous in the exam.", "I weren't nervous in the exam.", "I wasn't nervous in the exam."],
-                                        'correct' => 2,
+                                        'wrong' => 'I didn\'t be nervous in the exam.',
+                                        'options' => ['I wasn\'t nervous in the exam.', 'I weren\'t nervous in the exam.', 'I didn\'t was nervous in the exam.'],
+                                        'correct' => 0,
                                         'difficulty' => 'hard',
+                                        'why' => 'be has its own past: I wasn\'t, not didn\'t be.',
                                     ],
                                 ],
                                 'word_order' => [
@@ -4583,7 +4672,7 @@ class MissionSeeder extends Seeder
                                                 [
                                                     'type' => 'rule',
                                                     'text' => '<strong>used to + verb</strong> = you did it often in the past, or it was true then, but not now: <strong>We used to live near the sea.</strong>',
-                                                    'fa' => 'used to + فعل ساده یعنی کاری را در گذشته بارها انجام می‌دادی یا چیزی در گذشته درست بود، ولی الان دیگر نه: We used to live near the sea. دقت کن: use to برای حال وجود ندارد؛ برای حال از Present Simple استفاده کن.',
+                                                    'fa' => 'used to + فعل ساده یعنی کاری را در گذشته بارها انجام می‌دادی یا چیزی در گذشته درست بود، ولی الان دیگر نه: We used to live near the sea. دقت کن: use to برای حال وجود ندارد؛ برای حال از Present Simple استفاده کن. «می‌رفتم» در فارسی هم عادت است هم «داشتم می‌رفتم»: عادت و تکرار → used to، در حال انجام در یک لحظه → was / were + ing.',
                                                 ],
                                                 [
                                                     'type' => 'formula',
@@ -4600,6 +4689,7 @@ class MissionSeeder extends Seeder
                                                     'items' => [
                                                         ['wrong' => 'I use to visit my grandma every summer.', 'right' => 'I used to visit my grandma every summer.', 'highlight' => 'used to'],
                                                         ['wrong' => 'We used to playing in the street.', 'right' => 'We used to play in the street.', 'highlight' => 'play'],
+                                                        ['wrong' => 'When I was a child, I was playing outside every day.', 'right' => 'When I was a child, I used to play outside every day.', 'highlight' => 'used to play', 'note' => 'Again and again → used to, not was playing.'],
                                                     ],
                                                 ],
                                                 [
@@ -4648,10 +4738,10 @@ class MissionSeeder extends Seeder
                                         ],
                                         [
                                             'heading' => 'E · Make it personal',
-                                            'body' => 'Next you\'ll finish sentences about <strong>your</strong> family — then tell a picture story about one busy Sunday, and soon say it out loud in AI Conversation #1.',
+                                            'body' => 'Next you\'ll finish sentences about <strong>your</strong> family, and soon say it out loud in AI Conversation #1.',
                                         ],
                                     ],
-                                    'bridge_note' => 'You\'ll use this right away — in the Picture Story next, and in AI Conversation #1.',
+                                    'bridge_note' => 'You\'ll use this soon — in AI Conversation #1.',
                                 ],
                                 'frequency_starters' => [
                                     'When I was a child, my family used to', 'My grandparents used to', "I didn't use to",
@@ -4665,34 +4755,46 @@ class MissionSeeder extends Seeder
                                 'grammar_major_criteria' => 'a wrong form of be ("we was playing"), a missing -ing after '
                                     .'was / were ("I was play"), "use to" for a past habit in an affirmative sentence, "used to" '
                                     .'after did / didn\'t, used to + -ing ("used to playing"), the past continuous for the short '
-                                    .'action that interrupts ("when my brother was calling"), the sentence does not actually '
+                                    .'action that interrupts ("when my brother was calling"), the past continuous for a repeated past habit ("when I was a '
+                                    .'child I was playing outside every day"), the sentence does not actually '
                                     .'continue the given starter, or it is not a genuine personal statement',
                                 'grammar_context' => 'continues with the past continuous (was / were + -ing), used to + '
                                     .'base verb, or didn\'t use to + base verb, as the starter already given needs',
                                 'quick_check' => [
                                     [
                                         'wrong' => 'I was play football when it started to rain.',
-                                        'options' => ['I was play football when it started to rain.', 'I was playing football when it started to rain.', 'I were playing football when it started to rain.'],
+                                        'options' => ['I were playing football when it started to rain.', 'I was playing football when it started to rain.', 'I was played football when it started to rain.'],
                                         'correct' => 1,
                                         'difficulty' => 'easy',
+                                        'why' => 'was / were + verb-ing for the longer action.',
                                     ],
                                     [
                                         'wrong' => 'I use to visit my grandparents every summer.',
-                                        'options' => ['I used to visit my grandparents every summer.', 'I use to visit my grandparents every summer.', 'I was used to visit my grandparents every summer.'],
+                                        'options' => ['I used to visit my grandparents every summer.', 'I was used to visit my grandparents every summer.', 'I used to visiting my grandparents every summer.'],
                                         'correct' => 0,
                                         'difficulty' => 'medium',
+                                        'why' => 'A past habit → used to + the plain verb.',
                                     ],
                                     [
                                         'wrong' => 'My dad cooked when my uncle was arriving.',
-                                        'options' => ['My dad cooked when my uncle was arriving.', 'My dad was cooking when my uncle was arriving.', 'My dad was cooking when my uncle arrived.'],
+                                        'options' => ['My dad was cooking when my uncle was arrived.', 'My dad cooking when my uncle arrived.', 'My dad was cooking when my uncle arrived.'],
                                         'correct' => 2,
                                         'difficulty' => 'medium',
+                                        'why' => 'The longer action → was cooking; the short one → arrived.',
+                                    ],
+                                    [
+                                        'wrong' => 'When I was a child, I was playing outside every day.',
+                                        'options' => ['When I was a child, I was used to play outside every day.', 'When I was a child, I used to play outside every day.', 'When I was a child, I use to play outside every day.'],
+                                        'correct' => 1,
+                                        'difficulty' => 'hard',
+                                        'why' => 'Again and again (every day) → used to, not was playing.',
                                     ],
                                     [
                                         'wrong' => 'Did you used to walk to school?',
-                                        'options' => ['Did you used to walk to school?', 'Did you use to walk to school?', 'Were you use to walk to school?'],
-                                        'correct' => 1,
+                                        'options' => ['Did you use to walk to school?', 'Were you use to walk to school?', 'Did you used to walking to school?'],
+                                        'correct' => 0,
                                         'difficulty' => 'hard',
+                                        'why' => 'After did → use to (no -d).',
                                     ],
                                 ],
                                 'word_order' => [
@@ -5431,27 +5533,31 @@ class MissionSeeder extends Seeder
                                 'quick_check' => [
                                     [
                                         'wrong' => 'My brother is more tall than me.',
-                                        'options' => ['My brother is taller than me.', 'My brother is more tall than me.', 'My brother is tallest than me.'],
-                                        'correct' => 0,
+                                        'options' => ['My brother is more taller than me.', 'My brother is taller from me.', 'My brother is taller than me.'],
+                                        'correct' => 2,
                                         'difficulty' => 'easy',
+                                        'why' => 'Short adjective → -er, then than (not from).',
                                     ],
                                     [
                                         'wrong' => 'Sara is the most funny person in our group.',
-                                        'options' => ['Sara is the most funny person in our group.', 'Sara is funnier person in our group.', 'Sara is the funniest person in our group.'],
-                                        'correct' => 2,
+                                        'options' => ['Sara is the funniest person in our group.', 'Sara is funniest person in our group.', 'Sara is the most funniest person in our group.'],
+                                        'correct' => 0,
                                         'difficulty' => 'medium',
+                                        'why' => 'funny → the funniest (y → i + est).',
                                     ],
                                     [
                                         'wrong' => 'I\'m not as patient than my sister.',
-                                        'options' => ['I\'m not as patient than my sister.', 'I\'m not as patient as my sister.', 'I\'m not patient as my sister.'],
+                                        'options' => ['I\'m not so patient than my sister.', 'I\'m not as patient as my sister.', 'I\'m not as more patient as my sister.'],
                                         'correct' => 1,
                                         'difficulty' => 'medium',
+                                        'why' => 'as … as: not as patient as.',
                                     ],
                                     [
                                         'wrong' => 'Making friends is very harder for adults.',
-                                        'options' => ['Making friends is very harder for adults.', 'Making friends is much harder for adults.', 'Making friends is more harder for adults.'],
+                                        'options' => ['Making friends is more harder for adults.', 'Making friends is much harder for adults.', 'Making friends is very more hard for adults.'],
                                         'correct' => 1,
                                         'difficulty' => 'hard',
+                                        'why' => 'Before a comparative → much / a lot, not very.',
                                     ],
                                 ],
                                 'word_order' => [
@@ -6018,7 +6124,6 @@ class MissionSeeder extends Seeder
                                                     'type' => 'examples',
                                                     'groups' => [
                                                         ['label' => 'From the listening', 'items' => [
-                                                            'It\'s one of the things that makes her so amazing at learning a language.',
                                                             'They love walking into a room full of people that they don\'t know.',
                                                         ]],
                                                         ['label' => 'what = the thing that', 'items' => [
@@ -6131,27 +6236,31 @@ class MissionSeeder extends Seeder
                                 'quick_check' => [
                                     [
                                         'wrong' => 'I have a friend which speaks four languages.',
-                                        'options' => ['I have a friend who speaks four languages.', 'I have a friend which speaks four languages.', 'I have a friend what speaks four languages.'],
-                                        'correct' => 0,
+                                        'options' => ['I have a friend what speaks four languages.', 'I have a friend who speaks four languages.', 'I have a friend who she speaks four languages.'],
+                                        'correct' => 1,
                                         'difficulty' => 'easy',
+                                        'why' => 'A person → who (or that), not which.',
                                     ],
                                     [
                                         'wrong' => 'It\'s a test who tells you your personality type.',
-                                        'options' => ['It\'s a test who tells you your personality type.', 'It\'s a test it tells you your personality type.', 'It\'s a test that tells you your personality type.'],
-                                        'correct' => 2,
+                                        'options' => ['It\'s a test that tells you your personality type.', 'It\'s a test what tells you your personality type.', 'It\'s a test which it tells you your personality type.'],
+                                        'correct' => 0,
                                         'difficulty' => 'medium',
+                                        'why' => 'A thing → that or which, with no extra it.',
                                     ],
                                     [
                                         'wrong' => 'I know a woman who her son is a firefighter.',
-                                        'options' => ['I know a woman who her son is a firefighter.', 'I know a woman whose son is a firefighter.', 'I know a woman where her son is a firefighter.'],
-                                        'correct' => 1,
+                                        'options' => ['I know a woman whose her son is a firefighter.', 'I know a woman that her son is a firefighter.', 'I know a woman whose son is a firefighter.'],
+                                        'correct' => 2,
                                         'difficulty' => 'medium',
+                                        'why' => 'whose = her / his, so no her after it.',
                                     ],
                                     [
                                         'wrong' => 'The man lives next door is very calm.',
-                                        'options' => ['The man lives next door is very calm.', 'The man who lives next door is very calm.', 'The man he lives next door is very calm.'],
-                                        'correct' => 1,
+                                        'options' => ['The man who lives next door is very calm.', 'The man he lives next door is very calm.', 'The man who he lives next door is very calm.'],
+                                        'correct' => 0,
                                         'difficulty' => 'hard',
+                                        'why' => 'Add who / that, and no he after it.',
                                     ],
                                 ],
                                 'word_order' => [
@@ -6853,27 +6962,31 @@ class MissionSeeder extends Seeder
                                 'quick_check' => [
                                     [
                                         'wrong' => 'I know her since 2015.',
-                                        'options' => ['I\'ve known her since 2015.', 'I know her since 2015.', 'I\'m knowing her since 2015.'],
-                                        'correct' => 0,
+                                        'options' => ['I\'m knowing her since 2015.', 'I\'ve known her since 2015.', 'I\'ve know her since 2015.'],
+                                        'correct' => 1,
                                         'difficulty' => 'easy',
+                                        'why' => 'Past until now → have + past participle: I\'ve known.',
                                     ],
                                     [
                                         'wrong' => 'They have been married since ten years.',
-                                        'options' => ['They have been married since ten years.', 'They have been married for ten years.', 'They are married for ten years.'],
-                                        'correct' => 1,
+                                        'options' => ['They have been married for ten years.', 'They are married for ten years.', 'They have married since ten years.'],
+                                        'correct' => 0,
                                         'difficulty' => 'medium',
+                                        'why' => 'for + a length of time; since + a starting point.',
                                     ],
                                     [
                                         'wrong' => 'Have you ever went to a wedding abroad?',
-                                        'options' => ['Did you ever went to a wedding abroad?', 'Have you ever went to a wedding abroad?', 'Have you ever been to a wedding abroad?'],
+                                        'options' => ['Did you ever went to a wedding abroad?', 'Have you ever go to a wedding abroad?', 'Have you ever been to a wedding abroad?'],
                                         'correct' => 2,
                                         'difficulty' => 'medium',
+                                        'why' => 'have + past participle: been (went is past simple).',
                                     ],
                                     [
                                         'wrong' => 'How long are they together?',
-                                        'options' => ['How long are they together?', 'How long have they been together?', 'How long do they be together?'],
+                                        'options' => ['How long they have been together?', 'How long have they been together?', 'How long are they been together?'],
                                         'correct' => 1,
                                         'difficulty' => 'hard',
+                                        'why' => 'How long … until now → have they been.',
                                     ],
                                 ],
                                 'word_order' => [
@@ -7495,7 +7608,7 @@ class MissionSeeder extends Seeder
                                                 [
                                                     'type' => 'rule',
                                                     'text' => 'Use <strong>will (\'ll) + verb</strong> when you decide <strong>while you speak</strong>, and to offer, promise or agree: <strong>The phone\'s ringing. — I\'ll get it.</strong> Also for what you think about the future: <strong>I think I\'ll…</strong>, <strong>I don\'t think he\'ll…</strong>, <strong>probably</strong>.',
-                                                    'fa' => 'will برای تصمیمِ همان لحظه (قبلاً فکرش را نکرده بودی)، پیشنهاد (I\'ll help you)، قول (I\'ll call you tonight) و نظر درباره‌ی آینده (I think it\'ll be fine). منفی: won\'t. برای «فکر نمی‌کنم بیاید» بگو I don\'t think he\'ll come (نه I think he won\'t come).',
+                                                    'fa' => 'will برای تصمیمِ همان لحظه (قبلاً فکرش را نکرده بودی)، پیشنهاد (I\'ll help you)، قول (I\'ll call you tonight) و نظر درباره‌ی آینده (I think it\'ll be fine). منفی: won\'t. برای «فکر نمی‌کنم بیاید» I don\'t think he\'ll come طبیعی‌تر از I think he won\'t come است (هر دو درست‌اند).',
                                                 ],
                                                 [
                                                     'type' => 'chips',
@@ -7509,7 +7622,7 @@ class MissionSeeder extends Seeder
                                                     'type' => 'do_dont',
                                                     'items' => [
                                                         ['wrong' => 'I think I will to stay at home.', 'right' => 'I think I\'ll stay at home.', 'highlight' => 'I\'ll stay'],
-                                                        ['wrong' => 'I think he won\'t come to the meeting.', 'right' => 'I don\'t think he\'ll come to the meeting.', 'highlight' => 'I don\'t think he\'ll'],
+                                                        ['wrong' => 'I promise I call you tonight.', 'right' => 'I promise I\'ll call you tonight.', 'highlight' => 'I\'ll call', 'note' => 'A promise → will.'],
                                                     ],
                                                 ],
                                                 [
@@ -7557,10 +7670,10 @@ class MissionSeeder extends Seeder
                                         ],
                                         [
                                             'heading' => 'E · Make it personal',
-                                            'body' => 'Next you\'ll finish sentences about <strong>your</strong> week and your year — what you\'re doing, what you\'re going to do, what you think will happen — then tell Mina\'s week in pictures, and soon say your own plans out loud in AI Conversation #1.',
+                                            'body' => 'Next you\'ll finish sentences about <strong>your</strong> week and your year — what you\'re doing, what you\'re going to do, what you think will happen — and soon say your plans out loud in AI Conversation #1.',
                                         ],
                                     ],
-                                    'bridge_note' => 'You\'ll use this right away — in the Picture Story next, and in AI Conversation #1.',
+                                    'bridge_note' => 'You\'ll use this soon — in AI Conversation #1.',
                                 ],
                                 'frequency_starters' => [
                                     'This weekend I\'m', 'Next year I\'m going to', 'I think I\'ll',
@@ -7574,35 +7687,38 @@ class MissionSeeder extends Seeder
                                     .'I\'ll…).',
                                 'grammar_major_criteria' => 'the present simple for an arranged plan ("I meet my friend '
                                     .'tomorrow"), a missing am / is / are ("I going to…"), an -ing or -s verb after going to or '
-                                    .'will ("going to applying", "I will to go"), will for something clearly arranged before, "I '
-                                    .'think I won\'t" instead of "I don\'t think I\'ll", the sentence does not actually continue the '
+                                    .'will ("going to applying", "I will to go"), will for something clearly arranged before, the sentence does not actually continue the '
                                     .'given starter, or it is not a genuine personal statement',
                                 'grammar_context' => 'continues with a future form that fits the starter: -ing for an '
                                     .'arranged plan, going to + verb for an intention, or will + verb for an opinion or a decision',
                                 'quick_check' => [
                                     [
                                         'wrong' => 'What do you do this evening?',
-                                        'options' => ['What do you do this evening?', 'What are you doing this evening?', 'What you are doing this evening?'],
+                                        'options' => ['What you are doing this evening?', 'What are you doing this evening?', 'What are you do this evening?'],
                                         'correct' => 1,
                                         'difficulty' => 'easy',
+                                        'why' => 'A plan already made → are you doing.',
                                     ],
                                     [
                                         'wrong' => 'I going to apply for a new job.',
-                                        'options' => ['I\'m going to apply for a new job.', 'I going to apply for a new job.', 'I\'m going to applying for a new job.'],
+                                        'options' => ['I\'m going to apply for a new job.', 'I\'m going to applying for a new job.', 'I go to apply for a new job.'],
                                         'correct' => 0,
                                         'difficulty' => 'medium',
+                                        'why' => 'am / is / are + going to + the plain verb.',
                                     ],
                                     [
                                         'wrong' => 'The phone is ringing. — I\'m going to get it!',
-                                        'options' => ['The phone is ringing. — I get it!', 'The phone is ringing. — I\'m going to get it!', 'The phone is ringing. — I\'ll get it!'],
+                                        'options' => ['The phone is ringing. — I get it!', 'The phone is ringing. — I\'ll getting it!', 'The phone is ringing. — I\'ll get it!'],
                                         'correct' => 2,
                                         'difficulty' => 'medium',
+                                        'why' => 'Deciding as you speak → I\'ll.',
                                     ],
                                     [
-                                        'wrong' => 'I think he won\'t come to the meeting.',
-                                        'options' => ['I think he won\'t come to the meeting.', 'I don\'t think he\'ll come to the meeting.', 'I don\'t think he comes to the meeting.'],
-                                        'correct' => 1,
+                                        'wrong' => 'I meet my dentist at four tomorrow — it\'s booked.',
+                                        'options' => ['I\'m meeting my dentist at four tomorrow — it\'s booked.', 'I\'m meet my dentist at four tomorrow — it\'s booked.', 'I meeting my dentist at four tomorrow — it\'s booked.'],
+                                        'correct' => 0,
                                         'difficulty' => 'hard',
+                                        'why' => 'An arranged plan with a time → am / is / are + -ing.',
                                     ],
                                 ],
                                 'word_order' => [
@@ -8264,10 +8380,10 @@ class MissionSeeder extends Seeder
                                         ],
                                         [
                                             'heading' => 'D · Make it personal',
-                                            'body' => 'Next you\'ll finish sentences about what <strong>your</strong> teachers, parents and friends told you, then tell Leila\'s first week at university in pictures.',
+                                            'body' => 'Next you\'ll finish sentences about what <strong>your</strong> teachers, parents and friends told you, and soon use it in AI Conversation #1.',
                                         ],
                                     ],
-                                    'bridge_note' => 'You\'ll use this right away — in the Picture Story next, and in AI Conversation #1.',
+                                    'bridge_note' => 'You\'ll use this soon — in AI Conversation #1.',
                                 ],
                                 'frequency_starters' => [
                                     'My first teacher told me that', 'My parents always said that', 'Once a teacher asked me',
@@ -8288,27 +8404,31 @@ class MissionSeeder extends Seeder
                                 'quick_check' => [
                                     [
                                         'wrong' => 'She said me that she was tired.',
-                                        'options' => ['She said me that she was tired.', 'She told me that she was tired.', 'She told that she was tired.'],
+                                        'options' => ['She told that she was tired.', 'She told me that she was tired.', 'She told to me that she was tired.'],
                                         'correct' => 1,
                                         'difficulty' => 'easy',
+                                        'why' => 'tell + a person: told me. say has no person after it.',
                                     ],
                                     [
                                         'wrong' => 'He said he will call me, but he didn\'t.',
-                                        'options' => ['He said he will call me, but he didn\'t.', 'He said he would call me, but he didn\'t.', 'He said he calls me, but he didn\'t.'],
-                                        'correct' => 1,
+                                        'options' => ['He said he would call me, but he didn\'t.', 'He said he would called me, but he didn\'t.', 'He told he would call me, but he didn\'t.'],
+                                        'correct' => 0,
                                         'difficulty' => 'medium',
+                                        'why' => 'One step back: will → would.',
                                     ],
                                     [
                                         'wrong' => 'The teacher told us don\'t talk.',
-                                        'options' => ['The teacher told us not to talk.', 'The teacher told us don\'t talk.', 'The teacher said us not to talk.'],
-                                        'correct' => 0,
+                                        'options' => ['The teacher told us to not talking.', 'The teacher said us not to talk.', 'The teacher told us not to talk.'],
+                                        'correct' => 2,
                                         'difficulty' => 'medium',
+                                        'why' => 'told + a person + not to + verb.',
                                     ],
                                     [
                                         'wrong' => 'She asked me where did I live.',
-                                        'options' => ['She asked me where did I live.', 'She asked me where do I live.', 'She asked me where I lived.'],
-                                        'correct' => 2,
+                                        'options' => ['She asked me where do I live.', 'She asked me where I lived.', 'She asked me where lived I.'],
+                                        'correct' => 1,
                                         'difficulty' => 'hard',
+                                        'why' => 'A reported question → normal order: where I lived.',
                                     ],
                                 ],
                                 'word_order' => [
@@ -8942,13 +9062,13 @@ class MissionSeeder extends Seeder
                                         ],
                                         [
                                             'heading' => 'D · Make it personal',
-                                            'body' => 'Next you\'ll finish sentences about <strong>your</strong> phone, your computer and the internet, then tell the story of Sara\'s bad day with technology in pictures.',
+                                            'body' => 'Next you\'ll finish sentences about <strong>your</strong> phone, your computer and the internet, and soon use it in AI Conversation #1.',
                                         ],
                                     ],
-                                    'bridge_note' => 'You\'ll use this right away — in the Picture Story next, and in AI Conversation #1.',
+                                    'bridge_note' => 'You\'ll use this soon — in AI Conversation #1.',
                                 ],
                                 'frequency_starters' => [
-                                    'Today I have', 'This week I haven\'t', 'Yesterday I',
+                                    'Today I\'ve already', 'This week I haven\'t', 'Yesterday I',
                                     'I have never', 'My first phone was', 'Last year my phone',
                                 ],
                                 'grammar_judgment' => 'Judge whether the learner finished this sentence starter into '
@@ -8963,32 +9083,36 @@ class MissionSeeder extends Seeder
                                     .'personal statement. Do not mark the past simple wrong just because the present perfect would '
                                     .'also be possible (both "I lost my keys" and "I\'ve lost my keys" are fine)',
                                 'grammar_context' => 'continues with the tense the starter calls for: have / has + past '
-                                    .'participle after "Today I have", "This week I haven\'t" and "I have never"; the past simple '
+                                    .'participle after "Today I\'ve already", "This week I haven\'t" and "I have never"; the past simple '
                                     .'after "Yesterday I", "My first phone was" and "Last year my phone"',
                                 'quick_check' => [
                                     [
                                         'wrong' => 'I have bought this laptop last year.',
-                                        'options' => ['I have bought this laptop last year.', 'I bought this laptop last year.', 'I have buy this laptop last year.'],
-                                        'correct' => 1,
+                                        'options' => ['I bought this laptop last year.', 'I have buy this laptop last year.', 'I was bought this laptop last year.'],
+                                        'correct' => 0,
                                         'difficulty' => 'easy',
+                                        'why' => 'A finished time (last year) → past simple.',
                                     ],
                                     [
                                         'wrong' => 'When have you installed the app?',
-                                        'options' => ['When did you install the app?', 'When have you installed the app?', 'When you installed the app?'],
-                                        'correct' => 0,
+                                        'options' => ['When you installed the app?', 'When did you install the app?', 'When did you installed the app?'],
+                                        'correct' => 1,
                                         'difficulty' => 'medium',
+                                        'why' => 'When…? asks about a finished time → did you install.',
                                     ],
                                     [
                                         'wrong' => 'Look, I\'ve broke my phone.',
-                                        'options' => ['Look, I\'ve broke my phone.', 'Look, I\'ve broken my phone.', 'Look, I broken my phone.'],
-                                        'correct' => 1,
+                                        'options' => ['Look, I broken my phone.', 'Look, I\'ve breaked my phone.', 'Look, I\'ve broken my phone.'],
+                                        'correct' => 2,
                                         'difficulty' => 'medium',
+                                        'why' => 'have + past participle: broken.',
                                     ],
                                     [
                                         'wrong' => 'I\'ve lost my phone. I\'ve left it on the bus.',
-                                        'options' => ['I\'ve lost my phone. I\'ve left it on the bus.', 'I lost my phone. I\'ve left it on the bus.', 'I\'ve lost my phone. I left it on the bus.'],
-                                        'correct' => 2,
+                                        'options' => ['I\'ve lost my phone. I left it on the bus.', 'I lost my phone. I\'ve left it on the bus.', 'I\'ve lost my phone. I\'ve leaving it on the bus.'],
+                                        'correct' => 0,
                                         'difficulty' => 'hard',
+                                        'why' => 'The news → present perfect; the details → past simple.',
                                     ],
                                 ],
                                 'word_order' => [
