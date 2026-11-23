@@ -2,6 +2,7 @@
 
 use App\Models\ExtraEpisode;
 use App\Models\ExtraWatch;
+use App\Services\StreakRing;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\Renderless;
 use Livewire\Component;
@@ -24,7 +25,7 @@ new class extends Component
 
     /**
      * The episode was really watched (the page decides: about 80% played,
-     * never skipped to). Only a tick: nothing else depends on it.
+     * never skipped to). It is a tick, and the day's ring gets its Extra English slice.
      */
     #[Renderless]
     public function markWatched(): void
@@ -33,6 +34,8 @@ new class extends Component
             ['user_id' => auth()->id(), 'extra_episode_id' => $this->episodeId],
             ['watched_at' => now()],
         );
+
+        app(StreakRing::class)->record(auth()->user(), 'extra');
 
         $this->watched = true;
     }

@@ -9,8 +9,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * One learner watched one Extra English episode: a plain tick, no order and
- * no effect on anything else (not the streak, the ring or the reminders).
+ * One learner watched one Extra English episode: a tick with no order. Watching
+ * earns the day's Extra English slice of the ring (see StreakRing) and shows in
+ * the Progress page and in Friends; it does not touch the reminders.
  */
 #[Fillable(['user_id', 'extra_episode_id', 'watched_at'])]
 class ExtraWatch extends Model

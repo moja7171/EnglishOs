@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Concerns\HasSpacedRepetition;
 use App\Services\WordFrequency;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
 use Illuminate\Support\HtmlString;
 
-#[Fillable(['learner_id', 'source_mission_run_id', 'added_in_mission_id', 'word', 'meaning', 'meaning_fa', 'meaning_fa_previous', 'meaning_fa_checked_at', 'pos', 'example', 'user_sentence', 'ease_factor', 'interval_days', 'repetitions', 'next_review_at', 'last_reviewed_at'])]
+#[Fillable(['learner_id', 'source', 'vocab_item_id', 'source_mission_run_id', 'added_in_mission_id', 'word', 'meaning', 'meaning_fa', 'meaning_fa_previous', 'meaning_fa_checked_at', 'pos', 'example', 'user_sentence', 'ease_factor', 'interval_days', 'repetitions', 'next_review_at', 'last_reviewed_at'])]
 class VocabularyWord extends Model
 {
     use HasFactory;
@@ -28,6 +29,7 @@ class VocabularyWord extends Model
      * explicitly, so there's nothing to re-fetch.
      */
     protected $attributes = [
+        'source' => 'lesson',
         'ease_factor' => 2.5,
         'interval_days' => 0,
         'repetitions' => 0,
@@ -66,6 +68,45 @@ class VocabularyWord extends Model
         $part = "[A-Za-z]+(?:['’-][A-Za-z]+)*";
 
         return preg_match("/^{$part}(?: {$part}){0,2}$/", trim($this->word)) === 1;
+    }
+
+    /** A word from a mission's vocabulary step (or typed by the learner). */
+    public const SOURCE_LESSON = 'lesson';
+
+    /** A word added from a Vocab in Use lesson; it has its own path in Review. */
+    public const SOURCE_VOCAB = 'vocab';
+
+    /**
+     * @param  Builder<VocabularyWord>  $query
+     * @return Builder<VocabularyWord>
+     */
+    public function scopeLessonWords(Builder $query): Builder
+    {
+        return $query->where('source', self::SOURCE_LESSON);
+    }
+
+    /**
+     * @param  Builder<VocabularyWord>  $query
+     * @return Builder<VocabularyWord>
+     */
+    public function scopeFromVocabCourse(Builder $query): Builder
+    {
+        return $query->where('source', self::SOURCE_VOCAB);
+    }
+
+    public function isFromVocabCourse(): bool
+    {
+        return $this->source === self::SOURCE_VOCAB;
+    }
+
+    /**
+     * The Vocab in Use word this card came from.
+     *
+     * @return BelongsTo<VocabItem, $this>
+     */
+    public function vocabItem(): BelongsTo
+    {
+        return $this->belongsTo(VocabItem::class, 'vocab_item_id');
     }
 
     /**

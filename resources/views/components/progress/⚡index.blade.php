@@ -1,9 +1,13 @@
 <?php
 
+use App\Models\ExtraEpisode;
+use App\Models\ExtraWatch;
 use App\Models\Mission;
 use App\Models\SpeakingPrompt;
+use App\Services\ActivityCalendar;
 use App\Services\FinishLine;
 use App\Services\ProgramPlanner;
+use App\Services\VocabCourse;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
@@ -31,6 +35,38 @@ new class extends Component
             'activeDaysThisWeek' => $user->activeDaysThisWeek(),
             'daysUntilNextMilestone' => $user->daysUntilNextMilestone(),
             'nextMilestone' => $user->nextStreakMilestone(),
+        ];
+    }
+
+    /**
+     * The merged calendar (this week is its last column).
+     *
+     * @return array<string, mixed>
+     */
+    #[Computed]
+    public function calendar(): array
+    {
+        $goal = auth()->user()->weekly_goal_days ? (int) auth()->user()->weekly_goal_days : null;
+
+        return app(ActivityCalendar::class)->for(auth()->user(), $goal);
+    }
+
+    /**
+     * The standalone courses: how far the learner is in each.
+     *
+     * @return array{vocab: array{opened: int, total: int, added: int, strong: int}, extra: array{watched: int, total: int, last: ?ExtraEpisode}}
+     */
+    #[Computed]
+    public function courses(): array
+    {
+        $user = auth()->user();
+        $vocab = app(VocabCourse::class);
+        $stats = $vocab->stats($user);
+        $last = ExtraWatch::query()->with('episode')->where('user_id', $user->id)->latest('watched_at')->first();
+
+        return [
+            'vocab' => ['opened' => $vocab->openedUnits($user), 'total' => $vocab->totalUnits(), 'added' => $stats['added'], 'strong' => $stats['strong']],
+            'extra' => ['watched' => ExtraWatch::query()->where('user_id', $user->id)->count(), 'total' => ExtraEpisode::query()->count(), 'last' => $last?->episode],
         ];
     }
 
@@ -119,8 +155,6 @@ new class extends Component
     $stats = $this->progressStats;
     $delta = $program['daysDelta'];
     $weeklyGoal = auth()->user()->weekly_goal_days ? (int) auth()->user()->weekly_goal_days : null;
-    $thisWeek = array_slice($stats['calendar'], -7);
-    $weekdayInitials = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
     $minutes = $this->totalPracticeMinutes;
     $tile = 'rounded-2xl bg-surface px-1 py-2.5 text-center dark:bg-surface-dark';
     $tileNumber = 'block text-lg font-extrabold text-ink tabular-nums dark:text-ink-dark';
@@ -174,38 +208,11 @@ new class extends Component
     </section>
 
     <section class="card space-y-3 rounded-3xl p-4" x-data="{ picker: false }">
-        <div class="flex items-center justify-between gap-3">
-            <h2 class="{{ $sectionTitle }}">This week</h2>
-            <button type="button" x-on:click="picker = true" class="inline-flex cursor-pointer items-center gap-1 rounded-full bg-accent-soft px-3 py-1 text-xs font-bold text-accent-ink dark:bg-accent-soft-dark dark:text-accent-ink-dark">
-                {{ $weeklyGoal ? 'Goal: '.$weeklyGoal.' '.Str::plural('day', $weeklyGoal) : 'Set a goal' }} @svg('heroicon-o-chevron-down', 'h-3 w-3')
-            </button>
-        </div>
-
-        <div class="grid grid-cols-7 gap-1.5">
-            @foreach ($thisWeek as $index => $day)
-                @php $isToday = $day['date'] === auth()->user()->localToday()->toDateString(); @endphp
-                <div wire:key="week-{{ $day['date'] }}" class="flex flex-col items-center gap-1" title="{{ $day['label'] }}{{ $day['active'] ? ' — practiced' : '' }}">
-                    <span class="text-[10px] font-bold text-ink-faint dark:text-ink-faint-dark">{{ $weekdayInitials[$index] }}</span>
-                    <span @class([
-                        'inline-flex h-7 w-7 items-center justify-center rounded-full border-2',
-                        'border-accent bg-accent text-white dark:border-accent-dark dark:bg-accent-dark' => $day['active'],
-                        'border-dashed border-accent dark:border-accent-dark' => ! $day['active'] && $isToday,
-                        'border-line dark:border-line-dark' => ! $day['active'] && ! $isToday,
-                    ])>
-                        @if ($day['active'])
-                            @svg('heroicon-s-check', 'h-3.5 w-3.5')
-                        @endif
-                    </span>
-                </div>
-            @endforeach
-        </div>
-
-        @if ($weeklyGoal)
-            <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">{{ $stats['activeDaysThisWeek'] }} of {{ $weeklyGoal }} days this week</p>
-        @endif
-        @if ($stats['daysUntilNextMilestone'] !== null && $stats['currentStreak'] > 0)
-            <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">{{ $stats['daysUntilNextMilestone'] }} more {{ Str::plural('day', $stats['daysUntilNextMilestone']) }} to your {{ $stats['nextMilestone'] }}-day badge 🔥</p>
-        @endif
+        <x-activity-calendar
+            :calendar="$this->calendar"
+            :goal="$weeklyGoal"
+            :milestone="$stats['daysUntilNextMilestone'] !== null && $stats['currentStreak'] > 0 ? $stats['daysUntilNextMilestone'].' more '.Str::plural('day', $stats['daysUntilNextMilestone']).' to your '.$stats['nextMilestone'].'-day streak' : null"
+        />
 
         <x-bottom-sheet show="picker" label="Weekly goal">
             <p class="font-display text-lg font-bold text-ink dark:text-ink-dark">Days a week</p>
@@ -224,9 +231,31 @@ new class extends Component
         </x-bottom-sheet>
     </section>
 
-    <section class="card rounded-3xl p-4">
-        <h2 class="{{ $sectionTitle }}">Last 12 weeks</h2>
-        <x-activity-heatmap :calendar="$stats['calendar']" caption="" class="-mt-1" />
+    @php $courses = $this->courses; @endphp
+    <section class="card space-y-4 rounded-3xl p-4" data-testid="progress-courses">
+        <h2 class="{{ $sectionTitle }}">Courses</h2>
+        <div class="space-y-1.5">
+            <div class="flex items-baseline justify-between gap-2">
+                <a href="{{ route('courses.vocab') }}" wire:navigate class="font-bold text-ink dark:text-ink-dark">Vocab in Use</a>
+                <span class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">{{ $courses['vocab']['opened'] }} of {{ $courses['vocab']['total'] }} lessons</span>
+            </div>
+            <x-progress-bar>
+                <div class="h-full rounded-full bg-accent dark:bg-accent-dark" style="width: {{ round($courses['vocab']['opened'] / max(1, $courses['vocab']['total']) * 100) }}%"></div>
+            </x-progress-bar>
+            <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">{{ $courses['vocab']['added'] }} {{ Str::plural('word', $courses['vocab']['added']) }} added · {{ $courses['vocab']['strong'] }} strong</p>
+        </div>
+        <div class="space-y-1.5">
+            <div class="flex items-baseline justify-between gap-2">
+                <a href="{{ route('courses.extra') }}" wire:navigate class="font-bold text-ink dark:text-ink-dark">Extra English</a>
+                <span class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">{{ $courses['extra']['watched'] }} of {{ $courses['extra']['total'] }} episodes</span>
+            </div>
+            <x-progress-bar>
+                <div class="h-full rounded-full bg-accent dark:bg-accent-dark" style="width: {{ round($courses['extra']['watched'] / max(1, $courses['extra']['total']) * 100) }}%"></div>
+            </x-progress-bar>
+            @if ($courses['extra']['last'])
+                <p class="text-xs font-semibold text-ink-faint dark:text-ink-faint-dark">Last watched: Episode {{ $courses['extra']['last']->number }} · {{ $courses['extra']['last']->title }}</p>
+            @endif
+        </div>
     </section>
 
     @if ($this->voices->isNotEmpty())

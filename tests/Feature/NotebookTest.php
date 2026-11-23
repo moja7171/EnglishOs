@@ -417,16 +417,16 @@ class NotebookTest extends TestCase
     public function test_todays_notebook_lines_stay_the_same_while_they_are_reviewed(): void
     {
         $learner = User::factory()->create();
-        collect(range(1, 8))->each(fn (int $timesSeen) => NotebookEntry::factory()->for($learner, 'learner')->create(['times_seen' => $timesSeen, 'next_review_at' => now()->subDay()]));
+        collect(range(1, 12))->each(fn (int $timesSeen) => NotebookEntry::factory()->for($learner, 'learner')->create(['times_seen' => $timesSeen, 'next_review_at' => now()->subDay()]));
 
         $before = $learner->dailyReviewItems('talk');
         $first = NotebookEntry::findOrFail($before->first()['id']);
         $first->update(['last_reviewed_at' => now(), 'next_review_at' => now()->addDay()]);
         $after = $learner->dailyReviewItems('talk');
 
-        $this->assertCount(6, $before);
+        $this->assertCount(10, $before);
         $this->assertSame($before->slice(1)->values()->all(), $after->values()->all());
-        $this->assertSame(5, $learner->dailyReviewCount('talk'));
+        $this->assertSame(9, $learner->dailyReviewCount('talk'));
     }
 
     public function test_notebook_lines_reviewed_today_use_up_the_three_slots_when_other_items_wait(): void

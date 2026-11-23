@@ -165,6 +165,8 @@ class FriendActivity
             'listening' => ['Listening', 'A daily listening'],
             'pi' => ['Daily talk', 'A speaking talk'],
             'review' => ['Review', 'Words and sentences'],
+            'vocab' => ['Vocab in Use', 'A lesson of the book'],
+            'extra' => ['Extra English', 'An episode of the sitcom'],
             'pair' => ['Pair practice', '12 minutes with a friend'],
             'ai-practice' => ['Practice with Teddy', 'Your AI classmate'],
         ];

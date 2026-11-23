@@ -3,7 +3,7 @@
 word or phrase of document/vocab/units/unit_NNN.json (the files database/seeders/VocabSeeder.php reads).
 
 Same method as scripts/translate-fa.py (Groq, key inline, never written to disk):
-  GROQ_API_KEY=... python3 scripts/translate-vocab-fa.py [5 16 35 ...]
+  GROQ_API_KEY=... python3 scripts/translate-vocab-fa.py [--items | --sentences] [5 16 35 ...]
 
 Safe to run again: whatever is already in the cache file (storage/app/translate-vocab-fa-cache.json) is not
 asked twice, and a sentence/word that already has its Persian is left alone (--redo asks again).
@@ -120,12 +120,13 @@ def fill(cache, system, wanted):
 
 
 def phrase_line(item, section):
-    sentence = section["sentences"][item["sentence_index"]]["text"] if item["sentence_index"] < len(section["sentences"]) else ""
-    return f"{item['phrase']} | {item.get('gloss') or '-'} | {sentence}"
+    return f"{item['phrase']} | {item.get('gloss') or '-'} | {item.get('sentence') or ''}"
 
 
 def main():
     redo = "--redo" in sys.argv
+    only_items = "--items" in sys.argv  # the words first: they are what the lesson's list and Review need
+    only_sentences = "--sentences" in sys.argv
     units = [int(a) for a in sys.argv[1:] if a.isdigit()]
     cache = json.load(open(CACHE, encoding="utf-8")) if os.path.exists(CACHE) else {}
 
@@ -134,9 +135,9 @@ def main():
         if units and number not in units:
             continue
         data = json.load(open(path, encoding="utf-8"))
-        sentences = [s["text"] for sec in data["sections"] for s in sec["sentences"] if redo or "fa" not in s]
-        phrases = [phrase_line(i, sec) for sec in data["sections"] for i in sec["items"] if redo or not i.get("phrase_fa")]
-        asked = fill(cache, SENTENCES, sentences) + fill(cache, "PHRASES:" and PHRASES, phrases)
+        sentences = [] if only_items else [s["text"] for sec in data["sections"] for s in sec["sentences"] if redo or "fa" not in s]
+        phrases = [] if only_sentences else [phrase_line(i, sec) for sec in data["sections"] for i in sec["items"] if redo or not i.get("phrase_fa")]
+        asked = fill(cache, SENTENCES, sentences) + fill(cache, PHRASES, phrases)
         for sec in data["sections"]:
             for s in sec["sentences"]:
                 if s["text"] in cache and (redo or "fa" not in s):

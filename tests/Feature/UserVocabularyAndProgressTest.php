@@ -111,7 +111,7 @@ class UserVocabularyAndProgressTest extends TestCase
 
         Livewire::test('progress.index')
             ->call('setWeeklyGoal', '4')
-            ->assertSee('Goal: 4 days');
+            ->assertSee('Goal 4/week');
 
         $this->assertSame(4, $learner->fresh()->weekly_goal_days);
     }
@@ -152,7 +152,8 @@ class UserVocabularyAndProgressTest extends TestCase
 
         Livewire::test('progress.index')
             ->assertSet('progressStats.activeDaysThisWeek', 1)
-            ->assertSee('1 of 5 days this week');
+            ->assertSee('1 of 5')
+            ->assertSee('days this week');
     }
 
     public function test_the_progress_page_renders_the_activity_calendar(): void
@@ -161,8 +162,8 @@ class UserVocabularyAndProgressTest extends TestCase
         $this->actingAs($learner);
 
         Livewire::test('progress.index')
-            ->assertSee('Last 12 weeks')
-            ->assertSet('progressStats.calendar', fn ($calendar) => count($calendar) === 84);
+            ->assertSee('practiced in the last 12 weeks')
+            ->assertSet('calendar.weeks', fn ($weeks) => count($weeks) === 12);
     }
 
     public function test_the_profile_page_no_longer_has_a_progress_tab(): void

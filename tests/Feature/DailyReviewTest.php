@@ -1005,22 +1005,22 @@ class DailyReviewTest extends TestCase
         $this->assertSame($expected, $words);
     }
 
-    public function test_six_more_on_the_mistakes_and_reminders_path_brings_the_next_cards_only(): void
+    public function test_ten_more_on_the_mistakes_and_reminders_path_brings_the_next_cards_only(): void
     {
         $learner = User::factory()->create();
-        foreach (range(1, 8) as $number) {
+        foreach (range(1, 14) as $number) {
             $this->makeDueError($learner, "category-{$number}");
         }
         $this->actingAs($learner);
 
         $page = Livewire::test('review.reading');
 
-        $this->assertCount(6, $page->instance()->queue);
+        $this->assertCount(10, $page->instance()->queue);
         $this->assertTrue($page->instance()->moreAvailable);
 
         $page->call('loadMore')->assertSet('more', 1);
 
-        $this->assertCount(8, $page->instance()->queue);
+        $this->assertCount(14, $page->instance()->queue);
     }
 
     public function test_six_more_is_not_offered_when_nothing_more_is_left_to_read(): void
@@ -1034,12 +1034,27 @@ class DailyReviewTest extends TestCase
             ->assertSet('more', 0);
     }
 
-    public function test_finishing_one_path_fills_the_streak_ring_even_with_the_other_still_waiting(): void
+    public function test_finishing_one_path_does_not_fill_the_streak_ring_while_the_other_still_waits(): void
     {
         $learner = User::factory()->create();
         $this->makeDueError($learner);
         $this->makeDueWord($learner, ['repetitions' => 1]);
         $this->actingAs($learner);
+
+        Livewire::test('review.index', ['track' => 'words'])->call('gradeWord', 4, true);
+
+        $this->assertDatabaseMissing('day_activities', ['learner_id' => $learner->id, 'activity' => 'review']);
+    }
+
+    public function test_finishing_every_path_fills_the_streak_ring(): void
+    {
+        $learner = User::factory()->create();
+        $error = $this->makeDueError($learner);
+        $this->makeDueWord($learner, ['repetitions' => 1]);
+        $this->actingAs($learner);
+
+        $error->markRead();
+        $this->assertDatabaseMissing('day_activities', ['learner_id' => $learner->id, 'activity' => 'review']);
 
         Livewire::test('review.index', ['track' => 'words'])->call('gradeWord', 4, true);
 

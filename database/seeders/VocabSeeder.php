@@ -16,8 +16,8 @@ use Illuminate\Database\Seeder;
  * place, so ids that learners' saved cards point at stay the same.
  *
  * A unit file is {number, sections: [{letter, title, kind, text, sentences:
- * [{text, start, end, audio_start, audio_end, fa}], items: [{phrase, start, end,
- * sentence_index, ipa, gloss, phrase_fa, audio_start, audio_end}], rows, notes,
+ * [{text, start, end, audio_start, audio_end, fa}], items: [{phrase, start?, end?,
+ * sentence_index?, sentence?, ipa, gloss, phrase_fa, audio_start, audio_end}], rows, notes,
  * audio_file}]}.
  */
 class VocabSeeder extends Seeder
@@ -63,9 +63,10 @@ class VocabSeeder extends Seeder
             foreach ($section['items'] as $position => $item) {
                 $text->items()->updateOrCreate(['position' => $position + 1], [
                     'phrase' => $item['phrase'],
-                    'start' => $item['start'],
-                    'end' => $item['end'],
-                    'sentence_index' => $item['sentence_index'],
+                    'start' => $item['start'] ?? null,
+                    'end' => $item['end'] ?? null,
+                    'sentence_index' => $item['sentence_index'] ?? null,
+                    'sentence' => $item['sentence'] ?? null,
                     'ipa' => $item['ipa'] ?? null,
                     'gloss' => $item['gloss'] ?? null,
                     'phrase_fa' => $item['phrase_fa'] ?? null,
