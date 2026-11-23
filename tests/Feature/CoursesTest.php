@@ -214,4 +214,18 @@ class CoursesTest extends TestCase
             ->assertSee('بیدار شدن')
             ->assertSee('weɪk ʌp');
     }
+
+    public function test_the_section_has_no_show_text_button_because_the_text_is_already_on_the_page(): void
+    {
+        $unit = $this->lesson();
+        $text = $unit->texts->first();
+        $text->update(['sentences' => collect($text->sentences)->map(fn (array $sentence): array => $sentence + ['fa' => 'من معمولاً بیدار می‌شوم.'])->all()]);
+
+        $this->actingAs(User::factory()->create())->get(route('courses.vocab.unit', $unit->number))
+            ->assertOk()
+            ->assertDontSee('Show text')
+            ->assertSee('ترجمه فارسی')
+            ->assertSeeHtml('data-testid="vocab-section-fa"')
+            ->assertSee('من معمولاً بیدار می‌شوم.');
+    }
 }

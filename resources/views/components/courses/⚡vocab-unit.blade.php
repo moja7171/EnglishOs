@@ -169,11 +169,24 @@ new class extends Component
             }"
         >
             @if ($audioUrl)
-                <x-audio-player :url="$audioUrl" :segments="$text->playerSegments()" :text-hidden="true" />
+                <x-audio-player :url="$audioUrl" />
                 <audio x-ref="hear" src="{{ $audioUrl }}" preload="none"></audio>
             @endif
 
+            @php $persianLines = collect($text->sentences)->pluck('fa')->filter()->values(); @endphp
+            @if ($persianLines->isNotEmpty())
+                <div class="flex justify-end"><x-fa-toggle /></div>
+            @endif
+
             <div class="card px-4 py-4 text-lg leading-9 whitespace-pre-line text-ink dark:text-ink-dark">{!! $this->markup($text) !!}</div>
+
+            @if ($persianLines->isNotEmpty())
+                <div x-show="$store.fa.on" x-cloak dir="rtl" class="font-fa space-y-1 text-sm leading-8 text-ink-soft dark:text-ink-soft-dark" data-testid="vocab-section-fa">
+                    @foreach ($persianLines as $line)
+                        <p>{{ $line }}</p>
+                    @endforeach
+                </div>
+            @endif
 
             @if ($text->items->contains(fn ($item) => $item->isInText()))
                 <p class="text-center text-sm text-ink-faint dark:text-ink-faint-dark">Tap an underlined word</p>
