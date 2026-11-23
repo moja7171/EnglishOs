@@ -278,6 +278,47 @@ class SentenceCheckerTest extends TestCase
         );
     }
 
+    public function test_minor_criteria_are_a_reminder_that_is_never_none_and_never_major(): void
+    {
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')
+                ->once()
+                ->withArgs(function (array $messages, ?string $systemPrompt) {
+                    $feedbackDepthAt = strpos($systemPrompt, 'be generous about what counts as');
+
+                    return str_contains($systemPrompt, 'at least "minor" — never "none"')
+                        && str_contains($systemPrompt, 'these slips alone are never "major": a missing article')
+                        && str_contains($systemPrompt, 'never a slip just because another form would sound more natural')
+                        && $feedbackDepthAt !== false
+                        && strpos($systemPrompt, 'Reminders:') > $feedbackDepthAt;
+                })
+                ->andReturn(json_encode(['severity' => 'minor', 'hint' => 'Add "a".']));
+        });
+
+        $result = app(SentenceChecker::class)->check(
+            judgment: 'Judge the sentence.',
+            majorCriteria: 'it makes no sense',
+            context: 'a test context',
+            text: 'I bought phone.',
+            feedbackDepth: 'be generous about what counts as "none"…',
+            minorCriteria: 'a missing article',
+        );
+
+        $this->assertSame('minor', $result['severity']);
+    }
+
+    public function test_without_minor_criteria_the_prompt_has_no_reminders(): void
+    {
+        $this->mock(GeminiClient::class, function ($mock) {
+            $mock->shouldReceive('chat')
+                ->once()
+                ->withArgs(fn (array $messages, ?string $systemPrompt) => ! str_contains($systemPrompt, 'Reminders:'))
+                ->andReturn(json_encode(['severity' => 'none', 'hint' => '']));
+        });
+
+        app(SentenceChecker::class)->check('Judge.', 'major thing', 'a context', 'I commute to work.');
+    }
+
     public function test_it_calibrates_to_the_authenticated_learners_own_level(): void
     {
         $this->actingAs(User::factory()->create(['cefr_level' => 'A2']));

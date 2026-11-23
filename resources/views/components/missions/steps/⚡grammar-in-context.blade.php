@@ -277,6 +277,7 @@ new class extends Component
                 text: $this->fullSentence($starter, $sentence),
                 extraGuidance: $this->run->aiToneGuidance(),
                 feedbackDepth: $this->run->mission->feedbackDepth(),
+                minorCriteria: $grammar['grammar_minor_criteria'] ?? null,
             );
             $this->recordGeminiCall();
 
