@@ -12,27 +12,29 @@
         </header>
 
         @foreach ($courses as $course)
-            <a href="{{ $course['url'] }}" wire:navigate wire:key="course-{{ $course['key'] }}" class="card block space-y-4 p-5 transition-colors hover:border-accent dark:hover:border-accent-dark">
-                <div class="flex items-center justify-between gap-3">
-                    <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-soft text-accent dark:bg-accent-soft-dark dark:text-accent-dark">@svg($course['icon'], 'h-6 w-6')</span>
+            <a href="{{ $course['url'] }}" wire:navigate wire:key="course-{{ $course['key'] }}" class="card block overflow-hidden transition-colors hover:border-accent dark:hover:border-accent-dark">
+                <div class="relative">
+                    <img src="{{ $course['image'] }}" alt="" loading="lazy" class="aspect-video w-full bg-surface-sunken object-cover dark:bg-surface-sunken-dark">
                     @if ($course['dueCards'] > 0)
-                        <span class="rounded-full bg-accent-soft px-3 py-1 text-xs font-extrabold text-accent dark:bg-accent-soft-dark dark:text-accent-dark">{{ $course['dueCards'] }} {{ Str::plural('card', $course['dueCards']) }} due</span>
+                        <span class="absolute top-3 right-3 rounded-full bg-accent px-3 py-1 text-xs font-extrabold text-white shadow dark:bg-accent-dark">{{ $course['dueCards'] }} {{ Str::plural('card', $course['dueCards']) }} due</span>
                     @endif
                 </div>
-                <div>
-                    <p class="font-display text-2xl font-semibold text-ink dark:text-ink-dark">{{ $course['name'] }}</p>
-                    <p class="text-sm text-ink-soft dark:text-ink-soft-dark">{{ $course['blurb'] }}</p>
+                <div class="space-y-3 p-5">
+                    <div>
+                        <p class="font-display text-2xl font-semibold text-ink dark:text-ink-dark">{{ $course['name'] }}</p>
+                        <p class="text-sm text-ink-soft dark:text-ink-soft-dark">{{ $course['blurb'] }}</p>
+                    </div>
+                    @if ($course['progress'] !== null)
+                        <x-progress-bar>
+                            <div class="h-full rounded-full bg-accent dark:bg-accent-dark" style="width: {{ $course['progress'] }}%"></div>
+                            <x-slot:label>
+                                <span class="text-xs font-bold text-ink-faint dark:text-ink-faint-dark">{{ $course['progressLabel'] }}</span>
+                            </x-slot:label>
+                        </x-progress-bar>
+                    @else
+                        <p class="text-xs font-bold text-ink-faint dark:text-ink-faint-dark">{{ $course['progressLabel'] }}</p>
+                    @endif
                 </div>
-                @if ($course['progress'] !== null)
-                    <x-progress-bar>
-                        <div class="h-full rounded-full bg-accent dark:bg-accent-dark" style="width: {{ $course['progress'] }}%"></div>
-                        <x-slot:label>
-                            <span class="text-xs font-bold text-ink-faint dark:text-ink-faint-dark">{{ $course['progressLabel'] }}</span>
-                        </x-slot:label>
-                    </x-progress-bar>
-                @else
-                    <p class="text-xs font-bold text-ink-faint dark:text-ink-faint-dark">{{ $course['progressLabel'] }}</p>
-                @endif
             </a>
         @endforeach
     </div>

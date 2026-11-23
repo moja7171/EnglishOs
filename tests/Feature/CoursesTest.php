@@ -66,7 +66,9 @@ class CoursesTest extends TestCase
             ->assertSee('Vocab in Use')
             ->assertSee('1 of 1 units opened')
             ->assertSee('1 card due')
-            ->assertSeeHtml('href="'.route('courses.vocab').'"');
+            ->assertSeeHtml('href="'.route('courses.vocab').'"')
+            ->assertSeeHtml('images/courses/vocab.jpg')
+            ->assertSeeHtml('images/extra/01.jpg');
     }
 
     public function test_due_course_cards_never_count_in_the_review_tab(): void

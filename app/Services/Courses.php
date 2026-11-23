@@ -21,7 +21,7 @@ class Courses
      * A course without progress of its own (Extra English: every episode is
      * just open) has a null progress and only a label.
      *
-     * @return list<array{key: string, name: string, blurb: string, icon: string, url: string, progress: int|null, progressLabel: string, dueCards: int}>
+     * @return list<array{key: string, name: string, blurb: string, icon: string, image: string, url: string, progress: int|null, progressLabel: string, dueCards: int}>
      */
     public function for(User $user): array
     {
@@ -34,6 +34,7 @@ class Courses
                 'name' => VocabCourse::NAME,
                 'blurb' => VocabCourse::BLURB,
                 'icon' => 'heroicon-o-book-open',
+                'image' => asset('images/courses/vocab.jpg'),
                 'url' => route('courses.vocab'),
                 'progress' => (int) round($opened / $total * 100),
                 'progressLabel' => "{$opened} of {$total} units opened",
@@ -44,6 +45,7 @@ class Courses
                 'name' => 'Extra English',
                 'blurb' => 'The sitcom, episode by episode, with English captions',
                 'icon' => 'heroicon-o-film',
+                'image' => asset('images/extra/01.jpg'),
                 'url' => route('courses.extra'),
                 'progress' => null,
                 'progressLabel' => ($episodes = ExtraEpisode::query()->count()).' '.str('episode')->plural($episodes),
