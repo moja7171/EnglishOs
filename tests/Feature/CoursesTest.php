@@ -221,4 +221,14 @@ class CoursesTest extends TestCase
             ->assertSee('من معمولاً ساعت هفت و نیم بیدار می‌شوم.')
             ->assertSee('بیدار شدن');
     }
+
+    public function test_a_unit_opened_from_the_map_without_a_step_starts_on_listen(): void
+    {
+        $unit = $this->readyUnit();
+
+        $this->actingAs(User::factory()->create())
+            ->get(route('courses.vocab.unit', $unit->number))
+            ->assertOk()
+            ->assertSee('Step 1 of 3');
+    }
 }
