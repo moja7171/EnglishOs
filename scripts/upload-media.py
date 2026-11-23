@@ -24,6 +24,12 @@ dry = "--dry" in sys.argv
 
 
 def plan(code: str):
+    if code == "vocab":
+        # The Vocabulary in Use book audio: Part 1/U_005.A.mp3 -> vocab/U_005.A.mp3
+        for folder in DOCUMENT.glob("English Vocabulary in Use*Audio*"):
+            for f in sorted(folder.rglob("*.mp3")):
+                yield f, f"{REMOTE_BASE}/vocab/{f.name}"
+        return
     folder = DOCUMENT / code
     for f in sorted(folder.iterdir()):
         if f.is_file() and f.suffix.lower() in (".mp3", ".mp4"):
