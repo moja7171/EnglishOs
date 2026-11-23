@@ -595,6 +595,7 @@ new class extends Component
      centre, 💡 Idea for an example answer), then the shared feedback. --}}
 <div
     wire:ignore.self x-data="{ screen: {{ $startScreen }}, warmUp: {{ $startWarmUpQuestion }}, idea: false }"
+    x-scroll-top="screen + '-' + warmUp"
     x-effect="$dispatch('step-progress', { share: screen === 2 ? (2 + {{ $questionCount ? $round / $questionCount : 0 }}) / 4 : (screen === 1 ? (1 + (warmUp + 0.5) / {{ $warmUpCount }}) / 4 : (screen + 0.5) / 4) })"
     x-back-close.step="{ open: screen === 1, close: () => { if (warmUp > 0) { warmUp-- } else { screen-- } } }"
 >

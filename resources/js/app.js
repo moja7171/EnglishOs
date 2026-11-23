@@ -22,6 +22,32 @@ document.addEventListener('alpine:init', () => {
     });
 
     /**
+     * x-scroll-top="screen" — a step or page that swaps its screens in place
+     * (x-show) keeps the old scroll offset, so the next screen opens in the
+     * middle with its title out of view. This brings the page back to the
+     * top whenever the watched expression changes (never on first load, so
+     * a restored scroll position is left alone). Instant, and one tick late
+     * so the old screen is already hidden when it runs.
+     */
+    Alpine.directive('scroll-top', (el, { expression }, { evaluateLater, effect }) => {
+        const read = evaluateLater(expression);
+        let seen = false;
+        let previous;
+
+        effect(() => read((value) => {
+            const changed = seen && value !== previous;
+            seen = true;
+            previous = value;
+
+            if (changed) {
+                Alpine.nextTick(() => {
+                    if (window.scrollY > 0) window.scrollTo({ top: 0, behavior: 'instant' });
+                });
+            }
+        }));
+    });
+
+    /**
      * x-swipe-close="open = false" — lets a bottom sheet be pulled down to
      * dismiss it. The sheet follows the finger, and past a short distance it
      * closes; let go early and it springs back. Only on phone-width screens

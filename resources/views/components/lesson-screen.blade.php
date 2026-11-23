@@ -18,7 +18,7 @@
     x-show="{{ $when }}"
     x-cloak
     {{-- A new screen opens at its top: the old screen's scroll offset would leave its first lines under the pinned step header. --}}
-    x-data="{ init() { this.$watch(() => {{ $when }}, (shown) => { if (shown && window.scrollY > 0) window.scrollTo({ top: 0 }) }) } }"
+    x-data="{ init() { this.$watch(() => {{ $when }}, (shown) => { if (shown) this.$nextTick(() => { if (window.scrollY > 0) window.scrollTo({ top: 0, behavior: 'instant' }) }) }) } }"
     {{ $attributes->class(['animate-lesson-screen-in flex min-h-[calc(100dvh-11rem)] flex-col gap-5 pt-2']) }}
 >
     <div class="flex flex-1 flex-col gap-5">

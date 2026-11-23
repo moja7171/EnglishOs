@@ -587,6 +587,7 @@ new class extends Component
 @else
 <div
     wire:ignore.self x-data="{ screen: {{ $startScreen }}, idea: false, noPrep: false }"
+    x-scroll-top="screen"
     x-effect="$dispatch('step-progress', { share: screen === 1 ? (1 + {{ $chatDone / $chatTotal }}) / 4 : (screen + 0.5) / 4 })"
     x-back-close.step="{ open: screen === 1, close: () => screen-- }"
 >
@@ -688,33 +689,30 @@ new class extends Component
         @endif
     </section>
 
-    {{-- The 3-minute challenge: a ring that fills while recording, the
-         goals ticked once the talk is checked. --}}
+    {{-- The 3-minute challenge: the question first and biggest, one clock
+         while recording, the goals only once the talk is checked. --}}
     <x-lesson-screen when="screen === 2">
-        <span class="inline-flex w-fit rounded-full bg-accent-soft px-3 py-1 text-xs font-extrabold tracking-wide text-accent-ink uppercase dark:bg-accent-soft-dark dark:text-accent-ink-dark">Talk for 3 minutes</span>
-        <p class="flex items-start gap-1.5 lesson-prompt text-ink dark:text-ink-dark"><x-speak-word :word="$this->finalPrompt" top /></p>
+        <span class="inline-flex w-fit rounded-full bg-accent-soft px-3 py-1 text-xs font-extrabold tracking-wide text-accent-ink uppercase dark:bg-accent-soft-dark dark:text-accent-ink-dark">Final Talk · 3 min</span>
 
-        @unless ($checklist)
-            <div
-                x-data="{ secs: 0, timer: null }"
-                x-on:eos-recording.window="if ($event.detail) { timer ??= setInterval(() => secs++, 1000) } else { clearInterval(timer); timer = null }"
-                class="flex justify-center"
-            >
-                <div class="flex h-24 w-24 items-center justify-center rounded-full" :style="`background: conic-gradient(var(--color-accent) 0 ${Math.min(secs / 180, 1) * 100}%, var(--color-line) 0 100%)`">
-                    <span class="flex h-20 w-20 items-center justify-center rounded-full bg-ground text-lg font-extrabold text-ink tabular-nums dark:bg-ground-dark dark:text-ink-dark" x-text="`${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`">0:00</span>
-                </div>
-            </div>
-        @endunless
-
-        @include('components.missions.steps.partials.final-talk-goals')
+        <div class="rounded-3xl border border-line bg-surface px-5 py-5 dark:border-line-dark dark:bg-surface-dark">
+            <p class="text-xs font-extrabold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Your question</p>
+            <p class="mt-3 flex items-start gap-1.5 font-display text-2xl leading-snug font-bold text-balance text-ink dark:text-ink-dark"><x-speak-word :word="$this->finalPrompt" top /></p>
+            @unless ($checklist)
+                <p class="mt-3 text-sm leading-snug text-ink-soft dark:text-ink-soft-dark">Talk about it in your own words. Keep going for 3 minutes.</p>
+            @endunless
+        </div>
 
         @if ($checklist)
+            <div class="flex flex-col gap-2">
+                <p class="text-xs font-extrabold tracking-wide text-ink-faint uppercase dark:text-ink-faint-dark">Your goals</p>
+                @include('components.missions.steps.partials.final-talk-goals')
+            </div>
             @if ($url = $this->finalAudioUrl())
                 <x-own-take :url="$url" />
             @endif
         @else
-            <div class="flex justify-center" wire:loading.remove wire:target="submitFinalChallenge">
-                <x-voice-recorder big field="audioFile" :file="$audioFile" on-recorded="submitFinalChallenge" file-name="final.webm" />
+            <div class="flex flex-1 flex-col items-center justify-center" wire:loading.remove wire:target="submitFinalChallenge">
+                <x-voice-recorder big field="audioFile" :file="$audioFile" on-recorded="submitFinalChallenge" file-name="final.webm" :target="180" clock />
             </div>
             <x-ai-thinking wire:loading wire:target="submitFinalChallenge" label="Checking your talk…" />
             @if ($exampleAnswer['final'] ?? null)

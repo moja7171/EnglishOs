@@ -327,6 +327,22 @@ class AiConversation2StepTest extends TestCase
             ->assertSee("This one's harder on purpose.");
     }
 
+    public function test_the_final_talk_screen_shows_the_question_and_one_clock_and_the_goals_only_after_the_check(): void
+    {
+        $run = $this->makeRun();
+
+        $component = Livewire::test('missions.steps.ai-conversation2', ['run' => $run])
+            ->assertSee('Your question')
+            ->assertSeeHtml('data-talk-clock')
+            ->assertSeeHtml('TARGET_SECONDS: 180')
+            ->assertDontSee('Your goals');
+
+        $component->set('checklist', ['Present Simple' => true])
+            ->assertSee('Your goals')
+            ->assertSee('Present Simple')
+            ->assertDontSeeHtml('data-talk-clock');
+    }
+
     public function test_the_round_prompt_is_read_aloud_with_a_speaker_to_hear_it_again(): void
     {
         $run = $this->makeRun();

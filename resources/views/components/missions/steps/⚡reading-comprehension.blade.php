@@ -475,6 +475,7 @@ new class extends Component
     </div>
 @else
 <div
+    x-scroll-top="screen"
     x-data="{
         screen: 0,
         quizShare: 0,

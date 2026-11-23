@@ -534,6 +534,7 @@ new class extends Component
 @else
 <div
     wire:ignore.self
+    x-scroll-top="screen"
     x-data="{
         screen: {{ $startScreen }},
         quizShare: 0,

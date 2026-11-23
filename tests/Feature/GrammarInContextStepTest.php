@@ -694,6 +694,7 @@ class GrammarInContextStepTest extends TestCase
                                 .'or the sentence does not continue the given starter',
                             'grammar_context' => 'continues using either the past simple or the present perfect '
                                 .'tense, whichever fits',
+                            'grammar_minor_criteria' => 'a missing article before a singular noun ("I bought phone")',
                             'quick_check' => [
                                 ['wrong' => 'I have seen that film yesterday.', 'options' => ['I saw that film yesterday.', 'I have seen that film yesterday.'], 'correct' => 0],
                             ],
@@ -738,6 +739,7 @@ class GrammarInContextStepTest extends TestCase
                     return str_contains($messages[0]['text'], 'continues using either the past simple or the present perfect tense, whichever fits')
                         && str_contains($systemPrompt, 'Judge whether the learner correctly chose between the past simple and the present perfect')
                         && str_contains($systemPrompt, 'the wrong tense is used for the described time reference')
+                        && str_contains($systemPrompt, 'a missing article before a singular noun ("I bought phone")')
                         // The M01-specific wording must NOT leak into a
                         // different mission's check — proves this isn't
                         // still hardcoded.

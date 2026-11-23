@@ -35,6 +35,9 @@ class SentenceChecker
      * @param  string|null  $feedbackDepth  Mission::feedbackDepth() — where the "none"/"minor"
      *                                      line falls at this point in the roadmap (S5). Never touches
      *                                      what counts as "major", tone, or hint length.
+     * @param  string|null  $minorCriteria  Slips that only ever earn a reminder: at least "minor"
+     *                                      (even early in the program, when feedbackDepth would let a small
+     *                                      slip pass as "none") and never "major" on their own.
      * @return array{severity: string, hint: string, corrected: ?string, why_fa: ?string}
      */
     public function check(
@@ -44,10 +47,11 @@ class SentenceChecker
         string $text,
         ?string $extraGuidance = null,
         ?string $feedbackDepth = null,
+        ?string $minorCriteria = null,
     ): array {
         $raw = $this->gemini->chat(
             [['role' => 'user', 'text' => "Context: {$context}\nLearner wrote: \"{$text}\""]],
-            systemPrompt: $this->systemPrompt($judgment, $majorCriteria, $extraGuidance, $feedbackDepth),
+            systemPrompt: $this->systemPrompt($judgment, $majorCriteria, $extraGuidance, $feedbackDepth, $minorCriteria),
             profile: GeminiClient::PROFILE_JUDGE,
         );
 
@@ -112,7 +116,7 @@ class SentenceChecker
         return auth()->user()?->levelDescription() ?? 'a B1 (intermediate) English learner';
     }
 
-    private function systemPrompt(string $judgment, string $majorCriteria, ?string $extraGuidance, ?string $feedbackDepth = null): string
+    private function systemPrompt(string $judgment, string $majorCriteria, ?string $extraGuidance, ?string $feedbackDepth = null, ?string $minorCriteria = null): string
     {
         $prompt = 'You are a supportive English writing assistant helping '.$this->learnerDescription().'. '.$judgment.' A short, '
             .'minimal sentence is completely fine — do not ask for more detail. Also check: the spelling of '
@@ -131,6 +135,13 @@ class SentenceChecker
 
         if ($feedbackDepth) {
             $prompt .= ' '.$feedbackDepth;
+        }
+
+        if (filled($minorCriteria)) {
+            $prompt .= ' Reminders: when the sentence clearly contains one of these slips, the severity is at '
+                .'least "minor" — never "none", whatever the guidance above says — and these slips alone are never '
+                .'"major": '.$minorCriteria.'. Only flag a slip that is really wrong; a grammatical sentence is '
+                .'never a slip just because another form would sound more natural.';
         }
 
         return $prompt

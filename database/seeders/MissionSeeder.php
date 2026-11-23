@@ -13,6 +13,36 @@ use Illuminate\Support\Facades\Storage;
 class MissionSeeder extends Seeder
 {
     /**
+     * Reminder texts for `grammar_minor_criteria` (see SentenceChecker::check()):
+     * slips common among Persian speakers, or taught in an earlier mission,
+     * that only ever earn a "minor" nudge — never a rejected sentence.
+     * Each one names only what is really wrong, so a correct but less natural
+     * form is never flagged.
+     */
+    private const SLIP_ARTICLE = 'a missing a / an / the before a singular countable noun that has no other word in front '
+        .'of it ("I bought phone", "She is teacher"), or a / an before a plural or uncountable noun ("a informations"); '
+        .'never flag a correct zero article ("go to school", "at home", "by bus") and never flag a "the" you are not sure about';
+
+    private const SLIP_HE_SHE = 'he / she / his / her that clearly contradicts the person named in the same sentence '
+        .'("my mother ... he", "my brother ... her book"); never guess the gender of a person the sentence does not name';
+
+    private const SLIP_THIRD_PERSON_S = 'a missing -s on the verb after he / she / my friend ("She wake up", "my best friend like")';
+
+    private const SLIP_STATE_VERB_ING = 'a state verb used with -ing ("I\'m needing", "I\'m liking")';
+
+    private const SLIP_UNCOUNTABLE_PLURAL = 'a plural -s or "a / an" on an uncountable noun ("informations", "advices", "softwares", "an equipment")';
+
+    private const SLIP_MODAL_TO = 'can / can\'t / must followed by to or -ing ("I can to swim", "I must going")';
+
+    private const SLIP_VERB_AFTER_ENJOY_WANT = 'the wrong verb form after enjoy / want / good at ("enjoy to cook", "want playing")';
+
+    private const SLIP_PAST_FORM = 'a wrong past form ("goed", "teached") or a past form after did / didn\'t ("didn\'t went")';
+
+    private const SLIP_EXTRA_PRONOUN = 'an extra pronoun in a relative clause ("the film I\'ve ever seen it", "the man who I know him")';
+
+    private const SLIP_WILL_CAN = 'will with can or must ("I will can", "I\'ll must")';
+
+    /**
      * Seeds M01 with its real content from document/M01/ (Mission01.pdf,
      * BBC Learning English "Real Easy English — Mornings"), matching the
      * phase/step map in EOS-009 §7.
@@ -1322,6 +1352,8 @@ class MissionSeeder extends Seeder
                                     .'the given starter, or it is not a genuine personal statement',
                                 'grammar_context' => 'continues appropriately in either the present simple or present '
                                     .'continuous tense, whichever fits the sentence starter given',
+                                // Reminders only: SentenceChecker asks for at least "minor", never "major".
+                                'grammar_minor_criteria' => self::SLIP_HE_SHE.'; '.self::SLIP_THIRD_PERSON_S,
                                 'quick_check' => [
                                     [
                                         'wrong' => 'She is knowing him very well.',
@@ -2018,6 +2050,8 @@ class MissionSeeder extends Seeder
                                     .'given starter, or it is not a genuine personal statement',
                                 'grammar_context' => 'continues with a correct countable or uncountable food noun for '
                                     .'the quantifier already given',
+                                // Reminders only: SentenceChecker asks for at least "minor", never "major".
+                                'grammar_minor_criteria' => self::SLIP_ARTICLE.'; '.self::SLIP_MODAL_TO,
                                 'quick_check' => [
                                     [
                                         'wrong' => 'I don\'t eat many rice.',
@@ -2651,6 +2685,8 @@ class MissionSeeder extends Seeder
                                     .'statement',
                                 'grammar_context' => 'continues appropriately using a modal of obligation (have to/'
                                     .'need to/must) or ability/permission (can/can\'t), matching the starter given',
+                                // Reminders only: SentenceChecker asks for at least "minor", never "major".
+                                'grammar_minor_criteria' => self::SLIP_ARTICLE.'; '.self::SLIP_STATE_VERB_ING,
                                 'quick_check' => [
                                     [
                                         'wrong' => 'I have to finishing this report today.',
@@ -3314,6 +3350,8 @@ class MissionSeeder extends Seeder
                                     .'personal statement',
                                 'grammar_context' => 'continues with the correct verb form (verb + -ing or to + verb) '
                                     .'for the starter already given',
+                                // Reminders only: SentenceChecker asks for at least "minor", never "major".
+                                'grammar_minor_criteria' => self::SLIP_ARTICLE.'; '.self::SLIP_MODAL_TO,
                                 'quick_check' => [
                                     [
                                         'wrong' => 'I enjoy to swim in the sea.',
@@ -3981,6 +4019,8 @@ class MissionSeeder extends Seeder
                                     .'given starter, or it is not a genuine personal statement',
                                 'grammar_context' => 'continues in the past simple (verb + -ed, an irregular past form, '
                                     .'didn\'t + base verb, or was / were) for the starter already given',
+                                // Reminders only: SentenceChecker asks for at least "minor", never "major".
+                                'grammar_minor_criteria' => self::SLIP_ARTICLE.'; '.self::SLIP_VERB_AFTER_ENJOY_WANT,
                                 'quick_check' => [
                                     [
                                         'wrong' => 'I goed to a language school for two years.',
@@ -4760,6 +4800,8 @@ class MissionSeeder extends Seeder
                                     .'continue the given starter, or it is not a genuine personal statement',
                                 'grammar_context' => 'continues with the past continuous (was / were + -ing), used to + '
                                     .'base verb, or didn\'t use to + base verb, as the starter already given needs',
+                                // Reminders only: SentenceChecker asks for at least "minor", never "major".
+                                'grammar_minor_criteria' => self::SLIP_ARTICLE.'; '.self::SLIP_PAST_FORM,
                                 'quick_check' => [
                                     [
                                         'wrong' => 'I was play football when it started to rain.',
@@ -5530,6 +5572,8 @@ class MissionSeeder extends Seeder
                                     .'it is not a genuine personal statement',
                                 'grammar_context' => 'continues with a comparative + than, much / a bit + comparative, as … '
                                     .'as / not as … as, or the -est / the most, as the starter already given needs',
+                                // Reminders only: SentenceChecker asks for at least "minor", never "major".
+                                'grammar_minor_criteria' => self::SLIP_ARTICLE.'; '.self::SLIP_THIRD_PERSON_S,
                                 'quick_check' => [
                                     [
                                         'wrong' => 'My brother is more tall than me.',
@@ -6223,7 +6267,7 @@ class MissionSeeder extends Seeder
                                     .'a correct defining relative clause: who / that after a person, that / which after a '
                                     .'thing, the pronoun left out only when another subject follows it ("the person I talk '
                                     .'to most"), whose + noun for possession, or where for a place.',
-                                'grammar_major_criteria' => 'which or what after a person ("a friend which"), who after a '
+                                'grammar_major_criteria' => 'a verb with no subject, it or there left out ("Is important that…", "In Iran have many…"), which or what after a person ("a friend which"), who after a '
                                     .'thing ("a job who"), an extra pronoun inside the clause ("a friend who she speaks", '
                                     .'"the café where we met there"), who his / who her instead of whose, the subject pronoun '
                                     .'left out ("the man lives next door is…"), a verb that does not agree with the noun before '
@@ -6233,6 +6277,8 @@ class MissionSeeder extends Seeder
                                 'grammar_context' => 'continues with a defining relative clause (who / that / which, no '
                                     .'pronoun when another subject follows, whose or where) and a main verb, as the starter '
                                     .'already given needs',
+                                // Reminders only: SentenceChecker asks for at least "minor", never "major".
+                                'grammar_minor_criteria' => self::SLIP_ARTICLE.'; '.self::SLIP_PAST_FORM,
                                 'quick_check' => [
                                     [
                                         'wrong' => 'I have a friend which speaks four languages.',
@@ -6951,7 +6997,7 @@ class MissionSeeder extends Seeder
                                     .'the present perfect correctly: have / has + past participle for a period up to now, for + '
                                     .'a length of time or since + a starting point, ever / never / just / already / yet in the '
                                     .'right place, and the past simple only for a finished time ("we met in 2015").',
-                                'grammar_major_criteria' => 'the present simple instead of the present perfect for a period '
+                                'grammar_major_criteria' => 'a verb with no subject, it or there left out ("Is important that…", "In Iran have many…"), the present simple instead of the present perfect for a period '
                                     .'up to now ("I know him for five years"), since with a length of time ("since ten years") or '
                                     .'for with a starting point ("for 2015"), the past simple form instead of the past participle '
                                     .'("I have saw"), has / have not agreeing with the subject, the present perfect with a '
@@ -6959,6 +7005,8 @@ class MissionSeeder extends Seeder
                                     .'actually continue the given starter, or it is not a genuine personal statement',
                                 'grammar_context' => 'continues with the present perfect (have / has + past participle) and, '
                                     .'where the starter needs it, a length of time after for or a starting point after since',
+                                // Reminders only: SentenceChecker asks for at least "minor", never "major".
+                                'grammar_minor_criteria' => self::SLIP_ARTICLE.'; '.self::SLIP_EXTRA_PRONOUN,
                                 'quick_check' => [
                                     [
                                         'wrong' => 'I know her since 2015.',
@@ -7685,12 +7733,14 @@ class MissionSeeder extends Seeder
                                     .'decision made before or a prediction from what they can see, and will + verb for a decision '
                                     .'made now, an offer, a promise or an opinion about the future (I think I\'ll…, I don\'t think '
                                     .'I\'ll…).',
-                                'grammar_major_criteria' => 'the present simple for an arranged plan ("I meet my friend '
+                                'grammar_major_criteria' => 'a verb with no subject, it or there left out ("Is important that…", "In Iran have many…"), the present simple for an arranged plan ("I meet my friend '
                                     .'tomorrow"), a missing am / is / are ("I going to…"), an -ing or -s verb after going to or '
                                     .'will ("going to applying", "I will to go"), will for something clearly arranged before, the sentence does not actually continue the '
                                     .'given starter, or it is not a genuine personal statement',
                                 'grammar_context' => 'continues with a future form that fits the starter: -ing for an '
                                     .'arranged plan, going to + verb for an intention, or will + verb for an opinion or a decision',
+                                // Reminders only: SentenceChecker asks for at least "minor", never "major".
+                                'grammar_minor_criteria' => self::SLIP_ARTICLE.'; '.self::SLIP_WILL_CAN,
                                 'quick_check' => [
                                     [
                                         'wrong' => 'What do you do this evening?',
@@ -8394,13 +8444,15 @@ class MissionSeeder extends Seeder
                                     .'family or friends), using basic reported speech: the verb usually one step back (is → was, '
                                     .'can → could, will → would), pronouns changed to fit, tell + a person, told someone (not) to '
                                     .'+ verb, and reported questions with if or a wh-word and normal word order.',
-                                'grammar_major_criteria' => 'said + a person without to ("she said me"), told without a '
+                                'grammar_major_criteria' => 'a verb with no subject, it or there left out ("Is important that…", "In Iran have many…"), said + a person without to ("she said me"), told without a '
                                     .'person ("he told that"), "told me don\'t…" instead of "told me not to…", question word order '
                                     .'or do / did in a reported question ("asked me where did I live", "asked me was I…"), a '
                                     .'pronoun that still points to the speaker ("Sara said that I was busy" for "I\'m busy"), the '
                                     .'sentence does not actually continue the given starter, or it is not a genuine personal statement',
                                 'grammar_context' => 'continues with reported speech that fits the starter: that + a clause '
                                     .'usually one step back, (not) to + verb after told, or if / a wh-word + normal word order after asked',
+                                // Reminders only: SentenceChecker asks for at least "minor", never "major".
+                                'grammar_minor_criteria' => self::SLIP_ARTICLE.'; '.self::SLIP_HE_SHE,
                                 'quick_check' => [
                                     [
                                         'wrong' => 'She said me that she was tired.',
@@ -9076,7 +9128,7 @@ class MissionSeeder extends Seeder
                                     .'email, the internet), choosing between the present perfect (have / has + past participle: '
                                     .'a result now, an experience, or a time that is not finished like today / this week) and the '
                                     .'past simple (a finished time like yesterday, last year, two days ago, when I was…).',
-                                'grammar_major_criteria' => 'the present perfect with a finished time ("I have bought it '
+                                'grammar_major_criteria' => 'a verb with no subject, it or there left out ("Is important that…", "In Iran have many…"), the present perfect with a finished time ("I have bought it '
                                     .'yesterday", "I\'ve seen it two days ago"), "When have you…?" for a finished time, a wrong '
                                     .'past participle ("I\'ve broke", "has went", "has crash"), have + a past simple form ("I have '
                                     .'went"), the sentence does not actually continue the given starter, or it is not a genuine '
@@ -9085,6 +9137,8 @@ class MissionSeeder extends Seeder
                                 'grammar_context' => 'continues with the tense the starter calls for: have / has + past '
                                     .'participle after "Today I\'ve already", "This week I haven\'t" and "I have never"; the past simple '
                                     .'after "Yesterday I", "My first phone was" and "Last year my phone"',
+                                // Reminders only: SentenceChecker asks for at least "minor", never "major".
+                                'grammar_minor_criteria' => self::SLIP_ARTICLE.'; '.self::SLIP_UNCOUNTABLE_PLURAL,
                                 'quick_check' => [
                                     [
                                         'wrong' => 'I have bought this laptop last year.',

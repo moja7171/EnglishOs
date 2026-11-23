@@ -157,7 +157,7 @@ new class extends Component
             <button type="button" wire:click="start" wire:loading.attr="disabled" wire:target="start" class="{{ $cta }} mt-2 max-w-xs">Start M01</button>
         </section>
     @else
-        <div x-data="{ screen: 'start', q: 0, recorded: false }">
+        <div x-scroll-top="screen + '-' + q" x-data="{ screen: 'start', q: 0, recorded: false }">
             {{-- Start --}}
             <section x-show="screen === 'start'" class="flex min-h-[calc(100dvh-11rem)] flex-col gap-4 pt-4">
                 <div class="flex flex-1 flex-col gap-3">

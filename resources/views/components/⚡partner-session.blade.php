@@ -192,7 +192,7 @@ new class extends Component
     ) ?? $total;
 @endphp
 
-<div class="mx-auto flex min-h-[calc(100dvh-5rem)] max-w-lg flex-col gap-4 px-4 pb-2" x-data="{ q: {{ $startAt }}, total: {{ $total }} }">
+<div class="mx-auto flex min-h-[calc(100dvh-5rem)] max-w-lg flex-col gap-4 px-4 pb-2" x-scroll-top="q" x-data="{ q: {{ $startAt }}, total: {{ $total }} }">
     <div data-step-header wire:ignore class="sticky top-0 z-10 -mx-4 bg-ground px-4 pt-3 pb-2 dark:bg-ground-dark">
         <x-lesson-header :close="route('missions.show', $session->mission)" progress-expr="total ? Math.min(q, total) / total : 0" />
         <div class="mt-2 flex items-center justify-center gap-2 text-sm font-extrabold text-ink-soft dark:text-ink-soft-dark">

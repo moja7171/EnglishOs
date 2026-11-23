@@ -277,6 +277,7 @@ new class extends Component
                 text: $this->fullSentence($starter, $sentence),
                 extraGuidance: $this->run->aiToneGuidance(),
                 feedbackDepth: $this->run->mission->feedbackDepth(),
+                minorCriteria: $grammar['grammar_minor_criteria'] ?? null,
             );
             $this->recordGeminiCall();
 
@@ -519,6 +520,7 @@ new class extends Component
 @else
 <div
     wire:ignore.self
+    x-scroll-top="screen"
     data-round-screens="{{ $roundScreens->toJson() }}"
     x-data="{
         screen: {{ $startScreen }},
