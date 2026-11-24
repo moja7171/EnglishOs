@@ -4790,281 +4790,648 @@
     ],
     "listening_segments": [
         {
-            "text": "It's the end of the month. You open your banking app and you look at the number and you think,",
-            "start": 0,
-            "end": 7.12,
-            "fa": "ماه تموم شده. تو اپ بانکیت می‌زنی و می‌بینی عدد و می‌گی، کجا همه‌اش رفت؟ من چیز بزرگ نخریدم. اگر این حس رو داری، لزوماً بد نیستی تو پول. مغزت دقیقاً کاری که ساخته شده انجام می‌ده."
+            "text": "It's the end of the month.",
+            "start": 0.38,
+            "end": 2.04,
+            "fa": "ماه تموم شده."
         },
         {
-            "text": "where did it all go wrong? I didn't buy anything big. If that is a familiar feeling,",
-            "start": 7.46,
-            "end": 14.179999
+            "text": "You open your banking app and you look at the number,",
+            "start": 2.04,
+            "end": 5.7,
+            "fa": "تو اپ بانکیتو می‌گی و می‌گی، کجا همه‌اش رفت؟"
         },
         {
-            "text": "you're not necessarily bad with money. Your brain is doing exactly what it was built to do.",
-            "start": 14.5,
-            "end": 22.199999
+            "text": "and you think, where did it all go wrong?",
+            "start": 5.7,
+            "end": 9.6
         },
         {
-            "text": "Let me tell you about Marta. Marta is 38 and she lives in Krakow in Poland. And she works in an",
-            "start": 22.939999,
-            "end": 31.839998,
-            "fa": "بذار برات بگم درباره مارتا. مارتا ۳۸ ساله و تو کراکوف، لهستان زندگی می‌کنه. تو یک دفتر حسابدار کار می‌کنه. بله، حسابدار. تو پول دیگران خیلی ماهره. جمعه شب و روز حقوقه. مارتا یک فنجان چای می‌سازه، می‌نشیند تو آشپزخونه و اپ بانکیشو باز می‌کنه. چون امشب شبیه. امشب قراره سراغ پس‌انداز بره."
+            "text": "I didn't buy anything big.",
+            "start": 9.6,
+            "end": 11.88,
+            "fa": "من چیز بزرگ نخریدم."
         },
         {
-            "text": "office as an accountant. Yes, an accountant. She's very good with other people's money. It's Friday",
-            "start": 31.839998,
-            "end": 40.019997
+            "text": "If that is a familiar feeling, you're not necessarily bad with money.",
+            "start": 11.88,
+            "end": 17.22,
+            "fa": "اگه این حس آشناست، لزوماً بد نیستی تو پول."
         },
         {
-            "text": "evening and it's payday. Marta makes a cup of tea. She sits down in the kitchen and she opens up her",
-            "start": 40.019997,
-            "end": 47.6
+            "text": "Your brain is doing exactly what it was built to do.",
+            "start": 17.22,
+            "end": 22.36,
+            "fa": "مغز تو دقیقاً کاری که ساخته شده انجام می‌ده."
         },
         {
-            "text": "banking app. Because tonight is the night. Tonight she is finally going to start saving.",
-            "start": 47.6,
-            "end": 55.16
+            "text": "Let me tell you about Marta.",
+            "start": 22.98,
+            "end": 25.2,
+            "fa": "بزار در مورد مارتا برات بگم."
         },
         {
-            "text": "And the plan is simple. Every month about 500 zloty goes into a savings account. That's about",
-            "start": 55.78,
-            "end": 64.36,
-            "fa": "و برنامه ساده‌ست. هر ماه حدود ۵۰۰ زلوتی به حساب پس‌انداز می‌ره. حدود ۱۰۰ پوند یا ۱۲۰ یورو. مبلغ بزرگ نیست، اما عددش آماده‌ست. انگشتش روی دکمه ذخیره‌سازیه. بعد گوشی‌اش لرزه می‌زنه. پیام از یک فروشگاه: «جمعه سیاه زودتر میاد. امروز فقط ۴۰٪ تخفیف. هدفون‌ها». هدفون‌هایی که هفته پیش نگاه کرده بود، معمولاً ۶۰۰ زلوتی، امروز ۳۶۰. فکر می‌کنه پس‌انداز ۲۴۰ می‌کنه. «اگه بخرم، در واقع پول پس‌انداز می‌کنم، نه؟» انگشتش از گزینه پس‌انداز به سمت خرید میره. قبل از خرید، یک کار دیگه می‌کنه. حسابدار است، نمی‌تونه جلوی خودش رو بگیره. هزینه‌های ماه گذشته رو تو اپ می‌بینه فقط برای چک کردن. می‌بینه: قهوه راه کار، ۱۸۰. تحویل غذا، ۳۱۰. دو اپ که هر ماه می‌پردازه و هرگز باز نمی‌کنه، ۶۰. یک پیراهن که شاید یک‌بار بپوشه. چیزهای کوچیک، نه چیز بزرگ. اما مجموعش بیش از ۷۰۰ زلوتی می‌شه."
+            "text": "Marta is 38, and she lives in Krakow,",
+            "start": 25.2,
+            "end": 29.16,
+            "fa": "مارتا ۳۸ ساله و تو کراکوف، لهستان زندگی می‌کنه."
         },
         {
-            "text": "£100 or 120 euros. It's not a huge amount, but she has the number ready. Her finger is on the",
-            "start": 64.36,
-            "end": 74.7
+            "text": "in Poland.",
+            "start": 29.16,
+            "end": 30.06
         },
         {
-            "text": "button ready to save. But then her phone buzzes. A message from a shop. Black Friday starts early",
-            "start": 74.7,
-            "end": 83.119995
+            "text": "And she works in an office as an accountant.",
+            "start": 30.06,
+            "end": 33.64,
+            "fa": "و تو یک دفتر حسابدار کار می‌کنه."
         },
         {
-            "text": "for you. 40% off today only. And it's the headphones. The headphones that she looked at last week,",
-            "start": 83.119995,
-            "end": 91.88
+            "text": "Yes, an accountant.",
+            "start": 33.64,
+            "end": 35.58,
+            "fa": "آره، حسابدار."
         },
         {
-            "text": "they normally 600 sloty but today they are 360 And she thinks that a saving of 240 If I buy them I actually",
-            "start": 91.88,
-            "end": 104.4375
+            "text": "She's very good with other people's money.",
+            "start": 35.58,
+            "end": 38.88,
+            "fa": "اون تو پول دیگران خیلی ماهره."
         },
         {
-            "text": "saving money, right? Her thumb moves away from the savings option and onto the shop. And before she",
-            "start": 104.4375,
-            "end": 112.0975
+            "text": "It's Friday evening and it's payday.",
+            "start": 38.88,
+            "end": 41.86,
+            "fa": "جمعه شبه و روز حقوقه."
         },
         {
-            "text": "buys them, she does one last thing. She's an accountant, so she can't help it. She opens last",
-            "start": 112.0975,
-            "end": 119.4775
+            "text": "Marta makes a cup of tea.",
+            "start": 41.86,
+            "end": 43.86,
+            "fa": "مارتا یک فنجان چای می‌سازه."
         },
         {
-            "text": "months spending in the app just to check. And she sees it. Coffee on the way to work, she spent 180.",
-            "start": 119.4775,
-            "end": 127.177505
+            "text": "She sits down in the kitchen and she opens up her banking app,",
+            "start": 43.86,
+            "end": 48.68,
+            "fa": "اون تو آشپزخونه می‌نشیند و اپ بانکیشو باز می‌کنه، چون امشب شبِ مهمه."
         },
         {
-            "text": "Food delivery, 310. Two apps that she pays for every month and never opens, that's 60. A dress",
-            "start": 127.7575,
-            "end": 136.97751,
-            "fa": "مارتا چایش رو می‌گذاره قبل از اینکه متوجه بشه و بعد می‌فهمه. فکر می‌کرد ۵۰۰ برای پس‌انداز نداره، اما هر ماه داشته. فقط به صورت قطعات کوچیک، آرام‑آرام، یک قهوه به‌یک‌بار، از حساب می‌ره. و هدفون‌ها، پس‌انداز نبود."
+            "text": "because tonight is the night.",
+            "start": 48.68,
+            "end": 50.9
         },
         {
-            "text": "that she probably is going to wear once. Lots of little things, nothing big. But altogether,",
-            "start": 136.97751,
-            "end": 143.2575
+            "text": "Tonight she is finally going to start saving.",
+            "start": 50.9,
+            "end": 55.26,
+            "fa": "امشب سرانجام می‌خواد پس‌انداز کنه."
         },
         {
-            "text": "they add up to more than 700 zloty. Marta puts down her tea before she realizes something",
-            "start": 143.2575,
-            "end": 151.7175
+            "text": "And the plan is simple.",
+            "start": 55.84,
+            "end": 57.56,
+            "fa": "و برنامه ساده‌ست."
         },
         {
-            "text": "and then it hits her. She thought that she didn't have 500 to save but she did have it",
-            "start": 151.7175,
-            "end": 159.3175
+            "text": "Every month, about 500 zloty goes into a savings account.",
+            "start": 57.56,
+            "end": 63.28,
+            "fa": "هر ماه حدود ۵۰۰ زلوتی تو حساب پس‌انداز می‌ره."
         },
         {
-            "text": "every single month. It just left the account in small little pieces, quietly one coffee at a time",
-            "start": 159.3175,
-            "end": 168.3775
+            "text": "That's about 100 or 120 euros.",
+            "start": 63.28,
+            "end": 68,
+            "fa": "تقریباً ۱۰۰ تا ۱۲۰ یورو می‌شه."
+        },
+        {
+            "text": "It's not a huge amount, but she has the number ready.",
+            "start": 68,
+            "end": 72.62,
+            "fa": "مقدار زیادی نیست، اما عددش آماده‌ست."
+        },
+        {
+            "text": "Her finger is on the button, ready to save.",
+            "start": 72.62,
+            "end": 76.56,
+            "fa": "انگشتش روی دکمه‌ست، آمادهٔ پس‌انداز."
+        },
+        {
+            "text": "But then her phone buzzes.",
+            "start": 76.56,
+            "end": 78.98,
+            "fa": "اما بعدش گوشی‌اش لرزه می‌زنه."
+        },
+        {
+            "text": "A message from a shop: \"Black Friday starts early for you.",
+            "start": 78.98,
+            "end": 83.82,
+            "fa": "پیامی از یک فروشگاه: «بلک فرایدی زودتر برای تو شروع می‌شه. ۴۰٪ تخفیف، فقط امروز»."
+        },
+        {
+            "text": "40% off, today only.\" And it's the headphones,",
+            "start": 83.82,
+            "end": 89.2,
+            "fa": "و هدفون‌هاست، هدفون‌هایی که هفتهٔ پیش نگاهش کرده بود."
+        },
+        {
+            "text": "the headphones that she looked at last week.",
+            "start": 89.2,
+            "end": 91.96
+        },
+        {
+            "text": "They're normally 600 zloty, but today they are 360.",
+            "start": 92.28,
+            "end": 97.14,
+            "fa": "قیمت معمولی‌شون ۶۰۰ زلوتی بود، اما امروز ۳۶۰ زلوتی."
+        },
+        {
+            "text": "And she thinks, that's a saving of 240.",
+            "start": 97.14,
+            "end": 101.4,
+            "fa": "و فکر می‌کنه، این یعنی صرفه‌جویی ۲۴۰ زلوتی."
+        },
+        {
+            "text": "If I buy them, I'm actually saving money,",
+            "start": 101.4,
+            "end": 105.72,
+            "fa": "اگر بخرم، در واقع پول پس‌انداز می‌کنم، درسته؟"
+        },
+        {
+            "text": "right?",
+            "start": 105.72,
+            "end": 106.18
+        },
+        {
+            "text": "Her thumb moves away from the savings option and onto the shop.",
+            "start": 106.18,
+            "end": 110.78,
+            "fa": "انگشت شستش او از گزینهٔ پس‌انداز دور می‌شود و به سمت فروشگاه می‌رود."
+        },
+        {
+            "text": "And before she buys them, she does one last thing.",
+            "start": 110.78,
+            "end": 115.12,
+            "fa": "و قبل از اینکه آن‌ها را بخرد، یک کار آخر انجام می‌دهد."
+        },
+        {
+            "text": "She's an accountant, so she can't help it.",
+            "start": 115.12,
+            "end": 117.88,
+            "fa": "او حسابدار است، پس نمی‌تواند جلوی خودش را بگیرد."
+        },
+        {
+            "text": "She opens last month's spending in the app,",
+            "start": 117.88,
+            "end": 121.26,
+            "fa": "او هزینه‌های ماه گذشته را در اپ باز می‌کند، فقط برای بررسی."
+        },
+        {
+            "text": "just to check.",
+            "start": 121.26,
+            "end": 123
+        },
+        {
+            "text": "And she sees it.",
+            "start": 123,
+            "end": 123.84,
+            "fa": "و آن را می‌بیند."
+        },
+        {
+            "text": "Coffee on the way to work: she spent 180.",
+            "start": 123.84,
+            "end": 127.56,
+            "fa": "قهوهٔ راه رفتن به سر کار: ۱۸۰ خرج کرده."
+        },
+        {
+            "text": "Food delivery: 310.",
+            "start": 127.86,
+            "end": 130.54,
+            "fa": "سفارش غذا: ۳۱۰."
+        },
+        {
+            "text": "Two apps that she pays for every month and never opens:",
+            "start": 130.54,
+            "end": 134.68,
+            "fa": "دو اپلیکیشنی که هر ماه برایشان پول می‌پردازد و هرگز باز نمی‌کند: ۶۰."
+        },
+        {
+            "text": "that's 60.",
+            "start": 134.68,
+            "end": 135.94
+        },
+        {
+            "text": "A dress that she probably is going to wear once.",
+            "start": 135.94,
+            "end": 139.64,
+            "fa": "یک پیراهن که احتمالاً فقط یک بار می‌پوشد."
+        },
+        {
+            "text": "Lots of little things, nothing big, but altogether",
+            "start": 139.64,
+            "end": 143.02,
+            "fa": "چیزهای کوچکی زیاد، چیز بزرگی نیست، اما همه‌شان جمع می‌شود و بیش از ۷۰۰ زلوتی می‌شود."
+        },
+        {
+            "text": "they add up to more than 700 zloty.",
+            "start": 143.72,
+            "end": 147.68
+        },
+        {
+            "text": "Marta puts down her tea, before she realizes something and then it hits her.",
+            "start": 147.68,
+            "end": 153.94,
+            "fa": "مارتا چایش را می‌گذارد، قبل از اینکه چیزی را متوجه شود و سپس به ذهنش می‌رسد."
+        },
+        {
+            "text": "She thought that she didn't have 500 to save,",
+            "start": 153.94,
+            "end": 157.72,
+            "fa": "او فکر می‌کرد که ۵۰۰ برای پس‌انداز ندارد، اما هر ماه داشته."
+        },
+        {
+            "text": "but she did have it, every single month.",
+            "start": 157.72,
+            "end": 161.22
+        },
+        {
+            "text": "It just left the account in small little pieces,",
+            "start": 161.22,
+            "end": 164.88,
+            "fa": "این پول به‌صورت قطعات کوچک، آرام و یک‌یک قهوه از حساب خارج می‌شد."
+        },
+        {
+            "text": "quietly, one coffee at a time.",
+            "start": 164.88,
+            "end": 168.28
         },
         {
             "text": "And the headphones, they weren't a saving.",
-            "start": 168.3775,
-            "end": 171.4575
+            "start": 168.92,
+            "end": 171.68,
+            "fa": "و هدفون‌ها پس‌انداز نبودند."
         },
         {
             "text": "A saving is money that stays in your account.",
-            "start": 172.0175,
-            "end": 174.5775,
-            "fa": "پس‌انداز یعنی پولی که تو حساب می‌مونه."
+            "start": 171.96,
+            "end": 174.68,
+            "fa": "پس‌انداز یعنی پولی که در حساب می‌ماند."
         },
         {
             "text": "Tempting.",
-            "start": 174.8175,
-            "end": 175.41751,
+            "start": 174.78,
+            "end": 175.4,
             "fa": "جذاب."
         },
         {
             "text": "If something is tempting, you really want it,",
-            "start": 176.0375,
-            "end": 179.35751,
-            "fa": "اگه چیزی جذاب باشه، واقعاً می‌خوایش، حتی وقتی می‌دونی شاید نباید داشته باشی."
+            "start": 176.04,
+            "end": 179.36,
+            "fa": "اگر چیزی جذاب باشد، واقعاً می‌خواهی آن را داشته باشی، حتی وقتی می‌دانی شاید نباید داشته باشی."
         },
         {
             "text": "even though you know that you probably shouldn't have it.",
-            "start": 179.6575,
-            "end": 183.7575
+            "start": 179.66,
+            "end": 183.94
         },
         {
             "text": "So it might be so tempting to spend a lot of money on your payday.",
-            "start": 184.2175,
-            "end": 188.6175,
-            "fa": "پس ممکنه خیلی جذاب باشه تو روز حقوق پول زیاد خرج کنی."
+            "start": 184.4,
+            "end": 188.62,
+            "fa": "پس ممکن است خیلی جذاب باشد که در روز حقوق‌گیری پول زیادی خرج کنی."
         },
         {
-            "text": "Things that are now are always more tempting than things that are later The headphones are now the savings are later so the headphones will win But here the tricky part When you pay with a card or your phone",
-            "start": 189.1775,
-            "end": 207.315,
-            "fa": "چیزهایی که الآن هستن همیشه جذاب‌تر از چیزهایی که بعداً می‌شن. هدفون‌ها الآن، پس‌اندازها بعداً، پس هدفون‌ها برنده می‌شن. اما اینجا بخش سختیه. وقتی با کارت یا گوشی پرداخت می‌کنی، حس خروج پول نمی‌کنی. یک قهوه فقط یک بوقه، پس همه چیز قابل‌قیمت به نظر میاد."
+            "text": "Things that are now are always more tempting than things that are later.",
+            "start": 189.16,
+            "end": 195.44,
+            "fa": "چیزهایی که الآن هستند همیشه جذاب‌تر از چیزهایی که بعداً می‌آیند."
         },
         {
-            "text": "you don't feel the money leave. A coffee is just a beep, so everything feels affordable.",
-            "start": 207.315,
-            "end": 215.095
+            "text": "The headphones are now.",
+            "start": 196.18,
+            "end": 198.35,
+            "fa": "هدفون‌ها الآن هستند."
         },
         {
-            "text": "one coffee is affordable one delivery is affordable but 20 of them every month that's a different",
-            "start": 215.095,
-            "end": 223.975,
-            "fa": "یک قهوه قابل‌قیمته، یک تحویل غذا قابل‌قیمته، اما ۲۰ تا در ماه عدد متفاوتیه. مارتا گفت اگر این هدفون‌ها رو بخرم ۲۴۰ زلوتی پس‌انداز می‌کنم، اما اصلاً پس‌انداز نمی‌کرد، ۳۶۰ خرج می‌کرد. پس چطور خودتو محافظت کنی؟ کلمه سوم بود بودجه. بودجه یک برنامه برای اینکه چقدر پول خرج می‌کنی و برای چی، در یک بازه زمانی مثل یک هفته یا یک ماهه."
+            "text": "The savings are later.",
+            "start": 198.35,
+            "end": 200.19,
+            "fa": "پس‌اندازها بعداً هستند."
         },
         {
-            "text": "number Marta said if I buy these headphones I'm saving 240 zloty but she wasn't saving anything",
-            "start": 223.975,
-            "end": 233.41501
+            "text": "So the headphones will win.",
+            "start": 200.74,
+            "end": 202.51,
+            "fa": "پس هدفون‌ها برنده می‌شوند."
         },
         {
-            "text": "at all she was spending 360. So how do you protect yourself the third word is budget budget",
-            "start": 233.41501,
-            "end": 243.255
+            "text": "But here's the tricky part.",
+            "start": 202.51,
+            "end": 204.12,
+            "fa": "اما اینجا بخش سخت است."
         },
         {
-            "text": "A budget is a plan for how much money you will spend and on what in a period of time, a week or a month.",
-            "start": 243.255,
-            "end": 252.555
+            "text": "When you pay with a card or your phone,",
+            "start": 204.12,
+            "end": 207.51,
+            "fa": "وقتی با کارت یا تلفن پرداخت می‌کنی، حس نمی‌کنی پول می‌رود."
         },
         {
-            "text": "You might say our budget for our holiday is 2000 euros or we need to make a budget for our expenses this month.",
-            "start": 253.075,
-            "end": 262.39502,
-            "fa": "ممکنه بگی بودجه تعطیلات‌مون ۲۰۰۰ یوروست یا باید برای هزینه‌های این ماه بودجه‌سازی کنیم."
+            "text": "you don't feel the money leave.",
+            "start": 207.75,
+            "end": 210.16
         },
         {
-            "text": "And a budget is useful on days like Black Friday when that temptation is very high.",
-            "start": 262.715,
-            "end": 269.015,
-            "fa": "و بودجه تو روزهایی مثل جمعه سیاه که وسوسه خیلی بالاست، مفیده."
+            "text": "A coffee is just a beep, so everything feels affordable.",
+            "start": 210.16,
+            "end": 215,
+            "fa": "یک قهوه فقط یک بوق است، پس همه چیز قابل‌تسویه به نظر می‌آید."
         },
         {
-            "text": "Because if your plan has a limit on spending 200 euros per month, for example, on random items,",
-            "start": 269.015,
-            "end": 278.895,
-            "fa": "چون اگه برنامه‌ات محدودیت ۲۰۰ یورو در ماه برای خریدهای تصادفی داشته باشه، حتی تو جمعه سیاه هم بیشتر از ۲۰۰ یورو خرج نمی‌کنی."
+            "text": "One coffee is affordable, one delivery is affordable,",
+            "start": 215.92,
+            "end": 219.68,
+            "fa": "یک قهوه قابل‌قبول است، یک تحویل هم قابل‌قبول است، اما ۲۰ تا در هر ماه؟"
         },
         {
-            "text": "then you'll not spend more than 200 euros, even if it's Black Friday.",
-            "start": 279.055,
-            "end": 283.655
+            "text": "but 20 of them every month?",
+            "start": 219.68,
+            "end": 222.14
+        },
+        {
+            "text": "That's a different number.",
+            "start": 222.14,
+            "end": 224.64,
+            "fa": "این عدد متفاوت است."
+        },
+        {
+            "text": "Marta said, \"If I buy these headphones, I'm saving 240 zloty.\" But she wasn't saving anything",
+            "start": 224.64,
+            "end": 233.34,
+            "fa": "مارتا گفت: «اگر این هدفون‌ها را بخرم، ۲۴۰ زلوتی صرفه‌جویی می‌کنم.» اما اصلاً صرفه‌جویی نمی‌کرد."
+        },
+        {
+            "text": "at all.",
+            "start": 232.92,
+            "end": 234.06
+        },
+        {
+            "text": "She was spending 360.",
+            "start": 234.06,
+            "end": 237.47,
+            "fa": "او ۳۶۰ هزینه می‌کرد."
+        },
+        {
+            "text": "So how do you protect yourself?",
+            "start": 237.47,
+            "end": 240.06,
+            "fa": "پس چطور می‌تونی از خودت محافظت کنی؟"
+        },
+        {
+            "text": "The third word is budget.",
+            "start": 240.06,
+            "end": 242.18,
+            "fa": "سومین کلمه بود بودجه."
+        },
+        {
+            "text": "Budget.",
+            "start": 242.18,
+            "end": 243.16,
+            "fa": "بودجه."
+        },
+        {
+            "text": "A budget is a plan for how much money you will spend,",
+            "start": 243.88,
+            "end": 247.96,
+            "fa": "بودجه یعنی برنامه‌ای برای این‌که چقدر پول خرج می‌کنی و برای چی، در یک بازهٔ زمانی مثل یک هفته یا یک ماه."
+        },
+        {
+            "text": "and on what, in a period of time,",
+            "start": 247.96,
+            "end": 250.85
+        },
+        {
+            "text": "a week or a month.",
+            "start": 250.85,
+            "end": 252.56
+        },
+        {
+            "text": "You might say, \"Our budget for our holiday is 2,000 euros,\" or,",
+            "start": 253.12,
+            "end": 259,
+            "fa": "می‌تونی بگی: «بودجهٔ تعطیلات‌مون ۲۰۰۰ یورو است»، یا «باید برای هزینه‌های این ماه بودجه‌سازی کنیم». بودجه توی روزهای مثل بلک فرایدی که وسوسه زیاده مفیده، چون اگه برنامه‌ات محدودیت خرج داشته باشه، مثلاً ۲۰۰ یورو در ماه برای خریدهای تصادفی، پس بیشتر از ۲۰۰ یورو خرج نمی‌کنی حتی اگه بلک فرایدی باشه."
+        },
+        {
+            "text": "\"We need to make a budget for our expenses this month.\" And a budget is useful",
+            "start": 259,
+            "end": 264.1
+        },
+        {
+            "text": "on days like Black Friday, when that temptation is very high,",
+            "start": 264.1,
+            "end": 269.1
+        },
+        {
+            "text": "because if your plan has a limit on spending,",
+            "start": 269.6,
+            "end": 272.5
+        },
+        {
+            "text": "200 euros per month, for example, on random items,",
+            "start": 272.5,
+            "end": 279.07
+        },
+        {
+            "text": "then you'll not spend more than 200 euros,",
+            "start": 279.33,
+            "end": 282.51
+        },
+        {
+            "text": "even if it's Black Friday.",
+            "start": 282.51,
+            "end": 283.65
         },
         {
             "text": "There are some tips and some hope for us.",
-            "start": 284.175,
-            "end": 288.035,
-            "fa": "چند نکته و امید برای ما هست."
+            "start": 284.19,
+            "end": 288.01,
+            "fa": "چند نکته و امید برای ما وجود داره."
         },
         {
-            "text": "The first way is to save first and not last Most people spend first So they get paid and then they spend for the month and whatever they have left is what they save On payday at the beginning of the month you should take your",
-            "start": 288.555,
-            "end": 304.51248,
-            "fa": "اولین راه اینه که اول پس‌انداز کنی، نه آخر. اکثر مردم اول خرج می‌کنن. پس حقوق می‌گیرن، بعد برای ماه خرج می‌کنن و باقی‌مونده‌اش رو پس‌انداز می‌کنن. تو روز حقوق، اول ماه، باید بلافاصله پس‌اندازت رو بگیری، یعنی همان‌چی می‌خوای پس‌انداز کنی، به حساب پس‌انداز منتقل کنی. می‌تونی این کارو خودکار تنظیم کنی. اینجا عبارت چهارم ما «ذخیره کردن» است. ذخیره کردن یعنی پول رو برای هدف خاصی نگه داشتن و نه خرج کردن برای چیزهای دیگه. پس می‌تونی هر ماه صد یورو ذخیره کنی. یا ۲۵۰ پوند، هر ارزی که استفاده می‌کنی. و اگر پول قبل از اینکه ببینی یا اول ماه ذخیره بشه، نیازی نیست هر روز با وسوسه مبارزه کنی. در واقع، اگه بخوای مقداری از اون پول رو برداری، شاید کمی گناهکار یا بدحس بشی و دوبار فکر کنی قبل از استفاده. این ما رو به آخرین عبارت می‌رسونه: «در درازمدت»."
+            "text": "The first way is to save first and not last.",
+            "start": 288.56,
+            "end": 291.83,
+            "fa": "اولین راه اینه که اول پس‌انداز کنی، نه آخرین."
         },
         {
-            "text": "savings immediately, so what you plan to save, and move it to your savings account. You can even set",
-            "start": 304.51248,
-            "end": 311.79248
+            "text": "Most people spend first, so they get paid,",
+            "start": 292.51,
+            "end": 295.42,
+            "fa": "بیشتر مردم اول خرج می‌کنن، یعنی حقوق می‌گیرن، بعد برای ماه خرج می‌کنن و هر چی باقی می‌مونه پس‌انداز می‌شه."
         },
         {
-            "text": "this up so it's done automatically for you. And that's our fourth phrase here, set aside, to set",
-            "start": 311.79248,
-            "end": 320.5525
+            "text": "and then they spend for the month, and whatever they have left is what they save.",
+            "start": 295.42,
+            "end": 300.99
         },
         {
-            "text": "aside. And to set aside money means to keep it for a special purpose and not spend it on other",
-            "start": 320.5525,
-            "end": 329.0525
+            "text": "On payday, at the beginning of the month,",
+            "start": 300.99,
+            "end": 303.57,
+            "fa": "در روز حقوق، یعنی ابتدای ماه، باید بلافاصله بخشی که می‌خوای پس‌انداز کنی برداری و به حساب پس‌انداز منتقل کنی."
         },
         {
-            "text": "things. So you might set aside a hundred euros a month. You might set aside 250 pounds a month,",
-            "start": 329.0525,
-            "end": 336.9925
+            "text": "you should take your savings immediately, so what you plan to save,",
+            "start": 303.57,
+            "end": 307.57
         },
         {
-            "text": "whatever currency you're using. And if the money is set aside before you see it,",
-            "start": 337.3125,
-            "end": 341.8125
+            "text": "and move it to your savings account.",
+            "start": 307.57,
+            "end": 310.31
         },
         {
-            "text": "or at the beginning of the month, you don't have to fight the temptation every day. And actually,",
-            "start": 341.8125,
-            "end": 347.3325
+            "text": "You can even set this up so it's done automatically for you.",
+            "start": 310.31,
+            "end": 314.71,
+            "fa": "می‌تونی این کارو حتی خودکار تنظیم کنی."
         },
         {
-            "text": "if you need to go and take some of that money, you'll probably feel a little bit guilty or bad",
-            "start": 347.3325,
-            "end": 353.1725
+            "text": "And that's our fourth phrase here: set aside,",
+            "start": 314.71,
+            "end": 319.45,
+            "fa": "و این هم چهارمین عبارت ماست: کنار گذاشتن، یعنی set aside."
         },
         {
-            "text": "and you might think twice about using it. That brings us to the last phrase, in the long run.",
-            "start": 353.1725,
-            "end": 359.19247
+            "text": "to set aside.",
+            "start": 319.45,
+            "end": 321.93
         },
         {
-            "text": "In the long run means over a long period of time, in the future, not immediate. And that really is",
-            "start": 359.8125,
-            "end": 366.8725,
-            "fa": "در درازمدت یعنی در طول یک بازه طولانی، در آینده، نه بلافاصله. و این تمام داستان پس‌انداز است. در کوتاه‌مدت خرج کردن برنده می‌شه، اما در درازمدت پس‌انداز برنده است."
+            "text": "And to set aside money means to keep it for a special purpose and not spend",
+            "start": 321.93,
+            "end": 328.17,
+            "fa": "و کنار گذاشتن پول یعنی برای هدف خاصی نگه داشتنش و نه خرج کردنش روی چیزهای دیگه."
         },
         {
-            "text": "the whole story of saving. Spending wins in the short run, but saving wins in the long run.",
-            "start": 366.8725,
-            "end": 373.53247
+            "text": "it on other things.",
+            "start": 328.17,
+            "end": 329.43
         },
         {
-            "text": "so what happened in this case to Marta she didn't buy the headphones but instead she pressed the",
-            "start": 373.53247,
-            "end": 379.6725,
-            "fa": "پس چه شد برای مارتا؟ هدفون‌ها رو نخرید، بلکه دکمه را فشار داد و ۵۰۰ زلوتی مستقیم به پس‌انداز رفت. بعد دو اپی که هرگز استفاده نمی‌کرد، لغو کرد. یک شروع کوچک بود اما در درازمدت جمع می‌شه و تفاوت بزرگ‌تری می‌سازه."
+            "text": "So you might set aside a hundred euros a month.",
+            "start": 329.43,
+            "end": 333.35,
+            "fa": "مثلاً می‌تونی هر ماه صد یورو کنار بگذاری."
         },
         {
-            "text": "button and 500 zloty went straight to her savings then she cancelled the two apps that she never",
-            "start": 379.6725,
-            "end": 385.97247
+            "text": "You might set aside 250 pounds a month,",
+            "start": 333.35,
+            "end": 337.47,
+            "fa": "یا می‌تونی هر ماه ۲۵۰ پوند کنار بگذاری، هر ارزی که استفاده می‌کنی."
         },
         {
-            "text": "really used and it was a small start but in the long run it will add up and make a bigger difference",
-            "start": 385.97247,
-            "end": 393.6525
+            "text": "whatever currency you're using.",
+            "start": 337.37,
+            "end": 338.87
+        },
+        {
+            "text": "And if the money is set aside before you see it,",
+            "start": 338.87,
+            "end": 341.81,
+            "fa": "اگر پول قبل از اینکه بخوای ازش استفاده کنی یا در ابتدای ماه کنار گذاشته بشه، نیازی نیست هر روز با وسوسه مبارزه کنی."
+        },
+        {
+            "text": "or at the beginning of the month, you don't have to fight the temptation every day.",
+            "start": 341.93,
+            "end": 346.41
+        },
+        {
+            "text": "And actually, if you need to go and take some of that money,",
+            "start": 346.41,
+            "end": 349.93,
+            "fa": "در واقع، اگر بخوای بخشی از اون پول رو برداری، احتمالاً کمی احساس گناه یا بدی می‌کنی و دوبار فکر می‌کنی قبل از استفاده."
+        },
+        {
+            "text": "you'll probably feel a little bit guilty or bad,",
+            "start": 349.93,
+            "end": 353.07
+        },
+        {
+            "text": "and you might think twice about using it.",
+            "start": 352.67,
+            "end": 355.49
+        },
+        {
+            "text": "That brings us to the last phrase: in the long run.",
+            "start": 355.49,
+            "end": 359.33,
+            "fa": "این ما رو به آخرین عبارت می‌رسونه: در درازمدت."
+        },
+        {
+            "text": "In the long run means over a long period of time,",
+            "start": 359.77,
+            "end": 362.85,
+            "fa": "در درازمدت یعنی در طول یک بازهٔ طولانی زمان، در آینده، نه فوراً."
+        },
+        {
+            "text": "in the future, not immediate.",
+            "start": 362.85,
+            "end": 365.51
+        },
+        {
+            "text": "And that really is the whole story of saving.",
+            "start": 365.51,
+            "end": 369.39,
+            "fa": "و این واقعاً کل داستان پس‌انداز است."
+        },
+        {
+            "text": "Spending wins in the short run, but saving wins in the long run.",
+            "start": 369.39,
+            "end": 373.51,
+            "fa": "در کوتاه‌مدت خرج کردن برنده است، اما در درازمدت پس‌انداز برنده می‌شود."
+        },
+        {
+            "text": "So what happened in this case to Marta?",
+            "start": 374.19,
+            "end": 375.93,
+            "fa": "پس در این مورد چه اتفاقی برای مارتا افتاد؟"
+        },
+        {
+            "text": "She didn't buy the headphones, but instead she pressed the button,",
+            "start": 375.93,
+            "end": 379.95,
+            "fa": "او هدفون نخرید، بلکه دکمه را فشار داد و ۵۰۰ زلوتی مستقیم به پس‌اندازش رفت."
+        },
+        {
+            "text": "and 500 zloty went straight to her savings.",
+            "start": 379.95,
+            "end": 383.17
+        },
+        {
+            "text": "Then she cancelled the two apps that she never really used.",
+            "start": 383.17,
+            "end": 386.69,
+            "fa": "بعدش دو برنامه‌ای که واقعاً استفاده نمی‌کرد، لغو کرد."
+        },
+        {
+            "text": "And it was a small start, but in the long run,",
+            "start": 386.69,
+            "end": 390.45,
+            "fa": "و این یک شروع کوچک بود، اما در درازمدت جمع می‌شه و تفاوت بزرگ‌تری ایجاد می‌کنه."
+        },
+        {
+            "text": "it will add up and make a bigger difference.",
+            "start": 390.45,
+            "end": 393.49
         },
         {
             "text": "now",
-            "start": 393.6525,
-            "end": 395.19247
+            "start": 394.99,
+            "end": 395.15,
+            "fa": "حالا"
         }
     ],
     "listening_words": [
@@ -6084,7 +6451,7 @@
             "end": 93.72
         },
         {
-            "text": "sloty,",
+            "text": "zloty,",
             "start": 93.72,
             "end": 94.42
         },
@@ -9677,146 +10044,349 @@
     "listening_turns": [
         {
             "speaker": "Oliver",
-            "text": "It's the end of the month. You open your banking app and you look at the number and you think,",
-            "start": 0,
-            "end": 7.12,
-            "fa": "ماه تموم شده. تو اپ بانکیت می‌زنی و می‌بینی عدد و می‌گی، کجا همه‌اش رفت؟ من چیز بزرگ نخریدم. اگر این حس رو داری، لزوماً بد نیستی تو پول. مغزت دقیقاً کاری که ساخته شده انجام می‌ده."
+            "text": "It's the end of the month.",
+            "start": 0.38,
+            "end": 2.04,
+            "fa": "ماه تموم شده."
         },
         {
             "speaker": "Oliver",
-            "text": "where did it all go wrong? I didn't buy anything big. If that is a familiar feeling,",
-            "start": 7.46,
-            "end": 14.18
+            "text": "You open your banking app and you look at the number,",
+            "start": 2.04,
+            "end": 5.7,
+            "fa": "تو اپ بانکیتو می‌گی و می‌گی، کجا همه‌اش رفت؟"
         },
         {
             "speaker": "Oliver",
-            "text": "you're not necessarily bad with money. Your brain is doing exactly what it was built to do.",
-            "start": 14.5,
-            "end": 22.2
+            "text": "and you think, where did it all go wrong?",
+            "start": 5.7,
+            "end": 9.6
         },
         {
             "speaker": "Oliver",
-            "text": "Let me tell you about Marta. Marta is 38 and she lives in Krakow in Poland. And she works in an",
-            "start": 22.94,
-            "end": 31.84,
-            "fa": "بذار برات بگم درباره مارتا. مارتا ۳۸ ساله و تو کراکوف، لهستان زندگی می‌کنه. تو یک دفتر حسابدار کار می‌کنه. بله، حسابدار. تو پول دیگران خیلی ماهره. جمعه شب و روز حقوقه. مارتا یک فنجان چای می‌سازه، می‌نشیند تو آشپزخونه و اپ بانکیشو باز می‌کنه. چون امشب شبیه. امشب قراره سراغ پس‌انداز بره."
+            "text": "I didn't buy anything big.",
+            "start": 9.6,
+            "end": 11.88,
+            "fa": "من چیز بزرگ نخریدم."
         },
         {
             "speaker": "Oliver",
-            "text": "office as an accountant. Yes, an accountant. She's very good with other people's money. It's Friday",
-            "start": 31.84,
-            "end": 40.02
+            "text": "If that is a familiar feeling, you're not necessarily bad with money.",
+            "start": 11.88,
+            "end": 17.22,
+            "fa": "اگه این حس آشناست، لزوماً بد نیستی تو پول."
         },
         {
             "speaker": "Oliver",
-            "text": "evening and it's payday. Marta makes a cup of tea. She sits down in the kitchen and she opens up her",
-            "start": 40.02,
-            "end": 47.6
+            "text": "Your brain is doing exactly what it was built to do.",
+            "start": 17.22,
+            "end": 22.36,
+            "fa": "مغز تو دقیقاً کاری که ساخته شده انجام می‌ده."
         },
         {
             "speaker": "Oliver",
-            "text": "banking app. Because tonight is the night. Tonight she is finally going to start saving.",
-            "start": 47.6,
-            "end": 55.16
+            "text": "Let me tell you about Marta.",
+            "start": 22.98,
+            "end": 25.2,
+            "fa": "بزار در مورد مارتا برات بگم."
         },
         {
             "speaker": "Oliver",
-            "text": "And the plan is simple. Every month about 500 zloty goes into a savings account. That's about",
-            "start": 55.78,
-            "end": 64.36,
-            "fa": "و برنامه ساده‌ست. هر ماه حدود ۵۰۰ زلوتی به حساب پس‌انداز می‌ره. حدود ۱۰۰ پوند یا ۱۲۰ یورو. مبلغ بزرگ نیست، اما عددش آماده‌ست. انگشتش روی دکمه ذخیره‌سازیه. بعد گوشی‌اش لرزه می‌زنه. پیام از یک فروشگاه: «جمعه سیاه زودتر میاد. امروز فقط ۴۰٪ تخفیف. هدفون‌ها». هدفون‌هایی که هفته پیش نگاه کرده بود، معمولاً ۶۰۰ زلوتی، امروز ۳۶۰. فکر می‌کنه پس‌انداز ۲۴۰ می‌کنه. «اگه بخرم، در واقع پول پس‌انداز می‌کنم، نه؟» انگشتش از گزینه پس‌انداز به سمت خرید میره. قبل از خرید، یک کار دیگه می‌کنه. حسابدار است، نمی‌تونه جلوی خودش رو بگیره. هزینه‌های ماه گذشته رو تو اپ می‌بینه فقط برای چک کردن. می‌بینه: قهوه راه کار، ۱۸۰. تحویل غذا، ۳۱۰. دو اپ که هر ماه می‌پردازه و هرگز باز نمی‌کنه، ۶۰. یک پیراهن که شاید یک‌بار بپوشه. چیزهای کوچیک، نه چیز بزرگ. اما مجموعش بیش از ۷۰۰ زلوتی می‌شه."
+            "text": "Marta is 38, and she lives in Krakow,",
+            "start": 25.2,
+            "end": 29.16,
+            "fa": "مارتا ۳۸ ساله و تو کراکوف، لهستان زندگی می‌کنه."
         },
         {
             "speaker": "Oliver",
-            "text": "£100 or 120 euros. It's not a huge amount, but she has the number ready. Her finger is on the",
-            "start": 64.36,
-            "end": 74.7
+            "text": "in Poland.",
+            "start": 29.16,
+            "end": 30.06
         },
         {
             "speaker": "Oliver",
-            "text": "button ready to save. But then her phone buzzes. A message from a shop. Black Friday starts early",
-            "start": 74.7,
-            "end": 83.12
+            "text": "And she works in an office as an accountant.",
+            "start": 30.06,
+            "end": 33.64,
+            "fa": "و تو یک دفتر حسابدار کار می‌کنه."
         },
         {
             "speaker": "Oliver",
-            "text": "for you. 40% off today only. And it's the headphones. The headphones that she looked at last week,",
-            "start": 83.12,
-            "end": 91.88
+            "text": "Yes, an accountant.",
+            "start": 33.64,
+            "end": 35.58,
+            "fa": "آره، حسابدار."
         },
         {
             "speaker": "Oliver",
-            "text": "they normally 600 sloty but today they are 360 And she thinks that a saving of 240 If I buy them I actually",
-            "start": 91.88,
-            "end": 104.44
+            "text": "She's very good with other people's money.",
+            "start": 35.58,
+            "end": 38.88,
+            "fa": "اون تو پول دیگران خیلی ماهره."
         },
         {
             "speaker": "Oliver",
-            "text": "saving money, right? Her thumb moves away from the savings option and onto the shop. And before she",
-            "start": 104.44,
-            "end": 112.1
+            "text": "It's Friday evening and it's payday.",
+            "start": 38.88,
+            "end": 41.86,
+            "fa": "جمعه شبه و روز حقوقه."
         },
         {
             "speaker": "Oliver",
-            "text": "buys them, she does one last thing. She's an accountant, so she can't help it. She opens last",
-            "start": 112.1,
-            "end": 119.48
+            "text": "Marta makes a cup of tea.",
+            "start": 41.86,
+            "end": 43.86,
+            "fa": "مارتا یک فنجان چای می‌سازه."
         },
         {
             "speaker": "Oliver",
-            "text": "months spending in the app just to check. And she sees it. Coffee on the way to work, she spent 180.",
-            "start": 119.48,
-            "end": 127.18
+            "text": "She sits down in the kitchen and she opens up her banking app,",
+            "start": 43.86,
+            "end": 48.68,
+            "fa": "اون تو آشپزخونه می‌نشیند و اپ بانکیشو باز می‌کنه، چون امشب شبِ مهمه."
         },
         {
             "speaker": "Oliver",
-            "text": "Food delivery, 310. Two apps that she pays for every month and never opens, that's 60. A dress",
-            "start": 127.76,
-            "end": 136.98,
-            "fa": "مارتا چایش رو می‌گذاره قبل از اینکه متوجه بشه و بعد می‌فهمه. فکر می‌کرد ۵۰۰ برای پس‌انداز نداره، اما هر ماه داشته. فقط به صورت قطعات کوچیک، آرام‑آرام، یک قهوه به‌یک‌بار، از حساب می‌ره. و هدفون‌ها، پس‌انداز نبود."
+            "text": "because tonight is the night.",
+            "start": 48.68,
+            "end": 50.9
         },
         {
             "speaker": "Oliver",
-            "text": "that she probably is going to wear once. Lots of little things, nothing big. But altogether,",
-            "start": 136.98,
-            "end": 143.26
+            "text": "Tonight she is finally going to start saving.",
+            "start": 50.9,
+            "end": 55.26,
+            "fa": "امشب سرانجام می‌خواد پس‌انداز کنه."
         },
         {
             "speaker": "Oliver",
-            "text": "they add up to more than 700 zloty. Marta puts down her tea before she realizes something",
-            "start": 143.26,
-            "end": 151.72
+            "text": "And the plan is simple.",
+            "start": 55.84,
+            "end": 57.56,
+            "fa": "و برنامه ساده‌ست."
         },
         {
             "speaker": "Oliver",
-            "text": "and then it hits her. She thought that she didn't have 500 to save but she did have it",
-            "start": 151.72,
-            "end": 159.32
+            "text": "Every month, about 500 zloty goes into a savings account.",
+            "start": 57.56,
+            "end": 63.28,
+            "fa": "هر ماه حدود ۵۰۰ زلوتی تو حساب پس‌انداز می‌ره."
         },
         {
             "speaker": "Oliver",
-            "text": "every single month. It just left the account in small little pieces, quietly one coffee at a time",
-            "start": 159.32,
-            "end": 168.38
+            "text": "That's about 100 or 120 euros.",
+            "start": 63.28,
+            "end": 68,
+            "fa": "تقریباً ۱۰۰ تا ۱۲۰ یورو می‌شه."
+        },
+        {
+            "speaker": "Oliver",
+            "text": "It's not a huge amount, but she has the number ready.",
+            "start": 68,
+            "end": 72.62,
+            "fa": "مقدار زیادی نیست، اما عددش آماده‌ست."
+        },
+        {
+            "speaker": "Oliver",
+            "text": "Her finger is on the button, ready to save.",
+            "start": 72.62,
+            "end": 76.56,
+            "fa": "انگشتش روی دکمه‌ست، آمادهٔ پس‌انداز."
+        },
+        {
+            "speaker": "Oliver",
+            "text": "But then her phone buzzes.",
+            "start": 76.56,
+            "end": 78.98,
+            "fa": "اما بعدش گوشی‌اش لرزه می‌زنه."
+        },
+        {
+            "speaker": "Oliver",
+            "text": "A message from a shop: \"Black Friday starts early for you.",
+            "start": 78.98,
+            "end": 83.82,
+            "fa": "پیامی از یک فروشگاه: «بلک فرایدی زودتر برای تو شروع می‌شه. ۴۰٪ تخفیف، فقط امروز»."
+        },
+        {
+            "speaker": "Oliver",
+            "text": "40% off, today only.\" And it's the headphones,",
+            "start": 83.82,
+            "end": 89.2,
+            "fa": "و هدفون‌هاست، هدفون‌هایی که هفتهٔ پیش نگاهش کرده بود."
+        },
+        {
+            "speaker": "Oliver",
+            "text": "the headphones that she looked at last week.",
+            "start": 89.2,
+            "end": 91.96
+        },
+        {
+            "speaker": "Oliver",
+            "text": "They're normally 600 zloty, but today they are 360.",
+            "start": 92.28,
+            "end": 97.14,
+            "fa": "قیمت معمولی‌شون ۶۰۰ زلوتی بود، اما امروز ۳۶۰ زلوتی."
+        },
+        {
+            "speaker": "Oliver",
+            "text": "And she thinks, that's a saving of 240.",
+            "start": 97.14,
+            "end": 101.4,
+            "fa": "و فکر می‌کنه، این یعنی صرفه‌جویی ۲۴۰ زلوتی."
+        },
+        {
+            "speaker": "Oliver",
+            "text": "If I buy them, I'm actually saving money,",
+            "start": 101.4,
+            "end": 105.72,
+            "fa": "اگر بخرم، در واقع پول پس‌انداز می‌کنم، درسته؟"
+        },
+        {
+            "speaker": "Oliver",
+            "text": "right?",
+            "start": 105.72,
+            "end": 106.18
+        },
+        {
+            "speaker": "Oliver",
+            "text": "Her thumb moves away from the savings option and onto the shop.",
+            "start": 106.18,
+            "end": 110.78,
+            "fa": "انگشت شستش او از گزینهٔ پس‌انداز دور می‌شود و به سمت فروشگاه می‌رود."
+        },
+        {
+            "speaker": "Oliver",
+            "text": "And before she buys them, she does one last thing.",
+            "start": 110.78,
+            "end": 115.12,
+            "fa": "و قبل از اینکه آن‌ها را بخرد، یک کار آخر انجام می‌دهد."
+        },
+        {
+            "speaker": "Oliver",
+            "text": "She's an accountant, so she can't help it.",
+            "start": 115.12,
+            "end": 117.88,
+            "fa": "او حسابدار است، پس نمی‌تواند جلوی خودش را بگیرد."
+        },
+        {
+            "speaker": "Oliver",
+            "text": "She opens last month's spending in the app,",
+            "start": 117.88,
+            "end": 121.26,
+            "fa": "او هزینه‌های ماه گذشته را در اپ باز می‌کند، فقط برای بررسی."
+        },
+        {
+            "speaker": "Oliver",
+            "text": "just to check.",
+            "start": 121.26,
+            "end": 123
+        },
+        {
+            "speaker": "Oliver",
+            "text": "And she sees it.",
+            "start": 123,
+            "end": 123.84,
+            "fa": "و آن را می‌بیند."
+        },
+        {
+            "speaker": "Oliver",
+            "text": "Coffee on the way to work: she spent 180.",
+            "start": 123.84,
+            "end": 127.56,
+            "fa": "قهوهٔ راه رفتن به سر کار: ۱۸۰ خرج کرده."
+        },
+        {
+            "speaker": "Oliver",
+            "text": "Food delivery: 310.",
+            "start": 127.86,
+            "end": 130.54,
+            "fa": "سفارش غذا: ۳۱۰."
+        },
+        {
+            "speaker": "Oliver",
+            "text": "Two apps that she pays for every month and never opens:",
+            "start": 130.54,
+            "end": 134.68,
+            "fa": "دو اپلیکیشنی که هر ماه برایشان پول می‌پردازد و هرگز باز نمی‌کند: ۶۰."
+        },
+        {
+            "speaker": "Oliver",
+            "text": "that's 60.",
+            "start": 134.68,
+            "end": 135.94
+        },
+        {
+            "speaker": "Oliver",
+            "text": "A dress that she probably is going to wear once.",
+            "start": 135.94,
+            "end": 139.64,
+            "fa": "یک پیراهن که احتمالاً فقط یک بار می‌پوشد."
+        },
+        {
+            "speaker": "Oliver",
+            "text": "Lots of little things, nothing big, but altogether",
+            "start": 139.64,
+            "end": 143.02,
+            "fa": "چیزهای کوچکی زیاد، چیز بزرگی نیست، اما همه‌شان جمع می‌شود و بیش از ۷۰۰ زلوتی می‌شود."
+        },
+        {
+            "speaker": "Oliver",
+            "text": "they add up to more than 700 zloty.",
+            "start": 143.72,
+            "end": 147.68
+        },
+        {
+            "speaker": "Oliver",
+            "text": "Marta puts down her tea, before she realizes something and then it hits her.",
+            "start": 147.68,
+            "end": 153.94,
+            "fa": "مارتا چایش را می‌گذارد، قبل از اینکه چیزی را متوجه شود و سپس به ذهنش می‌رسد."
+        },
+        {
+            "speaker": "Oliver",
+            "text": "She thought that she didn't have 500 to save,",
+            "start": 153.94,
+            "end": 157.72,
+            "fa": "او فکر می‌کرد که ۵۰۰ برای پس‌انداز ندارد، اما هر ماه داشته."
+        },
+        {
+            "speaker": "Oliver",
+            "text": "but she did have it, every single month.",
+            "start": 157.72,
+            "end": 161.22
+        },
+        {
+            "speaker": "Oliver",
+            "text": "It just left the account in small little pieces,",
+            "start": 161.22,
+            "end": 164.88,
+            "fa": "این پول به‌صورت قطعات کوچک، آرام و یک‌یک قهوه از حساب خارج می‌شد."
+        },
+        {
+            "speaker": "Oliver",
+            "text": "quietly, one coffee at a time.",
+            "start": 164.88,
+            "end": 168.28
         },
         {
             "speaker": "Oliver",
             "text": "And the headphones, they weren't a saving.",
-            "start": 168.38,
-            "end": 171.46
+            "start": 168.92,
+            "end": 171.68,
+            "fa": "و هدفون‌ها پس‌انداز نبودند."
         },
         {
             "speaker": "Oliver",
             "text": "A saving is money that stays in your account.",
-            "start": 172.02,
-            "end": 174.58,
-            "fa": "پس‌انداز یعنی پولی که تو حساب می‌مونه."
+            "start": 171.96,
+            "end": 174.68,
+            "fa": "پس‌انداز یعنی پولی که در حساب می‌ماند."
         },
         {
             "speaker": "Oliver",
             "text": "Tempting.",
-            "start": 174.82,
-            "end": 175.42,
+            "start": 174.78,
+            "end": 175.4,
             "fa": "جذاب."
         },
         {
@@ -9824,185 +10394,410 @@
             "text": "If something is tempting, you really want it,",
             "start": 176.04,
             "end": 179.36,
-            "fa": "اگه چیزی جذاب باشه، واقعاً می‌خوایش، حتی وقتی می‌دونی شاید نباید داشته باشی."
+            "fa": "اگر چیزی جذاب باشد، واقعاً می‌خواهی آن را داشته باشی، حتی وقتی می‌دانی شاید نباید داشته باشی."
         },
         {
             "speaker": "Oliver",
             "text": "even though you know that you probably shouldn't have it.",
             "start": 179.66,
-            "end": 183.76
+            "end": 183.94
         },
         {
             "speaker": "Oliver",
             "text": "So it might be so tempting to spend a lot of money on your payday.",
-            "start": 184.22,
+            "start": 184.4,
             "end": 188.62,
-            "fa": "پس ممکنه خیلی جذاب باشه تو روز حقوق پول زیاد خرج کنی."
+            "fa": "پس ممکن است خیلی جذاب باشد که در روز حقوق‌گیری پول زیادی خرج کنی."
         },
         {
             "speaker": "Oliver",
-            "text": "Things that are now are always more tempting than things that are later The headphones are now the savings are later so the headphones will win But here the tricky part When you pay with a card or your phone",
-            "start": 189.18,
-            "end": 207.32,
-            "fa": "چیزهایی که الآن هستن همیشه جذاب‌تر از چیزهایی که بعداً می‌شن. هدفون‌ها الآن، پس‌اندازها بعداً، پس هدفون‌ها برنده می‌شن. اما اینجا بخش سختیه. وقتی با کارت یا گوشی پرداخت می‌کنی، حس خروج پول نمی‌کنی. یک قهوه فقط یک بوقه، پس همه چیز قابل‌قیمت به نظر میاد."
+            "text": "Things that are now are always more tempting than things that are later.",
+            "start": 189.16,
+            "end": 195.44,
+            "fa": "چیزهایی که الآن هستند همیشه جذاب‌تر از چیزهایی که بعداً می‌آیند."
         },
         {
             "speaker": "Oliver",
-            "text": "you don't feel the money leave. A coffee is just a beep, so everything feels affordable.",
-            "start": 207.32,
-            "end": 215.1
+            "text": "The headphones are now.",
+            "start": 196.18,
+            "end": 198.35,
+            "fa": "هدفون‌ها الآن هستند."
         },
         {
             "speaker": "Oliver",
-            "text": "one coffee is affordable one delivery is affordable but 20 of them every month that's a different",
-            "start": 215.1,
-            "end": 223.98,
-            "fa": "یک قهوه قابل‌قیمته، یک تحویل غذا قابل‌قیمته، اما ۲۰ تا در ماه عدد متفاوتیه. مارتا گفت اگر این هدفون‌ها رو بخرم ۲۴۰ زلوتی پس‌انداز می‌کنم، اما اصلاً پس‌انداز نمی‌کرد، ۳۶۰ خرج می‌کرد. پس چطور خودتو محافظت کنی؟ کلمه سوم بود بودجه. بودجه یک برنامه برای اینکه چقدر پول خرج می‌کنی و برای چی، در یک بازه زمانی مثل یک هفته یا یک ماهه."
+            "text": "The savings are later.",
+            "start": 198.35,
+            "end": 200.19,
+            "fa": "پس‌اندازها بعداً هستند."
         },
         {
             "speaker": "Oliver",
-            "text": "number Marta said if I buy these headphones I'm saving 240 zloty but she wasn't saving anything",
-            "start": 223.98,
-            "end": 233.42
+            "text": "So the headphones will win.",
+            "start": 200.74,
+            "end": 202.51,
+            "fa": "پس هدفون‌ها برنده می‌شوند."
         },
         {
             "speaker": "Oliver",
-            "text": "at all she was spending 360. So how do you protect yourself the third word is budget budget",
-            "start": 233.42,
-            "end": 243.26
+            "text": "But here's the tricky part.",
+            "start": 202.51,
+            "end": 204.12,
+            "fa": "اما اینجا بخش سخت است."
         },
         {
             "speaker": "Oliver",
-            "text": "A budget is a plan for how much money you will spend and on what in a period of time, a week or a month.",
-            "start": 243.26,
+            "text": "When you pay with a card or your phone,",
+            "start": 204.12,
+            "end": 207.51,
+            "fa": "وقتی با کارت یا تلفن پرداخت می‌کنی، حس نمی‌کنی پول می‌رود."
+        },
+        {
+            "speaker": "Oliver",
+            "text": "you don't feel the money leave.",
+            "start": 207.75,
+            "end": 210.16
+        },
+        {
+            "speaker": "Oliver",
+            "text": "A coffee is just a beep, so everything feels affordable.",
+            "start": 210.16,
+            "end": 215,
+            "fa": "یک قهوه فقط یک بوق است، پس همه چیز قابل‌تسویه به نظر می‌آید."
+        },
+        {
+            "speaker": "Oliver",
+            "text": "One coffee is affordable, one delivery is affordable,",
+            "start": 215.92,
+            "end": 219.68,
+            "fa": "یک قهوه قابل‌قبول است، یک تحویل هم قابل‌قبول است، اما ۲۰ تا در هر ماه؟"
+        },
+        {
+            "speaker": "Oliver",
+            "text": "but 20 of them every month?",
+            "start": 219.68,
+            "end": 222.14
+        },
+        {
+            "speaker": "Oliver",
+            "text": "That's a different number.",
+            "start": 222.14,
+            "end": 224.64,
+            "fa": "این عدد متفاوت است."
+        },
+        {
+            "speaker": "Oliver",
+            "text": "Marta said, \"If I buy these headphones, I'm saving 240 zloty.\" But she wasn't saving anything",
+            "start": 224.64,
+            "end": 233.34,
+            "fa": "مارتا گفت: «اگر این هدفون‌ها را بخرم، ۲۴۰ زلوتی صرفه‌جویی می‌کنم.» اما اصلاً صرفه‌جویی نمی‌کرد."
+        },
+        {
+            "speaker": "Oliver",
+            "text": "at all.",
+            "start": 232.92,
+            "end": 234.06
+        },
+        {
+            "speaker": "Oliver",
+            "text": "She was spending 360.",
+            "start": 234.06,
+            "end": 237.47,
+            "fa": "او ۳۶۰ هزینه می‌کرد."
+        },
+        {
+            "speaker": "Oliver",
+            "text": "So how do you protect yourself?",
+            "start": 237.47,
+            "end": 240.06,
+            "fa": "پس چطور می‌تونی از خودت محافظت کنی؟"
+        },
+        {
+            "speaker": "Oliver",
+            "text": "The third word is budget.",
+            "start": 240.06,
+            "end": 242.18,
+            "fa": "سومین کلمه بود بودجه."
+        },
+        {
+            "speaker": "Oliver",
+            "text": "Budget.",
+            "start": 242.18,
+            "end": 243.16,
+            "fa": "بودجه."
+        },
+        {
+            "speaker": "Oliver",
+            "text": "A budget is a plan for how much money you will spend,",
+            "start": 243.88,
+            "end": 247.96,
+            "fa": "بودجه یعنی برنامه‌ای برای این‌که چقدر پول خرج می‌کنی و برای چی، در یک بازهٔ زمانی مثل یک هفته یا یک ماه."
+        },
+        {
+            "speaker": "Oliver",
+            "text": "and on what, in a period of time,",
+            "start": 247.96,
+            "end": 250.85
+        },
+        {
+            "speaker": "Oliver",
+            "text": "a week or a month.",
+            "start": 250.85,
             "end": 252.56
         },
         {
             "speaker": "Oliver",
-            "text": "You might say our budget for our holiday is 2000 euros or we need to make a budget for our expenses this month.",
-            "start": 253.08,
-            "end": 262.4,
-            "fa": "ممکنه بگی بودجه تعطیلات‌مون ۲۰۰۰ یوروست یا باید برای هزینه‌های این ماه بودجه‌سازی کنیم."
+            "text": "You might say, \"Our budget for our holiday is 2,000 euros,\" or,",
+            "start": 253.12,
+            "end": 259,
+            "fa": "می‌تونی بگی: «بودجهٔ تعطیلات‌مون ۲۰۰۰ یورو است»، یا «باید برای هزینه‌های این ماه بودجه‌سازی کنیم». بودجه توی روزهای مثل بلک فرایدی که وسوسه زیاده مفیده، چون اگه برنامه‌ات محدودیت خرج داشته باشه، مثلاً ۲۰۰ یورو در ماه برای خریدهای تصادفی، پس بیشتر از ۲۰۰ یورو خرج نمی‌کنی حتی اگه بلک فرایدی باشه."
         },
         {
             "speaker": "Oliver",
-            "text": "And a budget is useful on days like Black Friday when that temptation is very high.",
-            "start": 262.72,
-            "end": 269.02,
-            "fa": "و بودجه تو روزهایی مثل جمعه سیاه که وسوسه خیلی بالاست، مفیده."
+            "text": "\"We need to make a budget for our expenses this month.\" And a budget is useful",
+            "start": 259,
+            "end": 264.1
         },
         {
             "speaker": "Oliver",
-            "text": "Because if your plan has a limit on spending 200 euros per month, for example, on random items,",
-            "start": 269.02,
-            "end": 278.9,
-            "fa": "چون اگه برنامه‌ات محدودیت ۲۰۰ یورو در ماه برای خریدهای تصادفی داشته باشه، حتی تو جمعه سیاه هم بیشتر از ۲۰۰ یورو خرج نمی‌کنی."
+            "text": "on days like Black Friday, when that temptation is very high,",
+            "start": 264.1,
+            "end": 269.1
         },
         {
             "speaker": "Oliver",
-            "text": "then you'll not spend more than 200 euros, even if it's Black Friday.",
-            "start": 279.06,
-            "end": 283.66
+            "text": "because if your plan has a limit on spending,",
+            "start": 269.6,
+            "end": 272.5
+        },
+        {
+            "speaker": "Oliver",
+            "text": "200 euros per month, for example, on random items,",
+            "start": 272.5,
+            "end": 279.07
+        },
+        {
+            "speaker": "Oliver",
+            "text": "then you'll not spend more than 200 euros,",
+            "start": 279.33,
+            "end": 282.51
+        },
+        {
+            "speaker": "Oliver",
+            "text": "even if it's Black Friday.",
+            "start": 282.51,
+            "end": 283.65
         },
         {
             "speaker": "Oliver",
             "text": "There are some tips and some hope for us.",
-            "start": 284.18,
-            "end": 288.04,
-            "fa": "چند نکته و امید برای ما هست."
+            "start": 284.19,
+            "end": 288.01,
+            "fa": "چند نکته و امید برای ما وجود داره."
         },
         {
             "speaker": "Oliver",
-            "text": "The first way is to save first and not last Most people spend first So they get paid and then they spend for the month and whatever they have left is what they save On payday at the beginning of the month you should take your",
+            "text": "The first way is to save first and not last.",
             "start": 288.56,
-            "end": 304.51,
-            "fa": "اولین راه اینه که اول پس‌انداز کنی، نه آخر. اکثر مردم اول خرج می‌کنن. پس حقوق می‌گیرن، بعد برای ماه خرج می‌کنن و باقی‌مونده‌اش رو پس‌انداز می‌کنن. تو روز حقوق، اول ماه، باید بلافاصله پس‌اندازت رو بگیری، یعنی همان‌چی می‌خوای پس‌انداز کنی، به حساب پس‌انداز منتقل کنی. می‌تونی این کارو خودکار تنظیم کنی. اینجا عبارت چهارم ما «ذخیره کردن» است. ذخیره کردن یعنی پول رو برای هدف خاصی نگه داشتن و نه خرج کردن برای چیزهای دیگه. پس می‌تونی هر ماه صد یورو ذخیره کنی. یا ۲۵۰ پوند، هر ارزی که استفاده می‌کنی. و اگر پول قبل از اینکه ببینی یا اول ماه ذخیره بشه، نیازی نیست هر روز با وسوسه مبارزه کنی. در واقع، اگه بخوای مقداری از اون پول رو برداری، شاید کمی گناهکار یا بدحس بشی و دوبار فکر کنی قبل از استفاده. این ما رو به آخرین عبارت می‌رسونه: «در درازمدت»."
+            "end": 291.83,
+            "fa": "اولین راه اینه که اول پس‌انداز کنی، نه آخرین."
         },
         {
             "speaker": "Oliver",
-            "text": "savings immediately, so what you plan to save, and move it to your savings account. You can even set",
-            "start": 304.51,
-            "end": 311.79
+            "text": "Most people spend first, so they get paid,",
+            "start": 292.51,
+            "end": 295.42,
+            "fa": "بیشتر مردم اول خرج می‌کنن، یعنی حقوق می‌گیرن، بعد برای ماه خرج می‌کنن و هر چی باقی می‌مونه پس‌انداز می‌شه."
         },
         {
             "speaker": "Oliver",
-            "text": "this up so it's done automatically for you. And that's our fourth phrase here, set aside, to set",
-            "start": 311.79,
-            "end": 320.55
+            "text": "and then they spend for the month, and whatever they have left is what they save.",
+            "start": 295.42,
+            "end": 300.99
         },
         {
             "speaker": "Oliver",
-            "text": "aside. And to set aside money means to keep it for a special purpose and not spend it on other",
-            "start": 320.55,
-            "end": 329.05
+            "text": "On payday, at the beginning of the month,",
+            "start": 300.99,
+            "end": 303.57,
+            "fa": "در روز حقوق، یعنی ابتدای ماه، باید بلافاصله بخشی که می‌خوای پس‌انداز کنی برداری و به حساب پس‌انداز منتقل کنی."
         },
         {
             "speaker": "Oliver",
-            "text": "things. So you might set aside a hundred euros a month. You might set aside 250 pounds a month,",
-            "start": 329.05,
-            "end": 336.99
+            "text": "you should take your savings immediately, so what you plan to save,",
+            "start": 303.57,
+            "end": 307.57
         },
         {
             "speaker": "Oliver",
-            "text": "whatever currency you're using. And if the money is set aside before you see it,",
-            "start": 337.31,
-            "end": 341.81
+            "text": "and move it to your savings account.",
+            "start": 307.57,
+            "end": 310.31
         },
         {
             "speaker": "Oliver",
-            "text": "or at the beginning of the month, you don't have to fight the temptation every day. And actually,",
-            "start": 341.81,
-            "end": 347.33
+            "text": "You can even set this up so it's done automatically for you.",
+            "start": 310.31,
+            "end": 314.71,
+            "fa": "می‌تونی این کارو حتی خودکار تنظیم کنی."
         },
         {
             "speaker": "Oliver",
-            "text": "if you need to go and take some of that money, you'll probably feel a little bit guilty or bad",
-            "start": 347.33,
-            "end": 353.17
+            "text": "And that's our fourth phrase here: set aside,",
+            "start": 314.71,
+            "end": 319.45,
+            "fa": "و این هم چهارمین عبارت ماست: کنار گذاشتن، یعنی set aside."
         },
         {
             "speaker": "Oliver",
-            "text": "and you might think twice about using it. That brings us to the last phrase, in the long run.",
-            "start": 353.17,
-            "end": 359.19
+            "text": "to set aside.",
+            "start": 319.45,
+            "end": 321.93
         },
         {
             "speaker": "Oliver",
-            "text": "In the long run means over a long period of time, in the future, not immediate. And that really is",
-            "start": 359.81,
-            "end": 366.87,
-            "fa": "در درازمدت یعنی در طول یک بازه طولانی، در آینده، نه بلافاصله. و این تمام داستان پس‌انداز است. در کوتاه‌مدت خرج کردن برنده می‌شه، اما در درازمدت پس‌انداز برنده است."
+            "text": "And to set aside money means to keep it for a special purpose and not spend",
+            "start": 321.93,
+            "end": 328.17,
+            "fa": "و کنار گذاشتن پول یعنی برای هدف خاصی نگه داشتنش و نه خرج کردنش روی چیزهای دیگه."
         },
         {
             "speaker": "Oliver",
-            "text": "the whole story of saving. Spending wins in the short run, but saving wins in the long run.",
-            "start": 366.87,
-            "end": 373.53
+            "text": "it on other things.",
+            "start": 328.17,
+            "end": 329.43
         },
         {
             "speaker": "Oliver",
-            "text": "so what happened in this case to Marta she didn't buy the headphones but instead she pressed the",
-            "start": 373.53,
-            "end": 379.67,
-            "fa": "پس چه شد برای مارتا؟ هدفون‌ها رو نخرید، بلکه دکمه را فشار داد و ۵۰۰ زلوتی مستقیم به پس‌انداز رفت. بعد دو اپی که هرگز استفاده نمی‌کرد، لغو کرد. یک شروع کوچک بود اما در درازمدت جمع می‌شه و تفاوت بزرگ‌تری می‌سازه."
+            "text": "So you might set aside a hundred euros a month.",
+            "start": 329.43,
+            "end": 333.35,
+            "fa": "مثلاً می‌تونی هر ماه صد یورو کنار بگذاری."
         },
         {
             "speaker": "Oliver",
-            "text": "button and 500 zloty went straight to her savings then she cancelled the two apps that she never",
-            "start": 379.67,
-            "end": 385.97
+            "text": "You might set aside 250 pounds a month,",
+            "start": 333.35,
+            "end": 337.47,
+            "fa": "یا می‌تونی هر ماه ۲۵۰ پوند کنار بگذاری، هر ارزی که استفاده می‌کنی."
         },
         {
             "speaker": "Oliver",
-            "text": "really used and it was a small start but in the long run it will add up and make a bigger difference",
-            "start": 385.97,
-            "end": 393.65
+            "text": "whatever currency you're using.",
+            "start": 337.37,
+            "end": 338.87
+        },
+        {
+            "speaker": "Oliver",
+            "text": "And if the money is set aside before you see it,",
+            "start": 338.87,
+            "end": 341.81,
+            "fa": "اگر پول قبل از اینکه بخوای ازش استفاده کنی یا در ابتدای ماه کنار گذاشته بشه، نیازی نیست هر روز با وسوسه مبارزه کنی."
+        },
+        {
+            "speaker": "Oliver",
+            "text": "or at the beginning of the month, you don't have to fight the temptation every day.",
+            "start": 341.93,
+            "end": 346.41
+        },
+        {
+            "speaker": "Oliver",
+            "text": "And actually, if you need to go and take some of that money,",
+            "start": 346.41,
+            "end": 349.93,
+            "fa": "در واقع، اگر بخوای بخشی از اون پول رو برداری، احتمالاً کمی احساس گناه یا بدی می‌کنی و دوبار فکر می‌کنی قبل از استفاده."
+        },
+        {
+            "speaker": "Oliver",
+            "text": "you'll probably feel a little bit guilty or bad,",
+            "start": 349.93,
+            "end": 353.07
+        },
+        {
+            "speaker": "Oliver",
+            "text": "and you might think twice about using it.",
+            "start": 352.67,
+            "end": 355.49
+        },
+        {
+            "speaker": "Oliver",
+            "text": "That brings us to the last phrase: in the long run.",
+            "start": 355.49,
+            "end": 359.33,
+            "fa": "این ما رو به آخرین عبارت می‌رسونه: در درازمدت."
+        },
+        {
+            "speaker": "Oliver",
+            "text": "In the long run means over a long period of time,",
+            "start": 359.77,
+            "end": 362.85,
+            "fa": "در درازمدت یعنی در طول یک بازهٔ طولانی زمان، در آینده، نه فوراً."
+        },
+        {
+            "speaker": "Oliver",
+            "text": "in the future, not immediate.",
+            "start": 362.85,
+            "end": 365.51
+        },
+        {
+            "speaker": "Oliver",
+            "text": "And that really is the whole story of saving.",
+            "start": 365.51,
+            "end": 369.39,
+            "fa": "و این واقعاً کل داستان پس‌انداز است."
+        },
+        {
+            "speaker": "Oliver",
+            "text": "Spending wins in the short run, but saving wins in the long run.",
+            "start": 369.39,
+            "end": 373.51,
+            "fa": "در کوتاه‌مدت خرج کردن برنده است، اما در درازمدت پس‌انداز برنده می‌شود."
+        },
+        {
+            "speaker": "Oliver",
+            "text": "So what happened in this case to Marta?",
+            "start": 374.19,
+            "end": 375.93,
+            "fa": "پس در این مورد چه اتفاقی برای مارتا افتاد؟"
+        },
+        {
+            "speaker": "Oliver",
+            "text": "She didn't buy the headphones, but instead she pressed the button,",
+            "start": 375.93,
+            "end": 379.95,
+            "fa": "او هدفون نخرید، بلکه دکمه را فشار داد و ۵۰۰ زلوتی مستقیم به پس‌اندازش رفت."
+        },
+        {
+            "speaker": "Oliver",
+            "text": "and 500 zloty went straight to her savings.",
+            "start": 379.95,
+            "end": 383.17
+        },
+        {
+            "speaker": "Oliver",
+            "text": "Then she cancelled the two apps that she never really used.",
+            "start": 383.17,
+            "end": 386.69,
+            "fa": "بعدش دو برنامه‌ای که واقعاً استفاده نمی‌کرد، لغو کرد."
+        },
+        {
+            "speaker": "Oliver",
+            "text": "And it was a small start, but in the long run,",
+            "start": 386.69,
+            "end": 390.45,
+            "fa": "و این یک شروع کوچک بود، اما در درازمدت جمع می‌شه و تفاوت بزرگ‌تری ایجاد می‌کنه."
+        },
+        {
+            "speaker": "Oliver",
+            "text": "it will add up and make a bigger difference.",
+            "start": 390.45,
+            "end": 393.49
         },
         {
             "speaker": "Oliver",
             "text": "now",
-            "start": 393.65,
-            "end": 395.19
+            "start": 394.99,
+            "end": 395.15,
+            "fa": "حالا"
         }
     ]
 }

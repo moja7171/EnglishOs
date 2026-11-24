@@ -9556,7 +9556,7 @@ class MissionSeeder extends Seeder
                                 'key' => 'listening',
                                 'label' => 'Listening',
                                 'duration_minutes' => 18,
-                                'hook' => 'Marta is an accountant, but she can\'t save money. Listen for what happens if she buys the headphones.',
+                                'hook' => 'Marta is an accountant, but she can\'t save money. Listen: does she buy the headphones in the end?',
                                 'source' => 'Easy English Podcast — "Why Is It So Hard to Save Money?"',
                                 'image_query' => 'woman looking at phone kitchen',
                                 'audio_url' => $audioUrl,
@@ -9799,7 +9799,7 @@ class MissionSeeder extends Seeder
                                                         ]],
                                                         ['label' => 'Examples', 'items' => [
                                                             ['text' => 'When I find a job, I\'ll open a bank account.', 'fa' => 'وقتی کار پیدا کنم، یک حساب بانکی باز می‌کنم.'],
-                                                            ['text' => 'Unless you set aside money on payday, you won\'t save anything.', 'fa' => 'مگر اینکه روز حقوق پول کنار بگذاری، وگرنه چیزی پس‌انداز نمی‌کنی.'],
+                                                            ['text' => 'Unless you set aside money on payday, you won\'t save anything.', 'fa' => 'اگر روز حقوق پول کنار نگذاری، چیزی پس‌انداز نمی‌کنی.'],
                                                         ]],
                                                     ],
                                                 ],
@@ -10177,9 +10177,10 @@ class MissionSeeder extends Seeder
                                 'hook' => 'Five words Oliver uses about the things we buy and don\'t need.',
                                 // Day 1 = the Listening episode's own 5 target_phrases (see M01's
                                 // vocabulary_builder_1), so every learner meets them here first.
-                                'story' => 'On Friday evening I was **browsing** a supermarket for some **essential** things: '
-                                    .'bread, milk and soap. But at the **checkout** I saw a cheap watch, and I bought it. It was an '
-                                    .'**impulse buy**. Now I **regret** it, because I already have a watch!',
+                                'story' => 'On Friday evening I went to the supermarket for some **essential** things: bread, milk '
+                                    .'and soap. While I was waiting at the **checkout**, I started **browsing** the little things '
+                                    .'near it, and I bought a cheap watch. It was an **impulse buy**. Now I **regret** it, because I '
+                                    .'already have a watch!',
                                 'words' => [
                                     ['phrase' => 'browse', 'meaning' => 'to look at things in a shop or online, with no plan to buy one thing', 'meaning_fa' => 'گشت زدن و نگاه کردن (در مغازه یا سایت)', 'pos' => 'verb', 'example' => 'I like to browse online shops in the evening.', 'difficulty' => 'medium'],
                                     ['phrase' => 'impulse buy', 'meaning' => 'something you buy suddenly, without thinking or planning', 'meaning_fa' => 'خرید هیجانی، خرید بی‌برنامه', 'pos' => 'noun', 'example' => 'These sunglasses were an impulse buy.', 'difficulty' => 'medium'],
@@ -10271,9 +10272,9 @@ class MissionSeeder extends Seeder
                         'mode' => 'solo',
                         'pair_speaking' => [
                             ['question' => 'Do you try on clothes before you buy them?', 'answer' => 'Yes, I always try them on in the changing room.', 'words' => ['try them on', 'changing room']],
-                            ['question' => 'What size are your shoes?', 'answer' => 'My size is 42, but these shoes don\'t fit me.', 'words' => ['size', 'fit']],
+                            ['question' => 'Do all shoes in your size fit you?', 'answer' => 'No. My size is 42, but some shoes in 42 don\'t fit me.', 'words' => ['size', 'fit']],
                             ['question' => 'Where are your clothes made?', 'answer' => 'Most of my clothes are made in Turkey.', 'words' => ['are made']],
-                            ['question' => 'Have you found a bargain this year?', 'answer' => 'Yes. This jacket was a bargain. It was sold with a big discount.', 'words' => ['bargain', 'was sold', 'discount']],
+                            ['question' => 'Have you found a bargain this year?', 'answer' => 'Yes. This jacket was a bargain. It was sold at a big discount.', 'words' => ['bargain', 'was sold', 'discount']],
                         ],
                         'steps' => [
                             [
@@ -10315,7 +10316,7 @@ class MissionSeeder extends Seeder
                                             'blocks' => [
                                                 [
                                                     'type' => 'rule',
-                                                    'text' => 'The passive = <strong>be + past participle</strong>. Change <strong>be</strong> for the time: <strong>It\'s made</strong> in Turkey. <strong>It was sold</strong> in a day. <strong>It has been sold.</strong> After <strong>can / must</strong>, use <strong>be</strong>: <strong>It can be returned.</strong> <strong>It must be paid.</strong> Add <strong>by …</strong> only when the person is important: <strong>This shop was opened by my grandfather.</strong>',
+                                                    'text' => 'The passive = <strong>be + past participle</strong>. Change <strong>be</strong> for the time: <strong>It\'s made</strong> in Turkey. <strong>It was sold</strong> in a day. <strong>It has been sold.</strong> After <strong>can / must</strong>, use <strong>be</strong>: <strong>It can be returned.</strong> <strong>The bill must be paid.</strong> Add <strong>by …</strong> only when the person is important: <strong>This shop was opened by my grandfather.</strong>',
                                                     'fa' => 'مجهول = be + قسمت سوم فعل. زمان را با be نشان بده: is made (حال)، was sold (گذشته)، has been sold (حال کامل). بعد از can و must همیشه be می‌آید: can be returned، must be paid. by فقط وقتی می‌آید که مهم است چه کسی کار را کرده.',
                                                 ],
                                                 [
@@ -10339,7 +10340,7 @@ class MissionSeeder extends Seeder
                                                     'pairs' => [
                                                         ['left' => 'They make these shoes in Italy.', 'right' => 'These shoes are made in Italy.', 'fa' => 'هر دو درست؛ دومی روی کفش تأکید دارد، نه روی سازنده.'],
                                                         ['left' => 'Someone has sold the last one.', 'right' => 'The last one has been sold.', 'fa' => 'حال کامل مجهول: has been + قسمت سوم فعل.'],
-                                                        ['left' => 'You must pay at the checkout.', 'right' => 'Everything must be paid at the checkout.', 'fa' => 'بعد از must در مجهول: be + قسمت سوم فعل.'],
+                                                        ['left' => 'You must pay the bill by Friday.', 'right' => 'The bill must be paid by Friday.', 'fa' => 'بعد از must در مجهول: be + قسمت سوم فعل.'],
                                                     ],
                                                 ],
                                                 [
@@ -10453,7 +10454,7 @@ class MissionSeeder extends Seeder
                                 ],
                                 'frequency_starters' => [
                                     'My phone was made in', 'Last month I had my', 'Next week I\'m going to have my',
-                                    'In my home, the shopping is usually done by', 'In a good shop, broken things can be', 'In my city, fresh bread is',
+                                    'In my home, the shopping is usually done by', 'In a good shop, broken things can be', 'In my city, fresh bread is sold',
                                 ],
                                 'grammar_judgment' => 'Judge whether the learner finished this sentence starter into '
                                     .'a true, natural personal sentence about shopping, clothes, repairs or the things they own, '
@@ -10471,8 +10472,8 @@ class MissionSeeder extends Seeder
                                 'grammar_context' => 'continues "My phone was made in" with a place; finishes "Last month I had '
                                     .'my" and "Next week I\'m going to have my" with a thing + past participle (hair cut, car '
                                     .'repaired); continues "In my home, the shopping is usually done by" with a person; continues '
-                                    .'"In a good shop, broken things can be" and "In my city, fresh bread is" with a past participle '
-                                    .'(returned, repaired, sold, made)',
+                                    .'"In a good shop, broken things can be" with a past participle (returned, repaired, exchanged); '
+                                    .'continues "In my city, fresh bread is sold" with a place or a time',
                                 // Reminders only: SentenceChecker asks for at least "minor", never "major".
                                 'grammar_minor_criteria' => self::SLIP_ARTICLE.'; '.self::SLIP_HE_SHE.'; '.self::SLIP_WILL_AFTER_IF,
                                 'quick_check' => [
@@ -10541,7 +10542,7 @@ class MissionSeeder extends Seeder
                                     ['phrase' => 'throw away', 'meaning' => 'put something in the rubbish'],
                                     ['phrase' => 'look after', 'meaning' => 'take care of'],
                                     ['phrase' => 'one side of the coin', 'meaning' => 'one part of a problem'],
-                                    ['phrase' => 'over and over again', 'meaning' => 'many times'],
+                                    ['phrase' => 'without a second thought', 'meaning' => 'without thinking about it at all'],
                                 ],
                                 // Real verbatim lines from the video — shadowing means mimicking
                                 // the exact audio just heard, and the auto-pause timestamps
@@ -10569,7 +10570,7 @@ class MissionSeeder extends Seeder
                         'pair_speaking' => [
                             ['question' => 'Do you keep your receipts?', 'answer' => 'Yes. Without a receipt, things can\'t be returned.', 'words' => ['receipt', 'can\'t be returned']],
                             ['question' => 'Have you ever asked for a refund?', 'answer' => 'Yes. My headphones were faulty, so I got a refund.', 'words' => ['faulty', 'refund']],
-                            ['question' => 'When was your last parcel delivered?', 'answer' => 'It was delivered yesterday, to my door.', 'words' => ['was delivered']],
+                            ['question' => 'When was your last online order delivered?', 'answer' => 'It was delivered yesterday, to my door.', 'words' => ['was delivered']],
                             ['question' => 'Where do you have your phone repaired?', 'answer' => 'I have it repaired in a small shop near my home.', 'words' => ['have it repaired']],
                         ],
                         'steps' => [
@@ -10585,7 +10586,7 @@ class MissionSeeder extends Seeder
                                     .'**guarantee**, so I could **exchange** them or get a **refund**. I chose the refund.',
                                 'words' => [
                                     ['phrase' => 'receipt', 'meaning' => 'the piece of paper that shows what you bought and paid', 'meaning_fa' => 'رسید خرید', 'pos' => 'noun', 'example' => 'Keep the receipt in case you need to take it back.', 'difficulty' => 'medium'],
-                                    ['phrase' => 'refund', 'meaning' => 'money that a shop gives back to you', 'meaning_fa' => 'پس گرفتن پول', 'pos' => 'noun', 'example' => 'The shop gave me a full refund.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'refund', 'meaning' => 'money that a shop gives back to you', 'meaning_fa' => 'پول برگشتی، بازپرداخت', 'pos' => 'noun', 'example' => 'The shop gave me a full refund.', 'difficulty' => 'medium'],
                                     ['phrase' => 'exchange', 'meaning' => 'to give something back to a shop and get a different one', 'meaning_fa' => 'عوض کردن (کالا)', 'pos' => 'verb', 'example' => 'Can I exchange this shirt for a bigger size?', 'difficulty' => 'medium'],
                                     ['phrase' => 'faulty', 'meaning' => 'not working as it should', 'meaning_fa' => 'معیوب، خراب', 'pos' => 'adjective', 'example' => 'The charger was faulty, so I took it back.', 'difficulty' => 'medium'],
                                     ['phrase' => 'deliver', 'meaning' => 'to bring something to someone\'s home or office', 'meaning_fa' => 'تحویل دادن، رساندن (به در خانه)', 'pos' => 'verb', 'example' => 'They deliver the food in 30 minutes.', 'difficulty' => 'easy'],
@@ -10620,13 +10621,13 @@ class MissionSeeder extends Seeder
                                 // Builder words in a new context, with the passive and have
                                 // something done.
                                 'passage' => 'My favourite jacket was made in a small shop twenty years ago. It was a present from my '
-                                    .'dad. Last winter, the zip broke, and a button was lost on the bus. My friend said, "Just throw '
+                                    .'dad. Last winter, the zip broke, and one of the buttons came off. My friend said, "Just throw '
                                     .'it away and buy a new one! There\'s a big discount at the mall." So I went to the mall and '
                                     .'tried on ten jackets in the changing room. Some didn\'t fit, and the cheap ones were badly made. '
                                     .'In the end, I decided to have my old jacket repaired. I took it to a tailor near my house, and '
-                                    .'she said, "Don\'t worry. It can be repaired in two days." When I went back, a new zip was in, '
-                                    .'and the button was sewn on. It looked great! I had it repaired for only fifteen euros — a real '
-                                    .'bargain. I didn\'t need a receipt or a guarantee, because the tailor knows me now. Next month '
+                                    .'she said, "Don\'t worry. It can be repaired in two days." When I went back, the zip was replaced, '
+                                    .'and a new button was sewn on. It looked great! I had it repaired for only fifteen euros — a real '
+                                    .'bargain. The tailor even gave me a receipt and a three-month guarantee. Next month '
                                     .'I\'m going to have my winter boots repaired too.',
                                 'highlighted_phrases' => [
                                     ['phrase' => 'discount', 'type' => 'reused'],

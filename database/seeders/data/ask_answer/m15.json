@@ -719,9 +719,9 @@
    "a": [
     [
      "بگو خیلی گران بود",
-     "بگو نصف حقوقم",
+     "بگو خیلی پول دادم",
      "It was too expensive.",
-     "Half my pay.",
+     "I paid a lot.",
      [],
      [
       [
@@ -932,9 +932,9 @@
    "q": [
     [
      "بپرس کفش‌هایش کجا ساخته شده",
-     "بپرس خارجی است",
+     "بپرس نو هستند",
      "Where are your shoes made?",
-     "Are they foreign?",
+     "Are they new?",
      [],
      [
       [
@@ -1047,12 +1047,12 @@
     [
      "بپرس بهترین خرید ارزانش چه بود و با تخفیف بزرگ فروخته شد",
      "بپرس کجا",
-     "What was your best bargain? Was it sold with a big discount?",
+     "What was your best bargain? Was it sold at a big discount?",
      "Where?",
      [],
      [
       [
-       "What was your best bargain? It was sold with a big discount?",
+       "What was your best bargain? It was sold at a big discount?",
        "سؤال: Was it sold…?"
       ]
      ]
@@ -1083,12 +1083,12 @@
     [
      "بگو یک کاپشن زمستانی؛ بله، با ۷۰٪ تخفیف فروخته شد",
      "بگو آخر فصل",
-     "A winter coat. Yes, it was sold with a 70% discount.",
+     "A winter coat. Yes, it was sold at a 70% discount.",
      "At the end of the season.",
      [],
      [
       [
-       "A winter coat. Yes, it sold with a 70% discount.",
+       "A winter coat. Yes, it sold at a 70% discount.",
        "مجهول: be + قسمت سوم فعل؛ be جا نیفتد."
       ]
      ]
@@ -1213,12 +1213,12 @@
     [
      "بپرس جایی که زندگی می‌کند، کی چیزها با تخفیف بزرگ فروخته می‌شوند",
      "بپرس آنلاین هم",
-     "When are things sold with big discounts where you live?",
+     "When are things sold at big discounts where you live?",
      "Online too?",
      [],
      [
       [
-       "When are things sell with big discounts where you live?",
+       "When are things sell at big discounts where you live?",
        "در مجهول قسمت سوم فعل می‌آید، نه شکل ساده."
       ]
      ]
@@ -1249,12 +1249,12 @@
     [
      "بگو چیزها آخر هر فصل با تخفیف بزرگ فروخته می‌شوند",
      "بگو و در زمستان",
-     "Things are sold with big discounts at the end of every season.",
+     "Things are sold at big discounts at the end of every season.",
      "And in the winter.",
      [],
      [
       [
-       "Things sold with big discounts at the end of every season.",
+       "Things sold at big discounts at the end of every season.",
        "مجهول: be + قسمت سوم فعل؛ be جا نیفتد."
       ]
      ]
@@ -1318,9 +1318,9 @@
     ],
     [
      "بگو بله، در اتاق پرو پرو کردم",
-     "بگو دو سایز را",
+     "بگو سایز مدیوم",
      "Yes, I tried it on in the changing room.",
-     "Two sizes.",
+     "A medium.",
      [],
      [
       [
@@ -1479,9 +1479,9 @@
     ],
     [
      "بگو بدون پرو خریدمش",
-     "بگو خوشبختانه اندازه بود",
+     "بگو خوشبختانه اندازه است",
      "I bought it without trying it on.",
-     "Luckily, it fit.",
+     "Luckily, it fits.",
      [],
      [
       [
@@ -1525,15 +1525,15 @@
      ]
     ],
     [
-     "بپرس با دست ساخته شده و گران بود",
+     "بپرس گران بود و کجا فروخته می‌شد",
      "بپرس چه رنگی",
-     "Was it made by hand, and was it expensive?",
+     "Was it expensive, and where was it sold?",
      "What colour?",
      [],
      [
       [
-       "Was it made by hand, and it was expensive?",
-       "سؤال دوم: and was it expensive?"
+       "Was it expensive, and where it was sold?",
+       "سؤال دوم: and where was it sold?"
       ]
      ]
     ],
@@ -1561,15 +1561,15 @@
      []
     ],
     [
-     "بگو بله، با دست ساخته شده، ولی گران نبود",
-     "بگو از یک بازار",
-     "Yes, it was, but it wasn't expensive.",
-     "From a market.",
+     "بگو گران نبود؛ در یک بازار فروخته می‌شد",
+     "بگو قرمز است",
+     "It wasn't expensive. It was sold at a market.",
+     "It's red.",
      [],
      [
       [
-       "Yes, it was, but it not expensive.",
-       "فعل لازم است: it wasn't."
+       "It wasn't expensive. It sold at a market.",
+       "مجهول: be + قسمت سوم فعل؛ be جا نیفتد."
       ]
      ]
     ],
@@ -1704,15 +1704,15 @@
      ]
     ],
     [
-     "بپرس چرا باید رسید چند هفته نگه داشته شود",
+     "بپرس چرا خوب است رسید را چند هفته نگه دارد",
      "بپرس برای همه‌چیز",
-     "Why should a receipt be kept for a few weeks?",
+     "Why is it good to keep the receipt for a few weeks?",
      "For everything?",
      [],
      [
       [
-       "Why should a receipt kept for a few weeks?",
-       "بعد از can / must / should در مجهول «be» می‌آید."
+       "Why it is good to keep the receipt for a few weeks?",
+       "سؤال: Why is it…?"
       ]
      ]
     ]
@@ -1994,15 +1994,15 @@
      ]
     ],
     [
-     "بگو عوض شد، چون رسید نداشتم",
-     "بگو دفعه‌ی بعد رسید را نگه می‌دارم",
-     "It was exchanged, because I didn't have the receipt.",
-     "Next time I'll keep the receipt.",
+     "بگو پولم را پس گرفتم، چون رسید داشتم",
+     "بگو راحت بود",
+     "I got a refund, because I had the receipt.",
+     "It was easy.",
      [],
      [
       [
-       "It exchanged, because I didn't have the receipt.",
-       "مجهول: be + قسمت سوم فعل؛ be جا نیفتد."
+       "I got a refund, because I have had the receipt.",
+       "کار تمام‌شده در گذشته: had."
       ]
      ]
     ]
@@ -2181,27 +2181,27 @@
    "c": "دوستت گفت: «سفارشم هنوز نرسیده.»",
    "q": [
     [
-     "بپرس کی سفارش داده شد",
+     "بپرس کی سفارشش داد",
      "بپرس آنلاین",
-     "When was it ordered?",
+     "When did you order it?",
      "Online?",
      [],
      [
       [
-       "When it was ordered?",
-       "سؤال: When was it ordered?"
+       "When you ordered it?",
+       "سؤال گذشته با «did» است؛ بعدش فعل ساده می‌آید."
       ]
      ]
     ],
     [
-     "بپرس کی سفارش داده شد و قرار است کی تحویل داده شود",
+     "بپرس کی سفارشش داد و قرار است کی تحویل داده شود",
      "بپرس از کدام فروشگاه",
-     "When was it ordered, and when should it be delivered?",
+     "When did you order it, and when should it be delivered?",
      "Which shop?",
      [],
      [
       [
-       "When was it ordered, and when should it delivered?",
+       "When did you order it, and when should it delivered?",
        "بعد از can / must / should در مجهول «be» می‌آید."
       ]
      ]
@@ -2389,17 +2389,17 @@
    "a": [
     [
      "بگو نه",
-     "بگو تمام شده",
+     "بگو پارسال تمام شد",
      "No, it isn't.",
-     "It's finished.",
+     "It ended last year.",
      [],
      []
     ],
     [
      "بگو نه؛ هشت سالش است",
-     "بگو قبلاً خراب نشده بود",
+     "بگو تا حالا خراب نشده بود",
      "No, it isn't. It's eight years old.",
-     "It never broke before.",
+     "It has never broken before.",
      [],
      [
       [
@@ -2913,9 +2913,9 @@
     ],
     [
      "بگو باید تعمیر شوند، چون لباس خوب را می‌شود سال‌ها پوشید",
-     "بگو و پول پس‌انداز می‌شود",
+     "بگو و پول کمتری خرج می‌کنی",
      "They should be fixed, because good clothes can be worn for years.",
-     "And money is saved.",
+     "And it saves money.",
      [],
      [
       [
@@ -3101,12 +3101,12 @@
     [
      "بگو عالی است! و بپرس با تخفیف فروخته شد",
      "بپرس چقدر",
-     "Great! Was it sold with a discount?",
+     "Great! Was it sold at a discount?",
      "How much?",
      [],
      [
       [
-       "Great! Was it sell with a discount?",
+       "Great! Was it sell at a discount?",
        "در مجهول قسمت سوم فعل می‌آید، نه شکل ساده."
       ]
      ]
@@ -3114,26 +3114,26 @@
     [
      "بپرس با تخفیف فروخته شد و می‌شود عوضش کرد",
      "بپرس رسید گرفت",
-     "Was it sold with a discount, and can it be exchanged?",
+     "Was it sold at a discount, and can it be exchanged?",
      "Did you get a receipt?",
      [],
      [
       [
-       "Was it sold with a discount, and can it exchanged?",
+       "Was it sold at a discount, and can it exchanged?",
        "بعد از can / must / should در مجهول «be» می‌آید."
       ]
      ]
     ],
     [
-     "بپرس اگر اندازه‌ی خواهرش نباشد، می‌شود در مغازه عوضش کرد",
+     "بپرس اگر خواهرش دوستش نداشته باشد، می‌شود در مغازه عوضش کرد",
      "بپرس تا کی",
-     "If it doesn't fit your sister, can it be exchanged at the shop?",
+     "If your sister doesn't like it, can it be exchanged at the shop?",
      "Until when?",
      [],
      [
       [
-       "If it don't fit your sister, can it be exchanged at the shop?",
-       "با it می‌شود doesn't."
+       "If your sister don't like it, can it be exchanged at the shop?",
+       "با your sister (مفرد) می‌شود doesn't."
       ]
      ]
     ]
