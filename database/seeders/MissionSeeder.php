@@ -11020,7 +11020,7 @@ class MissionSeeder extends Seeder
                                                     'pairs' => [
                                                         ['left' => 'When we arrived, the film started.', 'right' => 'When we arrived, the film had started.', 'fa' => 'اولی: رسیدیم و بعد فیلم شروع شد. دومی: قبل از رسیدنمان شروع شده بود.'],
                                                         ['left' => 'When I got home, my sister cooked dinner.', 'right' => 'When I got home, my sister was cooking dinner.', 'fa' => 'اولی: رسیدم و بعد آشپزی کرد. دومی: وقتی رسیدم داشت آشپزی می‌کرد.'],
-                                                        ['left' => 'I lost my phone, so I called my mum.', 'right' => 'I realised I had lost my phone.', 'fa' => 'اولی: پشت سر هم. دومی: گم شدن قبل از فهمیدن بوده.'],
+                                                        ['left' => 'When I got home, my sister was cooking dinner.', 'right' => 'When I got home, my sister had cooked dinner.', 'fa' => 'اولی: وقتی رسیدم داشت آشپزی می‌کرد. دومی: قبل از رسیدنم شام آماده شده بود.'],
                                                     ],
                                                 ],
                                                 [
@@ -11101,7 +11101,8 @@ class MissionSeeder extends Seeder
                                     .'summer I had gone to Turkey"), the sentence does not actually continue the given starter, or '
                                     .'it is not a genuine personal statement. Do not mark the past simple wrong where the past '
                                     .'perfect is only one possible choice ("When I arrived, they left" and "Before I came, I bought '
-                                    .'a ticket" are correct)',
+                                    .'a ticket" are correct). Be + an adjective after "By the time I arrived, the" is correct ("the shop '
+                                    .'was closed", "the party was over"), and "Before this year, I had never …" is correct with the past perfect',
                                 'grammar_context' => 'continues "Before this year, I had never" with a past participle (flown, seen, '
                                     .'been); continues "When I got to the station, I realised I had" with a past participle '
                                     .'(forgotten, left, lost); continues "By the time I arrived, the" with a thing + had + past '
@@ -11119,8 +11120,8 @@ class MissionSeeder extends Seeder
                                         'why' => 'had + past participle: seen, not saw.',
                                     ],
                                     [
-                                        'wrong' => 'When we got to the gate, the plane already left.',
-                                        'options' => ['When we got to the gate, the plane has already left.', 'When we got to the gate, the plane had already left.', 'When we got to the gate, the plane was already leave.'],
+                                        'wrong' => 'By the time we got to the gate, the plane left.',
+                                        'options' => ['By the time we got to the gate, the plane has left.', 'By the time we got to the gate, the plane had left.', 'By the time we got to the gate, the plane was leave.'],
                                         'correct' => 1,
                                         'difficulty' => 'medium',
                                         'why' => 'It left before we got there → had left.',
@@ -11258,7 +11259,7 @@ class MissionSeeder extends Seeder
                                 // Written fresh for this app (EOS-009 §14) — reuses the Vocabulary
                                 // Builder words in a new context, with the three narrative tenses.
                                 'passage' => 'Last spring my sister and I booked a trip to Istanbul. It was my first time abroad, '
-                                    .'and I had never flown alone before, because my sister was flying from another city. On the '
+                                    .'and my sister was flying from another city, so I was flying alone. I had never done that before. On the '
                                     .'morning of the flight, I was having breakfast when my phone rang. It was my sister: "Where are '
                                     .'you? We\'re boarding!" I had set my alarm for the wrong time! I jumped into a taxi, but it was '
                                     .'raining, and the traffic was terrible. By the time I got to the airport, the check-in desk had '
@@ -11282,7 +11283,7 @@ class MissionSeeder extends Seeder
                                 'topic_summary' => 'The writer missed a flight to Istanbul because their alarm was set for the wrong '
                                     .'time. By the time they got to the airport in the rain, the plane had already taken off, but a '
                                     .'kind woman at the desk found them a seat on the next flight for a small fee. In Istanbul, the '
-                                    .'two sisters went sightseeing, got lost twice and bought too many souvenirs.',
+                                    .'writer and the sister went sightseeing, got lost twice and bought too many souvenirs.',
                                 'comprehension_check' => [
                                     ['statement' => 'The writer had flown alone many times before.', 'correct' => false, 'difficulty' => 'easy'],
                                     ['statement' => 'It was raining on the way to the airport.', 'correct' => true, 'difficulty' => 'medium'],
@@ -11299,7 +11300,7 @@ class MissionSeeder extends Seeder
                                 'choice_questions' => [
                                     ['prompt' => 'What was the writer doing when the phone rang?', 'options' => ['Having breakfast', 'Sleeping', 'Waiting for a taxi'], 'correct' => 0, 'difficulty' => 'easy'],
                                     ['prompt' => 'What had happened by the time the writer got to the airport?', 'options' => ['The sister had gone home', 'The airport had closed', 'The plane had already taken off'], 'correct' => 2, 'difficulty' => 'medium'],
-                                    ['prompt' => 'What did the sisters do in Istanbul?', 'options' => ['They stayed in the hotel', 'They went sightseeing and bought souvenirs', 'They went to the beach every day'], 'correct' => 1, 'difficulty' => 'hard'],
+                                    ['prompt' => 'What did the writer and the sister do in Istanbul?', 'options' => ['They stayed in the hotel', 'They went sightseeing and bought souvenirs', 'They went to the beach every day'], 'correct' => 1, 'difficulty' => 'hard'],
                                 ],
                             ],
                             [

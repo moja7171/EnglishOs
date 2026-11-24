@@ -303,7 +303,7 @@ return [
             'b' => ['The airline worker', 'Give them a seat on the next flight, but only for a small fee.', ['When did you get to the gate?', 'The plane had already taken off.', 'There’s a seat on the six o’clock flight.'], ['Sell them a hotel room.', 'Find out where they live.']],
         ],
         ['Lost luggage',
-            'a' => ['A traveller', 'Get your suitcase brought to your hotel tonight.', ['My suitcase didn’t arrive.', 'I had put my medicine in it.', 'I was waiting for it for an hour.'], ['Buy a new suitcase.', 'Change your flight home.']],
+            'a' => ['A traveller', 'Get your suitcase brought to your hotel tonight.', ['My suitcase didn’t arrive.', 'I had put my medicine in it.', 'I waited for an hour, but it didn’t come.'], ['Buy a new suitcase.', 'Change your flight home.']],
             'b' => ['The airport worker', 'Say it will come tomorrow morning, and get their hotel address.', ['What colour is your suitcase?', 'It was put on the wrong plane.', 'It will arrive tomorrow morning.'], ['Sell them a travel bag.', 'Find out about their job.']],
         ],
         ['A noisy hotel room',

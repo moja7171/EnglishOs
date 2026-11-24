@@ -187,14 +187,14 @@
      ]
     ],
     [
-     "بپرس تا حالا بلیت برایش تمام شده و چه کار کرد",
-     "بپرس برای فوتبال",
-     "Have tickets ever been sold out for you? What did you do?",
-     "For football?",
+     "بپرس تا حالا مسابقه‌ای را از دست داده چون بلیتش تمام شده بود، و چه کار کرد",
+     "بپرس فوتبال",
+     "Have you ever missed a game because the tickets were sold out? What did you do?",
+     "Football?",
      [],
      [
       [
-       "Have tickets ever been sold out for you? What you did?",
+       "Have you ever missed a game because the tickets were sold out? What you did?",
        "سؤال گذشته با «did» است؛ بعدش فعل ساده می‌آید."
       ]
      ]
@@ -1146,7 +1146,7 @@
      ]
     ],
     [
-     "بگو فرود را، چون یعنی رسیده‌ام",
+     "بگو فرود را، چون یعنی رسیده‌ام خانه",
      "بگو هیجان‌انگیز است",
      "The landing, because then I'm home.",
      "It's exciting.",
@@ -1503,12 +1503,12 @@
     [
      "بگو حدود سه ساعت؛ نه، ولی بیشتر مردم بلند شده بودند",
      "بگو خنده‌دار بود",
-     "About three hours, and no, but most people had already stood up.",
+     "About three hours. No, but most people had already stood up.",
      "It was funny.",
      [],
      [
       [
-       "About three hours, and no, but most people had already stand up.",
+       "About three hours. No, but most people had already stand up.",
        "بعد از had قسمت سوم فعل می‌آید."
       ]
      ]
@@ -1522,27 +1522,27 @@
    "c": "دوستت گفت: «کارت پروازم رو گم کرده بودم، ولی روی گوشیم داشتمش.»",
    "q": [
     [
-     "بپرس کجا گمش کرده بود",
+     "بپرس کجا گمش کرد",
      "بپرس دم گیت",
-     "Where had you lost it?",
+     "Where did you lose it?",
      "At the gate?",
      [],
      [
       [
-       "Where had you lose it?",
-       "بعد از had قسمت سوم فعل می‌آید."
+       "Where did you lost it?",
+       "بعد از did شکل ساده‌ی فعل: lose، نه lost."
       ]
      ]
     ],
     [
-     "بپرس کجا گمش کرده بود و کی فهمید",
+     "بپرس کجا گمش کرد و کی فهمید",
      "بپرس ترسید",
-     "Where had you lost it? When did you notice?",
+     "Where did you lose it? When did you notice?",
      "Were you scared?",
      [],
      [
       [
-       "Where had you lost it? When you noticed?",
+       "Where did you lose it? When you noticed?",
        "سؤال گذشته با «did» است؛ بعدش فعل ساده می‌آید."
       ]
      ]
@@ -2358,12 +2358,12 @@
     [
      "بگو بله! تا یاد خودم افتادم، همه‌چیز را خرج کرده بودم",
      "بگو دفعه‌ی بعد اول خودم",
-     "Yes! By the time I remembered myself, I had spent everything.",
+     "Yes! By the time I thought of myself, I had spent everything.",
      "Next time, me first!",
      [],
      [
       [
-       "Yes! By the time I remembered myself, I have spent everything.",
+       "Yes! By the time I thought of myself, I have spent everything.",
        "قبل از یک لحظه‌ی دیگرِ گذشته: had + قسمت سوم فعل."
       ]
      ]
@@ -3236,7 +3236,7 @@
     ],
     [
      "بپرس کجا دیدش و چه حسی داشت",
-     "بپرس شنا کرد",
+     "بپرس آب سرد بود",
      "Where did you see it? How did you feel?",
      "Was the water cold?",
      [],
@@ -3249,7 +3249,7 @@
     ],
     [
      "بپرس قبلاً در فیلم‌ها دیده بودش و در واقعیت فرق داشت",
-     "بپرس شنا کرد",
+     "بپرس آب سرد بود",
      "Had you seen it in films before, and was it different in real life?",
      "Was the water cold?",
      [],
@@ -3272,7 +3272,7 @@
     ],
     [
      "بگو در جنوب؛ خیلی خوشحال بودم",
-     "بگو هر روز شنا کردم",
+     "بگو هر روز توی آب بودم",
      "In the south. I felt really happy.",
      "I was in the water every day.",
      [],
