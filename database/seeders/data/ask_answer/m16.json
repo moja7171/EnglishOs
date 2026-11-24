@@ -1,0 +1,3380 @@
+{
+ "mission": 16,
+ "items": [
+  {
+   "d": 1,
+   "k": "s",
+   "s": "direct-flight",
+   "c": null,
+   "q": [
+    [
+     "بپرس به شهرش پرواز مستقیم هست",
+     "بپرس هر روز",
+     "Is there a direct flight to your city?",
+     "Every day?",
+     [],
+     [
+      [
+       "There is a direct flight to your city?",
+       "سؤال با «Is there…?» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس پرواز مستقیم هست و چقدر طول می‌کشد",
+     "بپرس گران است",
+     "Is there a direct flight, and how long does it take?",
+     "Is it expensive?",
+     [],
+     [
+      [
+       "Is there a direct flight, and how long it takes?",
+       "بعد از how long ترتیب سؤال: does it take."
+      ]
+     ]
+    ],
+    [
+     "بپرس پرواز مستقیم را دوست دارد یا پرواز ارزان‌تر با توقف را، و چرا",
+     "بپرس برای سفر طولانی",
+     "Do you prefer a direct flight or a cheaper flight with a stop? Why?",
+     "For a long trip?",
+     [],
+     [
+      [
+       "Do you prefer a direct flight or a more cheap flight with a stop? Why?",
+       "صفت کوتاه با -er: cheaper."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله، هست",
+     "بگو صبح‌ها",
+     "Yes, there is.",
+     "In the morning.",
+     [],
+     []
+    ],
+    [
+     "بگو بله، حدود یک ساعت طول می‌کشد",
+     "بگو زیاد گران نیست",
+     "Yes, there is. It takes about an hour.",
+     "It isn't very expensive.",
+     [],
+     [
+      [
+       "Yes, there is. It takes about one hours.",
+       "بعد از an / one اسم مفرد: an hour."
+      ]
+     ]
+    ],
+    [
+     "بگو پرواز مستقیم، چون توقف‌ها خسته‌ام می‌کنند",
+     "بگو حتی اگر گران‌تر باشد",
+     "A direct flight, because stops make me tired.",
+     "Even if it's more expensive.",
+     [],
+     [
+      [
+       "A direct flight, because stops make me tiring.",
+       "حال خود آدم: tired، نه tiring."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "s",
+   "s": "tickets-ahead",
+   "c": null,
+   "q": [
+    [
+     "بپرس بلیت قطار را از قبل می‌خرد",
+     "بپرس آنلاین",
+     "Do you buy train tickets ahead of time?",
+     "Online?",
+     [],
+     [
+      [
+       "Do you buy train tickets before of time?",
+       "«از قبل» = ahead of time."
+      ]
+     ]
+    ],
+    [
+     "بپرس بلیت را از قبل می‌خرد و چند روز قبل",
+     "بپرس برای تعطیلات",
+     "Do you buy tickets ahead of time? How many days before?",
+     "For the holidays?",
+     [],
+     [
+      [
+       "Do you buy tickets ahead of time? How many day before?",
+       "بعد از how many اسم جمع: days."
+      ]
+     ]
+    ],
+    [
+     "بپرس همیشه بلیت را از قبل می‌خرد یا گاهی همان روز، و چرا",
+     "بپرس تا حالا جا مانده",
+     "Do you always buy tickets ahead of time, or sometimes on the day? Why?",
+     "Have you ever missed a trip?",
+     [],
+     [
+      [
+       "Do you always buy tickets ahead of time, or sometimes in the day? Why?",
+       "«همان روز» = on the day."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله، همیشه",
+     "بگو آنلاین",
+     "Yes, always.",
+     "Online.",
+     [],
+     []
+    ],
+    [
+     "بگو بله، حدود یک هفته قبل",
+     "بگو برای تعطیلات زودتر",
+     "Yes, I do, about a week before.",
+     "Earlier for the holidays.",
+     [],
+     [
+      [
+       "Yes, I do, about one week ago.",
+       "«قبل از سفر» = before، نه ago."
+      ]
+     ]
+    ],
+    [
+     "بگو همیشه از قبل، چون یک بار بلیت‌ها تمام شده بود",
+     "بگو مخصوصاً در تعطیلات",
+     "Always ahead of time, because once the tickets were sold out.",
+     "Especially in the holidays.",
+     [],
+     [
+      [
+       "Always ahead of time, because once the tickets was sold out.",
+       "tickets جمع است: were."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "s",
+   "s": "sold-out-tickets",
+   "c": null,
+   "q": [
+    [
+     "بپرس تا حالا بلیتی خواسته که تمام شده بود",
+     "بپرس برای کنسرت",
+     "Have you ever wanted tickets that were sold out?",
+     "For a concert?",
+     [],
+     [
+      [
+       "Have you ever wanted tickets that was sold out?",
+       "tickets جمع است: were."
+      ]
+     ]
+    ],
+    [
+     "بپرس تا حالا بلیت برایش تمام شده و چه کار کرد",
+     "بپرس برای فوتبال",
+     "Have tickets ever been sold out for you? What did you do?",
+     "For football?",
+     [],
+     [
+      [
+       "Have tickets ever been sold out for you? What you did?",
+       "سؤال گذشته با «did» است؛ بعدش فعل ساده می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس آخرین بار که بلیت تمام شده بود چه شد، و بعدش چه کار کرد",
+     "بپرس دوباره امتحان کرد",
+     "What happened the last time tickets were sold out, and what did you do next?",
+     "Did you try again?",
+     [],
+     [
+      [
+       "What happened the last time tickets were sold out, and what you did next?",
+       "سؤال گذشته با «did» است؛ بعدش فعل ساده می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله، یک بار",
+     "بگو برای فوتبال",
+     "Yes, once.",
+     "For football.",
+     [],
+     []
+    ],
+    [
+     "بگو بله؛ در خانه تماشایش کردم",
+     "بگو با برادرم",
+     "Yes. I watched it at home.",
+     "With my brother.",
+     [],
+     [
+      [
+       "Yes. I watch it at home.",
+       "کار گذشته: watched."
+      ]
+     ]
+    ],
+    [
+     "بگو بلیت فوتبال تمام شده بود، پس با دوستانم در یک کافه تماشا کردیم",
+     "بگو جای خیلی پرجنب‌وجوشی بود",
+     "The football tickets were sold out, so we watched the game in a café with friends.",
+     "It was really lively.",
+     [],
+     [
+      [
+       "The football tickets were sold out, so we watch the game in a café with friends.",
+       "کار گذشته: watched."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "s",
+   "s": "lively-place",
+   "c": null,
+   "q": [
+    [
+     "بپرس کدام جای شهرش پرجنب‌وجوش است",
+     "بپرس شب‌ها",
+     "What's a lively place in your city?",
+     "At night?",
+     [],
+     [
+      [
+       "What's a live place in your city?",
+       "«پرجنب‌وجوش» = lively."
+      ]
+     ]
+    ],
+    [
+     "بپرس کدام جای شهرش پرجنب‌وجوش است و کی آنجا می‌رود",
+     "بپرس با کی",
+     "What's a lively place in your city, and when do you go?",
+     "With who?",
+     [],
+     [
+      [
+       "What's a lively place in your city, and when you go?",
+       "ترتیب سؤال: اول فعل کمکی، بعد فاعل."
+      ]
+     ]
+    ],
+    [
+     "بپرس جاهای پرجنب‌وجوش را دوست دارد یا جاهای آرام را، و چرا",
+     "بپرس در سفر",
+     "Do you like lively places or quiet places? Why?",
+     "On holiday?",
+     [],
+     [
+      [
+       "You like lively places or quiet places? Why?",
+       "سؤال حال ساده با «Do you» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بازار قدیمی",
+     "بگو عصرها",
+     "The old market.",
+     "In the evening.",
+     [],
+     []
+    ],
+    [
+     "بگو بازار قدیمی؛ جمعه‌ها می‌روم",
+     "بگو با دوستانم",
+     "The old market. I go on Fridays.",
+     "With my friends.",
+     [],
+     [
+      [
+       "The old market. I go in Fridays.",
+       "روز هفته با on: on Fridays."
+      ]
+     ]
+    ],
+    [
+     "بگو جاهای آرام، چون جاهای شلوغ خسته‌ام می‌کنند",
+     "بگو ولی در سفر جاهای شلوغ را دوست دارم",
+     "Quiet places, because lively places make me tired.",
+     "But on holiday I like lively places.",
+     [],
+     [
+      [
+       "Quiet places, because lively places makes me tired.",
+       "places جمع است: make."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "s",
+   "s": "end-up-weekend",
+   "c": null,
+   "q": [
+    [
+     "بپرس آخر هفته‌ی گذشته آخرش در خانه ماند",
+     "بپرس خوش گذشت",
+     "Did you end up staying home last weekend?",
+     "Was it fun?",
+     [],
+     [
+      [
+       "Did you ended up staying home last weekend?",
+       "سؤال گذشته با «did» است؛ بعدش فعل ساده می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس آخر هفته آخرش در خانه ماند یا بیرون رفت",
+     "بپرس با کی",
+     "Did you end up staying home last weekend, or did you go out?",
+     "With who?",
+     [],
+     [
+      [
+       "Did you end up staying home last weekend, or you went out?",
+       "سؤال دوم هم did می‌خواهد: or did you go out?"
+      ]
+     ]
+    ],
+    [
+     "بپرس برای آخر هفته‌ی گذشته چه برنامه‌ای داشت و آخرش چه کار کرد",
+     "بپرس خوش گذشت",
+     "What did you plan for last weekend, and what did you end up doing?",
+     "Was it fun?",
+     [],
+     [
+      [
+       "What did you plan for last weekend, and what did you end up do?",
+       "بعد از end up فعل -ing می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو نه",
+     "بگو رفتم بیرون",
+     "No, I didn't.",
+     "I went out.",
+     [],
+     []
+    ],
+    [
+     "بگو رفتم بیرون، به یک کافه",
+     "بگو با خواهرم",
+     "I went out, to a café.",
+     "With my sister.",
+     [],
+     [
+      [
+       "I goed out, to a café.",
+       "گذشته‌ی go می‌شود went."
+      ]
+     ]
+    ],
+    [
+     "بگو برنامه داشتم درس بخوانم، ولی آخرش با دوستانم رفتم کوه",
+     "بگو خیلی خوش گذشت",
+     "I planned to study, but I ended up going to the mountains with my friends.",
+     "It was really fun.",
+     [],
+     [
+      [
+       "I planned to study, but I ended up go to the mountains with my friends.",
+       "بعد از end up فعل -ing می‌آید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "concert-sold-out",
+   "c": "دوستت گفت: «بلیت کنسرت تمام شده بود!»",
+   "q": [
+    [
+     "بپرس سعی کرد از قبل بخرد",
+     "بپرس آنلاین",
+     "Did you try to buy them ahead of time?",
+     "Online?",
+     [],
+     [
+      [
+       "Did you tried to buy them ahead of time?",
+       "سؤال گذشته با «did» است؛ بعدش فعل ساده می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس از قبل سعی کرد و بعدش چه کار کرد",
+     "بپرس ناراحت شد",
+     "Did you try ahead of time? What did you do then?",
+     "Were you sad?",
+     [],
+     [
+      [
+       "Did you try ahead of time? What you did then?",
+       "سؤال گذشته با «did» است؛ بعدش فعل ساده می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس از قبل سعی کرد یا همان روز، و آخرش چه کار کرد",
+     "بپرس هنوز ناراحت است",
+     "Did you try ahead of time or on the day, and what did you end up doing?",
+     "Are you still sad?",
+     [],
+     [
+      [
+       "Did you try ahead of time or in the day, and what did you end up doing?",
+       "«همان روز» = on the day."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو نه",
+     "بگو دیر شده بود",
+     "No, I didn't.",
+     "I was too late.",
+     [],
+     []
+    ],
+    [
+     "بگو نه؛ در خانه ماندم",
+     "بگو کمی ناراحت شدم",
+     "No. I stayed at home.",
+     "I was a bit sad.",
+     [],
+     [
+      [
+       "No. I stayed in home.",
+       "«در خانه» = at home."
+      ]
+     ]
+    ],
+    [
+     "بگو همان روز، ولی تمام شده بود؛ آخرش فیلم دیدم",
+     "بگو اشکالی نداشت",
+     "On the day, but they had already sold out, so I ended up watching a film.",
+     "It was OK.",
+     [],
+     [
+      [
+       "On the day, but they have already sold out, so I ended up watching a film.",
+       "قبل از یک لحظه‌ی دیگرِ گذشته: had + قسمت سوم فعل."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "two-stops",
+   "c": "دوستت گفت: «پرواز مستقیم نبود، دو بار توقف داشتیم.»",
+   "q": [
+    [
+     "بپرس سفر چقدر طول کشید",
+     "بپرس خسته شد",
+     "How long did the trip take?",
+     "Were you tired?",
+     [],
+     [
+      [
+       "How long the trip took?",
+       "سؤال گذشته: How long did … take?"
+      ]
+     ]
+    ],
+    [
+     "بپرس چقدر طول کشید و خسته شد",
+     "بپرس ارزان بود",
+     "How long did it take? Were you tired?",
+     "Was it cheap?",
+     [],
+     [
+      [
+       "How long did it take? You were tired?",
+       "سؤال با be: Were you…?"
+      ]
+     ]
+    ],
+    [
+     "بپرس چرا پرواز مستقیم نگرفت و چقدر طول کشید",
+     "بپرس ارزان‌تر بود",
+     "Why didn't you take a direct flight, and how long did it take?",
+     "Was it cheaper?",
+     [],
+     [
+      [
+       "Why you didn't take a direct flight, and how long did it take?",
+       "ترتیب سؤال: اول فعل کمکی، بعد فاعل."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو نه ساعت",
+     "بگو خیلی طولانی",
+     "Nine hours.",
+     "A long time.",
+     [],
+     []
+    ],
+    [
+     "بگو نه ساعت؛ بله، خیلی خسته بودم",
+     "بگو زیاد خوابیدم",
+     "Nine hours. Yes, I was really tired.",
+     "I slept a lot.",
+     [],
+     [
+      [
+       "Nine hours. Yes, I was really tiring.",
+       "حال خود آدم: tired."
+      ]
+     ]
+    ],
+    [
+     "بگو چون پرواز مستقیم تمام شده بود؛ نه ساعت طول کشید",
+     "بگو ارزان‌تر بود",
+     "Because the direct flight was sold out. It took nine hours.",
+     "It was cheaper.",
+     [],
+     [
+      [
+       "Because the direct flight was sold out. It took nine hour.",
+       "بعد از عدد اسم جمع می‌آید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "out-till-midnight",
+   "c": "دوستت گفت: «دیشب آخرش تا نیمه‌شب بیرون ماندیم!»",
+   "q": [
+    [
+     "بپرس کجا رفتند",
+     "بپرس با کی",
+     "Where did you go?",
+     "With who?",
+     [],
+     [
+      [
+       "Where you went?",
+       "سؤال گذشته با «did» است؛ بعدش فعل ساده می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس کجا رفتند و آنجا شلوغ و پرجنب‌وجوش بود",
+     "بپرس خوش گذشت",
+     "Where did you go? Was it lively?",
+     "Was it fun?",
+     [],
+     [
+      [
+       "Where did you go? It was lively?",
+       "سؤال با «Was it…?» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس کجا رفتند و چرا این‌قدر دیر ماندند",
+     "بپرس امروز خسته است",
+     "Where did you go, and why did you stay out so late?",
+     "Are you tired today?",
+     [],
+     [
+      [
+       "Where did you go, and why you stayed out so late?",
+       "سؤال گذشته با «did» است؛ بعدش فعل ساده می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو به یک کافه",
+     "بگو در مرکز شهر",
+     "To a café.",
+     "In the city centre.",
+     [],
+     []
+    ],
+    [
+     "بگو به یک کافه؛ بله، خیلی شلوغ و پرجنب‌وجوش بود",
+     "بگو موسیقی داشت",
+     "To a café. Yes, it was really lively.",
+     "There was music.",
+     [],
+     [
+      [
+       "To a café. Yes, it was really live.",
+       "«پرجنب‌وجوش» = lively."
+      ]
+     ]
+    ],
+    [
+     "بگو به یک کافه، و آن‌قدر پرجنب‌وجوش بود که آخرش تا نیمه‌شب ماندیم",
+     "بگو امروز خسته‌ام",
+     "To a café, and it was so lively that we ended up staying until midnight.",
+     "I'm tired today.",
+     [],
+     [
+      [
+       "To a café, and it was so lively that we ended up stay until midnight.",
+       "بعد از end up فعل -ing می‌آید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "ticket-early",
+   "c": "دوستت گفت: «بلیت هواپیمامو سه ماه زودتر خریدم.»",
+   "q": [
+    [
+     "بپرس ارزان بود",
+     "بپرس کجا",
+     "Was it cheap?",
+     "Where to?",
+     [],
+     []
+    ],
+    [
+     "بپرس ارزان بود و کجا می‌رود",
+     "بپرس کی",
+     "Was it cheap? Where are you going?",
+     "When?",
+     [],
+     [
+      [
+       "Was it cheap? Where you are going?",
+       "ترتیب سؤال: Where are you going?"
+      ]
+     ]
+    ],
+    [
+     "بپرس همیشه این‌قدر زود بلیت می‌خرد یا فقط این بار، و چرا",
+     "بپرس ارزان بود",
+     "Do you always buy tickets so far ahead of time, or only this time? Why?",
+     "Was it cheap?",
+     [],
+     [
+      [
+       "You always buy tickets so far ahead of time, or only this time? Why?",
+       "سؤال حال ساده با «Do you» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله، خیلی ارزان",
+     "بگو نصف قیمت",
+     "Yes, very cheap.",
+     "Half price.",
+     [],
+     []
+    ],
+    [
+     "بگو بله؛ دارم می‌روم کنار دریا",
+     "بگو تابستان",
+     "Yes, it was. I'm going to the sea.",
+     "In the summer.",
+     [],
+     [
+      [
+       "Yes, it was. I going to the sea.",
+       "حال استمراری: I'm going."
+      ]
+     ]
+    ],
+    [
+     "بگو همیشه، چون وقتی از قبل بخرم خیلی ارزان‌تر است",
+     "بگو و می‌توانم برنامه بریزم",
+     "Always, because when I buy ahead of time, it's much cheaper.",
+     "And I can plan.",
+     [],
+     [
+      [
+       "Always, because when I will buy ahead of time, it's much cheaper.",
+       "بعد از «when» حال ساده می‌آید، نه will (از ماموریت ۱۴)."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "park-to-cinema",
+   "c": "دوستت گفت: «قرار بود بریم پارک، ولی آخرش رفتیم سینما.»",
+   "q": [
+    [
+     "بپرس چرا برنامه‌شان را عوض کردند",
+     "بپرس باران می‌آمد",
+     "Why did you change your plans?",
+     "Was it raining?",
+     [],
+     [
+      [
+       "Why you changed your plans?",
+       "سؤال گذشته با «did» است؛ بعدش فعل ساده می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چرا برنامه را عوض کردند و فیلم خوب بود",
+     "بپرس کدام فیلم",
+     "Why did you change your plans? Was the film good?",
+     "Which film?",
+     [],
+     [
+      [
+       "Why did you change your plans? The film was good?",
+       "سؤال با «Was the film…?» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس چرا آخرش سر از سینما درآوردند و خوشحال است که رفتند",
+     "بپرس شلوغ بود",
+     "Why did you end up at the cinema, and are you happy you went?",
+     "Was it busy?",
+     [],
+     [
+      [
+       "Why you ended up at the cinema, and are you happy you went?",
+       "سؤال گذشته با «did» است؛ بعدش فعل ساده می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو چون باران می‌بارید",
+     "بگو خیلی شدید",
+     "Because it was raining.",
+     "Really hard.",
+     [],
+     [
+      [
+       "Because it was rain.",
+       "کاری که در جریان بود: was / were + -ing؛ be جا نیفتد."
+      ]
+     ]
+    ],
+    [
+     "بگو چون باران می‌بارید؛ بله، فیلم عالی بود",
+     "بگو خنده‌دار بود",
+     "Because it was raining. Yes, the film was great.",
+     "It was funny.",
+     [],
+     [
+      [
+       "Because it was rain. Yes, the film was great.",
+       "کاری که در جریان بود: was / were + -ing؛ be جا نیفتد."
+      ]
+     ]
+    ],
+    [
+     "بگو چون وقتی به پارک رسیدیم باران می‌بارید؛ بله، خوشحالم",
+     "بگو فیلم عالی بود",
+     "Because it was raining when we got to the park. Yes, I'm happy we went.",
+     "The film was great.",
+     [],
+     [
+      [
+       "Because it was raining when we get to the park. Yes, I'm happy we went.",
+       "کار گذشته: got."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "check-in-online",
+   "c": null,
+   "q": [
+    [
+     "بپرس آنلاین چک‌این می‌کند",
+     "بپرس با گوشی",
+     "Do you check in online?",
+     "On your phone?",
+     [],
+     [
+      [
+       "Do you checking in online?",
+       "بعد از Do you فعل ساده می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس آنلاین چک‌این می‌کند و کی",
+     "بپرس روز قبل",
+     "Do you check in online? When?",
+     "The day before?",
+     [],
+     [
+      [
+       "Do you check in online? When you check in?",
+       "سؤال دوم کوتاه است: When?"
+      ]
+     ]
+    ],
+    [
+     "بپرس آنلاین چک‌این می‌کند یا در فرودگاه، و چرا",
+     "بپرس همیشه",
+     "Do you check in online or at the airport, and why?",
+     "Always?",
+     [],
+     [
+      [
+       "Do you check in online or in the airport, and why?",
+       "«در فرودگاه» = at the airport."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو با گوشی",
+     "Yes, I do.",
+     "On my phone.",
+     [],
+     []
+    ],
+    [
+     "بگو بله، روز قبل از پرواز",
+     "بگو عصر",
+     "Yes. The day before the flight.",
+     "In the evening.",
+     [],
+     [
+      [
+       "Yes. The day before of the flight.",
+       "«روز قبل از پرواز» = the day before the flight."
+      ]
+     ]
+    ],
+    [
+     "بگو آنلاین، چون دوست ندارم پشت میز منتظر بمانم",
+     "بگو و سریع‌تر است",
+     "Online, because I don't like waiting at the desk.",
+     "And it's faster.",
+     [],
+     [
+      [
+       "Online, because I don't like wait at the desk.",
+       "بعد از like فعل -ing می‌آید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "hand-luggage",
+   "c": null,
+   "q": [
+    [
+     "بپرس در بار همراهش چه چیزی می‌برد",
+     "بپرس همیشه",
+     "What do you take in your hand luggage?",
+     "Always?",
+     [],
+     [
+      [
+       "What do you take in your hand luggages?",
+       "luggage جمع ندارد."
+      ]
+     ]
+    ],
+    [
+     "بپرس فقط با بار همراه سفر می‌کند و چرا",
+     "بپرس در سفرهای کوتاه",
+     "Do you travel with only hand luggage? Why?",
+     "On short trips?",
+     [],
+     [
+      [
+       "Do you travel with only hand luggages? Why?",
+       "luggage جمع ندارد."
+      ]
+     ]
+    ],
+    [
+     "بپرس در سفر قبلی در بار همراهش چه داشت و سنگین بود",
+     "بپرس چند تا کیف",
+     "What did you have in your hand luggage on your last trip, and was it heavy?",
+     "How many bags?",
+     [],
+     [
+      [
+       "What did you have in your hand luggage on your last trip, and it was heavy?",
+       "سؤال دوم: was it heavy?"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو لپ‌تاپم و یک کتاب",
+     "بگو و کمی آب",
+     "My laptop and a book.",
+     "And some water.",
+     [],
+     [
+      [
+       "My laptop and book.",
+       "قبل از اسم مفرد a می‌آید: a book."
+      ]
+     ]
+    ],
+    [
+     "بگو بله، چون دوست ندارم منتظر کیف‌ها بمانم",
+     "بگو سریع‌تر است",
+     "Yes, because I don't like waiting for bags.",
+     "It's quicker.",
+     [],
+     [
+      [
+       "Yes, because I'm not like waiting for bags.",
+       "منفی حال ساده با don't: I don't like."
+      ]
+     ]
+    ],
+    [
+     "بگو لپ‌تاپم، دو کتاب و چند لباس؛ و بله، خیلی سنگین بود",
+     "بگو کمرم درد گرفت",
+     "My laptop, two books and some clothes, and yes, it was really heavy.",
+     "My back hurt!",
+     [],
+     [
+      [
+       "My laptop, two books and some clothes, and yes, it were really heavy.",
+       "it با was می‌آید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "long-delay",
+   "c": null,
+   "q": [
+    [
+     "بپرس تا حالا تأخیر طولانی داشته",
+     "بپرس در فرودگاه",
+     "Have you ever had a long delay?",
+     "At the airport?",
+     [],
+     [
+      [
+       "Have you ever have a long delay?",
+       "حال کامل: have + had."
+      ]
+     ]
+    ],
+    [
+     "بپرس تا حالا تأخیر طولانی داشته و چقدر بود",
+     "بپرس کجا",
+     "Have you ever had a long delay? How long was it?",
+     "Where?",
+     [],
+     [
+      [
+       "Have you ever had a long delay? How long it was?",
+       "ترتیب سؤال: اول فعل کمکی، بعد فاعل."
+      ]
+     ]
+    ],
+    [
+     "بپرس آخرین تأخیر طولانی‌اش چه بود و تا وقتی هواپیما بلند شد چه کار کرده بود",
+     "بپرس عصبانی بود",
+     "What was your last long delay, and what had you done by the time you took off?",
+     "Were you angry?",
+     [],
+     [
+      [
+       "What was your last long delay, and what had you did by the time you took off?",
+       "بعد از had قسمت سوم فعل می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله، داشته‌ام",
+     "بگو یک بار پنج ساعت",
+     "Yes, I have.",
+     "Five hours once.",
+     [],
+     []
+    ],
+    [
+     "بگو بله؛ پنج ساعت بود",
+     "بگو به خاطر برف",
+     "Yes. It was five hours.",
+     "Because of the snow.",
+     [],
+     [
+      [
+       "Yes. It was five hour.",
+       "بعد از عدد اسم جمع می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بگو پنج ساعت؛ تا وقتی بلند شدیم یک کتاب کامل خوانده بودم",
+     "بگو و دو بار غذا خورده بودم",
+     "Five hours, and by the time we took off, I had read a whole book.",
+     "And I had eaten twice!",
+     [],
+     [
+      [
+       "Five hours, and by the time we took off, I have read a whole book.",
+       "قبل از یک لحظه‌ی دیگرِ گذشته: had + قسمت سوم فعل."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "watch-take-off",
+   "c": null,
+   "q": [
+    [
+     "بپرس دوست دارد بلند شدن هواپیما را تماشا کند",
+     "بپرس از پنجره",
+     "Do you like watching the plane take off?",
+     "From the window?",
+     [],
+     [
+      [
+       "Do you like watch the plane take off?",
+       "بعد از like فعل -ing می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس بلند شدن را بیشتر دوست دارد یا فرود را",
+     "بپرس در پرواز طولانی",
+     "Do you like the take-off or the landing more?",
+     "On a long flight?",
+     [],
+     [
+      [
+       "You like the take-off or the landing more?",
+       "سؤال حال ساده با «Do you» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس دفعه‌ی قبل وقتی هواپیما بلند شد داشت چه کار می‌کرد و چه حسی داشت",
+     "بپرس ترسیده بود",
+     "What were you doing when your plane took off last time, and how did you feel?",
+     "Were you scared?",
+     [],
+     [
+      [
+       "What were you do when your plane took off last time, and how did you feel?",
+       "کاری که در جریان بود: was / were + -ing؛ be جا نیفتد."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله، عاشقش هستم",
+     "بگو از پنجره",
+     "Yes, I love it.",
+     "From the window.",
+     [],
+     [
+      [
+       "Yes, I love.",
+       "love مفعول می‌خواهد: I love it."
+      ]
+     ]
+    ],
+    [
+     "بگو فرود را، چون یعنی رسیده‌ام",
+     "بگو هیجان‌انگیز است",
+     "The landing, because then I'm home.",
+     "It's exciting.",
+     [],
+     [
+      [
+       "The landing, because then I home.",
+       "be جا نیفتد: I'm home."
+      ]
+     ]
+    ],
+    [
+     "بگو داشتم از پنجره بیرون را نگاه می‌کردم و خیلی هیجان داشتم",
+     "بگو شهر خیلی کوچک دیده می‌شد",
+     "I was looking out of the window, and I felt really excited.",
+     "The city looked tiny.",
+     [],
+     [
+      [
+       "I looking out of the window, and I felt really excited.",
+       "کاری که در جریان بود: was / were + -ing؛ be جا نیفتد."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "boarding-pass",
+   "c": null,
+   "q": [
+    [
+     "بپرس تا حالا کارت پروازش را گم کرده",
+     "بپرس دم گیت",
+     "Have you ever lost your boarding pass?",
+     "At the gate?",
+     [],
+     [
+      [
+       "Have you ever lose your boarding pass?",
+       "حال کامل: have + قسمت سوم فعل (lost)."
+      ]
+     ]
+    ],
+    [
+     "بپرس کارت پروازش را روی گوشی نگه می‌دارد یا کاغذی",
+     "بپرس چرا",
+     "Do you keep your boarding pass on your phone or on paper?",
+     "Why?",
+     [],
+     [
+      [
+       "Do you keep your boarding pass in your phone or on paper?",
+       "«روی گوشی» = on your phone."
+      ]
+     ]
+    ],
+    [
+     "بپرس آخرین بار کی پرواز کرد و قبل از رسیدن به فرودگاه چک‌این کرده بود",
+     "بپرس آنلاین",
+     "When did you last fly, and had you checked in before you got to the airport?",
+     "Online?",
+     [],
+     [
+      [
+       "When did you last fly, and had you check in before you got to the airport?",
+       "بعد از had قسمت سوم فعل می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو نه، هیچ‌وقت",
+     "بگو خیلی مراقبم",
+     "No, never.",
+     "I'm very careful.",
+     [],
+     []
+    ],
+    [
+     "بگو روی گوشی؛ راحت است",
+     "بگو هیچ‌وقت گمش نمی‌کنم",
+     "On my phone. It's easy.",
+     "I never lose it.",
+     [],
+     [
+      [
+       "In my phone. It's easy.",
+       "«روی گوشی» = on my phone."
+      ]
+     ]
+    ],
+    [
+     "بگو تابستان گذشته، و بله، شب قبلش آنلاین چک‌این کرده بودم",
+     "بگو برای همین سریع بود",
+     "Last summer, and yes, I had checked in online the night before.",
+     "So it was quick.",
+     [],
+     [
+      [
+       "Last summer, and yes, I have checked in online the night before.",
+       "قبل از یک لحظه‌ی دیگرِ گذشته: had + قسمت سوم فعل."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "plane-had-gone",
+   "c": "دوستت گفت: «وقتی رسیدم فرودگاه، هواپیما پریده بود!»",
+   "q": [
+    [
+     "بپرس چرا دیر کرد",
+     "بپرس ترافیک بود",
+     "Why were you late?",
+     "Was there traffic?",
+     [],
+     [
+      [
+       "Why you were late?",
+       "ترتیب سؤال: اول فعل کمکی، بعد فاعل."
+      ]
+     ]
+    ],
+    [
+     "بپرس چرا دیر کرد و بعد چه کار کرد",
+     "بپرس گران شد",
+     "Why were you late? What did you do?",
+     "Did you pay a lot?",
+     [],
+     [
+      [
+       "Why were you late? What you did?",
+       "سؤال گذشته با «did» است؛ بعدش فعل ساده می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس دیر از خانه راه افتاده بود یا ترافیک زیاد بود",
+     "بپرس بعدش چه کار کرد",
+     "Had you left home late, or was there a lot of traffic?",
+     "What did you do then?",
+     [],
+     [
+      [
+       "Had you leave home late, or was there a lot of traffic?",
+       "بعد از had قسمت سوم فعل می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو زنگ ساعتم به صدا درنیامد",
+     "بگو دیر بیدار شدم",
+     "My alarm didn't ring.",
+     "I woke up late.",
+     [],
+     [
+      [
+       "My alarm didn't rang.",
+       "بعد از didn't فعل ساده می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بگو زنگ ساعتم نزد؛ با پرواز بعدی رفتم",
+     "بگو گران بود",
+     "My alarm didn't ring. I took the next flight.",
+     "It was expensive.",
+     [],
+     [
+      [
+       "My alarm didn't ring. I take the next flight.",
+       "کار گذشته: گذشته‌ی ساده."
+      ]
+     ]
+    ],
+    [
+     "بگو ترافیک زیاد بود؛ تا وقتی رسیدم، هواپیما بلند شده بود",
+     "بگو خیلی عصبانی بودم",
+     "There was a lot of traffic. By the time I got there, the plane had taken off.",
+     "I was so angry.",
+     [],
+     [
+      [
+       "There was a lot of traffic. By the time I got there, the plane took off.",
+       "قبل از رسیدنت بلند شده بود: had taken off."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "four-hour-delay",
+   "c": "دوستت گفت: «پروازمون چهار ساعت تأخیر داشت.»",
+   "q": [
+    [
+     "بپرس در فرودگاه چه کار کرد",
+     "بپرس خوابید",
+     "What did you do at the airport?",
+     "Did you sleep?",
+     [],
+     [
+      [
+       "What you did at the airport?",
+       "سؤال گذشته با «did» است؛ بعدش فعل ساده می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه کار کرد و به آن‌ها غذا دادند",
+     "بپرس عصبانی بود",
+     "What did you do? Did they give you food?",
+     "Were you angry?",
+     [],
+     [
+      [
+       "What did you do? Did they gave you food?",
+       "سؤال گذشته با «did» است؛ بعدش فعل ساده می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چرا تأخیر داشت و موقع انتظار داشت چه کار می‌کرد",
+     "بپرس خسته بود",
+     "Why was there a delay, and what were you doing while you were waiting?",
+     "Were you tired?",
+     [],
+     [
+      [
+       "Why was there a delay, and what were you doing while you waiting?",
+       "کاری که در جریان بود: was / were + -ing؛ be جا نیفتد."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو کتاب خواندم",
+     "بگو و چای خوردم",
+     "I read a book.",
+     "And I had some tea.",
+     [],
+     [
+      [
+       "I readed a book.",
+       "گذشته‌ی read همان read است."
+      ]
+     ]
+    ],
+    [
+     "بگو کتاب خواندم؛ بله، ساندویچ دادند",
+     "بگو بد نبود",
+     "I read a book. Yes, they gave us sandwiches.",
+     "It was OK.",
+     [],
+     [
+      [
+       "I read a book. Yes, they gave us sandwich.",
+       "اسم شمردنی جمع: sandwiches."
+      ]
+     ]
+    ],
+    [
+     "بگو به خاطر برف؛ موقع انتظار داشتم روی گوشی فیلم می‌دیدم",
+     "بگو دو فیلم دیدم",
+     "Because of the snow. I was watching films on my phone while I was waiting.",
+     "I watched two films.",
+     [],
+     [
+      [
+       "Because the snow. I was watching films on my phone while I was waiting.",
+       "«به خاطر» = because of."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "slept-landed",
+   "c": "دوستت گفت: «توی هواپیما خوابم برد و وقتی بیدار شدم فرود اومده بودیم!»",
+   "q": [
+    [
+     "بپرس کل پرواز را خوابید",
+     "بپرس واقعاً",
+     "Did you sleep the whole flight?",
+     "Really?",
+     [],
+     [
+      [
+       "Did you slept the whole flight?",
+       "سؤال گذشته با «did» است؛ بعدش فعل ساده می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس کل پرواز را خوابید و پرواز طولانی بود",
+     "بپرس خسته بود",
+     "Did you sleep the whole flight? Was it a long flight?",
+     "Were you tired?",
+     [],
+     [
+      [
+       "Did you sleep the whole flight? It was a long flight?",
+       "سؤال با «Was it…?» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس وقتی بیدار شد چند ساعت خوابیده بود و همه از هواپیما پیاده شده بودند",
+     "بپرس خجالت کشید",
+     "How long had you slept when you woke up, and had everyone left the plane?",
+     "Were you embarrassed?",
+     [],
+     [
+      [
+       "How long had you sleep when you woke up, and had everyone left the plane?",
+       "بعد از had قسمت سوم فعل می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو همه‌اش را",
+     "Yes, I did.",
+     "All of it.",
+     [],
+     []
+    ],
+    [
+     "بگو بله؛ سه ساعت بود",
+     "بگو خیلی خسته بودم",
+     "Yes, I did. It was three hours.",
+     "I was so tired.",
+     [],
+     [
+      [
+       "Yes, I did. It was three hour.",
+       "بعد از عدد اسم جمع می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بگو حدود سه ساعت؛ نه، ولی بیشتر مردم بلند شده بودند",
+     "بگو خنده‌دار بود",
+     "About three hours, and no, but most people had already stood up.",
+     "It was funny.",
+     [],
+     [
+      [
+       "About three hours, and no, but most people had already stand up.",
+       "بعد از had قسمت سوم فعل می‌آید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "lost-boarding-pass",
+   "c": "دوستت گفت: «کارت پروازم رو گم کرده بودم، ولی روی گوشیم داشتمش.»",
+   "q": [
+    [
+     "بپرس کجا گمش کرده بود",
+     "بپرس دم گیت",
+     "Where had you lost it?",
+     "At the gate?",
+     [],
+     [
+      [
+       "Where had you lose it?",
+       "بعد از had قسمت سوم فعل می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس کجا گمش کرده بود و کی فهمید",
+     "بپرس ترسید",
+     "Where had you lost it? When did you notice?",
+     "Were you scared?",
+     [],
+     [
+      [
+       "Where had you lost it? When you noticed?",
+       "سؤال گذشته با «did» است؛ بعدش فعل ساده می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس وقتی فهمید دم گیت منتظر بود و نگران شد",
+     "بپرس چه کار کرد",
+     "Were you waiting at the gate when you noticed, and were you worried?",
+     "What did you do?",
+     [],
+     [
+      [
+       "Were you wait at the gate when you noticed, and were you worried?",
+       "کاری که در جریان بود: was / were + -ing؛ be جا نیفتد."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو فکر کنم توی تاکسی",
+     "بگو یا توی کافه",
+     "In the taxi, I think.",
+     "Or in the café.",
+     [],
+     [
+      [
+       "In taxi, I think.",
+       "قبل از taxi حرف تعریف می‌آید: in the taxi."
+      ]
+     ]
+    ],
+    [
+     "بگو فکر کنم توی تاکسی؛ دم گیت فهمیدم",
+     "بگو درست قبل از سوار شدن",
+     "In the taxi, I think. I noticed at the gate.",
+     "Just before boarding.",
+     [],
+     [
+      [
+       "In the taxi, I think. I notice at the gate.",
+       "کار گذشته: گذشته‌ی ساده."
+      ]
+     ]
+    ],
+    [
+     "بگو بله، دم گیت منتظر بودم و یک دقیقه نگران شدم",
+     "بگو بعد روی گوشی پیدایش کردم",
+     "Yes, I was waiting at the gate, and I was worried for a minute.",
+     "Then I found it on my phone.",
+     [],
+     [
+      [
+       "Yes, I waiting at the gate, and I was worried for a minute.",
+       "کاری که در جریان بود: was / were + -ing؛ be جا نیفتد."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "only-hand-luggage",
+   "c": "دوستت گفت: «امروز صبح فقط با یک ساک دستی سفر کردم.»",
+   "q": [
+    [
+     "بپرس سنگین بود",
+     "بپرس چند روز",
+     "Was it heavy?",
+     "How many days?",
+     [],
+     []
+    ],
+    [
+     "بپرس سنگین بود و سفرش چقدر طول می‌کشد",
+     "بپرس کجا",
+     "Was it heavy? How long is your trip?",
+     "Where to?",
+     [],
+     [
+      [
+       "Was it heavy? How long your trip is?",
+       "ترتیب سؤال: اول فعل کمکی، بعد فاعل."
+      ]
+     ]
+    ],
+    [
+     "بپرس همیشه فقط با بار همراه سفر می‌کند یا فقط در سفرهای کوتاه",
+     "بپرس چرا",
+     "Do you always travel with only hand luggage, or only on short trips?",
+     "Why?",
+     [],
+     [
+      [
+       "Do you always travel with only hand luggages, or only on short trips?",
+       "luggage جمع ندارد."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو نه، سبک بود",
+     "بگو فقط چند لباس",
+     "No, it was light.",
+     "Just some clothes.",
+     [],
+     [
+      [
+       "No, it was lightly.",
+       "بعد از was صفت می‌آید: light."
+      ]
+     ]
+    ],
+    [
+     "بگو نه، سبک بود؛ سفرم سه روز است",
+     "بگو فقط یک آخر هفته",
+     "No, it was light. My trip is three days.",
+     "Just a weekend.",
+     [],
+     [
+      [
+       "No, it was light. My trip is three day.",
+       "بعد از عدد اسم جمع می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بگو فقط در سفرهای کوتاه؛ برای سفرهای طولانی چمدان می‌برم",
+     "بگو لباس بیشتری لازم است",
+     "Only on short trips. For long trips, I take a suitcase.",
+     "I need more clothes.",
+     [],
+     [
+      [
+       "Only on short trips. For long trips, I take a suitcases.",
+       "با a اسم مفرد: a suitcase."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "book-online",
+   "c": null,
+   "q": [
+    [
+     "بپرس هتل را آنلاین رزرو می‌کند",
+     "بپرس با گوشی",
+     "Do you book hotels online?",
+     "On your phone?",
+     [],
+     [
+      [
+       "Do you booking hotels online?",
+       "بعد از Do you فعل ساده می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس هتل را آنلاین رزرو می‌کند و نظرها را می‌خواند",
+     "بپرس همیشه",
+     "Do you book hotels online, and do you read the reviews?",
+     "Always?",
+     [],
+     [
+      [
+       "Do you book hotels online, and you read the reviews?",
+       "سؤال دوم هم do می‌خواهد: and do you read…?"
+      ]
+     ]
+    ],
+    [
+     "بپرس محل اقامت را از قبل رزرو می‌کند یا وقتی می‌رسد، و چرا",
+     "بپرس ارزان‌تر است",
+     "Do you book your accommodation ahead of time, or when you arrive? Why?",
+     "Is it cheaper?",
+     [],
+     [
+      [
+       "Do you book your accommodation ahead of time, or when you will arrive? Why?",
+       "بعد از «when» حال ساده می‌آید، نه will (از ماموریت ۱۴)."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله، همیشه",
+     "بگو با گوشی",
+     "Yes, always.",
+     "On my phone.",
+     [],
+     []
+    ],
+    [
+     "بگو بله، و همیشه نظرها را می‌خوانم",
+     "بگو خیلی کمک می‌کنند",
+     "Yes, I do, and I always read the reviews.",
+     "They help a lot.",
+     [],
+     [
+      [
+       "Yes, I do, and I always reads the reviews.",
+       "با I فعل بدون -s."
+      ]
+     ]
+    ],
+    [
+     "بگو از قبل، چون محل اقامت خوب اغلب پر می‌شود",
+     "بگو مخصوصاً تابستان",
+     "Ahead of time, because good accommodation is often sold out.",
+     "Especially in summer.",
+     [],
+     [
+      [
+       "Ahead of time, because good accommodations is often sold out.",
+       "accommodation جمع ندارد."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "dream-destination",
+   "c": null,
+   "q": [
+    [
+     "بپرس مقصد رؤیایی‌اش کجاست",
+     "بپرس چرا",
+     "What's your dream destination?",
+     "Why?",
+     [],
+     [
+      [
+       "What's your dream destiny?",
+       "«مقصد» = destination."
+      ]
+     ]
+    ],
+    [
+     "بپرس مقصد رؤیایی‌اش کجاست و چرا",
+     "بپرس با کی",
+     "What's your dream destination, and why?",
+     "With who?",
+     [],
+     [
+      [
+       "What's your dream destination, and why it is?",
+       "سؤال دوم کوتاه است: and why?"
+      ]
+     ]
+    ],
+    [
+     "بپرس به مقصد رؤیایی‌اش رفته یا هنوز برایش پول جمع می‌کند",
+     "بپرس کی می‌رود",
+     "Have you been to your dream destination, or are you still saving for it?",
+     "When will you go?",
+     [],
+     [
+      [
+       "Have you went to your dream destination, or are you still saving for it?",
+       "حال کامل: have + been."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو یک جزیره‌ی کوچک",
+     "بگو در جنوب",
+     "A small island.",
+     "In the south.",
+     [],
+     []
+    ],
+    [
+     "بگو یک جزیره‌ی کوچک، چون عاشق دریا هستم",
+     "بگو با خانواده‌ام",
+     "A small island, because I love the sea.",
+     "With my family.",
+     [],
+     [
+      [
+       "A small island, because I love sea.",
+       "«دریا» با the می‌آید: the sea."
+      ]
+     ]
+    ],
+    [
+     "بگو هنوز برایش پول جمع می‌کنم، ولی امیدوارم سال بعد بروم",
+     "بگو تا حالا جزیره نرفته‌ام",
+     "I'm still saving for it, but I hope to go next year.",
+     "I've never been to an island.",
+     [],
+     [
+      [
+       "I'm still save for it, but I hope to go next year.",
+       "حال استمراری: I'm saving."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "got-lost",
+   "c": null,
+   "q": [
+    [
+     "بپرس تا حالا در یک شهر جدید گم شده",
+     "بپرس در تعطیلات",
+     "Have you ever got lost in a new city?",
+     "On holiday?",
+     [],
+     [
+      [
+       "Have you ever get lost in a new city?",
+       "حال کامل: have + got."
+      ]
+     ]
+    ],
+    [
+     "بپرس تا حالا گم شده و چه شد",
+     "بپرس ترسید",
+     "Have you ever got lost? What happened?",
+     "Were you scared?",
+     [],
+     [
+      [
+       "Have you ever got lost? What did happen?",
+       "What happened بدون did (what فاعل است)."
+      ]
+     ]
+    ],
+    [
+     "بپرس آخرین بار کی گم شد و چه چیزی خراب شده بود",
+     "بپرس چطور راه را پیدا کرد",
+     "When did you last get lost, and what had gone wrong?",
+     "How did you find your way?",
+     [],
+     [
+      [
+       "When did you last got lost, and what had gone wrong?",
+       "سؤال گذشته با «did» است؛ بعدش فعل ساده می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله، یک بار",
+     "بگو در تعطیلات",
+     "Yes, once.",
+     "On holiday.",
+     [],
+     []
+    ],
+    [
+     "بگو بله؛ از یک آقا کمک خواستم",
+     "بگو خیلی مهربان بود",
+     "Yes. I asked a man for help.",
+     "He was really kind.",
+     [],
+     [
+      [
+       "Yes. I asked to a man for help.",
+       "ask بدون to: asked a man."
+      ]
+     ]
+    ],
+    [
+     "بگو تابستان گذشته، چون گوشی‌ام خاموش شده بود و نقشه نداشتم",
+     "بگو یک ساعت راه رفتم",
+     "Last summer, because my phone had died, and I had no map.",
+     "I walked for an hour.",
+     [],
+     [
+      [
+       "Last summer, because my phone has died, and I had no map.",
+       "قبل از یک لحظه‌ی دیگرِ گذشته: had + قسمت سوم فعل."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "souvenirs",
+   "c": null,
+   "q": [
+    [
+     "بپرس وقتی سفر می‌رود سوغاتی می‌خرد",
+     "بپرس برای کی",
+     "Do you buy souvenirs when you travel?",
+     "For who?",
+     [],
+     [
+      [
+       "Do you buy souvenirs when you will travel?",
+       "بعد از «when» حال ساده می‌آید، نه will (از ماموریت ۱۴)."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه سوغاتی‌هایی می‌خرد و برای کی",
+     "بپرس گران‌اند",
+     "What souvenirs do you buy, and for who?",
+     "Are they expensive?",
+     [],
+     [
+      [
+       "What souvenirs you buy, and for who?",
+       "سؤال حال ساده با «Do you» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس بهترین سوغاتی‌ای که خریده چه بود و وقتی پیدایش کرد کجا بود",
+     "بپرس هنوز دارد",
+     "What was the best souvenir you ever bought, and where were you when you found it?",
+     "Do you still have it?",
+     [],
+     [
+      [
+       "What was the best souvenir you ever bought, and where you were when you found it?",
+       "ترتیب سؤال: اول فعل کمکی، بعد فاعل."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله، چیزهای کوچک",
+     "بگو برای خانواده‌ام",
+     "Yes, small ones.",
+     "For my family.",
+     [],
+     []
+    ],
+    [
+     "بگو چیزهای کوچک، مثل فنجان، برای خانواده‌ام",
+     "بگو ارزان‌اند",
+     "Small things, like cups, for my family.",
+     "They're cheap.",
+     [],
+     [
+      [
+       "Small things, like cup, for my family.",
+       "اسم شمردنی جمع: cups."
+      ]
+     ]
+    ],
+    [
+     "بگو یک بشقاب آبی؛ داشتم در یک بازار قدیمی قدم می‌زدم که پیدایش کردم",
+     "بگو حالا در آشپزخانه‌ام است",
+     "A blue plate. I was walking in an old market when I found it.",
+     "It's in my kitchen now.",
+     [],
+     [
+      [
+       "A blue plate. I walking in an old market when I found it.",
+       "کاری که در جریان بود: was / were + -ing؛ be جا نیفتد."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "go-sightseeing",
+   "c": null,
+   "q": [
+    [
+     "بپرس گشت‌وگذار و دیدن جاهای دیدنی را دوست دارد",
+     "بپرس در شهرهای بزرگ",
+     "Do you like going sightseeing?",
+     "In big cities?",
+     [],
+     [
+      [
+       "Do you like go sightseeing?",
+       "بعد از like فعل -ing می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس در تعطیلات گشت‌وگذار را دوست دارد یا استراحت را",
+     "بپرس چرا",
+     "Do you like going sightseeing or relaxing on holiday?",
+     "Why?",
+     [],
+     [
+      [
+       "Do you like going sightseeing or relax on holiday?",
+       "دو فعل پشت like هر دو -ing: relaxing."
+      ]
+     ]
+    ],
+    [
+     "بپرس آخرین بار که گشت‌وگذار رفت چه دید و قبلاً دیده بودش",
+     "بپرس عکس گرفت",
+     "What did you see the last time you went sightseeing, and had you seen it before?",
+     "Did you take photos?",
+     [],
+     [
+      [
+       "What did you see the last time you went sightseeing, and had you saw it before?",
+       "بعد از had قسمت سوم فعل می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله، عاشقش هستم",
+     "بگو جاهای قدیمی",
+     "Yes, I love it.",
+     "Old places.",
+     [],
+     [
+      [
+       "Yes, I love.",
+       "love مفعول می‌خواهد: I love it."
+      ]
+     ]
+    ],
+    [
+     "بگو گشت‌وگذار؛ عاشق جاهای قدیمی‌ام",
+     "بگو و موزه‌ها",
+     "Going sightseeing. I love old places.",
+     "And museums.",
+     [],
+     [
+      [
+       "Go sightseeing. I love old places.",
+       "جواب موازی با سؤال: Going sightseeing."
+      ]
+     ]
+    ],
+    [
+     "بگو یک قلعه‌ی قدیمی، و نه، قبلاً هیچ‌وقت ندیده بودمش",
+     "بگو خیلی زیبا بود",
+     "An old castle, and no, I had never seen it before.",
+     "It was beautiful.",
+     [],
+     [
+      [
+       "An old castle, and no, I had never see it before.",
+       "بعد از had قسمت سوم فعل می‌آید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "dirty-hotel",
+   "c": "دوستت گفت: «هتلی که رزرو کرده بودم خیلی کثیف بود!»",
+   "q": [
+    [
+     "بپرس هتلش را عوض کرد",
+     "بپرس همان موقع",
+     "Did you change hotels?",
+     "Right away?",
+     [],
+     [
+      [
+       "Did you changed hotels?",
+       "سؤال گذشته با «did» است؛ بعدش فعل ساده می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس هتل را عوض کرد و پولش را پس گرفت",
+     "بپرس عصبانی بود",
+     "Did you change hotels? Did you get your money back?",
+     "Were you angry?",
+     [],
+     [
+      [
+       "Did you change hotels? Did you got your money back?",
+       "سؤال گذشته با «did» است؛ بعدش فعل ساده می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس قبل از رزرو نظرها را خوانده بود یا غافلگیر شد",
+     "بپرس چه کار کرد",
+     "Had you read the reviews before you booked it, or was it a surprise?",
+     "What did you do?",
+     [],
+     [
+      [
+       "Had you read the reviews before you book it, or was it a surprise?",
+       "کار گذشته: گذشته‌ی ساده."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله، روز بعد",
+     "بگو به یک هتل کوچک",
+     "Yes, the next day.",
+     "To a small hotel.",
+     [],
+     [
+      [
+       "Yes, the after day.",
+       "«روز بعد» = the next day."
+      ]
+     ]
+    ],
+    [
+     "بگو بله؛ و پولم را پس دادند",
+     "بگو بیشترش را",
+     "Yes, I did. And they gave me my money back.",
+     "Most of it.",
+     [],
+     [
+      [
+       "Yes, I did. And they give me my money back.",
+       "کار گذشته: گذشته‌ی ساده."
+      ]
+     ]
+    ],
+    [
+     "بگو غافلگیر شدم؛ نظرها خیلی خوب بودند",
+     "بگو دیگر به نظرها اعتماد ندارم",
+     "It was a surprise. The reviews had been really good.",
+     "I don't trust reviews now.",
+     [],
+     [
+      [
+       "It was a surprise. The reviews has been really good.",
+       "قبل از یک لحظه‌ی دیگرِ گذشته: had + قسمت سوم فعل."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "lost-old-town",
+   "c": "دوستت گفت: «توی شهر قدیمی گم شدم!»",
+   "q": [
+    [
+     "بپرس چطور راهش را پیدا کرد",
+     "بپرس با نقشه",
+     "How did you find your way?",
+     "With a map?",
+     [],
+     [
+      [
+       "How you found your way?",
+       "سؤال گذشته با «did» است؛ بعدش فعل ساده می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چطور راهش را پیدا کرد و ترسیده بود",
+     "بپرس هوا تاریک بود",
+     "How did you find your way? Were you scared?",
+     "Was it dark?",
+     [],
+     [
+      [
+       "How did you find your way? You were scared?",
+       "سؤال با «Were you…?» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس وقتی گم شد داشت چه کار می‌کرد و چطور راه برگشت را پیدا کرد",
+     "بپرس دیر بود",
+     "What were you doing when you got lost, and how did you find your way back?",
+     "Was it late?",
+     [],
+     [
+      [
+       "What were you doing when you get lost, and how did you find your way back?",
+       "کار گذشته: got lost."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو از یک مغازه‌دار پرسیدم",
+     "بگو مهربان بود",
+     "I asked a shop owner.",
+     "He was kind.",
+     [],
+     [
+      [
+       "I asked to a shop owner.",
+       "ask بدون to می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بگو از یک مغازه‌دار پرسیدم؛ بله، کمی",
+     "بگو داشت تاریک می‌شد",
+     "I asked a shop owner. Yes, a little.",
+     "It was getting dark.",
+     [],
+     [
+      [
+       "I ask a shop owner. Yes, a little.",
+       "کار گذشته: گذشته‌ی ساده."
+      ]
+     ]
+    ],
+    [
+     "بگو داشتم عکس می‌گرفتم که گم شدم، و یک خانم مهربان راه را نشانم داد",
+     "بگو خیلی خوشحال شدم",
+     "I was taking photos when I got lost, and a kind woman showed me the way.",
+     "I was so happy.",
+     [],
+     [
+      [
+       "I was take photos when I got lost, and a kind woman showed me the way.",
+       "کاری که در جریان بود: was / were + -ing؛ be جا نیفتد."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "souvenirs-for-all",
+   "c": "دوستت گفت: «برای همه سوغاتی خریدم، جز خودم!»",
+   "q": [
+    [
+     "بپرس برایشان چه خرید",
+     "بپرس گران بود",
+     "What did you buy for them?",
+     "Was it expensive?",
+     [],
+     [
+      [
+       "What did you bought for them?",
+       "سؤال گذشته با «did» است؛ بعدش فعل ساده می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس برایشان چه خرید و چرا برای خودش نه",
+     "بپرس یادش رفت",
+     "What did you buy for them, and why not for you?",
+     "Did you forget?",
+     [],
+     [
+      [
+       "What you bought for them, and why not for you?",
+       "سؤال گذشته با «did» است؛ بعدش فعل ساده می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس تا وقتی به فکر خودش افتاد همه‌ی پولش را خرج کرده بود",
+     "بپرس ناراحت است",
+     "Had you spent all your money by the time you thought of yourself?",
+     "Are you sad?",
+     [],
+     [
+      [
+       "Had you spend all your money by the time you thought of yourself?",
+       "بعد از had قسمت سوم فعل می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو شیرینی و فنجان‌های کوچک",
+     "بگو و یک روسری",
+     "Sweets and small cups.",
+     "And a scarf.",
+     [],
+     [
+      [
+       "Sweets and smalls cups.",
+       "صفت جمع نمی‌شود: small cups."
+      ]
+     ]
+    ],
+    [
+     "بگو شیرینی و فنجان؛ دیگر پولی نمانده بود",
+     "بگو اشکالی ندارد",
+     "Sweets and cups. I didn't have any money left.",
+     "It's OK.",
+     [],
+     [
+      [
+       "Sweets and cups. I didn't had any money left.",
+       "بعد از didn't فعل ساده می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بگو بله! تا یاد خودم افتادم، همه‌چیز را خرج کرده بودم",
+     "بگو دفعه‌ی بعد اول خودم",
+     "Yes! By the time I remembered myself, I had spent everything.",
+     "Next time, me first!",
+     [],
+     [
+      [
+       "Yes! By the time I remembered myself, I have spent everything.",
+       "قبل از یک لحظه‌ی دیگرِ گذشته: had + قسمت سوم فعل."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "flat-not-hotel",
+   "c": "دوستت گفت: «یه آپارتمان کوچیک رزرو کردیم، نه هتل.»",
+   "q": [
+    [
+     "بپرس چرا هتل نه",
+     "بپرس ارزان‌تر است",
+     "Why not a hotel?",
+     "Is it cheaper?",
+     [],
+     [
+      [
+       "Why not an hotel?",
+       "hotel با a می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چرا هتل نه و محل اقامت خوب است",
+     "بپرس نزدیک مرکز است",
+     "Why not a hotel? Is the accommodation nice?",
+     "Is it near the centre?",
+     [],
+     [
+      [
+       "Why not a hotel? The accommodation is nice?",
+       "سؤال با «Is the…?» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس آپارتمان را بیشتر از هتل دوست دارد یا این تنها انتخاب بود",
+     "بپرس ارزان‌تر است",
+     "Do you like flats more than hotels, or was this the only choice?",
+     "Is it cheaper?",
+     [],
+     [
+      [
+       "You like flats more than hotels, or was this the only choice?",
+       "سؤال حال ساده با «Do you» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو ارزان‌تر است",
+     "بگو و بزرگ‌تر",
+     "It's cheaper.",
+     "And bigger.",
+     [],
+     []
+    ],
+    [
+     "بگو ارزان‌تر است؛ بله، محل اقامت خیلی خوب است",
+     "بگو آشپزخانه دارد",
+     "It's cheaper. Yes, the accommodation is really nice.",
+     "It has a kitchen.",
+     [],
+     [
+      [
+       "It's more cheap. Yes, the accommodation is really nice.",
+       "صفت کوتاه با -er: cheaper."
+      ]
+     ]
+    ],
+    [
+     "بگو آپارتمان را بیشتر دوست دارم، چون می‌توانیم آشپزی کنیم و حس خانه دارد",
+     "بگو و ارزان‌تر است",
+     "I like flats more, because we can cook and feel at home.",
+     "And it's cheaper.",
+     [],
+     [
+      [
+       "I like flats more, because we can to cook and feel at home.",
+       "بعد از can فعل ساده بدون to."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "sightseeing-all-day",
+   "c": "دوستت گفت: «دیروز تمام روز گشت‌وگذار کردیم.»",
+   "q": [
+    [
+     "بپرس چه دیدند",
+     "بپرس چیز خاصی",
+     "What did you see?",
+     "Anything special?",
+     [],
+     [
+      [
+       "What did you saw?",
+       "سؤال گذشته با «did» است؛ بعدش فعل ساده می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه دیدند و امروز خسته است",
+     "بپرس زیاد راه رفتند",
+     "What did you see? Are you tired today?",
+     "Did you walk a lot?",
+     [],
+     [
+      [
+       "What did you see? You are tired today?",
+       "سؤال با «Are you…?» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس اول کجا رفتند و بهترین چیزی که دیدند چه بود",
+     "بپرس عکس گرفت",
+     "Where did you go first, and what was the best thing you saw?",
+     "Did you take photos?",
+     [],
+     [
+      [
+       "Where did you go first, and what was the best thing you seen?",
+       "گذشته‌ی see می‌شود saw."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو یک موزه‌ی بزرگ",
+     "بگو و یک باغ",
+     "A big museum.",
+     "And a garden.",
+     [],
+     []
+    ],
+    [
+     "بگو یک موزه و یک باغ؛ بله، خیلی خسته‌ام",
+     "بگو تمام روز راه رفتیم",
+     "A museum and a garden. Yes, very tired.",
+     "We walked all day.",
+     [],
+     [
+      [
+       "A museum and a garden. Yes, very tiring.",
+       "حال خود آدم: tired."
+      ]
+     ]
+    ],
+    [
+     "بگو اول رفتیم بازار، و بهترین چیز قلعه‌ی قدیمی بود",
+     "بگو خیلی زیبا بود",
+     "We went to the market first, and the best thing was the old castle.",
+     "It was beautiful.",
+     [],
+     [
+      [
+       "We go to the market first, and the best thing was the old castle.",
+       "کار گذشته: گذشته‌ی ساده."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "first-flight",
+   "c": null,
+   "q": [
+    [
+     "بپرس اولین بار کی پرواز کرد",
+     "بپرس به کجا",
+     "When did you first fly?",
+     "Where to?",
+     [],
+     [
+      [
+       "When you first flew?",
+       "سؤال گذشته با «did» است؛ بعدش فعل ساده می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس اولین بار کی پرواز کرد و چند سالش بود",
+     "بپرس ترسیده بود",
+     "When did you first fly? How old were you?",
+     "Were you scared?",
+     [],
+     [
+      [
+       "When did you first fly? How old you were?",
+       "ترتیب سؤال: اول فعل کمکی، بعد فاعل."
+      ]
+     ]
+    ],
+    [
+     "بپرس قبل از اولین پروازش هیچ‌وقت فرودگاه دیده بود",
+     "بپرس چه حسی داشت",
+     "Had you ever seen an airport before your first flight?",
+     "How did you feel?",
+     [],
+     [
+      [
+       "Had you ever saw an airport before your first flight?",
+       "بعد از had قسمت سوم فعل می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو وقتی ده سالم بود",
+     "بگو با پدر و مادرم",
+     "When I was ten.",
+     "With my parents.",
+     [],
+     [
+      [
+       "When I had ten.",
+       "برای سن be می‌آید: I was ten."
+      ]
+     ]
+    ],
+    [
+     "بگو ده سال پیش؛ دوازده سالم بود",
+     "بگو هیجان داشتم",
+     "Ten years ago. I was twelve.",
+     "I was excited.",
+     [],
+     [
+      [
+       "Ten years before. I was twelve.",
+       "«ده سال پیش» = ten years ago."
+      ]
+     ]
+    ],
+    [
+     "بگو نه، ندیده بودم؛ همه‌چیز برایم تازه بود",
+     "بگو خیلی هیجان داشتم",
+     "No, I hadn't. Everything was new for me.",
+     "I was so excited.",
+     [],
+     [
+      [
+       "No, I haven't. Everything was new for me.",
+       "سؤال با Had → جواب با hadn't."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "missed-bus",
+   "c": null,
+   "q": [
+    [
+     "بپرس تا حالا از اتوبوس جا مانده",
+     "بپرس اخیراً",
+     "Have you ever missed a bus?",
+     "Recently?",
+     [],
+     [
+      [
+       "Have you ever miss a bus?",
+       "حال کامل: have + قسمت سوم فعل (missed)."
+      ]
+     ]
+    ],
+    [
+     "بپرس تا حالا از اتوبوس جا مانده و چه کار کرد",
+     "بپرس دیر رسید",
+     "Have you ever missed a bus? What did you do?",
+     "Were you late?",
+     [],
+     [
+      [
+       "Have you ever missed a bus? What you did?",
+       "سؤال گذشته با «did» است؛ بعدش فعل ساده می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس دفعه‌ی قبل وقتی به ایستگاه رسید، اتوبوس رفته بود",
+     "بپرس منتظر ماند",
+     "Had the bus already left when you got to the stop last time?",
+     "Did you wait?",
+     [],
+     [
+      [
+       "Had the bus already leave when you got to the stop last time?",
+       "بعد از had قسمت سوم فعل می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله، خیلی بار",
+     "بگو همیشه دیر می‌کنم",
+     "Yes, many times.",
+     "I'm always late!",
+     [],
+     []
+    ],
+    [
+     "بگو بله؛ منتظر بعدی ماندم",
+     "بگو بیست دقیقه بعد آمد",
+     "Yes. I waited for the next one.",
+     "It came after twenty minutes.",
+     [],
+     [
+      [
+       "Yes. I waited the next one.",
+       "wait با for می‌آید: wait for."
+      ]
+     ]
+    ],
+    [
+     "بگو بله، رفته بود؛ پس پیاده رفتم سر کار",
+     "بگو یک ساعت طول کشید",
+     "Yes, it had already left, so I walked to work.",
+     "It took an hour.",
+     [],
+     [
+      [
+       "Yes, it has already left, so I walked to work.",
+       "قبل از یک لحظه‌ی دیگرِ گذشته: had + قسمت سوم فعل."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "eight-this-morning",
+   "c": null,
+   "q": [
+    [
+     "بپرس امروز ساعت هشت صبح داشت چه کار می‌کرد",
+     "بپرس در خانه",
+     "What were you doing this morning at eight?",
+     "At home?",
+     [],
+     [
+      [
+       "What did you doing this morning at eight?",
+       "کار در جریان: What were you doing?"
+      ]
+     ]
+    ],
+    [
+     "بپرس ساعت هشت داشت چه کار می‌کرد و کجا بود",
+     "بپرس تنها",
+     "What were you doing at eight, and where were you?",
+     "Alone?",
+     [],
+     [
+      [
+       "What were you doing at eight, and where you were?",
+       "ترتیب سؤال: اول فعل کمکی، بعد فاعل."
+      ]
+     ]
+    ],
+    [
+     "بپرس دفعه‌ی قبل وقتی یک خبر خوب شنید داشت چه کار می‌کرد",
+     "بپرس کی خبر را داد",
+     "What were you doing when you heard some good news last time?",
+     "Who told you?",
+     [],
+     [
+      [
+       "What were you doing when you were hearing some good news last time?",
+       "اتفاق کوتاه با گذشته‌ی ساده: heard."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو داشتم صبحانه می‌خوردم",
+     "بگو با خانواده‌ام",
+     "I was having breakfast.",
+     "With my family.",
+     [],
+     [
+      [
+       "I having breakfast.",
+       "کاری که در جریان بود: was / were + -ing؛ be جا نیفتد."
+      ]
+     ]
+    ],
+    [
+     "بگو در خانه داشتم صبحانه می‌خوردم",
+     "بگو با خواهرم",
+     "I was having breakfast at home.",
+     "With my sister.",
+     [],
+     [
+      [
+       "I was have breakfast at home.",
+       "کاری که در جریان بود: was / were + -ing؛ be جا نیفتد."
+      ]
+     ]
+    ],
+    [
+     "بگو داشتم شام درست می‌کردم که خواهرم زنگ زد و خبر را داد",
+     "بگو خیلی خوشحال شدم",
+     "I was cooking dinner when my sister called with the news.",
+     "I was so happy.",
+     [],
+     [
+      [
+       "I cooked dinner when my sister was calling with the news.",
+       "پس‌زمینه با استمراری، اتفاق کوتاه با ساده."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "left-at-home",
+   "c": null,
+   "q": [
+    [
+     "بپرس تا حالا قبل از سفر چیزی را در خانه جا گذاشته",
+     "بپرس چیز مهمی",
+     "Have you ever left something at home before a trip?",
+     "Something important?",
+     [],
+     [
+      [
+       "Have you ever leave something at home before a trip?",
+       "حال کامل: have + left."
+      ]
+     ]
+    ],
+    [
+     "بپرس تا حالا در سفر چیزی را فراموش کرده و چه بود",
+     "بپرس یکی جدید خرید",
+     "Have you ever forgotten something on a trip? What was it?",
+     "Did you buy a new one?",
+     [],
+     [
+      [
+       "Have you ever forgotten something on a trip? What it was?",
+       "ترتیب سؤال: اول فعل کمکی، بعد فاعل."
+      ]
+     ]
+    ],
+    [
+     "بپرس وقتی کیفش را باز کرد چه دید و چه چیزی را جا گذاشته بود",
+     "بپرس یکی جدید خرید",
+     "What did you notice when you opened your bag, and what had you forgotten?",
+     "Did you buy a new one?",
+     [],
+     [
+      [
+       "What did you notice when you opened your bag, and what had you forget?",
+       "بعد از had قسمت سوم فعل می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله، شارژرم را",
+     "بگو دو بار",
+     "Yes, my charger.",
+     "Twice!",
+     [],
+     []
+    ],
+    [
+     "بگو بله؛ شارژر گوشی‌ام بود",
+     "بگو یکی جدید خریدم",
+     "Yes. It was my phone charger.",
+     "I bought a new one.",
+     [],
+     [
+      [
+       "Yes. It were my phone charger.",
+       "it با was می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بگو دیدم که شارژرم را جا گذاشته بودم",
+     "بگو در فرودگاه یکی خریدم",
+     "I noticed that I had forgotten my charger.",
+     "So I bought one at the airport.",
+     [],
+     [
+      [
+       "I noticed that I have forgotten my charger.",
+       "قبل از یک لحظه‌ی دیگرِ گذشته: had + قسمت سوم فعل."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "last-holiday",
+   "c": null,
+   "q": [
+    [
+     "بپرس تعطیلات قبلی کجا رفت",
+     "بپرس با کی",
+     "Where did you go on your last holiday?",
+     "With who?",
+     [],
+     [
+      [
+       "Where you went on your last holiday?",
+       "سؤال گذشته با «did» است؛ بعدش فعل ساده می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس تعطیلات قبلی کجا رفت و قبلاً آنجا رفته بود",
+     "بپرس خوش گذشت",
+     "Where did you go on your last holiday, and had you been there before?",
+     "Was it fun?",
+     [],
+     [
+      [
+       "Where did you go on your last holiday, and had you went there before?",
+       "had + قسمت سوم فعل: had been."
+      ]
+     ]
+    ],
+    [
+     "بپرس تعطیلات قبلی کجا رفت و وقتی رسیدند هوا چطور بود",
+     "بپرس گرم بود",
+     "Where did you go on your last holiday, and what was the weather like when you arrived?",
+     "Was it hot?",
+     [],
+     [
+      [
+       "Where did you go on your last holiday, and how was the weather like when you arrived?",
+       "«هوا چطور بود» = What was the weather like?"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو شمال",
+     "بگو با خانواده‌ام",
+     "To the north.",
+     "With my family.",
+     [],
+     []
+    ],
+    [
+     "بگو شمال؛ نه، قبلاً آنجا نرفته بودم",
+     "بگو خیلی زیبا بود",
+     "To the north, and no, I hadn't been there before.",
+     "It was beautiful.",
+     [],
+     [
+      [
+       "To the north, and no, I haven't been there before.",
+       "قبل از یک لحظه‌ی دیگرِ گذشته: had + قسمت سوم فعل."
+      ]
+     ]
+    ],
+    [
+     "بگو شمال؛ وقتی رسیدیم باران می‌بارید",
+     "بگو ولی روزهای بعد آفتابی بود",
+     "To the north. It was raining when we arrived.",
+     "But the next days were sunny.",
+     [],
+     [
+      [
+       "To the north. It rained when we were arriving.",
+       "پس‌زمینه با استمراری، رسیدن با ساده."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "film-had-started",
+   "c": "دوستت گفت: «وقتی رسیدم سینما، فیلم شروع شده بود.»",
+   "q": [
+    [
+     "بپرس چقدر دیر کرد",
+     "بپرس ده دقیقه",
+     "How late were you?",
+     "Ten minutes?",
+     [],
+     [
+      [
+       "How late you were?",
+       "ترتیب سؤال: اول فعل کمکی، بعد فاعل."
+      ]
+     ]
+    ],
+    [
+     "بپرس چقدر دیر کرد و راهش دادند داخل",
+     "بپرس شلوغ بود",
+     "How late were you? Did they let you in?",
+     "Was it busy?",
+     [],
+     [
+      [
+       "How late were you? They let you in?",
+       "سؤال گذشته: Did they…?"
+      ]
+     ]
+    ],
+    [
+     "بپرس چرا دیر کرد و چیز مهمی را از دست داده بود",
+     "بپرس فیلم را دوست داشت",
+     "Why were you late, and had you missed anything important?",
+     "Did you enjoy it?",
+     [],
+     [
+      [
+       "Why were you late, and had you miss anything important?",
+       "بعد از had قسمت سوم فعل می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو حدود پانزده دقیقه",
+     "بگو خیلی دیر",
+     "About fifteen minutes.",
+     "Too late!",
+     [],
+     []
+    ],
+    [
+     "بگو حدود پانزده دقیقه؛ بله، راهم دادند",
+     "بگو ولی تاریک بود",
+     "About fifteen minutes. Yes, they did.",
+     "But it was dark.",
+     [],
+     [
+      [
+       "About fifteen minute. Yes, they did.",
+       "بعد از عدد اسم جمع می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بگو ترافیک بود؛ و بله، قسمت اول را از دست داده بودم",
+     "بگو ولی لذت بردم",
+     "There was traffic, and yes, I had missed the first part.",
+     "But I enjoyed it.",
+     [],
+     [
+      [
+       "There was traffic, and yes, I had miss the first part.",
+       "بعد از had قسمت سوم فعل می‌آید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "lights-went-out",
+   "c": "دوستت گفت: «دیشب داشتم آشپزی می‌کردم که برق رفت.»",
+   "q": [
+    [
+     "بپرس چه کار کرد",
+     "بپرس آشپزی را تمام کرد",
+     "What did you do?",
+     "Did you finish cooking?",
+     [],
+     [
+      [
+       "What you did?",
+       "سؤال گذشته با «did» است؛ بعدش فعل ساده می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه کار کرد و شام آماده بود",
+     "بپرس تاریک بود",
+     "What did you do? Was dinner ready?",
+     "Was it dark?",
+     [],
+     [
+      [
+       "What did you do? Dinner was ready?",
+       "سؤال با «Was dinner…?» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه درست می‌کرد و قبل از رفتن برق تمامش کرده بود",
+     "بپرس سرد خوردند",
+     "What were you making, and had you finished it before the lights went out?",
+     "Did you eat it cold?",
+     [],
+     [
+      [
+       "What were you making, and had you finish it before the lights went out?",
+       "بعد از had قسمت سوم فعل می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو در تاریکی غذا خوردیم",
+     "بگو خوش گذشت",
+     "We ate in the dark.",
+     "It was fun.",
+     [],
+     [
+      [
+       "We eat in the dark.",
+       "کار گذشته: گذشته‌ی ساده."
+      ]
+     ]
+    ],
+    [
+     "بگو در تاریکی غذا خوردیم؛ نه، آماده نبود",
+     "بگو نیمه‌پخته بود",
+     "We ate in the dark. No, it wasn't ready.",
+     "It was half cooked.",
+     [],
+     [
+      [
+       "We ate in the dark. No, it isn't ready.",
+       "کار گذشته: گذشته‌ی ساده."
+      ]
+     ]
+    ],
+    [
+     "بگو داشتم برنج درست می‌کردم؛ نه، تمامش نکرده بودم",
+     "بگو به جایش نان خوردیم",
+     "I was making rice, and no, I hadn't finished it.",
+     "We had bread instead.",
+     [],
+     [
+      [
+       "I was making rice, and no, I hadn't finish it.",
+       "بعد از had قسمت سوم فعل می‌آید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "bag-on-bus",
+   "c": "دوستت گفت: «امروز صبح کیفم رو تو اتوبوس جا گذاشتم.»",
+   "q": [
+    [
+     "بپرس پسش گرفت",
+     "بپرس چیز مهمی تویش بود",
+     "Did you get it back?",
+     "Was anything important in it?",
+     [],
+     [
+      [
+       "Did you got it back?",
+       "سؤال گذشته با «did» است؛ بعدش فعل ساده می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس پسش گرفت و چه چیزی تویش بود",
+     "بپرس گوشی‌اش",
+     "Did you get it back? What was in it?",
+     "Your phone?",
+     [],
+     [
+      [
+       "Did you got it back? What was in it?",
+       "سؤال گذشته با «did» است؛ بعدش فعل ساده می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس کی فهمید و داشت کجا می‌رفت",
+     "بپرس به کسی زنگ زد",
+     "When did you notice, and where were you going?",
+     "Did you call anyone?",
+     [],
+     [
+      [
+       "When did you notice, and where you were going?",
+       "ترتیب سؤال: اول فعل کمکی، بعد فاعل."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو در ایستگاه",
+     "Yes, I did.",
+     "At the station.",
+     [],
+     []
+    ],
+    [
+     "بگو بله؛ کیف پول و کلیدهایم تویش بودند",
+     "بگو چیزی گم نشد",
+     "Yes. My wallet and my keys were in it.",
+     "Nothing was lost.",
+     [],
+     [
+      [
+       "Yes. My wallet and my keys was in it.",
+       "دو چیز جمع است: were."
+      ]
+     ]
+    ],
+    [
+     "بگو سر کار فهمیدم؛ داشتم به یک جلسه‌ی مهم می‌رفتم",
+     "بگو خیلی نگران بودم",
+     "I noticed at work. I was going to an important meeting.",
+     "I was so worried.",
+     [],
+     [
+      [
+       "I noticed at work. I was go to an important meeting.",
+       "کاری که در جریان بود: was / were + -ing؛ be جا نیفتد."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "first-time-sea",
+   "c": "دوستت گفت: «پارسال برای اولین بار دریا رو دیدم!»",
+   "q": [
+    [
+     "بپرس کجا دیدش",
+     "بپرس با خانواده",
+     "Where did you see it?",
+     "With your family?",
+     [],
+     [
+      [
+       "Where did you saw it?",
+       "سؤال گذشته با «did» است؛ بعدش فعل ساده می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس کجا دیدش و چه حسی داشت",
+     "بپرس شنا کرد",
+     "Where did you see it? How did you feel?",
+     "Was the water cold?",
+     [],
+     [
+      [
+       "Where did you see it? How you felt?",
+       "سؤال گذشته با «did» است؛ بعدش فعل ساده می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس قبلاً در فیلم‌ها دیده بودش و در واقعیت فرق داشت",
+     "بپرس شنا کرد",
+     "Had you seen it in films before, and was it different in real life?",
+     "Was the water cold?",
+     [],
+     [
+      [
+       "Had you saw it in films before, and was it different in real life?",
+       "بعد از had قسمت سوم فعل می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو در جنوب",
+     "بگو در یک سفر خانوادگی",
+     "In the south.",
+     "On a family trip.",
+     [],
+     []
+    ],
+    [
+     "بگو در جنوب؛ خیلی خوشحال بودم",
+     "بگو هر روز شنا کردم",
+     "In the south. I felt really happy.",
+     "I was in the water every day.",
+     [],
+     [
+      [
+       "In the south. I feeled really happy.",
+       "گذشته‌ی feel می‌شود felt."
+      ]
+     ]
+    ],
+    [
+     "بگو بله، دیده بودم، ولی در واقعیت خیلی بزرگ‌تر بود",
+     "بگو و پرسروصداتر",
+     "Yes, I had, but in real life it was much bigger.",
+     "And louder.",
+     [],
+     [
+      [
+       "Yes, I had, but in real life it was much big.",
+       "مقایسه: much bigger."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "sister-made-dinner",
+   "c": "دوستت گفت: «وقتی رسیدم خونه، خواهرم شام رو درست کرده بود.»",
+   "q": [
+    [
+     "بپرس خوب بود",
+     "بپرس چه بود",
+     "Was it good?",
+     "What was it?",
+     [],
+     []
+    ],
+    [
+     "بپرس خوب بود و چه درست کرده بود",
+     "بپرس گرسنه بود",
+     "Was it good? What had she made?",
+     "Were you hungry?",
+     [],
+     [
+      [
+       "Was it good? What had she make?",
+       "بعد از had قسمت سوم فعل می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس غافلگیری بود یا از او خواسته بود آشپزی کند",
+     "بپرس خوشمزه بود",
+     "Was it a surprise, or had you asked her to cook?",
+     "Was it good?",
+     [],
+     [
+      [
+       "Was it a surprise, or had you ask her to cook?",
+       "بعد از had قسمت سوم فعل می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله، خیلی خوب",
+     "بگو خیلی گرسنه بودم",
+     "Yes, really good.",
+     "I was so hungry.",
+     [],
+     []
+    ],
+    [
+     "بگو بله؛ مرغ و برنج درست کرده بود",
+     "بگو غذای مورد علاقه‌ام",
+     "Yes. She had made chicken and rice.",
+     "My favourite!",
+     [],
+     [
+      [
+       "Yes. She has made chicken and rice.",
+       "قبل از یک لحظه‌ی دیگرِ گذشته: had + قسمت سوم فعل."
+      ]
+     ]
+    ],
+    [
+     "بگو غافلگیری بود؛ از او نخواسته بودم",
+     "بگو خیلی مهربان است",
+     "It was a surprise. I hadn't asked her.",
+     "She's very kind.",
+     [],
+     [
+      [
+       "It was a surprise. I didn't asked her.",
+       "بعد از didn't فعل ساده می‌آید."
+      ]
+     ]
+    ]
+   ]
+  }
+ ]
+}

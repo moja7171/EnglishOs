@@ -223,4 +223,23 @@ return [
     'faulty' => ['broken', 'work'],
     'deliver' => ['bring', 'home'],
     'guarantee' => ['repair', 'promise'],
+
+    // M16 · Travel
+    'direct flight' => ['stop', 'plane'],
+    'ahead of time' => ['early', 'before'],
+    'sold out' => ['tickets', 'left'],
+    'end up' => ['finally', 'plan'],
+    'lively' => ['busy', 'energy'],
+    'check in' => ['airport', 'desk'],
+    'hand luggage' => ['bag', 'plane'],
+    'boarding pass' => ['gate', 'card'],
+    'delay' => ['late', 'wait'],
+    'take off' => ['plane', 'up'],
+    'land' => ['airport', 'down'],
+    'book' => ['ticket', 'reserve'],
+    'accommodation' => ['stay', 'hotel'],
+    'destination' => ['place', 'going'],
+    'go sightseeing' => ['famous', 'visit'],
+    'get lost' => ['way', 'map'],
+    'souvenir' => ['remember', 'gift'],
 ];

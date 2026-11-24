@@ -355,6 +355,25 @@
     --mood-texture-size: 36px 36px;
 }
 
+/* M16 "Travel" — a deep passport navy (a passport cover, an airline
+   uniform), darker and greyer than M08's open sky blue and M03's bright
+   indigo, paired with little airplane windows: an upright oval ring —
+   tall and hollow, so it never reads as M12's filled speech-mark ovals,
+   M14's flat coins, M15's price tags or the round dots and rings of the
+   other moods. */
+[data-mood='journey'] {
+    --color-accent: #2f5a8e;
+    --color-accent-dark: #6f9fd8;
+    --color-accent-soft: #dce6f3;
+    --color-accent-soft-dark: #1a2c44;
+    --color-accent-ink: #22426b;
+    --color-accent-ink-dark: #b2cdf0;
+    --color-dawn: #8fb2dc;
+    --color-dusk: #24476f;
+    --mood-texture: radial-gradient(ellipse 3px 4.5px at 50% 50%, transparent 58%, color-mix(in srgb, var(--color-accent) calc(14% * var(--mood-boost)), transparent) 64% 96%, transparent 100%);
+    --mood-texture-size: 34px 34px;
+}
+
 [data-mood] {
     background-image: var(--mood-texture);
     background-size: var(--mood-texture-size);

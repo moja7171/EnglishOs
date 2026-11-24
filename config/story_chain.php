@@ -73,4 +73,8 @@ return [
         'Last Friday Sara\'s new phone was delivered, but when she opened the box, the screen was broken.',
         'Ali had his hair cut before a big party, but it was cut much too short.',
     ],
+    'M16' => [
+        'When Sara got to the airport, she realised that she had left her passport at home, and her flight was leaving in an hour.',
+        'Ali was walking around an old city at night when he saw that his phone had died, and he had no map.',
+    ],
 ];

@@ -78,5 +78,9 @@ return [
         // M15 · Shopping (supermarket, hairdresser, shop assistant and mirror are already there)
         ['tailor', 'job', 15], ['mall', 'place', 15], ['changing room', 'place', 15], ['shopping bag', 'thing', 15],
         ['shoe shop', 'place', 15], ['price tag', 'thing', 15], ['market', 'place', 15], ['delivery driver', 'job', 15],
+
+        // M16 · Travel (airport, beach, pilot, tent, car and bus are already there)
+        ['passport', 'thing', 16], ['suitcase', 'thing', 16], ['hotel', 'place', 16], ['plane', 'thing', 16],
+        ['map', 'thing', 16], ['museum', 'place', 16], ['tour guide', 'job', 16], ['train station', 'place', 16],
     ],
 ];

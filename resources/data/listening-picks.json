@@ -331,24 +331,24 @@
   ],
   "M16" : [
     [
-      {"src":"teded","title":"Why are airplanes slower than they used to be?","url":"https://ed.ted.com/lessons/why-are-airplanes-slower-than-they-used-to-be-alex-gendler","min":7},
-      {"src":"talk","title":"Why overtourism could ruin your next vacation","by":"Suresh Subudhi","url":"https://www.ted.com/talks/suresh_subudhi_why_overtourism_could_ruin_your_next_vacation","min":14,"tx":"link","txUrl":"https://www.ted.com/talks/suresh_subudhi_why_overtourism_could_ruin_your_next_vacation/transcript"},
-      {"src":"lk","title":"How to travel on a budget","url":"https://www.npr.org/2025/01/23/1226281133/how-to-travel-on-a-budget","min":22,"tx":"link","txUrl":"https://www.npr.org/transcripts/1226281133"}
+      {"src":"lee","title":"Talking about travel","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/240608","min":6,"tx":"page"},
+      {"src":"sme","title":"Ecotourism: good or bad?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2023/ep-230601","min":6,"tx":"page"},
+      {"src":"voa","title":"Tips for Using Google Maps When You Travel","url":"https://learningenglish.voanews.com/a/3926738.html","tx":"page"}
     ],
     [
-      {"src":"teded","title":"The Silk Road: Connecting the ancient world through trade","url":"https://ed.ted.com/lessons/the-silk-road-history-s-first-world-wide-web-shannon-harris-castelo","min":8},
-      {"src":"talk","title":"My epic journey becoming the fastest person to paddle around Australia","by":"Bonnie Hancock","url":"https://www.ted.com/talks/bonnie_hancock_my_epic_journey_becoming_the_fastest_person_to_paddle_around_australia","min":10,"tx":"link","txUrl":"https://www.ted.com/talks/bonnie_hancock_my_epic_journey_becoming_the_fastest_person_to_paddle_around_australia/transcript"},
-      {"src":"lk","title":"How to make your solo trip a success","url":"https://www.npr.org/2026/01/15/nx-s1-5676052/how-to-make-your-solo-trip-a-success","min":22,"tx":"link","txUrl":"https://www.npr.org/transcripts/nx-s1-5676052"}
+      {"src":"lee","title":"Talking about airports","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/261002","min":6,"tx":"page"},
+      {"src":"sme","title":"Island life: Is it paradise?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2022/ep-220616","min":6,"tx":"page"},
+      {"src":"voa","title":"The Past Perfect Tense","url":"https://learningenglish.voanews.com/a/5897859.html","tx":"page","grammar":true}
     ],
     [
-      {"src":"teded","title":"Why every world map is wrong","url":"https://ed.ted.com/lessons/why-every-world-map-is-wrong-kayla-wolf","min":7},
-      {"src":"talk","title":"Why the passport needs an upgrade","by":"Karoli Hindriks","url":"https://www.ted.com/talks/karoli_hindriks_why_the_passport_needs_an_upgrade","min":10,"tx":"link","txUrl":"https://www.ted.com/talks/karoli_hindriks_why_the_passport_needs_an_upgrade/transcript"},
-      {"src":"lk","title":"How to plan your dream vacation","url":"https://www.npr.org/2026/02/23/nx-s1-5702807/how-to-plan-your-dream-vacation","min":22,"tx":"link","txUrl":"https://www.npr.org/transcripts/nx-s1-5702807"}
+      {"src":"lee","title":"Talking about visiting places","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/250418","min":6,"tx":"page"},
+      {"src":"sme","title":"What's the point of museums?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2023/ep-230420","min":6,"tx":"page"},
+      {"src":"voa","title":"Japanese Town Aims to Block View of Mount Fuji to Reduce Tourists","url":"https://learningenglish.voanews.com/a/7600362.html","tx":"page"}
     ],
     [
-      {"src":"teded","title":"What's the ideal country to live in?","url":"https://ed.ted.com/lessons/what-s-the-best-country-to-live-in","min":6},
-      {"src":"talk","title":"My journey mapping the uncharted world","by":"Tawanda Kanhema","url":"https://www.ted.com/talks/tawanda_kanhema_my_journey_mapping_the_uncharted_world","min":8,"tx":"link","txUrl":"https://www.ted.com/talks/tawanda_kanhema_my_journey_mapping_the_uncharted_world/transcript"},
-      {"src":"lk","title":"Want to avoid flight delays this holiday season? Follow these tips now","url":"https://www.npr.org/2025/10/28/nx-s1-5587617/want-to-avoid-flight-delays-this-holiday-season-follow-these-tips-now","min":20,"tx":"link","txUrl":"https://www.npr.org/transcripts/nx-s1-5587617"}
+      {"src":"lee","title":"Talking about holidays","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/240524","min":6,"tx":"page"},
+      {"src":"sme","title":"What and where is Little Italy?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2023/ep-231130","min":6,"tx":"page"},
+      {"src":"voa","title":"Cambodia Warns of ‘Aggressive’ Monkeys around Angkor Wat","url":"https://learningenglish.voanews.com/a/7969789.html","tx":"page"}
     ]
   ],
   "M17" : [

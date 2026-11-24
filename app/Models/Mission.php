@@ -566,6 +566,7 @@ class Mission extends Model
             'M13' => 'circuit',
             'M14' => 'coin',
             'M15' => 'tag',
+            'M16' => 'journey',
             default => 'daily-life',
         };
     }

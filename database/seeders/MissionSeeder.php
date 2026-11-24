@@ -44,6 +44,8 @@ class MissionSeeder extends Seeder
 
     private const SLIP_WILL_AFTER_IF = 'will right after if / when / unless / as soon as ("If it will break, I\'ll take it back", "when I will get paid")';
 
+    private const SLIP_PASSIVE_NO_BE = 'a passive with no be ("My bag stolen at the airport", "Our flight cancelled", "It made in China")';
+
     /**
      * Seeds M01 with its real content from document/M01/ (Mission01.pdf,
      * BBC Learning English "Real Easy English — Mornings"), matching the
@@ -3023,6 +3025,7 @@ class MissionSeeder extends Seeder
         $this->seedM13();
         $this->seedM14();
         $this->seedM15();
+        $this->seedM16();
     }
 
     /**
@@ -10724,6 +10727,641 @@ class MissionSeeder extends Seeder
                                     'by + a person only when it matters',
                                     'Where your things were made',
                                     'Something you had repaired or returned',
+                                ],
+                            ],
+                            [
+                                'key' => 'mission_result',
+                                'label' => 'Mission Result',
+                                'duration_minutes' => 5,
+                                'hook' => "You started this mission with a number — let's see how far it moved.",
+                                'skills' => ['Listening', 'Vocabulary', 'Grammar', 'Speaking', 'Writing'],
+                                'reflection_questions' => [
+                                    'became_easier' => ['label' => 'What became easier?', 'type' => 'skills'],
+                                    'still_difficult' => ['label' => 'What is still difficult?', 'type' => 'skills'],
+                                    'expression_to_keep' => ['label' => 'One expression I want to keep using', 'type' => 'vocabulary'],
+                                    'grammar_to_review' => ['label' => 'One grammar point I need to review', 'type' => 'errors'],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ]
+        );
+    }
+
+    /**
+     * Seeds M16 "Travel" — narrative tenses: the past perfect (had + past
+     * participle) beside the past simple and the past continuous (the
+     * M14–M24 grammar list approved 2026-11-23). Re-checks M07's past
+     * continuous (the background of a story). Built for the "Light" days
+     * like M14 / M15: 13 steps, no story_sequence, picture_description or
+     * daily_listen_2/3 (config/missions.php hidden_steps). Media: the Learn
+     * English Podcast's "My Trip to Dallas, Texas" (Melissa, an American
+     * teacher, cut from 23 to about 6 minutes: the solar eclipse she had
+     * never seen, sold-out tickets, an arts festival, a free museum and a
+     * bad train ride; the JFK history part left out) and Monte Montepare's
+     * story at The Moth (cut from 14:21 to 6:49: a glacier guide falls into
+     * a crevasse and is pulled out with his clients' rain jackets).
+     * Vocabulary days 2-3 follow the subject of Vocabulary in Use units 47
+     * (air travel), 46 (travel bookings) and 50 (sightseeing holidays), with
+     * our own word choice and sentences — not the book's text.
+     */
+    private function seedM16(): void
+    {
+        $audioUrl = $this->publishMissionAsset('M16', 'Learn English Podcast - My Trip to Dallas.mp3');
+        $shadowingVideoUrl = $this->publishMissionAsset('M16', 'The Moth - Monte Montepare The Glacier Does Not Care.mp4');
+        $shadowingCaptionsUrl = $this->publishMissionAsset('M16', 'The Moth - Monte Montepare The Glacier Does Not Care.en.vtt');
+
+        Mission::updateOrCreate(
+            ['code' => 'M16'],
+            [
+                'title' => 'Travel',
+                'module' => 'Travel',
+                'outcome' => 'I can tell a travel story in the right order — what happened, what was happening, and what had happened before: "When I got to the gate, the plane had already left."',
+                'phases' => [
+                    [
+                        'phase' => 'foundation',
+                        'label' => 'Day 1',
+                        'mode' => 'solo',
+                        'pair_speaking' => [
+                            ['question' => 'Is there a direct flight from your city to the capital?', 'answer' => 'Yes, there\'s a direct flight. It takes about an hour.', 'words' => ['direct flight']],
+                            ['question' => 'Do you buy concert tickets early?', 'answer' => 'Yes, I always buy them ahead of time.', 'words' => ['ahead of time']],
+                            ['question' => 'Have you ever wanted tickets for something that was full?', 'answer' => 'Yes. The football tickets were sold out, so I watched it at home.', 'words' => ['sold out']],
+                            ['question' => 'What\'s a lively place in your city?', 'answer' => 'The old bazaar is lively. I often end up staying there all evening.', 'words' => ['lively', 'end up']],
+                        ],
+                        'steps' => [
+                            [
+                                'key' => 'mission_brief',
+                                'label' => 'Get Ready',
+                                'duration_minutes' => 5,
+                                'hook' => 'The bus left — or the bus had already left? Tell your travel stories in English, in the right order.',
+                                'image_query' => 'airplane travel suitcase passport',
+                                'ambient_video_query' => 'airport travel',
+                                'warm_up_questions' => [
+                                    'Do you like travelling?',
+                                    'Where did you go on your last trip?',
+                                    'Have you ever flown?',
+                                    'Do you like the sea or the mountains?',
+                                ],
+                            ],
+                            [
+                                'key' => 'vocabulary_builder_1',
+                                'label' => 'New Words',
+                                'duration_minutes' => 9,
+                                'hook' => 'Five words Melissa uses about her trip to Dallas.',
+                                // Day 1 = the Listening episode's own 5 target_phrases (see M01's
+                                // vocabulary_builder_1), so every learner meets them here first.
+                                'story' => 'Last year I wanted to see a concert in Tehran. There was a **direct flight** from my '
+                                    .'city, so I bought my ticket **ahead of time**. Good thing: a week later, the concert was '
+                                    .'**sold out**! After the concert, my friends and I **ended up** in a **lively** café until midnight.',
+                                'words' => [
+                                    ['phrase' => 'direct flight', 'meaning' => 'a flight that goes from one place to another with no stops', 'meaning_fa' => 'پرواز مستقیم', 'pos' => 'noun', 'example' => 'There\'s a direct flight to Kish every morning.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'ahead of time', 'meaning' => 'before the time something happens; early', 'meaning_fa' => 'از قبل، زودتر از موعد', 'pos' => 'phrase', 'example' => 'Buy your train tickets ahead of time.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'sold out', 'meaning' => 'with no tickets or things left to buy', 'meaning_fa' => 'تمام‌شده، فروش‌رفته (بلیت یا جنس)', 'pos' => 'adjective', 'example' => 'The show was sold out, so we stayed at home.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'end up', 'meaning' => 'to finally be in a place or situation that you did not plan', 'meaning_fa' => 'آخرش سر از جایی درآوردن، در نهایت به کاری رسیدن', 'pos' => 'phrasal verb', 'example' => 'We missed the bus and ended up walking home.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'lively', 'meaning' => 'full of people, activity and energy', 'meaning_fa' => 'شلوغ و پرجنب‌وجوش، سرزنده', 'pos' => 'adjective', 'example' => 'The market is very lively on Friday mornings.', 'difficulty' => 'medium'],
+                                ],
+                            ],
+                            [
+                                'key' => 'listening',
+                                'label' => 'Listening',
+                                'duration_minutes' => 18,
+                                'hook' => 'Melissa flies to Dallas to see something she had never seen before. Listen for what went right — and what went wrong.',
+                                'source' => 'Learn English Podcast — "Learning English with Real Stories: My Trip to Dallas, Texas"',
+                                'image_query' => 'solar eclipse',
+                                'audio_url' => $audioUrl,
+                                'listening_segments' => $this->shadowTimestampsFor('M16', 'listening_segments'),
+                                // The same chunks tagged with who is talking — see
+                                // missions:align-listening-speakers. One speaker: Melissa.
+                                'listening_turns' => $this->shadowTimestampsFor('M16', 'listening_turns'),
+                                // The parts kept in the cut (0:10-3:29 without the airport list,
+                                // 8:47-9:12, 12:16-15:17, 17:26-18:43, 19:02-20:33 and 21:23-21:39
+                                // of the original, in short pieces; the intro, the JFK history,
+                                // the parking tip, the worst train details and the outro left
+                                // out), written from a Whisper pass of the cut audio.
+                                'transcript' => [
+                                    ['speaker' => 'Melissa', 'text' => 'I want to tell you a story about my recent trip to the city of Dallas. If you don\'t know, Dallas is in Texas, which is in the southern part of the United States, and it\'s a large city. I went to Dallas in April of this year. It is currently 2024, and the reason I went to Dallas is because in April there was an event that happened. From Mexico and up through the United States, there was a solar eclipse. And the reason I went to Dallas was because Dallas and the area right below it was in the path of this solar eclipse.'],
+                                    ['speaker' => 'Melissa', 'text' => 'I had never seen a solar eclipse before, so I really wanted to go. And I invited my mother to go along with me. She is my travel partner, and she had never seen a solar eclipse either. So we decided to go. There\'s a lot of places that were along the path, and there\'s a lot of places we could have gone. But we decided to go to Dallas because it\'s a relatively large, modern city. There\'s a lot of history involved with Dallas, which I will tell you about in a couple of minutes. And it\'s also what we call a hub. A hub means that there is a lot of transportation connections from the city. The city that I live in, the airport that\'s closest to me, has a direct flight to Dallas, and it only took us about a little over two hours to get there. So it was a very quick flight, and because of that we decided to go to Dallas. I had also listened to a podcast, a travel podcast that talked about Dallas a few months before. And for all of these reasons, we decided to go to Dallas.'],
+                                    ['speaker' => 'Melissa', 'text' => 'Now, we flew to Dallas on a Saturday, and we got there around two o\'clock. We ended up getting a car there. And the reason we got a car is because we ended up not wanting to stay in Dallas the entire time. We wanted to end up driving somewhere else. So we decided to get a car. We took the car from the airport to our apartment. We checked in at the apartment, and we ended up staying in downtown Dallas because we wanted to go to the Sixth Floor Museum. If you don\'t know what the Sixth Floor Museum is, it is a building in downtown Dallas that has a lot of history involved with it.'],
+                                    ['speaker' => 'Melissa', 'text' => 'If you do go to the museum, definitely I would recommend to get your tickets ahead of time. There\'s a website. You can order your tickets online. You pick the day and you pick the time. It is timed entry. When I went to get tickets about a month ahead of time, the day that we originally wanted was already sold out. So we had to change our plans up a little bit and go the day that we landed. We still got tickets, but I would just say, look ahead of time.'],
+                                    ['speaker' => 'Melissa', 'text' => 'After we got done with the Sixth Floor Museum, we ended up going to the Dallas Arts Festival. The location for this was in Deep Ellum. Deep Ellum is a district of Dallas that is known as being the arts district. More casually, we would call it the hipster district. It was very artsy, a lot of young energy, creative energy, a lot of fun art on the street and sculptures and graffiti art. We got to see a bunch of different art. My mom and I ended up buying some small prints that we could fit in our luggage and that we could afford. But if you had a lot of money, of course, you could get really big art pieces. There was jewelry. There was people who were singing. It was just a fun event overall.'],
+                                    ['speaker' => 'Melissa', 'text' => 'After we got done with the art festival, we ended up just walking around Deep Ellum to get dinner, find a place to eat. We walked along Main Street in Deep Ellum, and there was a lot of people on that street. There was a lot of other tourists, a lot of people going up and down the street, because there was restaurants, there was nightlife, there was clubs, and it just seemed like a very fun place to be. I would recommend staying there. If I ever went back to Dallas, I would definitely stay in Deep Ellum. It was a lot more lively and a lot more vibrant than where we stayed. It was definitely fun, and it was definitely a good first day.'],
+                                    ['speaker' => 'Melissa', 'text' => 'The next day we end up going to the Dallas Museum of Art. If you are an art person, I would definitely recommend going. The first reason is that it is completely free. The museum itself is pretty large. It does have a couple of good collections. They tend to have their collections by culture. So they had an African art museum, an Asian and Pacific Islander section, a modern art section. That was very different. I hadn\'t been to a place that had an African or Pacific Islander art section before, and that was very interesting, to see different artistic representations from different cultures. I think we spent a couple of hours at the museum.'],
+                                    ['speaker' => 'Melissa', 'text' => 'For my last piece of advice, my last thing not to do in Dallas is take the DART train. Now, the DART train is the light rail train. It is a public transportation system in Dallas. The reason we took the DART train is that we were in downtown. We were trying to go to Deep Ellum, and the art festival that was going on said on their website that it was going to be really hard to find parking in Deep Ellum. They recommended taking the DART train, so that\'s what we ended up doing. There was a station right next to the apartment we were staying at. We decided to get tickets, go on the DART train, and go to Deep Ellum.'],
+                                    ['speaker' => 'Melissa', 'text' => 'The smell on the DART train is by far the worst smell I have ever smelled in my entire life. The doors opened for the DART train, and my mom and I got in, and the smell was overwhelming. It smelled so bad. My mom actually covered her face because the smell was so bad. When we were on the train, there was a woman there who was screaming. She was yelling. My mom and I originally had planned to go from downtown to Deep Ellum to stay on the train, but because of the smell and because of the situation that was going on around us, we didn\'t feel comfortable. We didn\'t feel safe, and we decided just to get off and just walk. When my mom and I decided to go back to the apartment from Deep Ellum, we decided to get an Uber instead of taking the train. We thought that was a safer option, and it was.'],
+                                    ['speaker' => 'Melissa', 'text' => 'If you are ever in Dallas, if you ever have the chance to go, I would recommend it. I had never been. I had never been to Texas, but I had a really fun time. I like the city a lot. There was a lot of stuff to do, at least for the two days we were there, and I enjoyed it.'],
+                                ],
+                                // The same 5 phrases vocabulary_builder_1 taught, each a real
+                                // substring of this transcript.
+                                'target_phrases' => [
+                                    [
+                                        'phrase' => 'direct flight', 'meaning' => 'a flight with no stops',
+                                        'gap_before' => 'the airport that\'s closest to me, has a ',
+                                        'gap_after' => ' to Dallas',
+                                    ],
+                                    [
+                                        'phrase' => 'ahead of time', 'meaning' => 'early, before it happens',
+                                        'gap_before' => 'definitely I would recommend to get your tickets ',
+                                        'gap_after' => '. There\'s a website.',
+                                    ],
+                                    [
+                                        'phrase' => 'sold out', 'meaning' => 'with no tickets left',
+                                        'gap_before' => 'the day that we originally wanted was already ',
+                                        'gap_after' => '. So we had to change our plans',
+                                    ],
+                                    [
+                                        'phrase' => 'ended up', 'meaning' => 'finally did something you didn\'t plan',
+                                        'gap_before' => 'After we got done with the Sixth Floor Museum, we ',
+                                        'gap_after' => ' going to the Dallas Arts Festival',
+                                    ],
+                                    [
+                                        'phrase' => 'lively', 'meaning' => 'full of people and energy',
+                                        'gap_before' => 'It was a lot more ',
+                                        'gap_after' => ' and a lot more vibrant than where we stayed',
+                                    ],
+                                ],
+                                'topic_summary' => 'Melissa, an American English teacher, flew to Dallas, Texas, with her mother '
+                                    .'to see a solar eclipse, because neither of them had ever seen one. The museum tickets for '
+                                    .'the day they wanted had already sold out, so they changed their plans. They loved an arts '
+                                    .'festival in lively Deep Ellum and a free art museum, but the DART train smelled terrible and '
+                                    .'felt unsafe, so they got off, walked, and took an Uber back. She had never been to Texas '
+                                    .'before, and she had a really fun time.',
+                                'comprehension_check' => [
+                                    ['statement' => 'Melissa had seen a solar eclipse before this trip.', 'correct' => false, 'difficulty' => 'easy'],
+                                    ['statement' => 'The museum tickets for the day they wanted were sold out.', 'correct' => true, 'difficulty' => 'medium'],
+                                    ['statement' => 'Melissa and her mom stayed on the DART train all the way to Deep Ellum.', 'correct' => false, 'difficulty' => 'hard'],
+                                ],
+                                'detail_question' => [
+                                    'question' => 'Who did Melissa travel to Dallas with?',
+                                    'options' => ['Her mother', 'A friend', 'Her students'],
+                                    'correct' => 0,
+                                ],
+                                // No shadow_lines here — Day 1 Listening is comprehension-only.
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'build',
+                        'label' => 'Day 2',
+                        'mode' => 'solo',
+                        'pair_speaking' => [
+                            ['question' => 'Do you check in online?', 'answer' => 'Yes. I check in online and show my boarding pass on my phone.', 'words' => ['check in', 'boarding pass']],
+                            ['question' => 'What do you take in your hand luggage?', 'answer' => 'My hand luggage is small: a laptop, a book and some water.', 'words' => ['hand luggage']],
+                            ['question' => 'Have you ever had a long delay?', 'answer' => 'Yes. There was a five-hour delay, and by the time we took off, I had eaten twice!', 'words' => ['delay', 'took off', 'had eaten']],
+                            ['question' => 'What were you doing when your plane landed last time?', 'answer' => 'I was sleeping when the plane landed.', 'words' => ['was sleeping', 'landed']],
+                        ],
+                        'steps' => [
+                            [
+                                'key' => 'vocabulary_builder_2',
+                                'label' => 'New Words',
+                                'duration_minutes' => 10,
+                                'hook' => 'Six words for flying, from check-in to landing.',
+                                // The subject of Vocabulary in Use unit 47 (air travel); our own
+                                // word choice and sentences.
+                                'story' => 'Last month I flew to Mashhad. I **checked in** online, so I only had my **boarding '
+                                    .'pass** on my phone and a small bag of **hand luggage**. At the gate, there was a two-hour '
+                                    .'**delay**. When we finally **took off**, I was so tired that I fell asleep, and I only woke '
+                                    .'up when we **landed**.',
+                                'words' => [
+                                    ['phrase' => 'check in', 'meaning' => 'to tell the airline or hotel that you have arrived, and get your seat or room', 'meaning_fa' => 'پذیرش گرفتن، چک‌این کردن', 'pos' => 'phrasal verb', 'example' => 'You can check in online the day before your flight.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'hand luggage', 'meaning' => 'a small bag that you can take with you on the plane', 'meaning_fa' => 'بار همراه، ساک دستی', 'pos' => 'noun', 'example' => 'I only take hand luggage on short trips.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'boarding pass', 'meaning' => 'the card or paper you show to get on the plane', 'meaning_fa' => 'کارت پرواز', 'pos' => 'noun', 'example' => 'Please show your boarding pass at the gate.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'delay', 'meaning' => 'a time when something happens later than planned', 'meaning_fa' => 'تأخیر', 'pos' => 'noun', 'example' => 'There was a two-hour delay because of the snow.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'take off', 'meaning' => '(of a plane) to leave the ground and start flying', 'meaning_fa' => 'بلند شدن (هواپیما)', 'pos' => 'phrasal verb', 'example' => 'The plane took off at six in the morning.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'land', 'meaning' => '(of a plane) to come down to the ground', 'meaning_fa' => 'فرود آمدن (هواپیما)', 'pos' => 'verb', 'example' => 'We landed in Shiraz at midnight.', 'difficulty' => 'easy'],
+                                ],
+                            ],
+                            [
+                                'key' => 'grammar_in_context',
+                                'label' => 'Grammar Time',
+                                'duration_minutes' => 15,
+                                'hook' => 'The plane left. The plane had left. One word — and you missed your flight.',
+                                'focus' => 'Narrative Tenses (past perfect / past simple / past continuous)',
+                                // Our own explanation and examples (EOS-009 §14); the order
+                                // follows Grammar in Use units 5-6 (past simple, past
+                                // continuous) and 15 (past perfect). The past continuous for
+                                // the background re-checks M07. The past perfect continuous is
+                                // in the Grammar in Use course, not here.
+                                'lesson' => [
+                                    'intro' => 'A good story has three past tenses. The past simple tells the main events: We landed and took a taxi. The past continuous gives the background: It was raining. The past perfect goes one step further back: The bus had already left.',
+                                    'sections' => [
+                                        [
+                                            'heading' => 'A · had + past participle',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'The past perfect = <strong>had + past participle</strong>, the same for every person: <strong>I had seen</strong>, <strong>she had left</strong>, <strong>they had gone</strong>. In speaking: <strong>I\'d seen</strong>. Negative: <strong>hadn\'t</strong> + past participle. Question: <strong>Had you ever been</strong> there before? Use it for something that happened <strong>before</strong> another past moment in your story.',
+                                                    'fa' => 'گذشته‌ی کامل (ماضی بعید) = had + قسمت سوم فعل، برای همه‌ی شخص‌ها یکی است: I had seen، she had left. منفی: hadn\'t، سؤال: Had you…? برای کاری است که قبل از یک لحظه‌ی دیگرِ گذشته در داستان اتفاق افتاده بود.',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'past perfect: had + past participle',
+                                                    'parts' => [
+                                                        ['text' => 'I', 'caption' => 'person'],
+                                                        ['text' => 'had never seen', 'caption' => 'had + past participle', 'tone' => 'accent'],
+                                                        ['text' => 'a solar eclipse before.', 'caption' => 'what'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'When I got there, everyone had went home.', 'right' => 'When I got there, everyone had gone home.', 'highlight' => 'had gone', 'note' => 'After had → past participle (gone), not the past simple (went).', 'fa' => 'بعد از had قسمت سوم فعل می‌آید: gone، نه went.'],
+                                                        ['wrong' => 'She had saw the film before.', 'right' => 'She had seen the film before.', 'highlight' => 'had seen', 'note' => 'see – saw – seen: had + seen.', 'fa' => 'see، saw، seen: بعد از had شکل سوم (seen).'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'pairs',
+                                                    'pairs' => [
+                                                        ['left' => 'I had flown before.', 'right' => 'I hadn\'t flown before.', 'fa' => 'مثبت و منفی: had / hadn\'t + قسمت سوم فعل.'],
+                                                        ['left' => 'You had been there before.', 'right' => 'Had you been there before?', 'fa' => 'سؤال: had را اول جمله بیاور.'],
+                                                        ['left' => 'They had left.', 'right' => 'They\'d left.', 'fa' => 'در گفتار had کوتاه می‌شود: \'d.'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'From the listening', 'items' => [
+                                                            ['text' => 'I had never seen a solar eclipse before, so I really wanted to go.', 'fa' => 'تا آن موقع هیچ‌وقت خورشیدگرفتگی ندیده بودم، برای همین خیلی دلم می‌خواست بروم.'],
+                                                            ['text' => 'I hadn\'t been to a place that had an African or Pacific Islander art section before.', 'fa' => 'قبلاً به جایی نرفته بودم که بخش هنر آفریقایی یا جزایر اقیانوس آرام داشته باشد.'],
+                                                        ]],
+                                                        ['label' => 'From the video', 'items' => [
+                                                            ['text' => 'They were from New York City and had never been camping.', 'fa' => 'اهل نیویورک بودند و هیچ‌وقت کمپ نرفته بودند.'],
+                                                        ]],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'B · The bus left, or the bus had left?',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'Two past simple verbs = one after the other: <strong>When I arrived, the bus left.</strong> (I saw it go.) The past perfect = it happened <strong>before</strong>: <strong>When I arrived, the bus had left.</strong> (It wasn\'t there.) <strong>By the time …</strong> usually takes the past perfect: <strong>By the time we got there, the shop had closed.</strong> The background — what was in progress — is the past continuous: <strong>It was raining when we landed.</strong>',
+                                                    'fa' => 'دو فعل گذشته‌ی ساده یعنی پشت سر هم: When I arrived, the bus left یعنی رسیدم و اتوبوس (جلوی چشمم) راه افتاد. had left یعنی قبل از رسیدنم رفته بود. بعد از By the time معمولاً گذشته‌ی کامل می‌آید. کاری که در جریان بود (پس‌زمینه‌ی داستان) با was / were + -ing: It was raining when we landed.',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'one step further back',
+                                                    'parts' => [
+                                                        ['text' => 'When I got to the gate,', 'caption' => 'past simple (story time)'],
+                                                        ['text' => 'the plane', 'caption' => 'thing'],
+                                                        ['text' => 'had already left.', 'caption' => 'past perfect (before)', 'tone' => 'accent'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'By the time we got to the cinema, the film started.', 'right' => 'By the time we got to the cinema, the film had started.', 'highlight' => 'had started', 'note' => 'It started before we arrived → had started.', 'fa' => 'فیلم قبل از رسیدن ما شروع شده بود: had started.'],
+                                                        ['wrong' => 'I walk to the hotel when it started to rain.', 'right' => 'I was walking to the hotel when it started to rain.', 'highlight' => 'was walking', 'note' => 'In progress (the background) → was + -ing.', 'fa' => 'کاری که در جریان بود: was walking (یادآوری از ماموریت ۷).'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'pairs',
+                                                    'pairs' => [
+                                                        ['left' => 'When we arrived, the film started.', 'right' => 'When we arrived, the film had started.', 'fa' => 'اولی: رسیدیم و بعد فیلم شروع شد. دومی: قبل از رسیدنمان شروع شده بود.'],
+                                                        ['left' => 'When I got home, my sister cooked dinner.', 'right' => 'When I got home, my sister was cooking dinner.', 'fa' => 'اولی: رسیدم و بعد آشپزی کرد. دومی: وقتی رسیدم داشت آشپزی می‌کرد.'],
+                                                        ['left' => 'I lost my phone, so I called my mum.', 'right' => 'I realised I had lost my phone.', 'fa' => 'اولی: پشت سر هم. دومی: گم شدن قبل از فهمیدن بوده.'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'From the video', 'items' => [
+                                                            ['text' => 'By the time I started climbing, I had been in this crevasse for at least 20 minutes.', 'fa' => 'تا وقتی شروع به بالا رفتن کردم، دست‌کم ۲۰ دقیقه توی این شکاف یخ مانده بودم.'],
+                                                            ['text' => 'Elizabeth looked down at me through the hole that I had punched in the snow.', 'fa' => 'الیزابت از سوراخی که توی برف ایجاد کرده بودم به من نگاه کرد.'],
+                                                        ]],
+                                                        ['label' => 'From the listening', 'items' => [
+                                                            ['text' => 'When we were on the train, there was a woman there who was screaming.', 'fa' => 'وقتی توی قطار بودیم، زنی آنجا بود که داشت جیغ می‌زد.'],
+                                                        ]],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'C · "I went" or "I had gone"?',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'For one plain event in the past, use the <strong>past simple</strong>, even if it was long ago: <strong>Last summer I went to Turkey.</strong> <strong>I bought this phone two years ago.</strong> Use <strong>had + past participle</strong> only when your story has another, later past moment: <strong>When we got to the hotel, I realised I had left my passport at home.</strong>',
+                                                    'fa' => 'خطای رایج فارسی‌زبان‌ها: در فارسی برای خاطره زیاد ماضی بعید می‌گوییم («پارسال رفته بودم ترکیه»)، پس می‌گوییم Last summer I had gone to Turkey؛ ولی در انگلیسی وقتی فقط یک اتفاقِ گذشته هست، گذشته‌ی ساده بگو: Last summer I went to Turkey. had + قسمت سوم فقط وقتی است که در داستان یک لحظه‌ی بعدیِ گذشته هم داری.',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'one plain past event',
+                                                    'parts' => [
+                                                        ['text' => 'Last summer', 'caption' => 'finished time'],
+                                                        ['text' => 'I went', 'caption' => 'past simple', 'tone' => 'accent'],
+                                                        ['text' => 'to Turkey.', 'caption' => 'where'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'Last summer I had gone to Turkey with my family.', 'right' => 'Last summer I went to Turkey with my family.', 'highlight' => 'went', 'note' => 'One past event with a finished time → past simple.', 'fa' => 'فقط یک اتفاق گذشته با زمان مشخص: went، نه had gone.'],
+                                                        ['wrong' => 'I had bought this phone two years ago.', 'right' => 'I bought this phone two years ago.', 'highlight' => 'bought', 'note' => 'No later past moment → past simple.', 'fa' => 'لحظه‌ی بعدیِ گذشته‌ای در کار نیست: bought.'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'From the listening', 'items' => [
+                                                            ['text' => 'We flew to Dallas on a Saturday, and we got there around two o\'clock.', 'fa' => 'شنبه به دالاس پرواز کردیم و حدود ساعت دو رسیدیم.'],
+                                                        ]],
+                                                        ['label' => 'Examples', 'items' => [
+                                                            ['text' => 'Two years ago we went to Shiraz for a week.', 'fa' => 'دو سال پیش یک هفته رفتیم شیراز.'],
+                                                            ['text' => 'When I opened my bag, I saw that I had forgotten my charger.', 'fa' => 'وقتی کیفم را باز کردم، دیدم شارژرم را جا گذاشته بودم.'],
+                                                        ]],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'D · Make it personal',
+                                            'body' => 'Next you\'ll finish sentences about <strong>your</strong> trips — what had happened before, what was happening, and what happened next — and soon use them in AI Conversation #1.',
+                                        ],
+                                    ],
+                                    'bridge_note' => 'You\'ll use this soon — in AI Conversation #1.',
+                                ],
+                                'frequency_starters' => [
+                                    'Before this year, I had never', 'When I got to the station, I realised I had',
+                                    'By the time I arrived, the', 'On my last trip, it was raining when',
+                                    'While I was waiting for my flight,', 'Last summer I',
+                                ],
+                                'grammar_judgment' => 'Judge whether the learner finished this sentence starter into '
+                                    .'a true, natural personal sentence about a trip, a journey or a day out, using the right past '
+                                    .'tense: the past perfect (had + past participle: had never flown, had left, had forgotten) for an '
+                                    .'earlier event, the past continuous (was / were + -ing) for the background, and the past simple '
+                                    .'for the main events.',
+                                'grammar_major_criteria' => 'a verb with no subject, it or there left out ("Was raining when we '
+                                    .'landed", "Had left already"), had + a past simple form or a base form instead of the past '
+                                    .'participle ("had went", "had saw", "had took", "had forget"), was / were + a base form ("I was '
+                                    .'wait"), a past simple main verb after "By the time I arrived, the" for something that clearly '
+                                    .'happened before the arrival ("the bus left" — it must be "had left"), the past perfect for '
+                                    .'one plain past event with a finished time and no later past moment in the sentence ("Last '
+                                    .'summer I had gone to Turkey"), the sentence does not actually continue the given starter, or '
+                                    .'it is not a genuine personal statement. Do not mark the past simple wrong where the past '
+                                    .'perfect is only one possible choice ("When I arrived, they left" and "Before I came, I bought '
+                                    .'a ticket" are correct)',
+                                'grammar_context' => 'continues "Before this year, I had never" with a past participle (flown, seen, '
+                                    .'been); continues "When I got to the station, I realised I had" with a past participle '
+                                    .'(forgotten, left, lost); continues "By the time I arrived, the" with a thing + had + past '
+                                    .'participle (the train had left); continues "On my last trip, it was raining when" with the past '
+                                    .'simple (we landed); continues "While I was waiting for my flight," with the past simple (I met, I '
+                                    .'read); continues "Last summer I" with the past simple (went, visited)',
+                                // Reminders only: SentenceChecker asks for at least "minor", never "major".
+                                'grammar_minor_criteria' => self::SLIP_ARTICLE.'; '.self::SLIP_HE_SHE.'; '.self::SLIP_PASSIVE_NO_BE,
+                                'quick_check' => [
+                                    [
+                                        'wrong' => 'She had saw the film before.',
+                                        'options' => ['She had seen the film before.', 'She has saw the film before.', 'She had see the film before.'],
+                                        'correct' => 0,
+                                        'difficulty' => 'easy',
+                                        'why' => 'had + past participle: seen, not saw.',
+                                    ],
+                                    [
+                                        'wrong' => 'When we got to the gate, the plane already left.',
+                                        'options' => ['When we got to the gate, the plane has already left.', 'When we got to the gate, the plane had already left.', 'When we got to the gate, the plane was already leave.'],
+                                        'correct' => 1,
+                                        'difficulty' => 'medium',
+                                        'why' => 'It left before we got there → had left.',
+                                    ],
+                                    [
+                                        'wrong' => 'Last summer I had gone to Turkey.',
+                                        'options' => ['Last summer I have gone to Turkey.', 'Last summer I was go to Turkey.', 'Last summer I went to Turkey.'],
+                                        'correct' => 2,
+                                        'difficulty' => 'medium',
+                                        'why' => 'One past event with a finished time → past simple.',
+                                    ],
+                                    [
+                                        'wrong' => 'I walk to the hotel when it started to rain.',
+                                        'options' => ['I was walking to the hotel when it started to rain.', 'I walking to the hotel when it was start to rain.', 'I had walk to the hotel when it started to rain.'],
+                                        'correct' => 0,
+                                        'difficulty' => 'hard',
+                                        'why' => 'In progress (the background) → was + -ing.',
+                                    ],
+                                ],
+                                'word_order' => [
+                                    ['words' => ['already', 'left.', 'The', 'had', 'bus'], 'answer' => 'The bus had already left.'],
+                                    ['words' => ['never', 'I', 'flown', 'before.', 'had'], 'answer' => 'I had never flown before.'],
+                                    ['words' => ['was', 'raining', 'It', 'landed.', 'we', 'when'], 'answer' => 'It was raining when we landed.'],
+                                ],
+                            ],
+                            [
+                                // Monte Montepare at The Moth: a young glacier guide in Alaska
+                                // takes four New Yorkers who had never been camping on a fly-in
+                                // trip, falls into a crevasse and is pulled out with their
+                                // brand-new rain jackets. Cut from 14:21 to 6:49 (the landing,
+                                // the tents, the morale and the crevasse dangers left out);
+                                // captions from a Whisper pass of the cut, checked by hand.
+                                'key' => 'video_shadowing',
+                                'label' => 'Video Shadowing',
+                                'duration_minutes' => 14,
+                                'hook' => 'A young glacier guide takes four New Yorkers camping in Alaska — and falls into the ice.',
+                                'source' => 'The Moth — Monte Montepare, "A glacier guide falls into a crevasse"',
+                                'video_url' => $shadowingVideoUrl,
+                                'captions_url' => $shadowingCaptionsUrl,
+                                'video_segments' => $this->shadowTimestampsFor('M16', 'video_shadowing_segments'),
+                                'topic_summary' => 'At 23, Monte Montepare was a glacier guide in Alaska, and he took four women '
+                                    .'from New York, who had never been camping, on a fly-in camping trip. On a glacier, he stepped '
+                                    .'on some snow and fell about 20 feet into a crevasse, a deep crack in the ice. By the time he '
+                                    .'started climbing, he had been there for 20 minutes. His clients tied their brand-new rain '
+                                    .'jackets together like a rope and pulled him out. Today he tells every new guide this story, '
+                                    .'because everyone makes mistakes.',
+                                'comprehension_check' => [
+                                    ['statement' => 'The four clients had camped many times before.', 'correct' => false],
+                                    ['statement' => 'Monte fell into a crevasse in the glacier.', 'correct' => true],
+                                    ['statement' => 'The clients pulled Monte out with their rain jackets.', 'correct' => true],
+                                ],
+                                // Real phrases Monte Montepare uses on stage.
+                                'target_phrases' => [
+                                    ['phrase' => 'a red flag', 'meaning' => 'a sign that something may go wrong'],
+                                    ['phrase' => 'head to toe', 'meaning' => 'all over the body'],
+                                    ['phrase' => 'good to go', 'meaning' => 'ready to start'],
+                                    ['phrase' => 'vanish into thin air', 'meaning' => 'disappear suddenly and completely'],
+                                    ['phrase' => 'make mistakes', 'meaning' => 'do things wrong'],
+                                ],
+                                // Real verbatim lines from the video — shadowing means mimicking
+                                // the exact audio just heard, and the auto-pause timestamps
+                                // (missions:cache-shadow-timestamps) only land on words people
+                                // actually say. Chosen for this mission's grammar: the past
+                                // perfect (had never been, had punched, had been … by the time)
+                                // beside the past simple and the past continuous.
+                                // Bold marks naturally-stressed content words (rendered by
+                                // <x-stress-marked-line>).
+                                'shadow_lines' => [
+                                    'I was feeling very **confident** in my skills in the mountains.',
+                                    'They were from New York City and had **never** been camping.',
+                                    'They had never slept in a **tent**. I **lived** in a tent.',
+                                    'Finally, Elizabeth looked down at me through the **hole** that I had punched in the snow.',
+                                    'By the time I started **climbing**, I had been in this crevasse for at least **20** minutes.',
+                                    'And I had **never** been so happy.',
+                                ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M16', 'video_shadowing'),
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'practice',
+                        'label' => 'Day 3',
+                        'mode' => 'ai',
+                        'pair_speaking' => [
+                            ['question' => 'Do you find your hotels online?', 'answer' => 'Yes. I always book my accommodation online and read the reviews.', 'words' => ['book', 'accommodation']],
+                            ['question' => 'What is your dream destination?', 'answer' => 'My dream destination is Japan. I\'ve never been there.', 'words' => ['destination']],
+                            ['question' => 'Have you ever got lost in a new city?', 'answer' => 'Yes. I got lost in Tabriz because my phone had died.', 'words' => ['got lost', 'had died']],
+                            ['question' => 'Do you buy anything when you visit a new place?', 'answer' => 'Yes. When I go sightseeing, I always buy a small souvenir for my mum.', 'words' => ['go sightseeing', 'souvenir']],
+                        ],
+                        'steps' => [
+                            [
+                                'key' => 'vocabulary_builder_3',
+                                'label' => 'New Words',
+                                'duration_minutes' => 10,
+                                'hook' => 'Last set — booking a room, seeing the sights, getting lost and bringing home a souvenir.',
+                                // The subject of Vocabulary in Use units 46 (travel bookings) and
+                                // 50 (sightseeing holidays); our own word choice and sentences.
+                                'story' => 'Before our trip to Isfahan, I **booked** our **accommodation** online: a small hotel '
+                                    .'near the old square. Our **destination** was beautiful. We **went sightseeing** every day, '
+                                    .'and one evening we **got lost** in the old bazaar! In the end, we found a little shop and '
+                                    .'bought some **souvenirs** for our family.',
+                                'words' => [
+                                    ['phrase' => 'book', 'meaning' => 'to arrange to have a room, a seat or a ticket for a certain time', 'meaning_fa' => 'رزرو کردن', 'pos' => 'verb', 'example' => 'I booked a hotel room for two nights.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'accommodation', 'meaning' => 'a place to stay, like a hotel or a flat', 'meaning_fa' => 'محل اقامت', 'pos' => 'noun', 'example' => 'We found cheap accommodation near the beach.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'destination', 'meaning' => 'the place where you are going', 'meaning_fa' => 'مقصد', 'pos' => 'noun', 'example' => 'Our final destination was a small village in the mountains.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'go sightseeing', 'meaning' => 'to visit the famous places in a town or a city', 'meaning_fa' => 'گشت‌وگذار، دیدن جاهای دیدنی', 'pos' => 'phrase', 'example' => 'We went sightseeing all day and saw three museums.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'get lost', 'meaning' => 'to not know where you are or how to go somewhere', 'meaning_fa' => 'گم شدن، راه را گم کردن', 'pos' => 'phrase', 'example' => 'I got lost because my phone had no battery.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'souvenir', 'meaning' => 'a small thing you buy to remember a place', 'meaning_fa' => 'سوغاتی', 'pos' => 'noun', 'example' => 'I bought a little blue plate as a souvenir.', 'difficulty' => 'medium'],
+                                ],
+                            ],
+                            [
+                                'key' => 'ai_conversation_1',
+                                'label' => 'Talk It Out',
+                                'duration_minutes' => 18,
+                                'hook' => 'Say it here, alone, before you have to say it to the AI Instructor for real.',
+                                'warm_up_task' => 'Record 2 minutes of solo speaking about a trip you remember: where you went, '
+                                    .'what was happening when you arrived, and something that had happened before — using the '
+                                    .'new vocabulary, without reading.',
+                                'interview_questions' => [
+                                    'Where did you go on your last trip?',
+                                    'Had you been there before?',
+                                    'How did you get there?',
+                                    'Has anything ever gone wrong on a trip?',
+                                    'Have you ever got lost in a new city?',
+                                    'What souvenirs do you usually buy?',
+                                ],
+                            ],
+                            [
+                                'key' => 'reading_comprehension',
+                                'label' => 'Reading',
+                                'duration_minutes' => 12,
+                                'hook' => 'An alarm set for the wrong time, a taxi in the rain, and a plane that had already taken off.',
+                                'passage_title' => 'The day I missed my flight',
+                                'image_query' => 'airplane taking off',
+                                // Written fresh for this app (EOS-009 §14) — reuses the Vocabulary
+                                // Builder words in a new context, with the three narrative tenses.
+                                'passage' => 'Last spring my sister and I booked a trip to Istanbul. It was my first time abroad, '
+                                    .'and I had never flown alone before, because my sister was flying from another city. On the '
+                                    .'morning of the flight, I was having breakfast when my phone rang. It was my sister: "Where are '
+                                    .'you? We\'re boarding!" I had set my alarm for the wrong time! I jumped into a taxi, but it was '
+                                    .'raining, and the traffic was terrible. By the time I got to the airport, the check-in desk had '
+                                    .'closed, and my plane had already taken off. I felt awful. Luckily, the woman at the desk was '
+                                    .'kind. She found me a seat on the next flight, and I only paid a small fee. When I landed, my '
+                                    .'sister was waiting for me with a big smile. "I\'ve already checked in at our accommodation," '
+                                    .'she said. We went sightseeing for three days, got lost in the old streets twice, and bought '
+                                    .'far too many souvenirs. Now I always check my alarm twice before a trip.',
+                                'highlighted_phrases' => [
+                                    ['phrase' => 'booked', 'type' => 'reused'],
+                                    ['phrase' => 'check-in desk', 'type' => 'reused'],
+                                    ['phrase' => 'taken off', 'type' => 'reused'],
+                                    ['phrase' => 'landed', 'type' => 'reused'],
+                                    ['phrase' => 'accommodation', 'type' => 'reused'],
+                                    ['phrase' => 'went sightseeing', 'type' => 'reused'],
+                                    ['phrase' => 'got lost', 'type' => 'reused'],
+                                    ['phrase' => 'souvenirs', 'type' => 'reused'],
+                                    ['phrase' => 'abroad', 'type' => 'new', 'definition' => 'in or to another country', 'pos' => 'adverb', 'example' => 'She wants to study abroad next year.'],
+                                    ['phrase' => 'fee', 'type' => 'new', 'definition' => 'an amount of money you pay for a service', 'pos' => 'noun', 'example' => 'There is a small fee for changing your ticket.'],
+                                ],
+                                'topic_summary' => 'The writer missed a flight to Istanbul because their alarm was set for the wrong '
+                                    .'time. By the time they got to the airport in the rain, the plane had already taken off, but a '
+                                    .'kind woman at the desk found them a seat on the next flight for a small fee. In Istanbul, the '
+                                    .'two sisters went sightseeing, got lost twice and bought too many souvenirs.',
+                                'comprehension_check' => [
+                                    ['statement' => 'The writer had flown alone many times before.', 'correct' => false, 'difficulty' => 'easy'],
+                                    ['statement' => 'It was raining on the way to the airport.', 'correct' => true, 'difficulty' => 'medium'],
+                                    ['statement' => 'The writer had to pay a lot of money for a new ticket.', 'correct' => false, 'difficulty' => 'hard'],
+                                ],
+                                'questions' => [
+                                    'Why did the writer miss the flight?',
+                                    'What was the sister doing when the writer landed?',
+                                ],
+                                // Multiple choice instead of written answers (reading task 11,
+                                // 2026-11-10): one tap each, graded in the browser like the true/false
+                                // round above. Every right answer is stated in the passage; the wrong
+                                // ones are things the passage mentions or plausibly could.
+                                'choice_questions' => [
+                                    ['prompt' => 'What was the writer doing when the phone rang?', 'options' => ['Having breakfast', 'Sleeping', 'Waiting for a taxi'], 'correct' => 0, 'difficulty' => 'easy'],
+                                    ['prompt' => 'What had happened by the time the writer got to the airport?', 'options' => ['The sister had gone home', 'The airport had closed', 'The plane had already taken off'], 'correct' => 2, 'difficulty' => 'medium'],
+                                    ['prompt' => 'What did the sisters do in Istanbul?', 'options' => ['They stayed in the hotel', 'They went sightseeing and bought souvenirs', 'They went to the beach every day'], 'correct' => 1, 'difficulty' => 'hard'],
+                                ],
+                            ],
+                            [
+                                'key' => 'writing',
+                                'label' => 'Writing',
+                                'duration_minutes' => 12,
+                                'hook' => 'A trip you remember — what happened, what was happening, and what had happened before.',
+                                'title' => 'A trip I remember',
+                                'prompts' => [
+                                    ['label' => 'A trip I will never forget', 'image_query' => 'mountain road trip car'],
+                                    ['label' => 'A time something went wrong on a trip', 'image_query' => 'tired traveler airport'],
+                                    ['label' => 'The first time I flew', 'image_query' => 'airplane window view clouds'],
+                                    ['label' => 'A place I had wanted to see for years', 'image_query' => 'old city street tourists'],
+                                    ['label' => 'A souvenir I bought', 'image_query' => 'souvenir shop'],
+                                    ['label' => 'Travelling with my family', 'image_query' => 'family travel train'],
+                                ],
+                                // Grammar connectors only — see M01's try_to_use note.
+                                'try_to_use' => ['I had never … before', 'By the time I got there, … had …', 'I was … -ing when …', 'delay', 'go sightseeing', 'get lost', 'souvenir'],
+                                'min_words' => 100,
+                                'max_words' => 150,
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'challenge',
+                        'label' => 'Day 4',
+                        'mode' => 'ai',
+                        'pair_speaking' => [
+                            ['question' => 'When did you first fly?', 'answer' => 'I first flew when I was ten. I had never seen the clouds from above!', 'words' => ['had never seen']],
+                            ['question' => 'What happened the last time you missed a train or a bus?', 'answer' => 'When I got to the station, the train had already left, so I took a taxi.', 'words' => ['had already left']],
+                            ['question' => 'What were you doing when you heard some big news?', 'answer' => 'I was having dinner when my brother called with the news.', 'words' => ['was having']],
+                            ['question' => 'Do you buy train tickets early?', 'answer' => 'Yes. Once the train was sold out, so now I always book ahead of time.', 'words' => ['sold out', 'ahead of time']],
+                        ],
+                        'steps' => [
+                            [
+                                'key' => 'error_log',
+                                'label' => 'My Fixes',
+                                'duration_minutes' => 7,
+                                'hook' => "Every mistake here is one you won't make in tomorrow's Final Challenge.",
+                            ],
+                            [
+                                'key' => 'ai_conversation_2',
+                                'label' => 'Final Talk',
+                                'duration_minutes' => 12,
+                                'hook' => "This one's harder on purpose — real conversations don't come with warm-up questions.",
+                                'round_pool' => [
+                                    'What was your best trip ever?',
+                                    'Had you been to that place before?',
+                                    'Has a bus or a train ever left without you?',
+                                    'What were you doing when your last trip began?',
+                                    'Have you ever got lost on a trip?',
+                                    'What do you book ahead of time?',
+                                ],
+                                'role_reversal_topic' => 'travel stories: what happened, what was happening, and what had happened before',
+                                'final_prompt' => 'Talk for 3 minutes about a trip you remember: what happened, what was happening around you, and what had happened before.',
+                                'requirements' => [
+                                    '5+ vocabulary expressions',
+                                    'the past simple for the main events',
+                                    'the past continuous for the background (was / were + -ing)',
+                                    'the past perfect for an earlier event (had + past participle)',
+                                    'By the time … / When I got there, … had already …',
+                                    'How the trip ended',
                                 ],
                             ],
                             [

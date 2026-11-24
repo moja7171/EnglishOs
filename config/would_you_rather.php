@@ -104,4 +104,10 @@ return [
         ['buy one expensive coat', 'buy three cheap coats'],
         ['cut your own hair', 'have your hair cut by a friend'],
     ],
+    'M16' => [
+        ['travel by plane', 'travel by train'],
+        ['go sightseeing in a big city', 'relax on a quiet beach'],
+        ['travel with only hand luggage', 'take a big suitcase'],
+        ['plan every day of a trip ahead of time', 'decide everything on the day'],
+    ],
 ];

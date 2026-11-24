@@ -207,4 +207,15 @@ return [
             ['wrong' => 'I cut my hair at a hairdresser\'s last week.', 'right' => 'I had my hair cut at a hairdresser\'s last week.', 'why' => 'Someone else did it → had my hair cut.'],
         ],
     ],
+    'M16' => [
+        0 => [
+            ['wrong' => 'When I called, she had went to bed.', 'right' => 'When I called, she had gone to bed.', 'why' => 'had + past participle: gone, not went.'],
+        ],
+        1 => [
+            ['wrong' => 'When we got to the cinema, the film already started.', 'right' => 'When we got to the cinema, the film had already started.', 'why' => 'It started before we got there → had started.'],
+        ],
+        2 => [
+            ['wrong' => 'Two years ago I had travelled to Shiraz with my family.', 'right' => 'Two years ago I travelled to Shiraz with my family.', 'why' => 'One past event with a finished time → past simple.'],
+        ],
+    ],
 ];
