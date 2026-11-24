@@ -75,6 +75,7 @@ class CacheShadowTimestamps extends Command
         $cache = is_file($path) ? (json_decode(file_get_contents($path), true) ?: []) : [];
         $unmatched = false;
         $changed = false;
+        $listeningDone = false;
 
         foreach ($mission->phases ?? [] as $phase) {
             foreach ($phase['steps'] ?? [] as $step) {
@@ -100,6 +101,7 @@ class CacheShadowTimestamps extends Command
                     $source = isset($cache['video_shadowing_words']) ? 'Whisper words' : 'captions';
                 } elseif (str_starts_with($key, 'daily_listen_')) {
                     $words = $this->listeningWords($mission, $groq, $cache);
+                    $listeningDone = true;
                     $timeline = $words !== null ? self::trimSilenceFromWords($words) : null;
                     $source = 'Whisper words';
                 } else {
@@ -132,7 +134,9 @@ class CacheShadowTimestamps extends Command
         // Day 1 Listening's synced text (and missions:align-listening-speakers)
         // needs listening_segments even when no daily_listen_N step asked for
         // them: from M14 on, the hidden Listen Again steps are not authored.
-        if (! isset($cache['listening_segments']) && filled($mission->stepContent('listening')['audio_url'] ?? null)) {
+        $listeningNeeded = $this->option('fresh') || ! isset($cache['listening_segments']);
+
+        if (! $listeningDone && $listeningNeeded && filled($mission->stepContent('listening')['audio_url'] ?? null)) {
             $changed = $this->listeningWords($mission, $groq, $cache) !== null || $changed;
         }
 

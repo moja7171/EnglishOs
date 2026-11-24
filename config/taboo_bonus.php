@@ -204,4 +204,23 @@ return [
     'deposit' => ['flat', 'rent'],
     'value for money' => ['price', 'good'],
     'go up' => ['prices', 'higher'],
+
+    // M15 · Shopping
+    'browse' => ['look', 'shop'],
+    'impulse buy' => ['suddenly', 'buy'],
+    'regret' => ['sorry', 'feel'],
+    'checkout' => ['pay', 'shop'],
+    'essential' => ['need', 'important'],
+    'try on' => ['clothes', 'wear'],
+    'changing room' => ['clothes', 'room'],
+    'size' => ['big', 'small'],
+    'fit' => ['clothes', 'size'],
+    'discount' => ['price', 'less'],
+    'bargain' => ['cheap', 'buy'],
+    'receipt' => ['paper', 'paid'],
+    'refund' => ['money', 'back'],
+    'exchange' => ['change', 'shop'],
+    'faulty' => ['broken', 'work'],
+    'deliver' => ['bring', 'home'],
+    'guarantee' => ['repair', 'promise'],
 ];

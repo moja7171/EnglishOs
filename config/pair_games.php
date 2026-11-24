@@ -29,5 +29,6 @@ return [
         ['What your teachers told you', 'My teacher said that… She told me to…', 12],
         ['My tech life', 'I’ve never… / I lost my phone last year…', 13],
         ['Money and me', 'If I save… I’ll… / I won’t buy it unless…', 14],
+        ['Shopping and me', 'It was made in… / I had my … repaired…', 15],
     ],
 ];

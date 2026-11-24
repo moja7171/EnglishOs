@@ -98,4 +98,10 @@ return [
         ['borrow money from a friend', 'borrow money from a bank'],
         ['have a job you love that pays a little', 'have a boring job that pays a lot'],
     ],
+    'M15' => [
+        ['shop online', 'shop in a real shop'],
+        ['have your old clothes repaired', 'buy new clothes'],
+        ['buy one expensive coat', 'buy three cheap coats'],
+        ['cut your own hair', 'have your hair cut by a friend'],
+    ],
 ];

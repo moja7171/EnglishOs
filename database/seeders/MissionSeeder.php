@@ -42,6 +42,8 @@ class MissionSeeder extends Seeder
 
     private const SLIP_WILL_CAN = 'will with can or must ("I will can", "I\'ll must")';
 
+    private const SLIP_WILL_AFTER_IF = 'will right after if / when / unless / as soon as ("If it will break, I\'ll take it back", "when I will get paid")';
+
     /**
      * Seeds M01 with its real content from document/M01/ (Mission01.pdf,
      * BBC Learning English "Real Easy English — Mornings"), matching the
@@ -3020,6 +3022,7 @@ class MissionSeeder extends Seeder
         $this->seedM12();
         $this->seedM13();
         $this->seedM14();
+        $this->seedM15();
     }
 
     /**
@@ -10091,6 +10094,635 @@ class MissionSeeder extends Seeder
                                     'when, as soon as or unless at least once',
                                     'How you save (or don\'t!)',
                                     'What you will do if you get extra money',
+                                ],
+                            ],
+                            [
+                                'key' => 'mission_result',
+                                'label' => 'Mission Result',
+                                'duration_minutes' => 5,
+                                'hook' => "You started this mission with a number — let's see how far it moved.",
+                                'skills' => ['Listening', 'Vocabulary', 'Grammar', 'Speaking', 'Writing'],
+                                'reflection_questions' => [
+                                    'became_easier' => ['label' => 'What became easier?', 'type' => 'skills'],
+                                    'still_difficult' => ['label' => 'What is still difficult?', 'type' => 'skills'],
+                                    'expression_to_keep' => ['label' => 'One expression I want to keep using', 'type' => 'vocabulary'],
+                                    'grammar_to_review' => ['label' => 'One grammar point I need to review', 'type' => 'errors'],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ]
+        );
+    }
+
+    /**
+     * Seeds M15 "Shopping" — the passive (present, past, present perfect and
+     * can / must + be) and have something done (the M14–M24 grammar list
+     * approved 2026-11-23), the first time the passive is taught. Built for
+     * the "Light" days like M14: 13 steps, no story_sequence,
+     * picture_description or daily_listen_2/3 (config/missions.php
+     * hidden_steps). Media: the Easy English Podcast's "Why We Buy Things We
+     * Don't Need (And How to Stop!)" (Oliver, cut from 18 to about 6
+     * minutes: impulse buys, dopamine, how shops are designed, the 72-hour
+     * rule) and Josephine Philips's TED talk "The Simple Solution to Fast
+     * Fashion" (cut from 8:25 to 5:31: her grandmother's yellow dress, her
+     * sister's jeans that have been repaired twice, trousers she has had
+     * tailored, TED's own captions). Vocabulary days 2-3 follow the subject
+     * of Vocabulary in Use units 22-23 (buying clothes, shopping), with our
+     * own word choice and sentences — not the book's text.
+     */
+    private function seedM15(): void
+    {
+        $audioUrl = $this->publishMissionAsset('M15', 'Easy English Podcast - Why We Buy Things We Dont Need.mp3');
+        $shadowingVideoUrl = $this->publishMissionAsset('M15', 'TED - Josephine Philips The Simple Solution to Fast Fashion.mp4');
+        $shadowingCaptionsUrl = $this->publishMissionAsset('M15', 'TED - Josephine Philips The Simple Solution to Fast Fashion.en.vtt');
+
+        Mission::updateOrCreate(
+            ['code' => 'M15'],
+            [
+                'title' => 'Shopping',
+                'module' => 'Shopping',
+                'outcome' => 'I can talk about shopping — where things are made and how they are sold or returned — and say "I had my phone repaired" when someone does a job for me.',
+                'phases' => [
+                    [
+                        'phase' => 'foundation',
+                        'label' => 'Day 1',
+                        'mode' => 'solo',
+                        'pair_speaking' => [
+                            ['question' => 'Do you browse online shops in the evening?', 'answer' => 'Yes, I browse online shops before bed.', 'words' => ['browse']],
+                            ['question' => 'What was your last impulse buy?', 'answer' => 'My last impulse buy was a phone case at the checkout.', 'words' => ['impulse buy', 'checkout']],
+                            ['question' => 'Do you ever regret buying something?', 'answer' => 'Yes. I regret buying a big coat. I never wear it.', 'words' => ['regret']],
+                            ['question' => 'What do you always buy in a supermarket?', 'answer' => 'Bread, milk and eggs. They\'re essential for me.', 'words' => ['essential']],
+                        ],
+                        'steps' => [
+                            [
+                                'key' => 'mission_brief',
+                                'label' => 'Get Ready',
+                                'duration_minutes' => 5,
+                                'hook' => 'Where were your clothes made? Who repairs your phone? Could you say it in English?',
+                                'image_query' => 'shopping bags store mall',
+                                'ambient_video_query' => 'shopping mall',
+                                'warm_up_questions' => [
+                                    'Do you like shopping?',
+                                    'Do you shop online?',
+                                    'What did you buy last?',
+                                    'Where do you buy your clothes?',
+                                ],
+                            ],
+                            [
+                                'key' => 'vocabulary_builder_1',
+                                'label' => 'New Words',
+                                'duration_minutes' => 9,
+                                'hook' => 'Five words Oliver uses about the things we buy and don\'t need.',
+                                // Day 1 = the Listening episode's own 5 target_phrases (see M01's
+                                // vocabulary_builder_1), so every learner meets them here first.
+                                'story' => 'On Friday evening I was **browsing** a supermarket for some **essential** things: '
+                                    .'bread, milk and soap. But at the **checkout** I saw a cheap watch, and I bought it. It was an '
+                                    .'**impulse buy**. Now I **regret** it, because I already have a watch!',
+                                'words' => [
+                                    ['phrase' => 'browse', 'meaning' => 'to look at things in a shop or online, with no plan to buy one thing', 'meaning_fa' => 'گشت زدن و نگاه کردن (در مغازه یا سایت)', 'pos' => 'verb', 'example' => 'I like to browse online shops in the evening.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'impulse buy', 'meaning' => 'something you buy suddenly, without thinking or planning', 'meaning_fa' => 'خرید هیجانی، خرید بی‌برنامه', 'pos' => 'noun', 'example' => 'These sunglasses were an impulse buy.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'regret', 'meaning' => 'to feel sorry or sad about something you did', 'meaning_fa' => 'پشیمان بودن', 'pos' => 'verb', 'example' => 'I regret buying that expensive coat.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'checkout', 'meaning' => 'the place in a shop where you pay', 'meaning_fa' => 'صندوق پرداخت', 'pos' => 'noun', 'example' => 'There was a long queue at the checkout.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'essential', 'meaning' => 'very important and necessary', 'meaning_fa' => 'ضروری', 'pos' => 'adjective', 'example' => 'Water and bread are essential.', 'difficulty' => 'medium'],
+                                ],
+                            ],
+                            [
+                                'key' => 'listening',
+                                'label' => 'Listening',
+                                'duration_minutes' => 18,
+                                'hook' => 'Why do we buy things we don\'t need? Listen for how shops are designed to make us spend more.',
+                                'source' => 'Easy English Podcast — "Why We Buy Things We Don\'t Need (And How to Stop!)"',
+                                'image_query' => 'woman shopping supermarket',
+                                'audio_url' => $audioUrl,
+                                'listening_segments' => $this->shadowTimestampsFor('M15', 'listening_segments'),
+                                // The same chunks tagged with who is talking — see
+                                // missions:align-listening-speakers. One speaker: Oliver.
+                                'listening_turns' => $this->shadowTimestampsFor('M15', 'listening_turns'),
+                                // The parts kept in the cut (0:01-0:40, 2:41-3:10, 4:29-4:55,
+                                // 5:53-7:14, 8:16-9:11, 9:17-10:10, 13:15-14:10 and 15:34-16:08
+                                // of the original; the poll, Patreon and subscribe parts, two of
+                                // the five words and the quiz left out), written from a Whisper
+                                // pass of the cut audio.
+                                'transcript' => [
+                                    ['speaker' => 'Oliver', 'text' => 'You\'re browsing online, or walking through a supermarket or a mall, and maybe you see a product or an item that you don\'t really need, or perhaps one that you weren\'t actually looking for at all. And perhaps at the start, you might tell yourself, "I don\'t need this." But ten minutes later, you\'re walking out of the store with something that you\'ve bought that you never actually wanted. I\'m your host Oliver, and welcome back to the Easy English Podcast, and today we are talking about why we buy things that we don\'t need.'],
+                                    ['speaker' => 'Oliver', 'text' => 'Our first piece of key vocabulary is impulse. Impulse. And an impulse is a sudden urge or desire to act without thinking. So it\'s when you just do something. You might have the impulse to buy something, and in that case, you\'re buying it without really thinking about it. And I\'m sure we\'ve all made impulse purchases today.'],
+                                    ['speaker' => 'Oliver', 'text' => 'Our final piece of key vocabulary today is regret. Regret. This can also be a verb, but as a noun, regret means a feeling of sadness or disappointment over something that has happened. So after buying something that you regret, you maybe feel disappointed, or you don\'t need it, so you regret purchasing it.'],
+                                    ['speaker' => 'Oliver', 'text' => 'Why do we make an impulse decision to buy things that we don\'t need at all? What\'s the actual reason for that? Well, it comes down to your brain chemistry. So what is actually going on with the science, essentially, in your brain, in your head? When you see something that is attractive to you, your brain releases dopamine. It releases that positive chemical, which is related to anticipation and reward. People often call dopamine the feel-good chemical. But one point to notice here is that dopamine isn\'t actually released once you own the item. Dopamine is released whenever you want it, whenever you desire it. The actual dopamine release, the thrill, it comes from the act of hunting it, chasing it and trying to get it, and the act of purchasing it. And once you take that item home, once you\'ve actually bought it and you take it home, that chemical rush of dopamine that you have, it disappears. It slows down and it goes away. And that\'s why buying new things feels very great in the short term. But in the long term, you start to maybe feel that regret, or you feel bad about it.'],
+                                    ['speaker' => 'Oliver', 'text' => 'It really isn\'t all your own biology. It\'s also the environments that we are in when we\'re shopping. When we\'re in a store, a mall, these environments, they increase and are designed to increase our temptation, that desire that we feel to buy things. In fact, companies spend billions of dollars every year studying, you know, how to actually manipulate your shopping habits, to essentially manipulate you to buy more things. Stores will place expensive items more at your eye level, so where you\'re looking, so that you\'re more likely to pick them up and buy them. Likewise, they\'ll then tend to place the cheaper items at the bottom, low down, or very high up, where you\'re less likely to look at them, so you\'re more likely to pick that expensive item.'],
+                                    ['speaker' => 'Oliver', 'text' => 'And some very simple ones that you\'ve probably seen, for example, in your local supermarket: you might notice that the bread or the milk, some of the essential items that people go into the shop for, they put them at the back of the store, so that you have to walk past lots of other things as you go to get those items. And then, once you actually get to the checkout, so to the self-checkout, or where you\'re scanning items with a person, you will notice lots of smaller items, like a chocolate bar or maybe chewing gum, and these are placed at the checkout for last-minute impulse buys: little small items that don\'t seem like much, which you\'re probably, potentially, going to add on to your purchase.'],
+                                    ['speaker' => 'Oliver', 'text' => 'And the best rule, I think, is to use the 72-hour rule. And what it means is, whenever you feel a very strong impulse to buy something that is non-essential, so something that you don\'t really need, give yourself 72 hours, so three days, and wait. Add it to your cart, maybe. You can wait a little bit and see after three days if you still want to purchase it. In many cases, that dopamine rush, that feeling that you\'re getting when you\'re going to buy it, will disappear, and that will give you the feeling that you actually need. Do you still want it? Do you still think you need it? So giving yourself that period of 72 hours is a great way to do this.'],
+                                    ['speaker' => 'Oliver', 'text' => 'Buying things isn\'t inherently bad. It\'s not bad itself, right? But when we buy for that emotion, for dopamine, often we will regret it after that initial impulse. And to make it worse, these companies are trying to manipulate us. They are actively trying to get you to spend more money. So by taking some steps and recognizing this, we can minimize that manipulation and have more control over our purchases.'],
+                                ],
+                                // The same 5 phrases vocabulary_builder_1 taught, each a real
+                                // substring of this transcript.
+                                'target_phrases' => [
+                                    [
+                                        'phrase' => 'browsing', 'meaning' => 'looking at things with no plan to buy one',
+                                        'gap_before' => 'You\'re ',
+                                        'gap_after' => ' online, or walking through a supermarket or a mall',
+                                    ],
+                                    [
+                                        'phrase' => 'regret', 'meaning' => 'feel sorry about something you did',
+                                        'gap_before' => 'So after buying something that you ',
+                                        'gap_after' => ', you maybe feel disappointed',
+                                    ],
+                                    [
+                                        'phrase' => 'essential', 'meaning' => 'very important and necessary',
+                                        'gap_before' => 'some of the ',
+                                        'gap_after' => ' items that people go into the shop for',
+                                    ],
+                                    [
+                                        'phrase' => 'checkout', 'meaning' => 'the place where you pay',
+                                        'gap_before' => 'And then, once you actually get to the ',
+                                        'gap_after' => ', so to the self-checkout, or where you\'re scanning items with a person',
+                                    ],
+                                    [
+                                        'phrase' => 'impulse buys', 'meaning' => 'things you buy suddenly, without thinking',
+                                        'gap_before' => 'these are placed at the checkout for last-minute ',
+                                        'gap_after' => ': little small items that don\'t seem like much',
+                                    ],
+                                ],
+                                'topic_summary' => 'Oliver, the host of the Easy English Podcast, explains why people often walk out '
+                                    .'of a shop with something they never wanted to buy. When we see something we want, our brain '
+                                    .'releases dopamine, the "feel-good" chemical, but the good feeling disappears once we take the '
+                                    .'item home, and then we often regret it. Shops are also designed to make us buy more: expensive '
+                                    .'items are placed at eye level, bread and milk are put at the back of the store, and sweets are '
+                                    .'placed at the checkout for impulse buys. His best tip is the 72-hour rule: wait three days, '
+                                    .'and see if you still want it.',
+                                'comprehension_check' => [
+                                    ['statement' => 'Our brain releases dopamine when we want something.', 'correct' => true, 'difficulty' => 'easy'],
+                                    ['statement' => 'Supermarkets usually put bread and milk near the door.', 'correct' => false, 'difficulty' => 'medium'],
+                                    ['statement' => 'The 72-hour rule means you wait three days before you buy something.', 'correct' => true, 'difficulty' => 'hard'],
+                                ],
+                                'detail_question' => [
+                                    'question' => 'Where are small things like chocolate bars placed?',
+                                    'options' => ['At the checkout', 'At eye level', 'At the back of the store'],
+                                    'correct' => 0,
+                                ],
+                                // No shadow_lines here — Day 1 Listening is comprehension-only.
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'build',
+                        'label' => 'Day 2',
+                        'mode' => 'solo',
+                        'pair_speaking' => [
+                            ['question' => 'Do you try on clothes before you buy them?', 'answer' => 'Yes, I always try them on in the changing room.', 'words' => ['try them on', 'changing room']],
+                            ['question' => 'What size are your shoes?', 'answer' => 'My size is 42, but these shoes don\'t fit me.', 'words' => ['size', 'fit']],
+                            ['question' => 'Where are your clothes made?', 'answer' => 'Most of my clothes are made in Turkey.', 'words' => ['are made']],
+                            ['question' => 'Have you found a bargain this year?', 'answer' => 'Yes. This jacket was a bargain. It was sold with a big discount.', 'words' => ['bargain', 'was sold', 'discount']],
+                        ],
+                        'steps' => [
+                            [
+                                'key' => 'vocabulary_builder_2',
+                                'label' => 'New Words',
+                                'duration_minutes' => 10,
+                                'hook' => 'Six words for buying clothes, from the changing room to a real bargain.',
+                                // The subject of Vocabulary in Use units 22-23 (buying clothes,
+                                // shopping); our own word choice and sentences.
+                                'story' => 'Last Saturday I went to a clothes shop and found a nice jacket. I **tried it on** in '
+                                    .'the **changing room**. It was my **size**, and it **fitted** perfectly. There was a 30% '
+                                    .'**discount**, so it was a real **bargain**!',
+                                'words' => [
+                                    ['phrase' => 'try on', 'meaning' => 'to put on clothes in a shop to see if they are right for you', 'meaning_fa' => 'پرو کردن (لباس)', 'pos' => 'phrasal verb', 'example' => 'Can I try on these jeans?', 'difficulty' => 'easy'],
+                                    ['phrase' => 'changing room', 'meaning' => 'a small room in a shop where you try on clothes', 'meaning_fa' => 'اتاق پرو', 'pos' => 'noun', 'example' => 'The changing rooms are at the back of the shop.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'size', 'meaning' => 'how big or small clothes or shoes are', 'meaning_fa' => 'سایز، اندازه', 'pos' => 'noun', 'example' => 'Do you have this shirt in a bigger size?', 'difficulty' => 'easy'],
+                                    ['phrase' => 'fit', 'meaning' => '(of clothes) to be the right size for you', 'meaning_fa' => 'اندازه بودن (لباس)', 'pos' => 'verb', 'example' => 'These shoes don\'t fit me. They\'re too small.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'discount', 'meaning' => 'money that is taken off the usual price', 'meaning_fa' => 'تخفیف', 'pos' => 'noun', 'example' => 'Students get a 10% discount here.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'bargain', 'meaning' => 'something you buy for much less than its usual price', 'meaning_fa' => 'جنس ارزان و به‌صرفه، خرید خوب', 'pos' => 'noun', 'example' => 'This coat was a bargain — only 20 euros!', 'difficulty' => 'medium'],
+                                ],
+                            ],
+                            [
+                                'key' => 'grammar_in_context',
+                                'label' => 'Grammar Time',
+                                'duration_minutes' => 15,
+                                'hook' => 'It was made in Turkey. I had it repaired. Who did the job? Sometimes it doesn\'t matter.',
+                                'focus' => 'The Passive + have something done',
+                                // Our own explanation and examples (EOS-009 §14); the order
+                                // follows Grammar in Use units 42-44 (the passive: be + past
+                                // participle in different tenses, can / must be done) and 46
+                                // (have something done). The present perfect passive re-checks
+                                // M10 / M13; can / must be re-checks M03. Passive reporting
+                                // ("it is said") is in the Grammar in Use course, not here.
+                                'lesson' => [
+                                    'intro' => 'Use the passive when the thing is more important than the person who does the job: It\'s made in Turkey. Use have something done when someone else does a job for you: I had my phone repaired.',
+                                    'sections' => [
+                                        [
+                                            'heading' => 'A · be + past participle',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'The passive = <strong>be + past participle</strong>. Change <strong>be</strong> for the time: <strong>It\'s made</strong> in Turkey. <strong>It was sold</strong> in a day. <strong>It has been sold.</strong> After <strong>can / must</strong>, use <strong>be</strong>: <strong>It can be returned.</strong> <strong>It must be paid.</strong> Add <strong>by …</strong> only when the person is important: <strong>This shop was opened by my grandfather.</strong>',
+                                                    'fa' => 'مجهول = be + قسمت سوم فعل. زمان را با be نشان بده: is made (حال)، was sold (گذشته)، has been sold (حال کامل). بعد از can و must همیشه be می‌آید: can be returned، must be paid. by فقط وقتی می‌آید که مهم است چه کسی کار را کرده.',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'passive: be + past participle',
+                                                    'parts' => [
+                                                        ['text' => 'These shoes', 'caption' => 'thing'],
+                                                        ['text' => 'are made', 'caption' => 'be + past participle', 'tone' => 'accent'],
+                                                        ['text' => 'in Italy.', 'caption' => 'where'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'This phone made in China.', 'right' => 'This phone was made in China.', 'highlight' => 'was made', 'note' => 'No be, no passive: was made.', 'fa' => 'بدون be مجهول ساخته نمی‌شود: «ساخت چین است» = was made / is made.'],
+                                                        ['wrong' => 'The shoes can returned in 30 days.', 'right' => 'The shoes can be returned in 30 days.', 'highlight' => 'can be returned', 'note' => 'After can / must → be + past participle.', 'fa' => 'بعد از can و must اول be می‌آید: can be returned.'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'pairs',
+                                                    'pairs' => [
+                                                        ['left' => 'They make these shoes in Italy.', 'right' => 'These shoes are made in Italy.', 'fa' => 'هر دو درست؛ دومی روی کفش تأکید دارد، نه روی سازنده.'],
+                                                        ['left' => 'Someone has sold the last one.', 'right' => 'The last one has been sold.', 'fa' => 'حال کامل مجهول: has been + قسمت سوم فعل.'],
+                                                        ['left' => 'You must pay at the checkout.', 'right' => 'Everything must be paid at the checkout.', 'fa' => 'بعد از must در مجهول: be + قسمت سوم فعل.'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'From the listening', 'items' => [
+                                                            ['text' => 'Dopamine is released whenever you want it.', 'fa' => 'دوپامین هر وقت چیزی را بخواهی ترشح می‌شود.'],
+                                                            ['text' => 'These are placed at the checkout for last-minute impulse buys.', 'fa' => 'این‌ها برای خریدهای هیجانیِ دقیقه‌ی آخر کنار صندوق گذاشته می‌شوند.'],
+                                                        ]],
+                                                        ['label' => 'Examples', 'items' => [
+                                                            ['text' => 'My jacket was made in Turkey.', 'fa' => 'کاپشنم ساخت ترکیه است.'],
+                                                            ['text' => 'This shop was opened in 1990.', 'fa' => 'این مغازه سال ۱۹۹۰ باز شد.'],
+                                                        ]],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'B · I repaired it, or I had it repaired?',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'Use the <strong>active</strong> when you say who does it: <strong>The shop sells old books.</strong> Use the <strong>passive</strong> when who does it is not known or not important: <strong>Old books are sold here.</strong> When someone else does a job <strong>for you</strong> (and you usually pay), use <strong>have + thing + past participle</strong>: <strong>I repaired my phone.</strong> (I did it.) ↔ <strong>I had my phone repaired.</strong> (A repair shop did it.)',
+                                                    'fa' => 'اگر مهم است چه کسی کار را می‌کند، جمله‌ی معلوم؛ اگر نه، مجهول. وقتی کسی کاری را برایت انجام می‌دهد (معمولاً پولش را می‌دهی): have + چیز + قسمت سوم فعل. I repaired my phone یعنی خودم درستش کردم؛ I had my phone repaired یعنی دادم برایم تعمیرش کردند.',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'have something done',
+                                                    'parts' => [
+                                                        ['text' => 'I', 'caption' => 'person'],
+                                                        ['text' => 'had', 'caption' => 'have (any tense)', 'tone' => 'accent'],
+                                                        ['text' => 'my phone', 'caption' => 'thing'],
+                                                        ['text' => 'repaired', 'caption' => 'past participle', 'tone' => 'accent'],
+                                                        ['text' => 'last week.', 'caption' => 'when'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'I had my phone repair last week.', 'right' => 'I had my phone repaired last week.', 'highlight' => 'repaired', 'note' => 'have + thing + past participle (repaired).', 'fa' => 'بعد از چیز، قسمت سوم فعل می‌آید: repaired.'],
+                                                        ['wrong' => 'I\'m having cut my hair tomorrow.', 'right' => 'I\'m having my hair cut tomorrow.', 'highlight' => 'my hair cut', 'note' => 'The thing goes before the past participle.', 'fa' => 'ترتیب: have + چیز + قسمت سوم فعل (my hair cut).'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'pairs',
+                                                    'pairs' => [
+                                                        ['left' => 'I cleaned my car. (I did it.)', 'right' => 'I had my car cleaned. (Someone did it for me.)', 'fa' => 'اولی: خودم شستم. دومی: دادم برایم شستند.'],
+                                                        ['left' => 'I\'m going to fix my bike.', 'right' => 'I\'m going to have my bike fixed.', 'fa' => 'اولی: خودم درستش می‌کنم. دومی: می‌دهم درستش کنند.'],
+                                                        ['left' => 'A tailor made this suit for me.', 'right' => 'I had this suit made.', 'fa' => 'هر دو یعنی خیاط دوخت؛ دومی روی من و کت‌وشلوار تأکید دارد.'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'From the video', 'items' => [
+                                                            ['text' => 'This pair of trousers that I\'ve had tailored to fit…', 'fa' => 'این شلواری که داده‌ام اندازه‌ام کنند…'],
+                                                        ]],
+                                                        ['label' => 'Examples', 'items' => [
+                                                            ['text' => 'I have my hair cut every month.', 'fa' => 'هر ماه موهایم را کوتاه می‌کنم (آرایشگر کوتاه می‌کند).'],
+                                                            ['text' => 'We\'re having our kitchen painted next week.', 'fa' => 'هفته‌ی بعد آشپزخانه‌مان را می‌دهیم رنگ کنند.'],
+                                                        ]],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'C · "I cut my hair" or "I had my hair cut"?',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'When someone else did the job, don\'t say <strong>I cut my hair</strong> — in English that means you did it yourself! Say <strong>I had my hair cut.</strong> The same with jobs you pay for: <strong>I had my phone repaired</strong>, <strong>I\'m having my car washed</strong>, <strong>I\'ve had my eyes tested</strong>.',
+                                                    'fa' => 'خطای رایج فارسی‌زبان‌ها: در فارسی «موهامو کوتاه کردم» را حتی وقتی آرایشگر کوتاه کرده می‌گوییم، پس می‌گوییم I cut my hair؛ ولی در انگلیسی یعنی خودم با قیچی کوتاهش کردم! بگو I had my hair cut. همین‌طور «گوشی‌ام را تعمیر کردم» در تعمیرگاه: I had my phone repaired. have در همه‌ی زمان‌ها می‌آید، حتی حال کامل: I\'ve had my eyes tested.',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'someone else did it',
+                                                    'parts' => [
+                                                        ['text' => 'I had', 'caption' => 'have', 'tone' => 'accent'],
+                                                        ['text' => 'my hair', 'caption' => 'thing'],
+                                                        ['text' => 'cut', 'caption' => 'past participle', 'tone' => 'accent'],
+                                                        ['text' => 'at the hairdresser\'s.', 'caption' => 'where'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'I cut my hair at the hairdresser\'s yesterday.', 'right' => 'I had my hair cut at the hairdresser\'s yesterday.', 'highlight' => 'had my hair cut', 'note' => 'The hairdresser did it → have + thing + past participle.', 'fa' => 'آرایشگر کوتاه کرد، نه خودت: had my hair cut.'],
+                                                        ['wrong' => 'I\'m going to repair my laptop at a repair shop.', 'right' => 'I\'m going to have my laptop repaired at a repair shop.', 'highlight' => 'have my laptop repaired', 'note' => 'The repair shop does the job → have it repaired.', 'fa' => 'تعمیرگاه کار را می‌کند، نه خودت: have my laptop repaired.'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'From the video', 'items' => [
+                                                            ['text' => 'She\'s had to use Sojo to get them repaired twice.', 'fa' => 'مجبور شده دو بار بدهد Sojo تعمیرشان کند.'],
+                                                        ]],
+                                                        ['label' => 'Examples', 'items' => [
+                                                            ['text' => 'I had my eyes tested last month.', 'fa' => 'ماه پیش چشم‌هایم را معاینه کردند (دادم معاینه کنند).'],
+                                                            ['text' => 'Where do you have your hair cut?', 'fa' => 'موهایت را کجا کوتاه می‌کنی؟ (کجا می‌دهی کوتاه کنند؟)'],
+                                                        ]],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'D · Make it personal',
+                                            'body' => 'Next you\'ll finish sentences about <strong>your</strong> shopping — where things are made, how they are sold, and the jobs you have done for you — and soon use them in AI Conversation #1.',
+                                        ],
+                                    ],
+                                    'bridge_note' => 'You\'ll use this soon — in AI Conversation #1.',
+                                ],
+                                'frequency_starters' => [
+                                    'My phone was made in', 'Last month I had my', 'Next week I\'m going to have my',
+                                    'In my home, the shopping is usually done by', 'In a good shop, broken things can be', 'In my city, fresh bread is',
+                                ],
+                                'grammar_judgment' => 'Judge whether the learner finished this sentence starter into '
+                                    .'a true, natural personal sentence about shopping, clothes, repairs or the things they own, '
+                                    .'using the passive (be + past participle: is made, was sold, has been repaired, can be returned) '
+                                    .'or have something done (have + thing + past participle: I had my hair cut, I\'m going to have '
+                                    .'my car repaired).',
+                                'grammar_major_criteria' => 'a verb with no subject, it or there left out ("Is made in China", "Was very cheap"), '
+                                    .'a passive with no be ("My phone made in Korea", "It sold in a day" meant as passive), a wrong '
+                                    .'past participle ("was builded", "has been sell", "had my hair cutted"), can / must + a past '
+                                    .'participle with no be ("can returned"), have + a base form instead of the past participle '
+                                    .'after "Last month I had my" or "Next week I\'m going to have my" ("I had my car repair"), the '
+                                    .'sentence does not actually continue the given starter, or it is not a genuine personal '
+                                    .'statement. Do not mark an active sentence wrong just because the passive would also be '
+                                    .'possible, and "by + person" is never required',
+                                'grammar_context' => 'continues "My phone was made in" with a place; finishes "Last month I had '
+                                    .'my" and "Next week I\'m going to have my" with a thing + past participle (hair cut, car '
+                                    .'repaired); continues "In my home, the shopping is usually done by" with a person; continues '
+                                    .'"In a good shop, broken things can be" and "In my city, fresh bread is" with a past participle '
+                                    .'(returned, repaired, sold, made)',
+                                // Reminders only: SentenceChecker asks for at least "minor", never "major".
+                                'grammar_minor_criteria' => self::SLIP_ARTICLE.'; '.self::SLIP_HE_SHE.'; '.self::SLIP_WILL_AFTER_IF,
+                                'quick_check' => [
+                                    [
+                                        'wrong' => 'This phone made in China.',
+                                        'options' => ['This phone is make in China.', 'This phone was made in China.', 'This phone was make in China.'],
+                                        'correct' => 1,
+                                        'difficulty' => 'easy',
+                                        'why' => 'Passive = be + past participle: was made.',
+                                    ],
+                                    [
+                                        'wrong' => 'The shoes can returned within 30 days.',
+                                        'options' => ['The shoes can be returned within 30 days.', 'The shoes can be return within 30 days.', 'The shoes can been returned within 30 days.'],
+                                        'correct' => 0,
+                                        'difficulty' => 'medium',
+                                        'why' => 'can + be + past participle: can be returned.',
+                                    ],
+                                    [
+                                        'wrong' => 'I cut my hair at the hairdresser\'s yesterday.',
+                                        'options' => ['I had cut my hair at the hairdresser\'s yesterday.', 'I had my hair cut at the hairdresser\'s yesterday.', 'I had my hair cutted at the hairdresser\'s yesterday.'],
+                                        'correct' => 1,
+                                        'difficulty' => 'medium',
+                                        'why' => 'Someone else did it → have + my hair + cut.',
+                                    ],
+                                    [
+                                        'wrong' => 'My phone has repaired.',
+                                        'options' => ['My phone has be repaired.', 'My phone is been repaired.', 'My phone has been repaired.'],
+                                        'correct' => 2,
+                                        'difficulty' => 'hard',
+                                        'why' => 'Present perfect passive: has been + past participle.',
+                                    ],
+                                ],
+                                'word_order' => [
+                                    ['words' => ['in', 'are', 'Italy.', 'shoes', 'made', 'These'], 'answer' => 'These shoes are made in Italy.'],
+                                    ['words' => ['my', 'hair', 'had', 'I', 'yesterday.', 'cut'], 'answer' => 'I had my hair cut yesterday.'],
+                                    ['words' => ['be', 'returned', 'It', 'can', 'days.', 'in', '30'], 'answer' => 'It can be returned in 30 days.'],
+                                ],
+                            ],
+                            [
+                                // Josephine Philips on the TED stage: a young Londoner who started
+                                // a clothing-repair company — her grandmother's yellow dress, her
+                                // sister's jeans and the trousers she has had tailored. Cut from
+                                // 8:25 to 5:31 (the clothing-waste numbers and a joke left out);
+                                // TED's own human captions, re-timed to the cut.
+                                'key' => 'video_shadowing',
+                                'label' => 'Video Shadowing',
+                                'duration_minutes' => 14,
+                                'hook' => 'A young Londoner explains why her sister\'s 15-year-old jeans should never be thrown away.',
+                                'source' => 'TED — Josephine Philips, "The Simple Solution to Fast Fashion"',
+                                'video_url' => $shadowingVideoUrl,
+                                'captions_url' => $shadowingCaptionsUrl,
+                                'video_segments' => $this->shadowTimestampsFor('M15', 'video_shadowing_segments'),
+                                'topic_summary' => 'Josephine Philips\'s grandmother bought a yellow dress at a market in Sierra '
+                                    .'Leone in the 1950s, and 60 years later she gave it to Josephine. It taught her to value the '
+                                    .'clothes she owns. Today Josephine runs Sojo, a company that repairs and alters clothes. She '
+                                    .'says her generation buys too much and throws clothes away. Her sister has worn the same jeans '
+                                    .'for 15 years and has had them repaired twice. Her message: buy less, and look after what you buy.',
+                                'comprehension_check' => [
+                                    ['statement' => 'Josephine\'s grandmother bought her yellow dress in a shop in London.', 'correct' => false],
+                                    ['statement' => 'Josephine started a company that repairs clothes.', 'correct' => true],
+                                    ['statement' => 'Her sister\'s jeans have been repaired twice.', 'correct' => true],
+                                ],
+                                // Real phrases Josephine Philips uses on stage.
+                                'target_phrases' => [
+                                    ['phrase' => 'second-hand', 'meaning' => 'owned and used by someone before'],
+                                    ['phrase' => 'throw away', 'meaning' => 'put something in the rubbish'],
+                                    ['phrase' => 'look after', 'meaning' => 'take care of'],
+                                    ['phrase' => 'one side of the coin', 'meaning' => 'one part of a problem'],
+                                    ['phrase' => 'over and over again', 'meaning' => 'many times'],
+                                ],
+                                // Real verbatim lines from the video — shadowing means mimicking
+                                // the exact audio just heard, and the auto-pause timestamps
+                                // (missions:cache-shadow-timestamps) only land on words people
+                                // actually say. Chosen for this mission's grammar: the passive in
+                                // three tenses and with a modal, and have / get something done.
+                                // Bold marks naturally-stressed content words (rendered by
+                                // <x-stress-marked-line>).
+                                'shadow_lines' => [
+                                    'This is how we\'ve been **taught** to engage with our clothes.',
+                                    'These jeans are **made** of denim, which is a natural fabric.',
+                                    'She\'s had to use Sojo to get them **repaired** twice.',
+                                    'This pair of trousers that I\'ve had **tailored** to fit.',
+                                    'They shouldn\'t be **thrown** away either.',
+                                    'We need to buy **less** stuff, and we need to look after what we buy.',
+                                ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M15', 'video_shadowing'),
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'practice',
+                        'label' => 'Day 3',
+                        'mode' => 'ai',
+                        'pair_speaking' => [
+                            ['question' => 'Do you keep your receipts?', 'answer' => 'Yes. Without a receipt, things can\'t be returned.', 'words' => ['receipt', 'can\'t be returned']],
+                            ['question' => 'Have you ever asked for a refund?', 'answer' => 'Yes. My headphones were faulty, so I got a refund.', 'words' => ['faulty', 'refund']],
+                            ['question' => 'When was your last parcel delivered?', 'answer' => 'It was delivered yesterday, to my door.', 'words' => ['was delivered']],
+                            ['question' => 'Where do you have your phone repaired?', 'answer' => 'I have it repaired in a small shop near my home.', 'words' => ['have it repaired']],
+                        ],
+                        'steps' => [
+                            [
+                                'key' => 'vocabulary_builder_3',
+                                'label' => 'New Words',
+                                'duration_minutes' => 10,
+                                'hook' => 'Last set — the words for what happens after you buy: receipt, refund, exchange…',
+                                // The subject of Vocabulary in Use unit 23 (Shopping); our own
+                                // word choice and sentences.
+                                'story' => 'Last week my new headphones were **delivered**, but they were **faulty**: only one '
+                                    .'side worked! I took them back to the shop with the **receipt**. They were still under '
+                                    .'**guarantee**, so I could **exchange** them or get a **refund**. I chose the refund.',
+                                'words' => [
+                                    ['phrase' => 'receipt', 'meaning' => 'the piece of paper that shows what you bought and paid', 'meaning_fa' => 'رسید خرید', 'pos' => 'noun', 'example' => 'Keep the receipt in case you need to take it back.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'refund', 'meaning' => 'money that a shop gives back to you', 'meaning_fa' => 'پس گرفتن پول', 'pos' => 'noun', 'example' => 'The shop gave me a full refund.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'exchange', 'meaning' => 'to give something back to a shop and get a different one', 'meaning_fa' => 'عوض کردن (کالا)', 'pos' => 'verb', 'example' => 'Can I exchange this shirt for a bigger size?', 'difficulty' => 'medium'],
+                                    ['phrase' => 'faulty', 'meaning' => 'not working as it should', 'meaning_fa' => 'معیوب، خراب', 'pos' => 'adjective', 'example' => 'The charger was faulty, so I took it back.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'deliver', 'meaning' => 'to bring something to someone\'s home or office', 'meaning_fa' => 'تحویل دادن، رساندن (به در خانه)', 'pos' => 'verb', 'example' => 'They deliver the food in 30 minutes.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'guarantee', 'meaning' => 'a promise to repair or change a thing if it breaks', 'meaning_fa' => 'گارانتی، ضمانت', 'pos' => 'noun', 'example' => 'The laptop has a two-year guarantee.', 'difficulty' => 'medium'],
+                                ],
+                            ],
+                            [
+                                'key' => 'ai_conversation_1',
+                                'label' => 'Talk It Out',
+                                'duration_minutes' => 18,
+                                'hook' => 'Say it here, alone, before you have to say it to the AI Instructor for real.',
+                                'warm_up_task' => 'Record 2 minutes of solo speaking about you and shopping: where you buy things, '
+                                    .'where they were made, and a time you had something repaired or returned — using the new '
+                                    .'vocabulary, without reading.',
+                                'interview_questions' => [
+                                    'Where do you usually buy clothes?',
+                                    'Do you try on clothes before you buy them?',
+                                    'What was your last impulse buy?',
+                                    'Where was your phone made?',
+                                    'Have you ever taken something back to a shop?',
+                                    'Where do you have your hair cut?',
+                                ],
+                            ],
+                            [
+                                'key' => 'reading_comprehension',
+                                'label' => 'Reading',
+                                'duration_minutes' => 12,
+                                'hook' => 'An old jacket, a broken zip and a choice: throw it away, or have it repaired?',
+                                'passage_title' => 'My dad\'s old jacket',
+                                'image_query' => 'tailor sewing jacket',
+                                // Written fresh for this app (EOS-009 §14) — reuses the Vocabulary
+                                // Builder words in a new context, with the passive and have
+                                // something done.
+                                'passage' => 'My favourite jacket was made in a small shop twenty years ago. It was a present from my '
+                                    .'dad. Last winter, the zip broke, and a button was lost on the bus. My friend said, "Just throw '
+                                    .'it away and buy a new one! There\'s a big discount at the mall." So I went to the mall and '
+                                    .'tried on ten jackets in the changing room. Some didn\'t fit, and the cheap ones were badly made. '
+                                    .'In the end, I decided to have my old jacket repaired. I took it to a tailor near my house, and '
+                                    .'she said, "Don\'t worry. It can be repaired in two days." When I went back, a new zip was in, '
+                                    .'and the button was sewn on. It looked great! I had it repaired for only fifteen euros — a real '
+                                    .'bargain. I didn\'t need a receipt or a guarantee, because the tailor knows me now. Next month '
+                                    .'I\'m going to have my winter boots repaired too.',
+                                'highlighted_phrases' => [
+                                    ['phrase' => 'discount', 'type' => 'reused'],
+                                    ['phrase' => 'tried on', 'type' => 'reused'],
+                                    ['phrase' => 'changing room', 'type' => 'reused'],
+                                    ['phrase' => 'fit', 'type' => 'reused'],
+                                    ['phrase' => 'bargain', 'type' => 'reused'],
+                                    ['phrase' => 'receipt', 'type' => 'reused'],
+                                    ['phrase' => 'guarantee', 'type' => 'reused'],
+                                    ['phrase' => 'zip', 'type' => 'new', 'definition' => 'the metal or plastic line of teeth that closes a jacket or a bag', 'pos' => 'noun', 'example' => 'The zip on my bag is broken.'],
+                                    ['phrase' => 'tailor', 'type' => 'new', 'definition' => 'a person whose job is to make or repair clothes', 'pos' => 'noun', 'example' => 'I had my suit made by a tailor.'],
+                                ],
+                                'topic_summary' => 'The writer\'s favourite jacket, a present from their dad, was damaged last winter, '
+                                    .'and a friend said to throw it away. At the mall, the new jackets didn\'t fit or were badly '
+                                    .'made, so the writer had the old jacket repaired by a tailor near home. It was repaired in two '
+                                    .'days for only fifteen euros, and next month the writer is going to have their winter boots '
+                                    .'repaired too.',
+                                'comprehension_check' => [
+                                    ['statement' => 'The jacket was a present from the writer\'s dad.', 'correct' => true, 'difficulty' => 'easy'],
+                                    ['statement' => 'The writer bought a new jacket at the mall.', 'correct' => false, 'difficulty' => 'medium'],
+                                    ['statement' => 'The tailor repaired the jacket in two days.', 'correct' => true, 'difficulty' => 'hard'],
+                                ],
+                                'questions' => [
+                                    'What happened to the jacket last winter?',
+                                    'Why didn\'t the writer buy a new jacket?',
+                                ],
+                                // Multiple choice instead of written answers (reading task 11,
+                                // 2026-11-10): one tap each, graded in the browser like the true/false
+                                // round above. Every right answer is stated in the passage; the wrong
+                                // ones are things the passage mentions or plausibly could.
+                                'choice_questions' => [
+                                    ['prompt' => 'Where was the jacket repaired?', 'options' => ['At a tailor\'s near the writer\'s house', 'At the mall', 'At a big jacket shop'], 'correct' => 0, 'difficulty' => 'easy'],
+                                    ['prompt' => 'How much did the repair cost?', 'options' => ['Fifty euros', 'Fifteen euros', 'Nothing'], 'correct' => 1, 'difficulty' => 'medium'],
+                                    ['prompt' => 'What is the writer going to have repaired next month?', 'options' => ['A bag', 'A phone', 'Winter boots'], 'correct' => 2, 'difficulty' => 'hard'],
+                                ],
+                            ],
+                            [
+                                'key' => 'writing',
+                                'label' => 'Writing',
+                                'duration_minutes' => 12,
+                                'hook' => 'Where your things were made, and what you had repaired — write about you and shopping.',
+                                'title' => 'Me and shopping',
+                                'prompts' => [
+                                    ['label' => 'Where I buy my clothes', 'image_query' => 'clothing store rack'],
+                                    ['label' => 'Something I had repaired', 'image_query' => 'shoe repair'],
+                                    ['label' => 'My best bargain', 'image_query' => 'flea market'],
+                                    ['label' => 'An impulse buy I regret', 'image_query' => 'woman holding shopping bags'],
+                                    ['label' => 'Something that was made by hand', 'image_query' => 'handmade pottery'],
+                                    ['label' => 'Shopping online or in a shop?', 'image_query' => 'online shopping laptop'],
+                                ],
+                                // Grammar connectors only — see M01's try_to_use note.
+                                'try_to_use' => ['…is / was made in…', '…can be returned…', 'I had my … repaired / cut', 'bargain', 'try on', 'refund', 'impulse buy'],
+                                'min_words' => 100,
+                                'max_words' => 150,
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'challenge',
+                        'label' => 'Day 4',
+                        'mode' => 'ai',
+                        'pair_speaking' => [
+                            ['question' => 'Do you cut your own hair?', 'answer' => 'No. I have my hair cut every month at a hairdresser\'s.', 'words' => ['have my hair cut']],
+                            ['question' => 'Can things be exchanged without a receipt where you live?', 'answer' => 'Usually not. Things can be exchanged only with a receipt.', 'words' => ['can be exchanged', 'receipt']],
+                            ['question' => 'Has your phone ever been repaired?', 'answer' => 'Yes, it has been repaired twice. The screen was broken.', 'words' => ['has been repaired']],
+                            ['question' => 'Do you ever regret an impulse buy?', 'answer' => 'Yes. I regret the shoes I bought last month. They don\'t fit.', 'words' => ['regret', 'fit']],
+                        ],
+                        'steps' => [
+                            [
+                                'key' => 'error_log',
+                                'label' => 'My Fixes',
+                                'duration_minutes' => 7,
+                                'hook' => "Every mistake here is one you won't make in tomorrow's Final Challenge.",
+                            ],
+                            [
+                                'key' => 'ai_conversation_2',
+                                'label' => 'Final Talk',
+                                'duration_minutes' => 12,
+                                'hook' => "This one's harder on purpose — real conversations don't come with warm-up questions.",
+                                'round_pool' => [
+                                    'Where do you buy your clothes? Where were they made?',
+                                    'What was the last thing you had repaired? Who repaired it?',
+                                    'Tell me about an impulse buy. Do you regret it?',
+                                    'Have you ever taken something back to a shop? What happened?',
+                                    'Do you shop online? How fast are things delivered where you live?',
+                                    'Should old clothes be repaired or thrown away? Why?',
+                                ],
+                                'role_reversal_topic' => 'shopping: things that are made, sold and repaired, and jobs you have done for you',
+                                'final_prompt' => 'Talk for 3 minutes about you and shopping: where you buy things, where they were made, and something you had repaired.',
+                                'requirements' => [
+                                    '5+ vocabulary expressions',
+                                    'the passive (is / was made, has been sold, can be returned)',
+                                    'have something done (I had my … repaired / cut)',
+                                    'by + a person only when it matters',
+                                    'Where your things were made',
+                                    'Something you had repaired or returned',
                                 ],
                             ],
                             [

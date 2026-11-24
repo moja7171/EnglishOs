@@ -426,6 +426,29 @@ class MissionHookContentTest extends TestCase
         ], Mission::where('code', 'M14')->firstOrFail()->stepKeys());
     }
 
+    public function test_every_m15_step_has_a_non_empty_hook(): void
+    {
+        $this->seed(MissionSeeder::class);
+
+        $mission = Mission::where('code', 'M15')->firstOrFail();
+
+        foreach ($mission->stepKeys() as $key) {
+            $hook = $mission->stepContent($key)['hook'] ?? null;
+
+            $this->assertNotEmpty($hook, "Step \"{$key}\" is missing a hook.");
+        }
+    }
+
+    public function test_m15_authors_the_same_thirteen_steps_as_m14(): void
+    {
+        $this->seed(MissionSeeder::class);
+
+        $this->assertSame(
+            Mission::where('code', 'M14')->firstOrFail()->stepKeys(),
+            Mission::where('code', 'M15')->firstOrFail()->stepKeys(),
+        );
+    }
+
     /**
      * Epic D: `word_order`'s `words` bank is authored already scrambled
      * (never reshuffled at render time — see <x-word-order-round>), so a
@@ -437,7 +460,7 @@ class MissionHookContentTest extends TestCase
     {
         $this->seed(MissionSeeder::class);
 
-        foreach (['M01', 'M02', 'M03', 'M04', 'M05', 'M06', 'M07', 'M08', 'M09', 'M10', 'M11', 'M12', 'M13', 'M14'] as $code) {
+        foreach (['M01', 'M02', 'M03', 'M04', 'M05', 'M06', 'M07', 'M08', 'M09', 'M10', 'M11', 'M12', 'M13', 'M14', 'M15'] as $code) {
             $mission = Mission::where('code', $code)->firstOrFail();
             $cards = $mission->stepContent('grammar_in_context')['word_order'] ?? [];
 
@@ -467,7 +490,7 @@ class MissionHookContentTest extends TestCase
     {
         $this->seed(MissionSeeder::class);
 
-        foreach (['M01', 'M02', 'M03', 'M04', 'M05', 'M06', 'M07', 'M08', 'M09', 'M10', 'M11', 'M12', 'M13', 'M14'] as $code) {
+        foreach (['M01', 'M02', 'M03', 'M04', 'M05', 'M06', 'M07', 'M08', 'M09', 'M10', 'M11', 'M12', 'M13', 'M14', 'M15'] as $code) {
             $mission = Mission::where('code', $code)->firstOrFail();
             $content = $mission->stepContent('ai_conversation_2');
 
@@ -485,7 +508,7 @@ class MissionHookContentTest extends TestCase
     {
         $this->seed(MissionSeeder::class);
 
-        foreach (['M01', 'M02', 'M03', 'M04', 'M05', 'M06', 'M07', 'M08', 'M09', 'M10', 'M11', 'M12', 'M13', 'M14'] as $code) {
+        foreach (['M01', 'M02', 'M03', 'M04', 'M05', 'M06', 'M07', 'M08', 'M09', 'M10', 'M11', 'M12', 'M13', 'M14', 'M15'] as $code) {
             $mission = Mission::where('code', $code)->firstOrFail();
 
             foreach ($mission->phases as $index => $phase) {

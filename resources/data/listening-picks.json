@@ -309,24 +309,24 @@
   ],
   "M15" : [
     [
-      {"src":"sme","title":"How advertisers make us spend money","url":"https://podcasts.apple.com/us/podcast/how-advertisers-make-us-spend-money/id262026947?i=1000772201004","min":7,"apple":true},
-      {"src":"voa","title":"Buy and Pay","url":"https://learningenglish.voanews.com/a/buy-and-pay/5845605.html","tx":"page"},
-      {"src":"teded","title":"Why do your jeans wear out so quickly?","url":"https://ed.ted.com/lessons/the-life-cycle-of-a-pair-of-jeans-madhavi-venkatesan","min":6}
+      {"src":"lee","title":"Talking about shopping","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/241011","min":6,"tx":"page"},
+      {"src":"sme","title":"How advertisers make us spend money","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2026/ep-260611","min":7,"tx":"page"},
+      {"src":"voa","title":"Buy and Pay","url":"https://learningenglish.voanews.com/a/buy-and-pay/5845605.html","tx":"page"}
     ],
     [
+      {"src":"lee","title":"Talking about hair","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/260717","min":6,"tx":"page"},
       {"src":"sme","title":"Grown-ups buying kids’ toys","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2025/ep-250814","min":7,"tx":"page"},
-      {"src":"voa","title":"Using the Passive Voice","url":"https://learningenglish.voanews.com/a/using-the-passive-voice/3247545.html","tx":"page","grammar":true},
-      {"src":"teded","title":"Why is cotton in everything?","url":"https://ed.ted.com/lessons/why-is-cotton-in-everything-michael-r-stiff","min":7}
+      {"src":"voa","title":"Using the Passive Voice","url":"https://learningenglish.voanews.com/a/using-the-passive-voice/3247545.html","tx":"page","grammar":true}
     ],
     [
+      {"src":"lee","title":"Talking about DIY","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/260515","min":6,"tx":"page"},
       {"src":"sme","title":"Do you need to declutter your home?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2025/ep-250710","min":7,"tx":"page"},
-      {"src":"voa","title":"Set 'No-buy' Rules to Save Money, Cut Waste","url":"https://learningenglish.voanews.com/a/set-no-buy-rules-to-save-money-cut-waste/7640615.html","min":6,"tx":"page"},
-      {"src":"teded","title":"Why don't businesses want you to mend your stuff?","url":"https://ed.ted.com/lessons/why-dont-companies-want-you-to-repair-your-stuff-aaron-perzanowski","min":9}
+      {"src":"voa","title":"Set 'No-buy' Rules to Save Money, Cut Waste","url":"https://learningenglish.voanews.com/a/set-no-buy-rules-to-save-money-cut-waste/7640615.html","min":6,"tx":"page"}
     ],
     [
-      {"src":"sme","title":"Could we live without plastic?","url":"https://podcasts.apple.com/us/podcast/could-we-live-without-plastic/id262026947?i=1000638540627","min":6,"apple":true},
-      {"src":"voa","title":"Why Do We 'Pay Through the Nose' for Costly Things?","url":"https://learningenglish.voanews.com/a/why-do-we-pay-through-the-nose-for-costly-things-/5588260.html","tx":"page"},
-      {"src":"teded","title":"Less stuff, greater joy","url":"https://ed.ted.com/lessons/less-stuff-more-happiness-graham-hill","min":9}
+      {"src":"lee","title":"Talking about fashion","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/241025","min":6,"tx":"page"},
+      {"src":"sme","title":"Is being thrifty a virtue?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english/ep-200618","min":6,"tx":"page"},
+      {"src":"voa","title":"Why Do We 'Pay Through the Nose' for Costly Things?","url":"https://learningenglish.voanews.com/a/why-do-we-pay-through-the-nose-for-costly-things-/5588260.html","tx":"page"}
     ]
   ],
   "M16" : [

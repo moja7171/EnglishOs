@@ -74,5 +74,9 @@ return [
         // M14 · Money (supermarket and shop assistant are already there)
         ['wallet', 'thing', 14], ['coin', 'thing', 14], ['credit card', 'thing', 14], ['piggy bank', 'thing', 14],
         ['bank', 'place', 14], ['cash machine', 'thing', 14], ['receipt', 'thing', 14], ['cashier', 'job', 14],
+
+        // M15 · Shopping (supermarket, hairdresser, shop assistant and mirror are already there)
+        ['tailor', 'job', 15], ['mall', 'place', 15], ['changing room', 'place', 15], ['shopping bag', 'thing', 15],
+        ['shoe shop', 'place', 15], ['price tag', 'thing', 15], ['market', 'place', 15], ['delivery driver', 'job', 15],
     ],
 ];

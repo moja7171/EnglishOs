@@ -196,4 +196,15 @@ return [
             ['wrong' => 'When I will get paid, I\'ll buy you lunch.', 'right' => 'When I get paid, I\'ll buy you lunch.', 'why' => 'After when → present, even about the future.'],
         ],
     ],
+    'M15' => [
+        0 => [
+            ['wrong' => 'These shoes was made in Italy.', 'right' => 'These shoes were made in Italy.', 'why' => 'shoes = plural → were made.'],
+        ],
+        1 => [
+            ['wrong' => 'I had my car wash yesterday.', 'right' => 'I had my car washed yesterday.', 'why' => 'have + thing + past participle (washed).'],
+        ],
+        2 => [
+            ['wrong' => 'I cut my hair at a hairdresser\'s last week.', 'right' => 'I had my hair cut at a hairdresser\'s last week.', 'why' => 'Someone else did it → had my hair cut.'],
+        ],
+    ],
 ];
