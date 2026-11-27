@@ -81,7 +81,8 @@ class ExtraEnglishTest extends TestCase
             ->assertSee('CC')
             ->assertSeeHtml('eos.extra.1.position')
             ->assertSeeHtml('Back 10 seconds')
-            ->assertSeeHtml('Forward 10 seconds');
+            ->assertSeeHtml('Forward 10 seconds')
+            ->assertSeeHtml('data-testid="extra-mark-watched"');
     }
 
     public function test_an_episode_without_captions_has_no_cc_button_and_without_a_host_says_so(): void
@@ -121,6 +122,23 @@ class ExtraEnglishTest extends TestCase
 
         $this->actingAs($other);
         Livewire::test('courses.extra-episode', ['episodeId' => $episode->id])->assertSet('watched', false);
+    }
+
+    public function test_the_learner_can_take_the_watched_tick_back(): void
+    {
+        $learner = User::factory()->create();
+        $episode = ExtraEpisode::factory()->create(['number' => 1]);
+        ExtraWatch::factory()->create(['user_id' => $learner->id, 'extra_episode_id' => $episode->id]);
+        ExtraWatch::factory()->create(['extra_episode_id' => $episode->id]);
+
+        $this->actingAs($learner);
+        Livewire::test('courses.extra-episode', ['episodeId' => $episode->id])
+            ->assertSet('watched', true)
+            ->call('unmarkWatched')
+            ->assertSet('watched', false);
+
+        $this->assertSame(0, ExtraWatch::where('user_id', $learner->id)->count());
+        $this->assertSame(1, ExtraWatch::count());
     }
 
     public function test_the_grid_ticks_only_the_episodes_this_learner_watched(): void
