@@ -70,5 +70,17 @@ return [
         // M13 · Technology (phone and laptop are already there from M01)
         ['tablet', 'thing', 13], ['camera', 'thing', 13], ['keyboard', 'thing', 13], ['charger', 'thing', 13],
         ['headphones', 'thing', 13], ['printer', 'thing', 13], ['remote control', 'thing', 13], ['smartwatch', 'thing', 13],
+
+        // M14 · Money (supermarket and shop assistant are already there)
+        ['wallet', 'thing', 14], ['coin', 'thing', 14], ['credit card', 'thing', 14], ['piggy bank', 'thing', 14],
+        ['bank', 'place', 14], ['cash machine', 'thing', 14], ['receipt', 'thing', 14], ['cashier', 'job', 14],
+
+        // M15 · Shopping (supermarket, hairdresser, shop assistant and mirror are already there)
+        ['tailor', 'job', 15], ['mall', 'place', 15], ['changing room', 'place', 15], ['shopping bag', 'thing', 15],
+        ['shoe shop', 'place', 15], ['price tag', 'thing', 15], ['market', 'place', 15], ['delivery driver', 'job', 15],
+
+        // M16 · Travel (airport, beach, pilot, tent, car and bus are already there)
+        ['passport', 'thing', 16], ['suitcase', 'thing', 16], ['hotel', 'place', 16], ['plane', 'thing', 16],
+        ['map', 'thing', 16], ['museum', 'place', 16], ['tour guide', 'job', 16], ['train station', 'place', 16],
     ],
 ];

@@ -315,6 +315,65 @@
     --mood-texture-size: 36px 36px;
 }
 
+/* M14 "Money" — a muted banknote green-teal (an old banknote, a bank
+   passbook), darker and greyer than M06's chalkboard green and M02's
+   teal, paired with little stacks of coins seen from the side: three flat
+   ovals on top of each other — wide and flat, so they never read as
+   M12's tall speech-mark ovals, the round dots and rings, or the line
+   patterns of the other moods. */
+[data-mood='coin'] {
+    --color-accent: #3f7f6e;
+    --color-accent-dark: #6fb8a3;
+    --color-accent-soft: #dcefe9;
+    --color-accent-soft-dark: #1c3a33;
+    --color-accent-ink: #2b5e50;
+    --color-accent-ink-dark: #a9e3d2;
+    --color-dawn: #8cc9b6;
+    --color-dusk: #2f6455;
+    --mood-texture: radial-gradient(ellipse 6px 2px at 50% 40%, color-mix(in srgb, var(--color-accent) calc(13% * var(--mood-boost)), transparent) 98%, transparent),
+        radial-gradient(ellipse 6px 2px at 50% 50%, color-mix(in srgb, var(--color-accent) calc(13% * var(--mood-boost)), transparent) 98%, transparent),
+        radial-gradient(ellipse 6px 2px at 50% 60%, color-mix(in srgb, var(--color-accent) calc(13% * var(--mood-boost)), transparent) 98%, transparent);
+    --mood-texture-size: 38px 38px;
+}
+
+/* M15 "Shopping" — a bright tangerine (a shopping bag, a sale sign),
+   lighter and more orange than M11's copper and M04's mustard, paired
+   with little price tags: a flat oval with a small ring for the string at
+   its end — so they never read as M14's stacked coins, the round dots
+   and rings, or the line patterns of the other moods. */
+[data-mood='tag'] {
+    --color-accent: #d8612f;
+    --color-accent-dark: #f08a5c;
+    --color-accent-soft: #fbe3d8;
+    --color-accent-soft-dark: #4a2617;
+    --color-accent-ink: #9c4118;
+    --color-accent-ink-dark: #ffbf9e;
+    --color-dawn: #f4a07a;
+    --color-dusk: #a84a20;
+    --mood-texture: radial-gradient(ellipse 6px 3.5px at 55% 50%, color-mix(in srgb, var(--color-accent) calc(13% * var(--mood-boost)), transparent) 98%, transparent),
+        radial-gradient(circle at 33% 50%, transparent 1.2px, color-mix(in srgb, var(--color-accent) calc(13% * var(--mood-boost)), transparent) 1.2px 2px, transparent 2.4px);
+    --mood-texture-size: 36px 36px;
+}
+
+/* M16 "Travel" — a deep passport navy (a passport cover, an airline
+   uniform), darker and greyer than M08's open sky blue and M03's bright
+   indigo, paired with little airplane windows: an upright oval ring —
+   tall and hollow, so it never reads as M12's filled speech-mark ovals,
+   M14's flat coins, M15's price tags or the round dots and rings of the
+   other moods. */
+[data-mood='journey'] {
+    --color-accent: #2f5a8e;
+    --color-accent-dark: #6f9fd8;
+    --color-accent-soft: #dce6f3;
+    --color-accent-soft-dark: #1a2c44;
+    --color-accent-ink: #22426b;
+    --color-accent-ink-dark: #b2cdf0;
+    --color-dawn: #8fb2dc;
+    --color-dusk: #24476f;
+    --mood-texture: radial-gradient(ellipse 3px 4.5px at 50% 50%, transparent 58%, color-mix(in srgb, var(--color-accent) calc(14% * var(--mood-boost)), transparent) 64% 96%, transparent 100%);
+    --mood-texture-size: 34px 34px;
+}
+
 [data-mood] {
     background-image: var(--mood-texture);
     background-size: var(--mood-texture-size);

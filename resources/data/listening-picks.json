@@ -287,68 +287,68 @@
   ],
   "M14" : [
     [
+      {"src":"lee","title":"Talking about money","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/250221","min":6,"tx":"page"},
       {"src":"sme","title":"Living with debt","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2026/ep-260528","min":7,"tx":"page"},
-      {"src":"voa","title":"Words and Their Stories: Money Talks","url":"https://learningenglish.voanews.com/a/money-talks/1681384.html","tx":"page"},
-      {"src":"teded","title":"How we became addicted to credit cards","url":"https://ed.ted.com/lessons/a-brief-history-of-credit-cards-nidhi-upadhyaya","min":7}
+      {"src":"voa","title":"Words and Their Stories: Money Talks","url":"https://learningenglish.voanews.com/a/money-talks/1681384.html","tx":"page"}
     ],
     [
-      {"src":"sme","title":"How green is your money?","url":"https://podcasts.apple.com/us/podcast/how-green-is-your-money/id262026947?i=1000631847356","min":6,"apple":true},
-      {"src":"voa","title":"If You Learn Conditionals, You'll Be Glad You Did!","url":"https://learningenglish.voanews.com/a/if-you-learn-conditionals-you-ll-be-glad-you-did-/3173342.html","tx":"page","grammar":true},
-      {"src":"teded","title":"What gives a dollar bill its value?","url":"https://ed.ted.com/lessons/what-gives-a-dollar-bill-its-value-doug-levinson","min":6}
+      {"src":"lee","title":"Talking about saving money","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/250919","min":6,"tx":"page"},
+      {"src":"sme","title":"How green is your money?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2023/ep-231019","min":6,"tx":"page"},
+      {"src":"voa","title":"If You Learn Conditionals, You'll Be Glad You Did!","url":"https://learningenglish.voanews.com/a/if-you-learn-conditionals-you-ll-be-glad-you-did-/3173342.html","tx":"page","grammar":true}
     ],
     [
+      {"src":"lee","title":"Talking about greed","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/251024","min":6,"tx":"page"},
       {"src":"sme","title":"Should we pay more for chocolate?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2026/ep-260312","min":6,"tx":"page"},
-      {"src":"voa","title":"Feel the Pinch","url":"https://learningenglish.voanews.com/a/words-and-their-stories-feel-the-pinch/2942530.html","tx":"page"},
-      {"src":"teded","title":"How does the stock market work?","url":"https://ed.ted.com/lessons/how-does-the-stock-market-work-oliver-elfenbaum","min":6}
+      {"src":"voa","title":"Feel the Pinch","url":"https://learningenglish.voanews.com/a/words-and-their-stories-feel-the-pinch/2942530.html","tx":"page"}
     ],
     [
-      {"src":"sme","title":"Why are billionaires building bunkers?","url":"https://podcasts.apple.com/us/podcast/why-are-billionaires-building-bunkers/id262026947?i=1000747153145","min":7,"apple":true},
-      {"src":"voa","title":"Be Careful What You 'Bank On'","url":"https://learningenglish.voanews.com/a/be-careful-what-you-bank-on-/7703514.html","min":5,"tx":"page"},
-      {"src":"teded","title":"Why can’t governments print an unlimited amount of money?","url":"https://ed.ted.com/lessons/how-do-governments-create-money-out-of-thin-air-jonathan-smith","min":7}
+      {"src":"lee","title":"Talking about waste","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/250704","min":6,"tx":"page"},
+      {"src":"sme","title":"Why are prices going up?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2022/ep-220929","min":6,"tx":"page"},
+      {"src":"voa","title":"Be Careful What You 'Bank On'","url":"https://learningenglish.voanews.com/a/be-careful-what-you-bank-on-/7703514.html","min":5,"tx":"page"}
     ]
   ],
   "M15" : [
     [
-      {"src":"sme","title":"How advertisers make us spend money","url":"https://podcasts.apple.com/us/podcast/how-advertisers-make-us-spend-money/id262026947?i=1000772201004","min":7,"apple":true},
-      {"src":"voa","title":"Buy and Pay","url":"https://learningenglish.voanews.com/a/buy-and-pay/5845605.html","tx":"page"},
-      {"src":"teded","title":"Why do your jeans wear out so quickly?","url":"https://ed.ted.com/lessons/the-life-cycle-of-a-pair-of-jeans-madhavi-venkatesan","min":6}
+      {"src":"lee","title":"Talking about shopping","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/241011","min":6,"tx":"page"},
+      {"src":"sme","title":"How advertisers make us spend money","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2026/ep-260611","min":7,"tx":"page"},
+      {"src":"voa","title":"Buy and Pay","url":"https://learningenglish.voanews.com/a/buy-and-pay/5845605.html","tx":"page"}
     ],
     [
+      {"src":"lee","title":"Talking about hair","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/260717","min":6,"tx":"page"},
       {"src":"sme","title":"Grown-ups buying kids’ toys","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2025/ep-250814","min":7,"tx":"page"},
-      {"src":"voa","title":"Using the Passive Voice","url":"https://learningenglish.voanews.com/a/using-the-passive-voice/3247545.html","tx":"page","grammar":true},
-      {"src":"teded","title":"Why is cotton in everything?","url":"https://ed.ted.com/lessons/why-is-cotton-in-everything-michael-r-stiff","min":7}
+      {"src":"voa","title":"Using the Passive Voice","url":"https://learningenglish.voanews.com/a/using-the-passive-voice/3247545.html","tx":"page","grammar":true}
     ],
     [
+      {"src":"lee","title":"Talking about DIY","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/260515","min":6,"tx":"page"},
       {"src":"sme","title":"Do you need to declutter your home?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2025/ep-250710","min":7,"tx":"page"},
-      {"src":"voa","title":"Set 'No-buy' Rules to Save Money, Cut Waste","url":"https://learningenglish.voanews.com/a/set-no-buy-rules-to-save-money-cut-waste/7640615.html","min":6,"tx":"page"},
-      {"src":"teded","title":"Why don't businesses want you to mend your stuff?","url":"https://ed.ted.com/lessons/why-dont-companies-want-you-to-repair-your-stuff-aaron-perzanowski","min":9}
+      {"src":"voa","title":"Set 'No-buy' Rules to Save Money, Cut Waste","url":"https://learningenglish.voanews.com/a/set-no-buy-rules-to-save-money-cut-waste/7640615.html","min":6,"tx":"page"}
     ],
     [
-      {"src":"sme","title":"Could we live without plastic?","url":"https://podcasts.apple.com/us/podcast/could-we-live-without-plastic/id262026947?i=1000638540627","min":6,"apple":true},
-      {"src":"voa","title":"Why Do We 'Pay Through the Nose' for Costly Things?","url":"https://learningenglish.voanews.com/a/why-do-we-pay-through-the-nose-for-costly-things-/5588260.html","tx":"page"},
-      {"src":"teded","title":"Less stuff, greater joy","url":"https://ed.ted.com/lessons/less-stuff-more-happiness-graham-hill","min":9}
+      {"src":"lee","title":"Talking about fashion","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/241025","min":6,"tx":"page"},
+      {"src":"sme","title":"Is being thrifty a virtue?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english/ep-200618","min":6,"tx":"page"},
+      {"src":"voa","title":"Why Do We 'Pay Through the Nose' for Costly Things?","url":"https://learningenglish.voanews.com/a/why-do-we-pay-through-the-nose-for-costly-things-/5588260.html","tx":"page"}
     ]
   ],
   "M16" : [
     [
-      {"src":"teded","title":"Why are airplanes slower than they used to be?","url":"https://ed.ted.com/lessons/why-are-airplanes-slower-than-they-used-to-be-alex-gendler","min":7},
-      {"src":"talk","title":"Why overtourism could ruin your next vacation","by":"Suresh Subudhi","url":"https://www.ted.com/talks/suresh_subudhi_why_overtourism_could_ruin_your_next_vacation","min":14,"tx":"link","txUrl":"https://www.ted.com/talks/suresh_subudhi_why_overtourism_could_ruin_your_next_vacation/transcript"},
-      {"src":"lk","title":"How to travel on a budget","url":"https://www.npr.org/2025/01/23/1226281133/how-to-travel-on-a-budget","min":22,"tx":"link","txUrl":"https://www.npr.org/transcripts/1226281133"}
+      {"src":"lee","title":"Talking about travel","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/240608","min":6,"tx":"page"},
+      {"src":"sme","title":"Ecotourism: good or bad?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2023/ep-230601","min":6,"tx":"page"},
+      {"src":"voa","title":"Tips for Using Google Maps When You Travel","url":"https://learningenglish.voanews.com/a/3926738.html","tx":"page"}
     ],
     [
-      {"src":"teded","title":"The Silk Road: Connecting the ancient world through trade","url":"https://ed.ted.com/lessons/the-silk-road-history-s-first-world-wide-web-shannon-harris-castelo","min":8},
-      {"src":"talk","title":"My epic journey becoming the fastest person to paddle around Australia","by":"Bonnie Hancock","url":"https://www.ted.com/talks/bonnie_hancock_my_epic_journey_becoming_the_fastest_person_to_paddle_around_australia","min":10,"tx":"link","txUrl":"https://www.ted.com/talks/bonnie_hancock_my_epic_journey_becoming_the_fastest_person_to_paddle_around_australia/transcript"},
-      {"src":"lk","title":"How to make your solo trip a success","url":"https://www.npr.org/2026/01/15/nx-s1-5676052/how-to-make-your-solo-trip-a-success","min":22,"tx":"link","txUrl":"https://www.npr.org/transcripts/nx-s1-5676052"}
+      {"src":"lee","title":"Talking about airports","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/261002","min":6,"tx":"page"},
+      {"src":"sme","title":"Island life: Is it paradise?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2022/ep-220616","min":6,"tx":"page"},
+      {"src":"voa","title":"The Past Perfect Tense","url":"https://learningenglish.voanews.com/a/5897859.html","tx":"page","grammar":true}
     ],
     [
-      {"src":"teded","title":"Why every world map is wrong","url":"https://ed.ted.com/lessons/why-every-world-map-is-wrong-kayla-wolf","min":7},
-      {"src":"talk","title":"Why the passport needs an upgrade","by":"Karoli Hindriks","url":"https://www.ted.com/talks/karoli_hindriks_why_the_passport_needs_an_upgrade","min":10,"tx":"link","txUrl":"https://www.ted.com/talks/karoli_hindriks_why_the_passport_needs_an_upgrade/transcript"},
-      {"src":"lk","title":"How to plan your dream vacation","url":"https://www.npr.org/2026/02/23/nx-s1-5702807/how-to-plan-your-dream-vacation","min":22,"tx":"link","txUrl":"https://www.npr.org/transcripts/nx-s1-5702807"}
+      {"src":"lee","title":"Talking about visiting places","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/250418","min":6,"tx":"page"},
+      {"src":"sme","title":"What's the point of museums?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2023/ep-230420","min":6,"tx":"page"},
+      {"src":"voa","title":"Japanese Town Aims to Block View of Mount Fuji to Reduce Tourists","url":"https://learningenglish.voanews.com/a/7600362.html","tx":"page"}
     ],
     [
-      {"src":"teded","title":"What's the ideal country to live in?","url":"https://ed.ted.com/lessons/what-s-the-best-country-to-live-in","min":6},
-      {"src":"talk","title":"My journey mapping the uncharted world","by":"Tawanda Kanhema","url":"https://www.ted.com/talks/tawanda_kanhema_my_journey_mapping_the_uncharted_world","min":8,"tx":"link","txUrl":"https://www.ted.com/talks/tawanda_kanhema_my_journey_mapping_the_uncharted_world/transcript"},
-      {"src":"lk","title":"Want to avoid flight delays this holiday season? Follow these tips now","url":"https://www.npr.org/2025/10/28/nx-s1-5587617/want-to-avoid-flight-delays-this-holiday-season-follow-these-tips-now","min":20,"tx":"link","txUrl":"https://www.npr.org/transcripts/nx-s1-5587617"}
+      {"src":"lee","title":"Talking about holidays","url":"https://www.bbc.co.uk/learningenglish/english/features/real-easy-english/240524","min":6,"tx":"page"},
+      {"src":"sme","title":"What and where is Little Italy?","url":"https://www.bbc.co.uk/learningenglish/english/features/6-minute-english_2023/ep-231130","min":6,"tx":"page"},
+      {"src":"voa","title":"Cambodia Warns of ‘Aggressive’ Monkeys around Angkor Wat","url":"https://learningenglish.voanews.com/a/7969789.html","tx":"page"}
     ]
   ],
   "M17" : [

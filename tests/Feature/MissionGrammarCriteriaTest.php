@@ -8,7 +8,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
- * What the grammar-in-context check of M01–M13 holds learners to: the
+ * What the grammar-in-context check of M01–M16 holds learners to: the
  * Persian-speaker slips that only earn a reminder ("minor"), the one that
  * rejects the sentence ("major"), and one slip recycled from an earlier mission.
  */
@@ -25,7 +25,7 @@ class MissionGrammarCriteriaTest extends TestCase
     {
         $this->seed(MissionSeeder::class);
 
-        foreach (range(2, 13) as $number) {
+        foreach (range(2, 16) as $number) {
             $code = sprintf('M%02d', $number);
 
             $this->assertNotEmpty(
@@ -39,7 +39,7 @@ class MissionGrammarCriteriaTest extends TestCase
     {
         $this->seed(MissionSeeder::class);
 
-        foreach (range(2, 13) as $number) {
+        foreach (range(2, 16) as $number) {
             $code = sprintf('M%02d', $number);
             $grammar = $this->grammar($code);
             $mentionsArticles = str_contains($grammar['grammar_minor_criteria'], 'a / an / the');
@@ -53,7 +53,7 @@ class MissionGrammarCriteriaTest extends TestCase
     {
         $this->seed(MissionSeeder::class);
 
-        foreach (range(1, 13) as $number) {
+        foreach (range(1, 16) as $number) {
             $code = sprintf('M%02d', $number);
 
             $this->assertSame(

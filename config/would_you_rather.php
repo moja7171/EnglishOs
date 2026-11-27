@@ -92,4 +92,22 @@ return [
         ['read a paper book', 'read on a screen'],
         ['have an old phone that never breaks', 'have a new phone that often crashes'],
     ],
+    'M14' => [
+        ['pay with cash', 'pay with a card'],
+        ['save money for a big holiday', 'spend a little money every weekend'],
+        ['borrow money from a friend', 'borrow money from a bank'],
+        ['have a job you love that pays a little', 'have a boring job that pays a lot'],
+    ],
+    'M15' => [
+        ['shop online', 'shop in a real shop'],
+        ['have your old clothes repaired', 'buy new clothes'],
+        ['buy one expensive coat', 'buy three cheap coats'],
+        ['cut your own hair', 'have your hair cut by a friend'],
+    ],
+    'M16' => [
+        ['travel by plane', 'travel by train'],
+        ['go sightseeing in a big city', 'relax on a quiet beach'],
+        ['travel with only hand luggage', 'take a big suitcase'],
+        ['plan every day of a trip ahead of time', 'decide everything on the day'],
+    ],
 ];

@@ -15,7 +15,7 @@ class MissionMoodTest extends TestCase
      */
     public function test_every_built_mission_has_its_own_mood(): void
     {
-        $moods = collect(['M01', 'M02', 'M03', 'M04', 'M05', 'M06', 'M07', 'M08', 'M09', 'M10', 'M11', 'M12', 'M13'])
+        $moods = collect(['M01', 'M02', 'M03', 'M04', 'M05', 'M06', 'M07', 'M08', 'M09', 'M10', 'M11', 'M12', 'M13', 'M14', 'M15', 'M16'])
             ->mapWithKeys(fn ($code) => [$code => (new Mission(['code' => $code]))->moodKey()]);
 
         $this->assertSame([
@@ -32,6 +32,9 @@ class MissionMoodTest extends TestCase
             'M11' => 'ahead',
             'M12' => 'quote',
             'M13' => 'circuit',
+            'M14' => 'coin',
+            'M15' => 'tag',
+            'M16' => 'journey',
         ], $moods->all());
 
         $this->assertSame($moods->count(), $moods->unique()->count(), 'every built mission must have a unique mood');
@@ -39,6 +42,6 @@ class MissionMoodTest extends TestCase
 
     public function test_an_unbuilt_mission_falls_back_to_the_base_mood(): void
     {
-        $this->assertSame('daily-life', (new Mission(['code' => 'M14']))->moodKey());
+        $this->assertSame('daily-life', (new Mission(['code' => 'M17']))->moodKey());
     }
 }

@@ -1,0 +1,3345 @@
+{
+ "mission": 14,
+ "items": [
+  {
+   "d": 1,
+   "k": "s",
+   "s": "payday-first",
+   "c": null,
+   "q": [
+    [
+     "بپرس روز حقوق چه کار می‌کند",
+     "بپرس اول از همه",
+     "What do you do on payday?",
+     "First thing?",
+     [],
+     [
+      [
+       "What you do on payday?",
+       "سؤال حال ساده با «Do you» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس روز حقوق چه کار می‌کند و چرا",
+     "بپرس هر ماه",
+     "What do you do on payday, and why?",
+     "Every month?",
+     [],
+     [
+      [
+       "What do you do on payday, and why you do it?",
+       "سؤال دوم کوتاه است: and why?"
+      ]
+     ]
+    ],
+    [
+     "بپرس روز حقوق خرج می‌کند یا پس‌انداز، و چرا",
+     "بپرس چقدر",
+     "Do you spend money or save money on payday? Why?",
+     "How much?",
+     [],
+     [
+      [
+       "Do you spend money or save money in payday? Why?",
+       "«روز» با on می‌آید: on payday."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو اجاره‌ام را می‌دهم",
+     "بگو همان روز",
+     "I pay my rent.",
+     "On the same day.",
+     [],
+     [
+      [
+       "I pays my rent.",
+       "با «I» فعل «-s» نمی‌گیرد."
+      ]
+     ]
+    ],
+    [
+     "بگو اجاره‌ام را می‌دهم، چون نمی‌خواهم فراموشش کنم",
+     "بگو بعد خرید می‌کنم",
+     "I pay my rent, because I don't want to forget it.",
+     "Then I go shopping.",
+     [],
+     [
+      [
+       "I pay my rent, because I don't want forget it.",
+       "بعد از «want» باید «to» بیاید: want to forget."
+      ]
+     ]
+    ],
+    [
+     "بگو اول پس‌انداز می‌کنم، چون بعدش خرجش نمی‌کنم",
+     "بگو فقط کمی",
+     "I save money first, because then I don't spend it.",
+     "Just a little.",
+     [],
+     [
+      [
+       "I save money first, because then I not spend it.",
+       "منفی حال ساده با don't است: I don't spend."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "s",
+   "s": "food-budget",
+   "c": null,
+   "q": [
+    [
+     "بپرس برای غذا بودجه دارد",
+     "بپرس هر هفته",
+     "Do you have a budget for food?",
+     "Every week?",
+     [],
+     [
+      [
+       "You have a budget for food?",
+       "سؤال حال ساده با «Do you» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس برای غذا بودجه دارد و چه کسی آن را می‌نویسد",
+     "بپرس روی کاغذ",
+     "Do you have a budget for food, and who makes it?",
+     "On paper?",
+     [],
+     [
+      [
+       "Do you have a budget for food, and who make it?",
+       "با «who» در نقش فاعل فعل «-s» می‌گیرد: who makes."
+      ]
+     ]
+    ],
+    [
+     "بپرس بودجه‌ی غذایش بزرگ است یا کوچک، و چرا",
+     "بپرس در خانه غذا درست می‌کند",
+     "Is your budget for food big or small? Why?",
+     "Do you cook at home?",
+     [],
+     [
+      [
+       "Your budget for food is big or small? Why?",
+       "سؤال با «Is» شروع می‌شود: Is your budget…?"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو هر هفته",
+     "Yes, I do.",
+     "Every week.",
+     [],
+     []
+    ],
+    [
+     "بگو بله، و با خانواده‌ام آن را می‌نویسم",
+     "بگو هر یکشنبه",
+     "Yes, I do, and I make it with my family.",
+     "Every Sunday.",
+     [],
+     [
+      [
+       "Yes, I have, and I make it with my family.",
+       "جواب «Do you…?» با «I do» است."
+      ]
+     ]
+    ],
+    [
+     "بگو کوچک است، چون غذا گران است، ولی در خانه آشپزی می‌کنم",
+     "بگو بیرون غذا نمی‌خورم",
+     "It's small, because food is expensive, but I cook at home.",
+     "I don't eat out.",
+     [],
+     [
+      [
+       "It's small, because food is expensive, but I cook in home.",
+       "«در خانه» می‌شود at home."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "s",
+   "s": "tempting-in-shop",
+   "c": null,
+   "q": [
+    [
+     "بپرس در مغازه چه چیزی برایش وسوسه‌انگیز است",
+     "بپرس در بازار",
+     "What is tempting for you in a shop?",
+     "At the market?",
+     [],
+     [
+      [
+       "What tempting for you in a shop?",
+       "فعل «is» لازم است: What is tempting…?"
+      ]
+     ]
+    ],
+    [
+     "بپرس در مغازه چه چیزی برایش وسوسه‌انگیز است و آن را می‌خرد",
+     "بپرس همیشه",
+     "What is tempting for you in a shop, and do you buy it?",
+     "Always?",
+     [],
+     [
+      [
+       "What is tempting for you in a shop, and you buy it?",
+       "سؤال دوم «do» می‌خواهد: do you buy it?"
+      ]
+     ]
+    ],
+    [
+     "بپرس هفته‌ی پیش چه چیزی برایش وسوسه‌انگیز بود و آن را خرید",
+     "بپرس گران بود",
+     "What was tempting for you last week, and did you buy it?",
+     "Was it expensive?",
+     [],
+     [
+      [
+       "What was tempting for you last week, and did you bought it?",
+       "سؤال گذشته با «did» است؛ بعدش فعل ساده می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو کفش نو",
+     "بگو مخصوصاً کفش ورزشی",
+     "New shoes.",
+     "Sports shoes, really.",
+     [],
+     []
+    ],
+    [
+     "بگو کفش نو وسوسه‌انگیز است، ولی همیشه نمی‌خرمش",
+     "بگو خیلی گران است",
+     "New shoes are tempting, but I don't always buy them.",
+     "They're very expensive.",
+     [],
+     [
+      [
+       "New shoes is tempting, but I don't always buy them.",
+       "با اسم جمع (shoes) فعل «are» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بگو یک کاپشن نو وسوسه‌انگیز بود، ولی نخریدمش",
+     "بگو به بودجه‌ام فکر کردم",
+     "A new jacket was tempting, but I didn't buy it.",
+     "I thought about my budget.",
+     [],
+     [
+      [
+       "A new jacket was tempting, but I didn't bought it.",
+       "بعد از «didn't» فعل ساده می‌آید: buy."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "s",
+   "s": "set-aside-monthly",
+   "c": null,
+   "q": [
+    [
+     "بپرس هر ماه پول کنار می‌گذارد",
+     "بپرس حتی کم",
+     "Do you set aside money every month?",
+     "Even a little?",
+     [],
+     [
+      [
+       "Do you set aside money every months?",
+       "بعد از «every» اسم مفرد می‌آید: every month."
+      ]
+     ]
+    ],
+    [
+     "بپرس هر ماه پول کنار می‌گذارد و برای چه",
+     "بپرس برای سفر",
+     "Do you set aside money every month, and for what?",
+     "For a trip?",
+     [],
+     [
+      [
+       "Do you set aside money every month, and what for it?",
+       "سؤال دوم کوتاه است: and for what?"
+      ]
+     ]
+    ],
+    [
+     "بپرس این ماه پولی کنار گذاشته و برای چیست",
+     "بپرس از اول ماه",
+     "Have you set aside any money this month? What is it for?",
+     "Since the start of the month?",
+     [],
+     [
+      [
+       "Did you set aside any money this month? What it is for?",
+       "سؤال دوم: What is it for?"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو فقط کمی",
+     "Yes, I do.",
+     "Just a little.",
+     [],
+     []
+    ],
+    [
+     "بگو بله، برای یک سفر پول کنار می‌گذارم",
+     "بگو در تابستان",
+     "Yes, I do. I set aside money for a holiday.",
+     "In the summer.",
+     [],
+     [
+      [
+       "Yes, I do. I set aside money for holiday.",
+       "«holiday» قابل شمارش است: a holiday."
+      ]
+     ]
+    ],
+    [
+     "بگو بله، برای یک لپ‌تاپ نو است، چون مال من خیلی قدیمی است",
+     "بگو تقریباً کافی است",
+     "Yes, I have. It's for a new laptop, because mine is very old.",
+     "It's nearly enough.",
+     [],
+     [
+      [
+       "Yes, I have. It's for new laptop, because mine is very old.",
+       "«laptop» قابل شمارش است: a new laptop."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "s",
+   "s": "long-run-help",
+   "c": null,
+   "q": [
+    [
+     "بپرس چه چیزی در درازمدت به او کمک می‌کند",
+     "بپرس برای سلامتی",
+     "What helps you in the long run?",
+     "For your health?",
+     [],
+     [
+      [
+       "What help you in the long run?",
+       "با «What» در نقش فاعل فعل «-s» می‌گیرد: What helps."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه چیزی در درازمدت به او کمک می‌کند و چرا",
+     "بپرس برای آینده",
+     "What helps you in the long run, and why?",
+     "For your future?",
+     [],
+     [
+      [
+       "What helps you in long run, and why?",
+       "in the long run (با the)."
+      ]
+     ]
+    ],
+    [
+     "بپرس فکر می‌کند پس‌انداز در درازمدت کمک می‌کند، یا الان مهم‌تر است",
+     "بپرس برای جوان‌ها",
+     "Do you think saving helps in the long run, or is now more important?",
+     "For young people?",
+     [],
+     [
+      [
+       "Do you think saving help in the long run, or is now more important?",
+       "«saving» مفرد است: saving helps."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو پس‌انداز پول",
+     "بگو و ورزش",
+     "Saving money.",
+     "And exercise.",
+     [],
+     []
+    ],
+    [
+     "بگو پس‌انداز کمک می‌کند، چون یک روز لازمش خواهم داشت",
+     "بگو شاید برای خانه",
+     "Saving money helps, because one day I will need it.",
+     "Maybe for a home.",
+     [],
+     [
+      [
+       "Saving money help, because one day I will need it.",
+       "«Saving money» مفرد است: helps."
+      ]
+     ]
+    ],
+    [
+     "بگو فکر می‌کنم پس‌انداز در درازمدت کمک می‌کند، ولی الان هم از زندگی لذت می‌برم",
+     "بگو هر دو مهم‌اند",
+     "I think saving helps in the long run, but I enjoy life now too.",
+     "Both are important.",
+     [],
+     [
+      [
+       "I think saving help in the long run, but I enjoy life now too.",
+       "«saving» مفرد است: helps."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "headphones-sale",
+   "c": "دوستت گفت: «امروز یک ساعت با ۴۰٪ تخفیف خریدم.»",
+   "q": [
+    [
+     "بگو چه خوب و بپرس از کجا خرید",
+     "بپرس آنلاین",
+     "Nice! Where did you buy it?",
+     "Online?",
+     [],
+     [
+      [
+       "Nice! Where you bought it?",
+       "سؤال گذشته با «did» است؛ بعدش فعل ساده می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس واقعاً لازمش داشت یا فقط وسوسه‌انگیز بود",
+     "بپرس چه رنگی",
+     "Did you need it, or was it just tempting?",
+     "What colour?",
+     [],
+     [
+      [
+       "Did you needed it, or was it just tempting?",
+       "سؤال گذشته با «did» است؛ بعدش فعل ساده می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس در بودجه‌اش بود یا زیادی خرج کرد",
+     "بپرس پشیمان است",
+     "Was it in your budget, or did you spend too much?",
+     "Are you sorry?",
+     [],
+     [
+      [
+       "Was it in your budget, or you spent too much?",
+       "سؤال دوم «did» می‌خواهد: or did you spend…?"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو آنلاین",
+     "بگو از یک مغازه‌ی بزرگ",
+     "Online.",
+     "From a big shop.",
+     [],
+     []
+    ],
+    [
+     "بگو واقعاً لازمش نداشتم؛ فقط وسوسه‌انگیز بود",
+     "بگو تخفیفش بزرگ بود",
+     "I didn't really need it. It was just tempting.",
+     "The sale was big.",
+     [],
+     [
+      [
+       "I didn't really needed it. It was just tempting.",
+       "بعد از «didn't» فعل ساده می‌آید: need."
+      ]
+     ]
+    ],
+    [
+     "بگو در بودجه‌ام نبود، پس این ماه زیادی خرج کردم",
+     "بگو ماه بعد بیشتر پس‌انداز می‌کنم",
+     "It wasn't in my budget, so I spent too much this month.",
+     "I'll save more next month.",
+     [],
+     [
+      [
+       "It wasn't in my budget, so I spend too much this month.",
+       "کارِ تمام‌شده: گذشته‌ی spend می‌شود spent."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "payday-tomorrow",
+   "c": "دوستت گفت: «فردا روز حقوقمه!»",
+   "q": [
+    [
+     "بگو عالی است و بپرس چه می‌خواهد بخرد",
+     "بپرس برای خودش",
+     "Great! What are you going to buy?",
+     "For you?",
+     [],
+     [
+      [
+       "Great! What you are going to buy?",
+       "در سؤال «are» قبل از «you» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس می‌خواهد چیزی بخرد یا پس‌اندازش کند",
+     "بپرس یا هر دو",
+     "Great! Are you going to buy something, or save it?",
+     "Or both?",
+     [],
+     [
+      [
+       "Great! You are going to buy something, or save it?",
+       "سؤال با «Are you» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس برای این ماه بودجه نوشته است",
+     "بپرس با یک اپ",
+     "Great! Have you made a budget for this month?",
+     "With an app?",
+     [],
+     [
+      [
+       "Great! Have you make a budget for this month?",
+       "حال کامل: have / has + قسمت سوم فعل. made."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو چند لباس نو",
+     "بگو و یک کتاب",
+     "Some new clothes.",
+     "And a book.",
+     [],
+     []
+    ],
+    [
+     "بگو می‌خواهم بیشترش را پس‌انداز کنم",
+     "بگو برای یک سفر",
+     "I'm going to save most of it.",
+     "For a trip.",
+     [],
+     [
+      [
+       "I going to save most of it.",
+       "«am» لازم است: I'm going to."
+      ]
+     ]
+    ],
+    [
+     "بگو نه، هنوز ننوشته‌ام، ولی امشب یکی می‌نویسم",
+     "بگو با یک اپ",
+     "No, I haven't made one yet, but I'll make one tonight.",
+     "With an app.",
+     [],
+     [
+      [
+       "No, I haven't make one yet, but I'll make one tonight.",
+       "حال کامل: have / has + قسمت سوم فعل. made."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "cant-save",
+   "c": "دوستت گفت: «هر ماه سعی می‌کنم پس‌انداز کنم، ولی نمی‌شود.»",
+   "q": [
+    [
+     "بپرس چرا نه",
+     "بپرس پول زیاد خرج می‌کند",
+     "Why not?",
+     "Do you spend a lot?",
+     [],
+     []
+    ],
+    [
+     "بپرس چرا نه و پولش را خرج چه می‌کند",
+     "بپرس هر روز",
+     "Why not? What do you spend your money on?",
+     "Every day?",
+     [],
+     [
+      [
+       "Why not? What do you spend your money?",
+       "«خرج چیزی کردن» با on است: spend your money on."
+      ]
+     ]
+    ],
+    [
+     "بپرس روز حقوق پول کنار می‌گذارد یا آخر ماه",
+     "بپرس چقدر",
+     "Do you set aside money on payday, or at the end of the month?",
+     "How much?",
+     [],
+     [
+      [
+       "Do you set aside money in payday, or at the end of the month?",
+       "«روز» با on می‌آید: on payday."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو چیزهای زیادی می‌خرم",
+     "بگو چیزهای کوچک",
+     "I buy too many things.",
+     "Small things.",
+     [],
+     [
+      [
+       "I buy too much things.",
+       "«things» قابل شمارش است: too many."
+      ]
+     ]
+    ],
+    [
+     "بگو خرج قهوه و غذای بیرون می‌کنم",
+     "بگو تقریباً هر روز",
+     "I spend it on coffee and food delivery.",
+     "Almost every day.",
+     [],
+     [
+      [
+       "I spend it for coffee and food delivery.",
+       "«خرج چیزی کردن» با on است."
+      ]
+     ]
+    ],
+    [
+     "بگو آخر ماه، ولی آن موقع دیگر پولی نمانده",
+     "بگو باید عوضش کنم",
+     "At the end of the month, but then there isn't any money left.",
+     "I need to change that.",
+     [],
+     [
+      [
+       "In the end of the month, but then there isn't any money left.",
+       "«آخر ماه» می‌شود at the end of the month."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "gym-cost",
+   "c": "دوستت گفت: «پول باشگاه ورزشی گران است.»",
+   "q": [
+    [
+     "بپرس چقدر است",
+     "بپرس در ماه",
+     "How much is it?",
+     "A month?",
+     [],
+     [
+      [
+       "How much it is?",
+       "در سؤال «is» قبل از «it» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چقدر است و هر چند وقت یک‌بار می‌رود",
+     "بپرس صبح‌ها",
+     "How much is it, and how often do you go?",
+     "In the morning?",
+     [],
+     [
+      [
+       "How much is it, and how often you go?",
+       "سؤال دوم «do» می‌خواهد: how often do you go?"
+      ]
+     ]
+    ],
+    [
+     "بپرس فکر می‌کند در درازمدت به او کمک می‌کند",
+     "بپرس برای سلامتی",
+     "Do you think it will help you in the long run?",
+     "For your health?",
+     [],
+     [
+      [
+       "Do you think it will help you in long run?",
+       "in the long run (با the)."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو ماهی چهل یورو",
+     "بگو خیلی است",
+     "Forty euros a month.",
+     "That's a lot.",
+     [],
+     [
+      [
+       "Forty euros in month.",
+       "«ماهی» می‌شود a month."
+      ]
+     ]
+    ],
+    [
+     "بگو ماهی چهل یورو است و هفته‌ای سه بار می‌روم",
+     "بگو بعد از کار",
+     "It's forty euros a month, and I go three times a week.",
+     "After work.",
+     [],
+     [
+      [
+       "It's forty euros a month, and I go three time a week.",
+       "«بار» جمع می‌شود: three times."
+      ]
+     ]
+    ],
+    [
+     "بگو بله، فکر می‌کنم در درازمدت به سلامتی‌ام کمک می‌کند",
+     "بگو و حالم را خوب می‌کند",
+     "Yes, I think it will help my health in the long run.",
+     "And I feel good.",
+     [],
+     [
+      [
+       "Yes, I think it will help my health in long run.",
+       "in the long run (با the)."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "shoes-expensive",
+   "c": "دوستت گفت: «این کفش‌ها خیلی وسوسه‌انگیزند، ولی گران‌اند.»",
+   "q": [
+    [
+     "بپرس چند است",
+     "بپرس تخفیف دارد",
+     "How much are they?",
+     "Are they on sale?",
+     [],
+     [
+      [
+       "How much they are?",
+       "در سؤال «are» قبل از «they» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چند است و لازمشان دارد",
+     "بپرس برای کار",
+     "How much are they, and do you need them?",
+     "For work?",
+     [],
+     [
+      [
+       "How much are they, and do you need it?",
+       "«کفش‌ها» جمع است: them."
+      ]
+     ]
+    ],
+    [
+     "بپرس چرا صبر نمی‌کند تا تخفیف بخورد و تا آن موقع پول کنار بگذارد",
+     "بپرس شاید ماه بعد",
+     "Why don't you wait for a sale and set aside money until then?",
+     "Maybe next month?",
+     [],
+     [
+      [
+       "Why you don't wait for a sale and set aside money until then?",
+       "سؤال: Why don't you…?"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو صد یورو",
+     "بگو خیلی است",
+     "A hundred euros.",
+     "That's a lot.",
+     [],
+     []
+    ],
+    [
+     "بگو صد یورو است و بله، لازمشان دارم",
+     "بگو کفش‌های قبلی‌ام پاره‌اند",
+     "They're a hundred euros, and yes, I need them.",
+     "My old ones are broken.",
+     [],
+     [
+      [
+       "They're a hundred euros, and yes, I need it.",
+       "«کفش‌ها» جمع است: them."
+      ]
+     ]
+    ],
+    [
+     "بگو فکر خوبی است؛ هر هفته کمی کنار می‌گذارم",
+     "بگو تا تخفیف",
+     "That's a good idea. I'll set aside a little every week.",
+     "Until the sale.",
+     [],
+     [
+      [
+       "That's a good idea. I'll set aside a little every weeks.",
+       "بعد از «every» اسم مفرد می‌آید: every week."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "cash-or-card",
+   "c": null,
+   "q": [
+    [
+     "بپرس پول نقد همراهش دارد",
+     "بپرس همیشه",
+     "Do you carry cash?",
+     "Always?",
+     [],
+     [
+      [
+       "You carry cash?",
+       "سؤال حال ساده با «Do you» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس پول نقد همراهش دارد یا با کارت پرداخت می‌کند",
+     "بپرس با گوشی",
+     "Do you carry cash, or do you pay by card?",
+     "Or by phone?",
+     [],
+     [
+      [
+       "Do you carry cash, or you pay by card?",
+       "سؤال دوم «do» می‌خواهد: or do you pay…?"
+      ]
+     ]
+    ],
+    [
+     "بپرس اگر مغازه‌ای کارت قبول نکند چه کار می‌کند",
+     "بپرس زیاد پیش می‌آید",
+     "What do you do if a shop doesn't take cards?",
+     "Does it happen a lot?",
+     [],
+     [
+      [
+       "What you do if a shop doesn't take cards?",
+       "سؤال حال ساده با «Do you» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو زیاد نه",
+     "بگو فقط کمی",
+     "Not much.",
+     "Just a little.",
+     [],
+     []
+    ],
+    [
+     "بگو معمولاً با کارت پرداخت می‌کنم",
+     "بگو یا با گوشی‌ام",
+     "I usually pay by card.",
+     "Or with my phone.",
+     [],
+     [
+      [
+       "I pay usually by card.",
+       "«usually» قبل از فعل اصلی می‌آید: I usually pay."
+      ]
+     ]
+    ],
+    [
+     "بگو اگر مغازه‌ای کارت قبول نکند، نقد می‌دهم یا به مغازه‌ی دیگری می‌روم",
+     "بگو کمی پول نقد همیشه دارم",
+     "If a shop doesn't take cards, I pay with cash or go to another shop.",
+     "I always have a little cash.",
+     [],
+     [
+      [
+       "If a shop don't take cards, I pay with cash or go to another shop.",
+       "با «a shop» منفی می‌شود doesn't."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "saving-up-for",
+   "c": null,
+   "q": [
+    [
+     "بپرس برای چه چیزی پس‌انداز می‌کند",
+     "بپرس از کی",
+     "What are you saving up for?",
+     "Since when?",
+     [],
+     [
+      [
+       "What you are saving up for?",
+       "در سؤال «are» قبل از «you» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس برای چه چیزی پس‌انداز می‌کند و کی آن را می‌خرد",
+     "بپرس گران است",
+     "What are you saving up for, and when will you buy it?",
+     "Is it expensive?",
+     [],
+     [
+      [
+       "What are you saving up for, and when you will buy it?",
+       "سؤال دوم: when will you buy it?"
+      ]
+     ]
+    ],
+    [
+     "بپرس اگر امسال به اندازه‌ی کافی پس‌انداز کند، چه می‌خرد",
+     "بپرس برای خودش",
+     "What will you buy if you save up enough this year?",
+     "For yourself?",
+     [],
+     [
+      [
+       "What will you buy if you will save up enough this year?",
+       "بعد از «if» حال ساده می‌آید، نه will."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو یک گوشی نو",
+     "بگو مال من قدیمی است",
+     "A new phone.",
+     "Mine is old.",
+     [],
+     []
+    ],
+    [
+     "بگو یک گوشی نو؛ تابستان می‌خرمش",
+     "بگو اگر تخفیف باشد",
+     "A new phone. I'll buy it in the summer.",
+     "If there's a sale.",
+     [],
+     [
+      [
+       "A new phone. I buy it in the summer.",
+       "برای آینده در بخش نتیجه «will» لازم است."
+      ]
+     ]
+    ],
+    [
+     "بگو اگر به اندازه‌ی کافی پس‌انداز کنم، یک لپ‌تاپ نو برای درسم می‌خرم",
+     "بگو مال من خیلی کند است",
+     "If I save up enough, I'll buy a new laptop for my studies.",
+     "Mine is very slow.",
+     [],
+     [
+      [
+       "If I will save up enough, I'll buy a new laptop for my studies.",
+       "بعد از «if» حال ساده می‌آید، نه will."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "hobby-money",
+   "c": null,
+   "q": [
+    [
+     "بپرس از یک سرگرمی پول درمی‌آورد",
+     "بپرس آنلاین",
+     "Do you earn money from a hobby?",
+     "Online?",
+     [],
+     [
+      [
+       "Do you earn money of a hobby?",
+       "«از» اینجا می‌شود from: earn money from."
+      ]
+     ]
+    ],
+    [
+     "بپرس از یک سرگرمی پول درمی‌آورد و آن سرگرمی چیست",
+     "بپرس از کی",
+     "Do you earn money from a hobby? What is it?",
+     "Since when?",
+     [],
+     [
+      [
+       "Do you earn money from a hobby? What it is?",
+       "در سؤال «is» قبل از «it» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس اگر این ماه پول اضافه دربیاورد، با آن چه کار می‌کند",
+     "بپرس پس‌انداز می‌کند",
+     "If you earn some extra money this month, what will you do with it?",
+     "Will you save it?",
+     [],
+     [
+      [
+       "If you will earn some extra money this month, what will you do with it?",
+       "بعد از «if» حال ساده می‌آید، نه will."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو نه",
+     "بگو ولی دوست دارم",
+     "No, I don't.",
+     "But I'd like to.",
+     [],
+     []
+    ],
+    [
+     "بگو بله؛ کیک‌هایم را به دوستانم می‌فروشم",
+     "بگو آخر هفته‌ها",
+     "Yes, I do. I sell my cakes to friends.",
+     "At the weekend.",
+     [],
+     [
+      [
+       "Yes, I am. I sell my cakes to friends.",
+       "جواب «Do you…?» با «I do» است."
+      ]
+     ]
+    ],
+    [
+     "بگو اگر پول اضافه دربیاورم، می‌گذارمش در حساب بانکی‌ام",
+     "بگو برای بعد",
+     "If I earn extra money, I'll put it in my bank account.",
+     "For later.",
+     [],
+     [
+      [
+       "If I earn extra money, I'll to put it in my bank account.",
+       "بعد از «will» فعل ساده بدون to می‌آید: I'll put."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "lend-to-friends",
+   "c": null,
+   "q": [
+    [
+     "بپرس به دوستانش پول قرض می‌دهد",
+     "بپرس زیاد",
+     "Do you lend money to friends?",
+     "A lot?",
+     [],
+     [
+      [
+       "Do you borrow money to friends?",
+       "«قرض دادن» می‌شود lend؛ borrow یعنی «قرض گرفتن»."
+      ]
+     ]
+    ],
+    [
+     "بپرس به دوستانش پول قرض می‌دهد و کی",
+     "بپرس به همه",
+     "Do you lend money to friends? When?",
+     "To everyone?",
+     [],
+     [
+      [
+       "Do you lend money friends? When?",
+       "«به کسی قرض دادن» با to است: lend money to friends."
+      ]
+     ]
+    ],
+    [
+     "بپرس به دوستی که هیچ‌وقت پول را پس نمی‌دهد قرض می‌دهد، و چرا",
+     "بپرس چند بار",
+     "Do you lend money to a friend who never pays you back? Why?",
+     "How many times?",
+     [],
+     [
+      [
+       "Do you lend money to a friend who never pay you back? Why?",
+       "با «who» (یک دوست) فعل «-s» می‌گیرد: pays."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو گاهی",
+     "بگو فقط به دوستان نزدیک",
+     "Sometimes.",
+     "Only to close friends.",
+     [],
+     []
+    ],
+    [
+     "بگو بله، وقتی واقعاً لازمش دارند",
+     "بگو کم",
+     "Yes, when they really need it.",
+     "Just a little.",
+     [],
+     [
+      [
+       "Yes, when they will really need it.",
+       "بعد از «when» حال ساده می‌آید، نه will."
+      ]
+     ]
+    ],
+    [
+     "بگو نه، چون پول قرض نمی‌دهم مگر اینکه پسش بگیرم",
+     "بگو یک بار کافی است",
+     "No, I don't, because I don't lend money unless I get it back.",
+     "Once is enough.",
+     [],
+     [
+      [
+       "No, I don't, because I don't lend money unless I don't get it back.",
+       "«unless» خودش منفی است («مگر اینکه»)؛ بعدش فعل مثبت می‌آید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "first-bank-account",
+   "c": null,
+   "q": [
+    [
+     "بپرس اولین حساب بانکی‌اش را کی باز کرد",
+     "بپرس با پدرش",
+     "When did you open your first bank account?",
+     "With your dad?",
+     [],
+     [
+      [
+       "When you opened your first bank account?",
+       "سؤال گذشته با «did» است؛ بعدش فعل ساده می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس اولین حساب بانکی‌اش را کی باز کرد و چرا",
+     "بپرس کدام بانک",
+     "When did you open your first bank account, and why?",
+     "Which bank?",
+     [],
+     [
+      [
+       "When did you opened your first bank account, and why?",
+       "سؤال گذشته با «did» است؛ بعدش فعل ساده می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس اگر جوان‌ها حساب بانکی باز کنند، به آن‌ها کمک می‌کند، و چطور",
+     "بپرس در مدرسه",
+     "If young people open a bank account, will it help them? How?",
+     "At school?",
+     [],
+     [
+      [
+       "If young people will open a bank account, will it help them? How?",
+       "بعد از «if» حال ساده می‌آید، نه will."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو پنج سال پیش",
+     "بگو برای اولین کارم",
+     "Five years ago.",
+     "For my first job.",
+     [],
+     []
+    ],
+    [
+     "بگو پنج سال پیش، چون اولین کارم را گرفتم",
+     "بگو در یک کافه",
+     "Five years ago, because I got my first job.",
+     "In a café.",
+     [],
+     [
+      [
+       "Five years ago, because I got my first work.",
+       "«شغل» قابل شمارش می‌شود job: my first job."
+      ]
+     ]
+    ],
+    [
+     "بگو بله؛ اگر جوان‌ها حساب بانکی داشته باشند، پس‌انداز کردن را یاد می‌گیرند",
+     "بگو و بودجه نوشتن را",
+     "Yes, it will. If young people have a bank account, they'll learn to save.",
+     "And to make a budget.",
+     [],
+     [
+      [
+       "Yes, it will. If young people will have a bank account, they'll learn to save.",
+       "بعد از «if» حال ساده می‌آید، نه will."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "brother-car",
+   "c": "دوستت گفت: «برادرم می‌خواهد ماشینم را قرض بگیرد.»",
+   "q": [
+    [
+     "بپرس آن را به او قرض می‌دهد",
+     "بپرس برای چند روز",
+     "Will you lend it to him?",
+     "For how many days?",
+     [],
+     [
+      [
+       "Will you borrow it to him?",
+       "«قرض دادن» می‌شود lend؛ borrow یعنی «قرض گرفتن»."
+      ]
+     ]
+    ],
+    [
+     "بپرس آن را به او قرض می‌دهد و برادرش کی لازمش دارد",
+     "بپرس برای کار",
+     "Will you lend it to him? When does he need it?",
+     "For work?",
+     [],
+     [
+      [
+       "Will you lend it to him? When he needs it?",
+       "سؤال «does» می‌خواهد: When does he need it?"
+      ]
+     ]
+    ],
+    [
+     "بپرس اگر هفته‌ی بعد دوباره بپرسد، چه می‌گوید",
+     "بپرس عصبانی می‌شود",
+     "What will you say if he asks again next week?",
+     "Will you be angry?",
+     [],
+     [
+      [
+       "What will you say if he will ask again next week?",
+       "بعد از «if» حال ساده می‌آید، نه will."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو فقط این بار",
+     "Yes, I will.",
+     "Only this time.",
+     [],
+     []
+    ],
+    [
+     "بگو بله؛ او جمعه لازمش دارد",
+     "بگو برای یک سفر",
+     "Yes, I will. He needs it on Friday.",
+     "For a trip.",
+     [],
+     [
+      [
+       "Yes, I will. He need it on Friday.",
+       "با «he» فعل «-s» می‌گیرد: he needs."
+      ]
+     ]
+    ],
+    [
+     "بگو اگر دوباره بپرسد، نه می‌گویم، چون خودم هم ماشینم را لازم دارم",
+     "بگو برای رفتن به سر کار",
+     "If he asks again, I'll say no, because I need my car too.",
+     "To go to work.",
+     [],
+     [
+      [
+       "If he will ask again, I'll say no, because I need my car too.",
+       "بعد از «if» حال ساده می‌آید، نه will."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "taxi-cash",
+   "c": "دوستت گفت: «پول نقد ندارم و تاکسی فقط نقد می‌گیرد.»",
+   "q": [
+    [
+     "بپرس می‌خواهد کمی قرض بگیرد",
+     "بپرس الان",
+     "Do you want to borrow some?",
+     "Now?",
+     [],
+     [
+      [
+       "Do you want to lend some?",
+       "«قرض گرفتن» می‌شود borrow؛ lend یعنی «قرض دادن»."
+      ]
+     ]
+    ],
+    [
+     "بپرس می‌خواهد کمی قرض بگیرد و چقدر لازم دارد",
+     "بپرس برای تاکسی",
+     "Do you want to borrow some? How much do you need?",
+     "For the taxi?",
+     [],
+     [
+      [
+       "Do you want to borrow some? How many do you need?",
+       "پول شمردنی نیست: How much."
+      ]
+     ]
+    ],
+    [
+     "بپرس اگر کمی پول نقد قرضش بدهد، کی پسش می‌دهد",
+     "بپرس فردا",
+     "If I lend you some cash, when will you pay me back?",
+     "Tomorrow?",
+     [],
+     [
+      [
+       "If I will lend you some cash, when will you pay me back?",
+       "بعد از «if» حال ساده می‌آید، نه will."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله، لطفاً",
+     "بگو خیلی ممنون",
+     "Yes, please.",
+     "Thanks a lot.",
+     [],
+     []
+    ],
+    [
+     "بگو بله لطفاً؛ برای تاکسی ده یورو لازم دارم",
+     "بگو فقط امروز",
+     "Yes, please. I need ten euros for the taxi.",
+     "Just today.",
+     [],
+     [
+      [
+       "Yes, please. I need ten euros for taxi.",
+       "تاکسیِ مشخص: the taxi."
+      ]
+     ]
+    ],
+    [
+     "بگو به‌محض اینکه به خانه برسم، پسش می‌دهم",
+     "بگو قول می‌دهم",
+     "I'll pay you back as soon as I get home.",
+     "I promise.",
+     [],
+     [
+      [
+       "I'll pay you back as soon as I will get home.",
+       "بعد از «as soon as» حال ساده می‌آید، نه will."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "bike-savings",
+   "c": "دوستت گفت: «برای یک دوچرخه پس‌انداز می‌کنم.»",
+   "q": [
+    [
+     "بپرس چقدر طول می‌کشد",
+     "بپرس چند ماه",
+     "How long will it take?",
+     "How many months?",
+     [],
+     [
+      [
+       "How long it will take?",
+       "در سؤال «will» قبل از «it» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چقدر طول می‌کشد و دوچرخه چند است",
+     "بپرس نو است",
+     "How long will it take, and how much is the bike?",
+     "Is it new?",
+     [],
+     [
+      [
+       "How long will it take, and how much the bike is?",
+       "در سؤال «is» قبل از «the bike» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس به‌محض اینکه آن را بخرد، چه کار می‌کند",
+     "بپرس کجا می‌رود",
+     "What will you do as soon as you buy it?",
+     "Where will you go?",
+     [],
+     [
+      [
+       "What will you do as soon as you will buy it?",
+       "بعد از «as soon as» حال ساده می‌آید، نه will."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو حدود سه ماه",
+     "بگو شاید کمتر",
+     "About three months.",
+     "Maybe less.",
+     [],
+     []
+    ],
+    [
+     "بگو حدود سه ماه؛ سیصد یورو است",
+     "بگو ولی خیلی خوب است",
+     "About three months. It's three hundred euros.",
+     "But it's very good.",
+     [],
+     [
+      [
+       "About three months. It's three hundreds euros.",
+       "«hundred» بعد از عدد «-s» نمی‌گیرد: three hundred."
+      ]
+     ]
+    ],
+    [
+     "بگو به‌محض اینکه بخرمش، هر روز با آن سر کار می‌روم",
+     "بگو و پول اتوبوس را پس‌انداز می‌کنم",
+     "As soon as I buy it, I'll ride it to work every day.",
+     "And I'll save the bus money.",
+     [],
+     [
+      [
+       "As soon as I will buy it, I'll ride it to work every day.",
+       "بعد از «as soon as» حال ساده می‌آید، نه will."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "lost-bank-card",
+   "c": "دوستت گفت: «کارت بانکی‌ام را گم کرده‌ام!»",
+   "q": [
+    [
+     "بپرس به بانکش زنگ زده",
+     "بپرس امروز",
+     "Have you called your bank?",
+     "Today?",
+     [],
+     [
+      [
+       "Have you call your bank?",
+       "حال کامل: have / has + قسمت سوم فعل. called."
+      ]
+     ]
+    ],
+    [
+     "بگو وای و بپرس به بانک زنگ زده و پول نقد دارد",
+     "بپرس برای امروز",
+     "Oh no! Have you called the bank, and do you have any cash?",
+     "For today?",
+     [],
+     [
+      [
+       "Oh no! Have you called the bank, and you have any cash?",
+       "سؤال دوم «do» می‌خواهد: do you have…?"
+      ]
+     ]
+    ],
+    [
+     "بپرس اگر کسی پیدایش کند چه می‌شود",
+     "بپرس کارت جدید می‌گیرد",
+     "What will happen if someone finds it?",
+     "Will you get a new one?",
+     [],
+     [
+      [
+       "What will happen if someone will find it?",
+       "بعد از «if» حال ساده می‌آید، نه will."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو همین الان",
+     "Yes, I have.",
+     "Just now.",
+     [],
+     []
+    ],
+    [
+     "بگو بله زنگ زده‌ام و کمی پول نقد دارم",
+     "بگو برای ناهار کافی است",
+     "Yes, I have, and I have a little cash.",
+     "It's enough for lunch.",
+     [],
+     [
+      [
+       "Yes, I did, and I have a little cash.",
+       "جواب «Have you…?» با «I have» است."
+      ]
+     ]
+    ],
+    [
+     "بگو اگر کسی پیدایش کند، نمی‌تواند از آن استفاده کند، چون بانک آن را بسته است",
+     "بگو کارت جدید هفته‌ی بعد می‌آید",
+     "If someone finds it, they can't use it, because the bank has stopped it.",
+     "My new card will come next week.",
+     [],
+     [
+      [
+       "If someone will find it, they can't use it, because the bank has stopped it.",
+       "بعد از «if» حال ساده می‌آید، نه will."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "new-job-earn",
+   "c": "دوستت گفت: «یک کار جدید پیدا کرده‌ام و بیشتر درمی‌آورم.»",
+   "q": [
+    [
+     "بگو تبریک می‌گویم و بپرس کی شروع می‌کند",
+     "بپرس هیجان دارد",
+     "Congratulations! When do you start?",
+     "Are you excited?",
+     [],
+     [
+      [
+       "Congratulations! When you start?",
+       "سؤال حال ساده «do» می‌خواهد: When do you start?"
+      ]
+     ]
+    ],
+    [
+     "بگو تبریک می‌گویم و بپرس کی شروع می‌کند و کجاست",
+     "بپرس دور است",
+     "Congratulations! When do you start, and where is it?",
+     "Is it far?",
+     [],
+     [
+      [
+       "Congratulations! When do you start, and where it is?",
+       "در سؤال «is» قبل از «it» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس وقتی حقوق بگیرد با پول اضافه چه کار می‌کند",
+     "بپرس برای خانواده",
+     "What will you do with the extra money when you get paid?",
+     "For your family?",
+     [],
+     [
+      [
+       "What will you do with the extra money when you will get paid?",
+       "بعد از «when» حال ساده می‌آید، نه will."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو دوشنبه‌ی آینده",
+     "بگو ساعت نه",
+     "Next Monday.",
+     "At nine.",
+     [],
+     []
+    ],
+    [
+     "بگو دوشنبه‌ی آینده؛ نزدیک خانه‌ام است",
+     "بگو پیاده می‌روم",
+     "Next Monday. It's near my home.",
+     "I'll walk there.",
+     [],
+     [
+      [
+       "Next Monday. It near my home.",
+       "فعل «is» لازم است: It's near my home."
+      ]
+     ]
+    ],
+    [
+     "بگو وقتی حقوق بگیرم، برای یک ماشین پس‌انداز می‌کنم",
+     "بگو شاید تا سال بعد",
+     "When I get paid, I'll save up for a car.",
+     "Maybe by next year.",
+     [],
+     [
+      [
+       "When I will get paid, I'll save up for a car.",
+       "بعد از «when» حال ساده می‌آید، نه will."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "prices-near-you",
+   "c": null,
+   "q": [
+    [
+     "بپرس جایی که زندگی می‌کند قیمت‌ها بالا می‌رود",
+     "بپرس این ماه",
+     "Are prices going up where you live?",
+     "This month?",
+     [],
+     [
+      [
+       "Are prices go up where you live?",
+       "حال استمراری: are going up."
+      ]
+     ]
+    ],
+    [
+     "بپرس جایی که زندگی می‌کند قیمت‌ها بالا می‌رود و کدام قیمت‌ها",
+     "بپرس خیلی",
+     "Are prices going up where you live? Which prices?",
+     "A lot?",
+     [],
+     [
+      [
+       "Prices are going up where you live? Which prices?",
+       "سؤال با «Are prices…?» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس وقتی قیمت غذا بالا می‌رود چه کار می‌کند",
+     "بپرس کمتر بیرون غذا می‌خورد",
+     "What do you do when food prices go up?",
+     "Do you eat out less?",
+     [],
+     [
+      [
+       "What do you do when food prices will go up?",
+       "بعد از «when» حال ساده می‌آید، نه will."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو هر ماه",
+     "Yes, they are.",
+     "Every month.",
+     [],
+     []
+    ],
+    [
+     "بگو بله؛ غذا و اجاره",
+     "بگو و قیمت بنزین",
+     "Yes, they are. Food and rent.",
+     "And petrol.",
+     [],
+     [
+      [
+       "Yes, they do. Food and rent.",
+       "جواب «Are…?» با «they are» است."
+      ]
+     ]
+    ],
+    [
+     "بگو وقتی قیمت غذا بالا می‌رود، گوشت کمتری می‌خرم و بیشتر در خانه آشپزی می‌کنم",
+     "بگو و بیرون غذا نمی‌خورم",
+     "When food prices go up, I buy less meat and cook more at home.",
+     "And I don't eat out.",
+     [],
+     [
+      [
+       "When food prices go up, I buy less meat and cook more in home.",
+       "«در خانه» می‌شود at home."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "phone-value",
+   "c": null,
+   "q": [
+    [
+     "بپرس گوشی‌اش به‌صرفه است",
+     "بپرس گران بود",
+     "Is your phone good value for money?",
+     "Was it expensive?",
+     [],
+     [
+      [
+       "Your phone is good value for money?",
+       "سؤال با «Is» شروع می‌شود: Is your phone…?"
+      ]
+     ]
+    ],
+    [
+     "بپرس گوشی‌اش به‌صرفه است و چرا",
+     "بپرس چند وقت است دارد",
+     "Is your phone good value for money? Why?",
+     "How long have you had it?",
+     [],
+     [
+      [
+       "Is your phone good value of money? Why?",
+       "«به‌صرفه» می‌شود value for money."
+      ]
+     ]
+    ],
+    [
+     "بپرس اگر گوشی ارزان باشد ولی بعد از یک سال خراب شود، به‌صرفه است",
+     "بپرس چه گوشی‌ای بخرد",
+     "If a phone is cheap but breaks after a year, is it good value for money?",
+     "Which phone should I buy?",
+     [],
+     [
+      [
+       "If a phone is cheap but will break after a year, is it good value for money?",
+       "بعد از «if» حال ساده می‌آید، نه will."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو خوب کار می‌کند",
+     "Yes, it is.",
+     "It works well.",
+     [],
+     []
+    ],
+    [
+     "بگو بله، چون ارزان بود و خوب کار می‌کند",
+     "بگو سه سال است دارمش",
+     "Yes, it is, because it was cheap and it works well.",
+     "I've had it for three years.",
+     [],
+     [
+      [
+       "Yes, it is, because it was cheap and it work well.",
+       "با فاعل مفرد (he / she / it) فعل «-s» می‌گیرد. works."
+      ]
+     ]
+    ],
+    [
+     "بگو نه؛ اگر بعد از یک سال خراب شود، به‌صرفه نیست",
+     "بگو یک گوشی خوب سال‌ها کار می‌کند",
+     "No, it isn't. If it breaks after a year, it isn't good value for money.",
+     "A good phone works for years.",
+     [],
+     [
+      [
+       "No, it isn't. If it will break after a year, it isn't good value for money.",
+       "بعد از «if» حال ساده می‌آید، نه will."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "ever-loan",
+   "c": null,
+   "q": [
+    [
+     "بپرس تا حالا وام داشته",
+     "بپرس از بانک",
+     "Have you ever had a loan?",
+     "From a bank?",
+     [],
+     [
+      [
+       "Have you ever have a loan?",
+       "حال کامل: have / has + قسمت سوم فعل. had."
+      ]
+     ]
+    ],
+    [
+     "بپرس تا حالا وام داشته و برای چه بوده",
+     "بپرس کی",
+     "Have you ever had a loan? What was it for?",
+     "When?",
+     [],
+     [
+      [
+       "Have you ever had a loan? What it was for?",
+       "در سؤال «was» قبل از «it» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس برای خرید ماشین بهتر است پس‌انداز کرد یا وام گرفت، و چرا",
+     "بپرس برای خانه",
+     "Is it better to save up or to take a loan for a car? Why?",
+     "And for a home?",
+     [],
+     [
+      [
+       "Is it better to save up or to take loan for a car? Why?",
+       "«loan» قابل شمارش است: a loan."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو نه",
+     "بگو هیچ‌وقت",
+     "No, I haven't.",
+     "Never.",
+     [],
+     []
+    ],
+    [
+     "بگو بله داشته‌ام؛ برای ماشینم بود",
+     "بگو دو سال پیش",
+     "Yes, I have. It was for my car.",
+     "Two years ago.",
+     [],
+     [
+      [
+       "Yes, I did. It was for my car.",
+       "جواب «Have you…?» با «I have» است."
+      ]
+     ]
+    ],
+    [
+     "بگو پس‌انداز بهتر است، چون اگر وام بگیری، سود زیادی می‌دهی",
+     "بگو حتی اگر طول بکشد",
+     "It's better to save up, because if you take a loan, you pay a lot of interest.",
+     "Even if it takes a long time.",
+     [],
+     [
+      [
+       "It's better to save up, because if you will take a loan, you pay a lot of interest.",
+       "بعد از «if» حال ساده می‌آید، نه will."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "owe-anyone",
+   "c": null,
+   "q": [
+    [
+     "بپرس به کسی پول بدهکار است",
+     "بپرس به بانک",
+     "Do you owe anyone money?",
+     "The bank?",
+     [],
+     [
+      [
+       "Do you owe to anyone money?",
+       "«بدهکار کسی بودن» بدون to است: owe someone money."
+      ]
+     ]
+    ],
+    [
+     "بپرس به کسی پول بدهکار است و چقدر",
+     "بپرس از کی",
+     "Do you owe anyone money? How much?",
+     "Since when?",
+     [],
+     [
+      [
+       "Do you owe anyone money? How many?",
+       "پول شمردنی نیست: How much."
+      ]
+     ]
+    ],
+    [
+     "بپرس وقتی به کسی پول بدهکار است چه حسی دارد",
+     "بپرس زود پس می‌دهد",
+     "How do you feel when you owe someone money?",
+     "Do you pay it back fast?",
+     [],
+     [
+      [
+       "How you feel when you owe someone money?",
+       "سؤال «do» می‌خواهد: How do you feel?"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو نه",
+     "بگو خوشبختانه",
+     "No, I don't.",
+     "Luckily.",
+     [],
+     []
+    ],
+    [
+     "بگو بله؛ پنجاه یورو به برادرم بدهکارم",
+     "بگو ماه بعد پس می‌دهم",
+     "Yes, I do. I owe my brother fifty euros.",
+     "I'll pay it back next month.",
+     [],
+     [
+      [
+       "Yes, I do. I owe to my brother fifty euros.",
+       "«بدهکار کسی بودن» بدون to است: owe my brother."
+      ]
+     ]
+    ],
+    [
+     "بگو وقتی به کسی بدهکارم حس بدی دارم، پس هر وقت بتوانم زود پسش می‌دهم",
+     "بگو شب‌ها خوب نمی‌خوابم",
+     "When I owe someone money, I feel bad, so I pay it back as soon as I can.",
+     "I don't sleep well.",
+     [],
+     [
+      [
+       "When I owe someone money, I feel bad, so I pay back it as soon as I can.",
+       "ضمیر وسط phrasal verb می‌آید: pay it back."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "home-deposit",
+   "c": null,
+   "q": [
+    [
+     "بپرس برای خانه‌اش پول پیش داد",
+     "بپرس زیاد بود",
+     "Did you pay a deposit for your home?",
+     "Was it a lot?",
+     [],
+     [
+      [
+       "Did you paid a deposit for your home?",
+       "سؤال گذشته با «did» است؛ بعدش فعل ساده می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس برای خانه‌اش پول پیش داد و زیاد بود",
+     "بپرس چند ماه اجاره",
+     "Did you pay a deposit for your home? Was it big?",
+     "How many months' rent?",
+     [],
+     [
+      [
+       "Did you pay a deposit for your home? Was it a big?",
+       "«big» صفت است و «a» نمی‌خواهد: Was it big?"
+      ]
+     ]
+    ],
+    [
+     "بپرس وقتی از خانه‌ای می‌روی پول پیش چه می‌شود",
+     "بپرس همیشه پس می‌دهند",
+     "What happens to the deposit when you leave a flat?",
+     "Do they always give it back?",
+     [],
+     [
+      [
+       "What happens to the deposit when you will leave a flat?",
+       "بعد از «when» حال ساده می‌آید، نه will."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو دو سال پیش",
+     "Yes, I did.",
+     "Two years ago.",
+     [],
+     []
+    ],
+    [
+     "بگو بله دادم و خیلی زیاد بود",
+     "بگو سه ماه اجاره",
+     "Yes, I did, and it was very big.",
+     "Three months' rent.",
+     [],
+     [
+      [
+       "Yes, I did, and it was a very big.",
+       "«big» صفت است و «a» نمی‌خواهد."
+      ]
+     ]
+    ],
+    [
+     "بگو وقتی از خانه‌ای می‌روی، اگر همه‌چیز درست باشد، صاحبخانه پول پیش را پس می‌دهد",
+     "بگو معمولاً",
+     "When you leave a flat, the owner gives the deposit back, if everything is OK.",
+     "Usually.",
+     [],
+     [
+      [
+       "When you leave a flat, the owner give the deposit back, if everything is OK.",
+       "با فاعل مفرد (he / she / it) فعل «-s» می‌گیرد. gives."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "rent-going-up",
+   "c": "دوستت گفت: «صاحبخانه می‌خواهد اجاره را بالا ببرد.»",
+   "q": [
+    [
+     "بگو وای و بپرس چقدر",
+     "بپرس از کی",
+     "Oh no! How much?",
+     "From when?",
+     [],
+     [
+      [
+       "Oh no! How many?",
+       "پول شمردنی نیست: How much."
+      ]
+     ]
+    ],
+    [
+     "بگو وای و بپرس چقدر و از کی",
+     "بپرس قرارداد داری",
+     "Oh no! How much, and when?",
+     "Do you have a contract?",
+     [],
+     [
+      [
+       "Oh no! How many, and when?",
+       "پول شمردنی نیست: How much."
+      ]
+     ]
+    ],
+    [
+     "بپرس اگر اجاره خیلی بالا برود چه کار می‌کند",
+     "بپرس جابه‌جا می‌شود",
+     "What will you do if the rent goes up a lot?",
+     "Will you move?",
+     [],
+     [
+      [
+       "What will you do if the rent will go up a lot?",
+       "بعد از «if» حال ساده می‌آید، نه will."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بیست درصد",
+     "بگو خیلی است",
+     "Twenty percent.",
+     "That's a lot.",
+     [],
+     []
+    ],
+    [
+     "بگو بیست درصد، از ماه بعد",
+     "بگو خیلی زود است",
+     "Twenty percent, from next month.",
+     "That's very soon.",
+     [],
+     [
+      [
+       "Twenty percent, from the next month.",
+       "«ماه بعد» بدون the: next month."
+      ]
+     ]
+    ],
+    [
+     "بگو اگر خیلی بالا برود، دنبال یک خانه‌ی ارزان‌تر می‌گردم",
+     "بگو شاید با یک دوست",
+     "If it goes up a lot, I'll look for a cheaper flat.",
+     "Maybe with a friend.",
+     [],
+     [
+      [
+       "If it will go up a lot, I'll look for a cheaper flat.",
+       "بعد از «if» حال ساده می‌آید، نه will."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "loan-high-interest",
+   "c": "دوستت گفت: «بانک به من وام می‌دهد، ولی سودش بالاست.»",
+   "q": [
+    [
+     "بپرس سودش چقدر بالاست",
+     "بپرس در سال",
+     "How high is the interest?",
+     "A year?",
+     [],
+     [
+      [
+       "How high the interest is?",
+       "در سؤال «is» قبل از «the interest» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس سودش چقدر است و وام برای چیست",
+     "بپرس برای ماشین",
+     "How high is the interest, and what is the loan for?",
+     "For a car?",
+     [],
+     [
+      [
+       "How high is the interest, and what the loan is for?",
+       "در سؤال «is» قبل از «the loan» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس وام را می‌گیرد یا اول پس‌انداز می‌کند، و چرا",
+     "بپرس چقدر طول می‌کشد",
+     "Will you take the loan, or will you save up first? Why?",
+     "How long will it take?",
+     [],
+     [
+      [
+       "Will you take the loan, or you will save up first? Why?",
+       "سؤال دوم: or will you save up…?"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو حدود سی درصد",
+     "بگو خیلی است",
+     "About thirty percent.",
+     "That's a lot.",
+     [],
+     []
+    ],
+    [
+     "بگو حدود سی درصد، و برای یک ماشین است",
+     "بگو برای کار لازمش دارم",
+     "About thirty percent, and it's for a car.",
+     "I need it for work.",
+     [],
+     [
+      [
+       "About thirty percent, and it for a car.",
+       "فعل «is» لازم است: it's for a car."
+      ]
+     ]
+    ],
+    [
+     "بگو اول پس‌انداز می‌کنم، چون اگر وام را بگیرم، سود زیادی می‌دهم",
+     "بگو شاید یک سال",
+     "I'll save up first, because if I take the loan, I'll pay too much interest.",
+     "Maybe for a year.",
+     [],
+     [
+      [
+       "I'll save up first, because if I will take the loan, I'll pay too much interest.",
+       "بعد از «if» حال ساده می‌آید، نه will."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "friend-owes-me",
+   "c": "دوستت گفت: «یکی از دوستانم سه ماه است به من پول بدهکار است.»",
+   "q": [
+    [
+     "بپرس از او خواسته",
+     "بپرس چند بار",
+     "Have you asked for it?",
+     "How many times?",
+     [],
+     [
+      [
+       "Have you ask for it?",
+       "حال کامل: have / has + قسمت سوم فعل. asked."
+      ]
+     ]
+    ],
+    [
+     "بپرس از او خواسته و دوستش چه گفت",
+     "بپرس عذرخواهی کرد",
+     "Have you asked for it? What did your friend say?",
+     "Did your friend say sorry?",
+     [],
+     [
+      [
+       "Have you asked for it? What your friend said?",
+       "سؤال گذشته با «did» است؛ بعدش فعل ساده می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس اگر دوستش این ماه پولش را پس ندهد چه کار می‌کند",
+     "بپرس دوستی‌شان چه می‌شود",
+     "What will you do if your friend doesn't pay you back this month?",
+     "Will you stay friends?",
+     [],
+     [
+      [
+       "What you will do if your friend doesn't pay you back this month?",
+       "سؤال: What will you do…?"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو دو بار",
+     "Yes, I have.",
+     "Twice.",
+     [],
+     []
+    ],
+    [
+     "بگو بله خواسته‌ام، ولی دوستم همیشه می‌گوید «هفته‌ی بعد»",
+     "بگو خسته شده‌ام",
+     "Yes, I have, but my friend always says 'next week'.",
+     "I'm tired of it.",
+     [],
+     [
+      [
+       "Yes, I have, but my friend always say 'next week'.",
+       "با فاعل مفرد (he / she / it) فعل «-s» می‌گیرد. says."
+      ]
+     ]
+    ],
+    [
+     "بگو اگر دوستم این ماه پسش ندهد، دیگر پول قرض نمی‌دهم",
+     "بگو به هیچ‌کس",
+     "If my friend doesn't pay me back this month, I won't lend money again.",
+     "To anyone.",
+     [],
+     [
+      [
+       "If my friend doesn't pay me back this month, I don't lend money again.",
+       "برای آینده در بخش نتیجه «will» لازم است."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "flat-big-deposit",
+   "c": "دوستت گفت: «یک خانه‌ی خوب پیدا کردم، ولی پیشش زیاد است.»",
+   "q": [
+    [
+     "بپرس به‌صرفه است",
+     "بپرس بزرگ است",
+     "Is it good value for money?",
+     "Is it big?",
+     [],
+     [
+      [
+       "It is good value for money?",
+       "سؤال با «Is it…?» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس به‌صرفه است و کجاست",
+     "بپرس نزدیک کارش",
+     "Is it good value for money? Where is it?",
+     "Near your work?",
+     [],
+     [
+      [
+       "Is it good value for money? Where it is?",
+       "در سؤال «is» قبل از «it» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس اگر صاحبخانه پیش کمتری بخواهد، آن را می‌گیرد",
+     "بپرس با صاحبخانه حرف زده",
+     "Will you take it if the owner asks for a smaller deposit?",
+     "Have you talked to the owner?",
+     [],
+     [
+      [
+       "Will you take it if the owner will ask for a smaller deposit?",
+       "بعد از «if» حال ساده می‌آید، نه will."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو فکر می‌کنم بله",
+     "بگو اجاره‌اش کم است",
+     "Yes, I think so.",
+     "The rent is low.",
+     [],
+     [
+      [
+       "Yes, I think it.",
+       "«فکر می‌کنم بله» می‌شود I think so."
+      ]
+     ]
+    ],
+    [
+     "بگو بله هست؛ نزدیک کارم است",
+     "بگو پیاده ده دقیقه",
+     "Yes, it is. It's near my work.",
+     "Ten minutes on foot.",
+     [],
+     [
+      [
+       "Yes, it is. It near my work.",
+       "فعل «is» لازم است: It's near my work."
+      ]
+     ]
+    ],
+    [
+     "بگو بله؛ به‌محض اینکه صاحبخانه بله بگوید، می‌گیرمش",
+     "بگو فردا زنگ می‌زنم",
+     "Yes, I'll take it as soon as the owner says yes.",
+     "I'll call tomorrow.",
+     [],
+     [
+      [
+       "Yes, I'll take it as soon as the owner will say yes.",
+       "بعد از «as soon as» حال ساده می‌آید، نه will."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "coffee-price",
+   "c": "دوستت گفت: «قیمت قهوه دوباره بالا رفته!»",
+   "q": [
+    [
+     "بپرس الان یک قهوه چند است",
+     "بپرس در کافه‌ی همیشگی",
+     "How much is a coffee now?",
+     "At your usual café?",
+     [],
+     [
+      [
+       "How much a coffee is now?",
+       "در سؤال «is» قبل از «a coffee» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس الان چند است و قبلاً چند بود",
+     "بپرس از کی",
+     "Really? How much is it now, and how much was it before?",
+     "Since when?",
+     [],
+     [
+      [
+       "Really? How much is it now, and how much it was before?",
+       "در سؤال «was» قبل از «it» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس اگر قیمت دوباره بالا برود، دیگر قهوه نمی‌خرد",
+     "بپرس در خانه درست می‌کند",
+     "Will you stop buying coffee if the price goes up again?",
+     "Will you make it at home?",
+     [],
+     [
+      [
+       "Will you stop buying coffee if the price will go up again?",
+       "بعد از «if» حال ساده می‌آید، نه will."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو چهار یورو",
+     "بگو خیلی است",
+     "Four euros.",
+     "That's a lot.",
+     [],
+     []
+    ],
+    [
+     "بگو الان چهار یورو است؛ قبلاً سه بود",
+     "بگو یک ماه پیش",
+     "It's four euros now. It was three before.",
+     "A month ago.",
+     [],
+     [
+      [
+       "It's four euros now. It is three before.",
+       "برای قبلاً گذشته لازم است: It was."
+      ]
+     ]
+    ],
+    [
+     "بگو اگر دوباره بالا برود، قهوه را در خانه درست می‌کنم",
+     "بگو و پول را کنار می‌گذارم",
+     "If it goes up again, I'll make coffee at home.",
+     "And I'll set the money aside.",
+     [],
+     [
+      [
+       "If it will go up again, I'll make coffee at home.",
+       "بعد از «if» حال ساده می‌آید، نه will."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "extra-money",
+   "c": null,
+   "q": [
+    [
+     "بپرس اگر پول اضافه بگیرد چه کار می‌کند",
+     "بپرس امسال",
+     "What will you do if you get extra money?",
+     "This year?",
+     [],
+     [
+      [
+       "What will you do if you will get extra money?",
+       "بعد از «if» حال ساده می‌آید، نه will."
+      ]
+     ]
+    ],
+    [
+     "بپرس اگر این ماه پول اضافه بگیرد چه کار می‌کند و چرا",
+     "بپرس برای خانواده",
+     "What will you do if you get extra money this month, and why?",
+     "For your family?",
+     [],
+     [
+      [
+       "What you will do if you get extra money this month, and why?",
+       "سؤال: What will you do…?"
+      ]
+     ]
+    ],
+    [
+     "بپرس اگر این ماه پول اضافه بگیرد، خرجش می‌کند یا کنار می‌گذارد، و چرا",
+     "بپرس چقدر",
+     "If you get some extra money this month, will you spend it or set it aside? Why?",
+     "How much?",
+     [],
+     [
+      [
+       "If you get some extra money this month, will you spend it or set aside it? Why?",
+       "ضمیر وسط phrasal verb می‌آید: set it aside / pay it back."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو پس‌اندازش می‌کنم",
+     "بگو همه‌اش را",
+     "I'll save it.",
+     "All of it.",
+     [],
+     []
+    ],
+    [
+     "بگو پس‌اندازش می‌کنم، چون یک لپ‌تاپ نو می‌خواهم",
+     "بگو برای درسم",
+     "I'll save it, because I want a new laptop.",
+     "For my studies.",
+     [],
+     [
+      [
+       "I'll save it, because I want new laptop.",
+       "«laptop» قابل شمارش است: a new laptop."
+      ]
+     ]
+    ],
+    [
+     "بگو اگر پول اضافه بگیرم، کنارش می‌گذارم، چون قیمت‌ها هر سال بالا می‌روند",
+     "بگو شاید کمی خرج کنم",
+     "If I get extra money, I'll set it aside, because prices go up every year.",
+     "Maybe I'll spend a little.",
+     [],
+     [
+      [
+       "If I get extra money, I'll set aside it, because prices go up every year.",
+       "ضمیر وسط phrasal verb می‌آید: set it aside / pay it back."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "when-tempting",
+   "c": null,
+   "q": [
+    [
+     "بپرس وقتی چیزی وسوسه‌انگیز است چه کار می‌کند",
+     "بپرس در مغازه",
+     "What do you do when something is tempting?",
+     "In a shop?",
+     [],
+     [
+      [
+       "What do you do when something will be tempting?",
+       "بعد از «when» حال ساده می‌آید، نه will."
+      ]
+     ]
+    ],
+    [
+     "بپرس وقتی چیزی وسوسه‌انگیز ولی گران است چه کار می‌کند",
+     "بپرس آنلاین",
+     "What do you do when something is tempting but expensive?",
+     "Online?",
+     [],
+     [
+      [
+       "What you do when something is tempting but expensive?",
+       "سؤال حال ساده با «Do you» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس وقتی چیز وسوسه‌انگیزی در مغازه می‌بیند، همان موقع می‌خرد یا یک روز صبر می‌کند، و چرا",
+     "بپرس همیشه",
+     "When you see something tempting in a shop, do you buy it now or wait a day? Why?",
+     "Always?",
+     [],
+     [
+      [
+       "When you see something tempting in a shop, you buy it now or wait a day? Why?",
+       "سؤال «do» می‌خواهد: do you buy it…?"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو صبر می‌کنم",
+     "بگو یک روز",
+     "I wait.",
+     "One day.",
+     [],
+     []
+    ],
+    [
+     "بگو یک روز صبر می‌کنم و بعد تصمیم می‌گیرم",
+     "بگو و به بودجه‌ام نگاه می‌کنم",
+     "I wait a day, and then I decide.",
+     "And I look at my budget.",
+     [],
+     [
+      [
+       "I wait a day, and then I decides.",
+       "با «I» فعل «-s» نمی‌گیرد: I decide."
+      ]
+     ]
+    ],
+    [
+     "بگو یک روز صبر می‌کنم، چون اگر فردا هنوز بخواهمش، واقعاً لازمش دارم",
+     "بگو معمولاً فراموشش می‌کنم",
+     "I wait a day, because if I still want it tomorrow, I really need it.",
+     "Usually I forget it.",
+     [],
+     [
+      [
+       "I wait a day, because if I will still want it tomorrow, I really need it.",
+       "بعد از «if» حال ساده می‌آید، نه will."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "borrow-from-family",
+   "c": null,
+   "q": [
+    [
+     "بپرس از خانواده‌اش پول قرض می‌گیرد",
+     "بپرس زیاد",
+     "Do you borrow money from your family?",
+     "Often?",
+     [],
+     [
+      [
+       "Do you lend money from your family?",
+       "«قرض گرفتن» می‌شود borrow؛ lend یعنی «قرض دادن»."
+      ]
+     ]
+    ],
+    [
+     "بپرس از خانواده‌اش پول قرض می‌گیرد و کی",
+     "بپرس برای چه",
+     "Do you borrow money from your family? When?",
+     "What for?",
+     [],
+     [
+      [
+       "Do you borrow money of your family? When?",
+       "«از کسی قرض گرفتن» با from است."
+      ]
+     ]
+    ],
+    [
+     "بپرس تا حالا پول قرض می‌گیرد، و به‌محض اینکه حقوق بگیرد چه کار می‌کند",
+     "بپرس همیشه",
+     "Do you ever borrow money? What do you do as soon as you get paid?",
+     "Always?",
+     [],
+     [
+      [
+       "Do you ever borrow money? What do you do as soon as you will get paid?",
+       "بعد از «as soon as» حال ساده می‌آید، نه will."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو نه، هیچ‌وقت",
+     "بگو خوشبختانه",
+     "No, never.",
+     "Luckily.",
+     [],
+     []
+    ],
+    [
+     "بگو بله، ولی فقط وقتی واقعاً لازمش دارم",
+     "بگو مثلاً برای اجاره",
+     "Yes, but only when I really need it.",
+     "For the rent, for example.",
+     [],
+     [
+      [
+       "Yes, but only when I will really need it.",
+       "بعد از «when» حال ساده می‌آید، نه will."
+      ]
+     ]
+    ],
+    [
+     "بگو گاهی؛ به‌محض اینکه حقوق بگیرم، پسش می‌دهم",
+     "بگو همان روز",
+     "Sometimes. As soon as I get paid, I pay it back.",
+     "On the same day.",
+     [],
+     [
+      [
+       "Sometimes. As soon as I get paid, I pay back it.",
+       "ضمیر وسط phrasal verb می‌آید: set it aside / pay it back."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "shopping-hungry",
+   "c": null,
+   "q": [
+    [
+     "بپرس وقتی گرسنه است خرید می‌رود",
+     "بپرس به سوپرمارکت",
+     "Do you go shopping when you're hungry?",
+     "To the supermarket?",
+     [],
+     [
+      [
+       "Do you go to shopping when you're hungry?",
+       "«خرید رفتن» بدون to است: go shopping."
+      ]
+     ]
+    ],
+    [
+     "بپرس وقتی گرسنه است خرید می‌رود و چه می‌شود",
+     "بپرس زیاد خرج می‌کند",
+     "Do you go shopping when you're hungry? What happens?",
+     "Do you spend a lot?",
+     [],
+     [
+      [
+       "Do you go shopping when you hungry? What happens?",
+       "فعل «are» لازم است: you're hungry."
+      ]
+     ]
+    ],
+    [
+     "بپرس اگر گرسنه خرید برود چه می‌شود و حالا چه کار می‌کند",
+     "بپرس فهرست می‌نویسد",
+     "What happens if you go shopping when you're hungry, and what do you do now?",
+     "Do you make a list?",
+     [],
+     [
+      [
+       "What happen if you go shopping when you're hungry, and what do you do now?",
+       "با «What» در نقش فاعل فعل «-s» می‌گیرد: What happens."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو گاهی",
+     "بگو متأسفانه",
+     "Sometimes.",
+     "Sadly.",
+     [],
+     []
+    ],
+    [
+     "بگو گاهی؛ غذای زیادی می‌خرم",
+     "بگو و خوراکی",
+     "Sometimes. I buy too much food.",
+     "And snacks.",
+     [],
+     [
+      [
+       "Sometimes. I buy too many food.",
+       "«food» شمردنی نیست: too much."
+      ]
+     ]
+    ],
+    [
+     "بگو اگر گرسنه خرید بروم، زیادی خرج می‌کنم، پس حالا اول غذا می‌خورم",
+     "بگو و فهرست می‌نویسم",
+     "If I go shopping when I'm hungry, I spend too much, so now I eat first.",
+     "And I make a list.",
+     [],
+     [
+      [
+       "If I go shopping when I hungry, I spend too much, so now I eat first.",
+       "فعل «am» لازم است: I'm hungry."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "clothes-sale",
+   "c": null,
+   "q": [
+    [
+     "بپرس لباس را در حراج می‌خرد",
+     "بپرس آنلاین",
+     "Do you buy clothes in a sale?",
+     "Online?",
+     [],
+     [
+      [
+       "Do you buy clothes in sale?",
+       "«حراج» قابل شمارش است: in a sale."
+      ]
+     ]
+    ],
+    [
+     "بپرس لباس را در حراج می‌خرد یا با قیمت کامل",
+     "بپرس کفش هم",
+     "Do you buy clothes in a sale, or at full price?",
+     "Shoes too?",
+     [],
+     [
+      [
+       "Do you buy clothes in a sale, or in full price?",
+       "«با قیمت کامل» می‌شود at full price."
+      ]
+     ]
+    ],
+    [
+     "بپرس این ماه لباس نو می‌خرد یا برای حراج صبر می‌کند",
+     "بپرس چرا",
+     "Will you buy new clothes this month, or will you wait for a sale?",
+     "Why?",
+     [],
+     [
+      [
+       "Will you buy new clothes this month, or you will wait for a sale?",
+       "سؤال دوم: or will you wait…?"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله، معمولاً",
+     "بگو همیشه آخر فصل",
+     "Yes, usually.",
+     "Always at the end of the season.",
+     [],
+     []
+    ],
+    [
+     "بگو معمولاً در حراج می‌خرمشان",
+     "بگو خیلی ارزان‌ترند",
+     "I usually buy them in a sale.",
+     "They're much cheaper.",
+     [],
+     [
+      [
+       "I buy usually them in a sale.",
+       "«usually» قبل از فعل اصلی می‌آید: I usually buy."
+      ]
+     ]
+    ],
+    [
+     "بگو صبر می‌کنم؛ لباس نو نمی‌خرم مگر اینکه حراج باشد",
+     "بگو حراج ماه بعد است",
+     "I'll wait. I won't buy new clothes unless there's a sale.",
+     "The sale is next month.",
+     [],
+     [
+      [
+       "I'll wait. I won't buy new clothes unless there isn't a sale.",
+       "«unless» خودش منفی است («مگر اینکه»)؛ بعدش فعل مثبت می‌آید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "borrow-again",
+   "c": "دوستت گفت: «فردا دوباره می‌خواهم از تو پول قرض بگیرم!»",
+   "q": [
+    [
+     "بپرس این بار چقدر لازم دارد",
+     "بپرس برای چه",
+     "How much do you need this time?",
+     "What for?",
+     [],
+     [
+      [
+       "How much you need this time?",
+       "سؤال حال ساده «do» می‌خواهد: How much do you need?"
+      ]
+     ]
+    ],
+    [
+     "بپرس چقدر و کی پسش می‌دهد",
+     "بپرس این بار مطمئن است",
+     "Again? How much, and when will you pay me back?",
+     "Are you sure this time?",
+     [],
+     [
+      [
+       "Again? How much, and when you will pay me back?",
+       "سؤال دوم: when will you pay me back?"
+      ]
+     ]
+    ],
+    [
+     "بپرس این بار به‌محض اینکه حقوق بگیرد پسش می‌دهد",
+     "بپرس قول می‌دهد",
+     "Will you pay me back as soon as you get paid this time?",
+     "Do you promise?",
+     [],
+     [
+      [
+       "Will you pay me back as soon as you will get paid this time?",
+       "بعد از «as soon as» حال ساده می‌آید، نه will."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو فقط بیست یورو",
+     "بگو برای کتاب",
+     "Just twenty euros.",
+     "For a book.",
+     [],
+     []
+    ],
+    [
+     "بگو بیست یورو، و جمعه پسش می‌دهم",
+     "بگو قول می‌دهم",
+     "Twenty euros, and I'll pay you back on Friday.",
+     "I promise.",
+     [],
+     [
+      [
+       "Twenty euros, and I pay you back on Friday.",
+       "برای قول یا تصمیم آینده «will» لازم است."
+      ]
+     ]
+    ],
+    [
+     "بگو بله، قول می‌دهم؛ به‌محض اینکه حقوق بگیرم، پسش می‌دهم",
+     "بگو و یک قهوه مهمانت می‌کنم",
+     "Yes, I promise. As soon as I get paid, I'll pay you back.",
+     "And I'll buy you a coffee.",
+     [],
+     [
+      [
+       "Yes, I promise. As soon as I will get paid, I'll pay you back.",
+       "بعد از «as soon as» حال ساده می‌آید، نه will."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "new-car-plan",
+   "c": "دوستت گفت: «می‌خواهم ماشین نو بخرم.»",
+   "q": [
+    [
+     "بپرس وام می‌گیرد",
+     "بپرس از بانک",
+     "Will you take a loan?",
+     "From a bank?",
+     [],
+     [
+      [
+       "Will you take loan?",
+       "«loan» قابل شمارش است: a loan."
+      ]
+     ]
+    ],
+    [
+     "بپرس وام می‌گیرد یا پس‌انداز می‌کند",
+     "بپرس چقدر طول می‌کشد",
+     "Will you take a loan, or will you save up?",
+     "How long will it take?",
+     [],
+     [
+      [
+       "Will you take a loan, or you will save up?",
+       "سؤال دوم: or will you save up?"
+      ]
+     ]
+    ],
+    [
+     "بپرس اگر بانک نه بگوید چه کار می‌کند",
+     "بپرس ماشین دست‌دوم",
+     "What will you do if the bank says no?",
+     "A used car?",
+     [],
+     [
+      [
+       "What will you do if the bank will say no?",
+       "بعد از «if» حال ساده می‌آید، نه will."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو نه",
+     "بگو سودش زیاد است",
+     "No, I won't.",
+     "The interest is too high.",
+     [],
+     []
+    ],
+    [
+     "بگو دو سال پس‌انداز می‌کنم",
+     "بگو هر ماه کمی",
+     "I'll save up for two years.",
+     "A little every month.",
+     [],
+     [
+      [
+       "I'll save up for two year.",
+       "بعد از عدد اسم جمع می‌شود: two years."
+      ]
+     ]
+    ],
+    [
+     "بگو اگر بانک نه بگوید، یک ماشین ارزان‌تر می‌خرم",
+     "بگو یا دست‌دوم",
+     "If the bank says no, I'll buy a cheaper car.",
+     "Or a used one.",
+     [],
+     [
+      [
+       "If the bank will say no, I'll buy a cheaper car.",
+       "بعد از «if» حال ساده می‌آید، نه will."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "trip-no-money",
+   "c": "دوستت گفت: «همه می‌روند سفر، ولی من پول ندارم.»",
+   "q": [
+    [
+     "بپرس می‌تواند پس‌انداز کند",
+     "بپرس تا آن موقع",
+     "Can you save up?",
+     "Before then?",
+     [],
+     [
+      [
+       "You can save up?",
+       "سؤال با «Can you…?» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس می‌تواند پس‌انداز کند و سفر کی است",
+     "بپرس کجا",
+     "Can you save up? When is the trip?",
+     "Where to?",
+     [],
+     [
+      [
+       "Can you save up? When the trip is?",
+       "در سؤال «is» قبل از «the trip» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس اگر هر هفته کمی کنار بگذارد، به اندازه‌ی کافی خواهد داشت",
+     "بپرس چقدر لازم است",
+     "If you set aside a little every week, will you have enough?",
+     "How much do you need?",
+     [],
+     [
+      [
+       "If you will set aside a little every week, will you have enough?",
+       "بعد از «if» حال ساده می‌آید، نه will."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو شاید",
+     "بگو امیدوارم",
+     "Maybe.",
+     "I hope so.",
+     [],
+     []
+    ],
+    [
+     "بگو شاید؛ سفر دو ماه دیگر است",
+     "بگو در تابستان",
+     "Maybe. The trip is in two months.",
+     "In the summer.",
+     [],
+     [
+      [
+       "Maybe. The trip is two months later.",
+       "«دو ماه دیگر» می‌شود in two months."
+      ]
+     ]
+    ],
+    [
+     "بگو بله؛ اگر هفته‌ای بیست یورو کنار بگذارم، کافی خواهم داشت",
+     "بگو از همین هفته شروع می‌کنم",
+     "Yes. If I set aside twenty euros a week, I'll have enough.",
+     "I'll start this week.",
+     [],
+     [
+      [
+       "Yes. If I will set aside twenty euros a week, I'll have enough.",
+       "بعد از «if» حال ساده می‌آید، نه will."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "cheap-phone-broke",
+   "c": "دوستت گفت: «گوشی ارزانم بعد از دو ماه خراب شد.»",
+   "q": [
+    [
+     "بگو وای و بپرس می‌تواند درستش کند",
+     "بپرس گارانتی دارد",
+     "Oh no! Can you fix it?",
+     "Is it still new?",
+     [],
+     [
+      [
+       "Oh no! You can fix it?",
+       "سؤال با «Can you…?» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس می‌تواند درستش کند یا یک گوشی نو لازم دارد",
+     "بپرس الان",
+     "Oh no! Can you fix it, or do you need a new one?",
+     "Right now?",
+     [],
+     [
+      [
+       "Oh no! Can you fix it, or you need a new one?",
+       "سؤال دوم «do» می‌خواهد: or do you need…?"
+      ]
+     ]
+    ],
+    [
+     "بپرس دوباره گوشی ارزان می‌خرد یا چیزی که به‌صرفه باشد",
+     "بپرس چه مدلی",
+     "Will you buy a cheap phone again, or something that is good value for money?",
+     "Which one?",
+     [],
+     [
+      [
+       "Will you buy a cheap phone again, or something that is good value of money?",
+       "«به‌صرفه» می‌شود value for money."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو نمی‌دانم",
+     "بگو باید ببرمش مغازه",
+     "I don't know.",
+     "I need to take it to a shop.",
+     [],
+     []
+    ],
+    [
+     "بگو یک گوشی نو لازم دارم",
+     "بگو تعمیرش گران است",
+     "I need a new one.",
+     "It's expensive to fix.",
+     [],
+     [
+      [
+       "I need a new.",
+       "«یکی» بعد از صفت می‌شود one: a new one."
+      ]
+     ]
+    ],
+    [
+     "بگو چیزی می‌خرم که به‌صرفه باشد، چون گوشی‌های ارزان زود خراب می‌شوند",
+     "بگو این بار پس‌انداز می‌کنم",
+     "I'll buy something that is good value for money, because cheap phones break quickly.",
+     "This time I'll save up.",
+     [],
+     [
+      [
+       "I'll buy something that is good value for money, because cheap phones breaks quickly.",
+       "«phones» جمع است و فعل «-s» نمی‌گیرد: break."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "saving-plan",
+   "c": "دوستت گفت: «از ماه بعد می‌خواهم پس‌انداز کنم.»",
+   "q": [
+    [
+     "بگو عالی است و بپرس برنامه‌اش چیست",
+     "بپرس با یک اپ",
+     "Great! What's your plan?",
+     "With an app?",
+     [],
+     [
+      [
+       "Great! What your plan is?",
+       "سؤال: What's your plan?"
+      ]
+     ]
+    ],
+    [
+     "بپرس چقدر کنار می‌گذارد و برای چه",
+     "بپرس هر ماه",
+     "Great! How much will you set aside, and for what?",
+     "Every month?",
+     [],
+     [
+      [
+       "Great! How many will you set aside, and for what?",
+       "پول شمردنی نیست: How much."
+      ]
+     ]
+    ],
+    [
+     "بپرس وقتی چیز وسوسه‌انگیزی ببیند چه کار می‌کند",
+     "بپرس سخت است",
+     "What will you do when you see something tempting?",
+     "Will it be hard?",
+     [],
+     [
+      [
+       "What will you do when you will see something tempting?",
+       "بعد از «when» حال ساده می‌آید، نه will."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو یک بودجه می‌نویسم",
+     "بگو همین امشب",
+     "I'll make a budget.",
+     "Tonight.",
+     [],
+     [
+      [
+       "I'll make budget.",
+       "«budget» قابل شمارش است: a budget."
+      ]
+     ]
+    ],
+    [
+     "بگو ماهی پنجاه یورو برای یک سفر کنار می‌گذارم",
+     "بگو در تابستان",
+     "I'll set aside fifty euros a month for a holiday.",
+     "In the summer.",
+     [],
+     [
+      [
+       "I'll set aside fifty euros in a month for a holiday.",
+       "«ماهی» می‌شود a month."
+      ]
+     ]
+    ],
+    [
+     "بگو وقتی چیز وسوسه‌انگیزی ببینم، به بودجه‌ام فکر می‌کنم و یک روز صبر می‌کنم",
+     "بگو بیشتر وقت‌ها فراموشش می‌کنم",
+     "When I see something tempting, I'll think about my budget and wait a day.",
+     "I usually forget it.",
+     [],
+     [
+      [
+       "When I will see something tempting, I'll think about my budget and wait a day.",
+       "بعد از «when» حال ساده می‌آید، نه will."
+      ]
+     ]
+    ]
+   ]
+  }
+ ]
+}

@@ -65,4 +65,16 @@ return [
         'Last night Reza dropped his phone in the bath, and now he has lost all his photos.',
         'Mina has never used a computer, but yesterday her grandson gave her a laptop.',
     ],
+    'M14' => [
+        'If Sara saves her money for one more month, she will have enough for a new bike, but today her brother wants to borrow some.',
+        'As soon as Reza gets paid on Friday, he will pay back his friend, but on Thursday night he loses his wallet.',
+    ],
+    'M15' => [
+        'Last Friday Sara\'s new phone was delivered, but when she opened the box, the screen was broken.',
+        'Ali had his hair cut before a big party, but it was cut much too short.',
+    ],
+    'M16' => [
+        'When Sara got to the airport, she realised that she had left her passport at home, and her flight was leaving in an hour.',
+        'Ali was walking around an old city at night when he saw that his phone had died, and he had no map.',
+    ],
 ];

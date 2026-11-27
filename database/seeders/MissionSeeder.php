@@ -42,6 +42,10 @@ class MissionSeeder extends Seeder
 
     private const SLIP_WILL_CAN = 'will with can or must ("I will can", "I\'ll must")';
 
+    private const SLIP_WILL_AFTER_IF = 'will right after if / when / unless / as soon as ("If it will break, I\'ll take it back", "when I will get paid")';
+
+    private const SLIP_PASSIVE_NO_BE = 'a passive with no be ("My bag stolen at the airport", "Our flight cancelled", "It made in China")';
+
     /**
      * Seeds M01 with its real content from document/M01/ (Mission01.pdf,
      * BBC Learning English "Real Easy English — Mornings"), matching the
@@ -3019,6 +3023,9 @@ class MissionSeeder extends Seeder
         $this->seedM11();
         $this->seedM12();
         $this->seedM13();
+        $this->seedM14();
+        $this->seedM15();
+        $this->seedM16();
     }
 
     /**
@@ -9453,6 +9460,1909 @@ class MissionSeeder extends Seeder
                                     'Have you ever…? → When did you…?',
                                     'Your first phone or computer',
                                     'A time when technology went wrong',
+                                ],
+                            ],
+                            [
+                                'key' => 'mission_result',
+                                'label' => 'Mission Result',
+                                'duration_minutes' => 5,
+                                'hook' => "You started this mission with a number — let's see how far it moved.",
+                                'skills' => ['Listening', 'Vocabulary', 'Grammar', 'Speaking', 'Writing'],
+                                'reflection_questions' => [
+                                    'became_easier' => ['label' => 'What became easier?', 'type' => 'skills'],
+                                    'still_difficult' => ['label' => 'What is still difficult?', 'type' => 'skills'],
+                                    'expression_to_keep' => ['label' => 'One expression I want to keep using', 'type' => 'vocabulary'],
+                                    'grammar_to_review' => ['label' => 'One grammar point I need to review', 'type' => 'errors'],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ]
+        );
+    }
+
+    /**
+     * Seeds M14 "Money" — the zero and first conditional, with unless /
+     * when / as soon as (the M14–M24 grammar list approved 2026-11-23). The
+     * first mission authored after the "Light" package (config/missions.php
+     * hidden_steps): story_sequence, picture_description, daily_listen_2 and
+     * daily_listen_3 are hidden from learners, so they are not authored here
+     * at all — 13 steps, 32 / 39 / 52 / 24 minutes. Media: the Easy English
+     * Podcast's "Why Is It So Hard to Save Money?" (Oliver, cut from 25 to
+     * about 6.5 minutes: Marta the accountant and the Black Friday
+     * headphones, "tempting", paying by card, "budget", "set aside" and "in
+     * the long run") and Yashvi Gangar's TEDxCNMS Youth talk "The Basics of
+     * Budgeting, Saving and Investing for Young Adults" (cut from 12:28 to
+     * about 6 minutes: her stickers, her dad, the 50-30-20 rule and a
+     * grandmother who borrowed money to buy cows). Vocabulary days 2-3
+     * follow Vocabulary in Use units 19 (Money) and 40 (prices and
+     * interest), rewritten in our own sentences.
+     */
+    private function seedM14(): void
+    {
+        $audioUrl = $this->publishMissionAsset('M14', 'Easy English Podcast - Why Is It So Hard to Save Money.mp3');
+        $shadowingVideoUrl = $this->publishMissionAsset('M14', 'TEDx Youth - Yashvi Gangar Budgeting Saving and Investing.mp4');
+        $shadowingCaptionsUrl = $this->publishMissionAsset('M14', 'TEDx Youth - Yashvi Gangar Budgeting Saving and Investing.en.vtt');
+
+        Mission::updateOrCreate(
+            ['code' => 'M14'],
+            [
+                'title' => 'Money',
+                'module' => 'Money',
+                'outcome' => 'I can talk about money — saving, spending and borrowing — and say what happens if I do something, or what I will do when something happens.',
+                'phases' => [
+                    [
+                        'phase' => 'foundation',
+                        'label' => 'Day 1',
+                        'mode' => 'solo',
+                        'pair_speaking' => [
+                            ['question' => 'What do you do on payday?', 'answer' => 'On payday I buy food for the whole month.', 'words' => ['payday']],
+                            ['question' => 'What is tempting for you in a shop?', 'answer' => 'New shoes are very tempting for me.', 'words' => ['tempting']],
+                            ['question' => 'Do you have a budget for food?', 'answer' => 'Yes, I have a small budget for food every week.', 'words' => ['budget']],
+                            ['question' => 'Do you set aside money every month?', 'answer' => 'Yes, I set aside a little money. It helps in the long run.', 'words' => ['set aside', 'in the long run']],
+                        ],
+                        'steps' => [
+                            [
+                                'key' => 'mission_brief',
+                                'label' => 'Get Ready',
+                                'duration_minutes' => 5,
+                                'hook' => 'If you get some money today, will you spend it or save it? Could you say it in English?',
+                                'image_query' => 'money coins wallet savings',
+                                'ambient_video_query' => 'counting money',
+                                'warm_up_questions' => [
+                                    'Do you like shopping?',
+                                    'Do you save money every month?',
+                                    'Do you pay with cash or a card?',
+                                    'What did you buy last week?',
+                                ],
+                            ],
+                            [
+                                'key' => 'vocabulary_builder_1',
+                                'label' => 'New Words',
+                                'duration_minutes' => 9,
+                                'hook' => 'Five words Oliver uses about saving money.',
+                                // Day 1 = the Listening episode's own 5 target_phrases (see M01's
+                                // vocabulary_builder_1), so every learner meets them here first.
+                                'story' => 'Friday was **payday**. I had a **budget** for the month, but a new jacket in a '
+                                    .'shop window looked very **tempting**. I didn\'t buy it. I **set aside** some money for '
+                                    .'my savings instead. It\'s only a little, but **in the long run** it will make a big difference.',
+                                'words' => [
+                                    ['phrase' => 'tempting', 'meaning' => 'making you want it very much, even when you know you shouldn\'t have it', 'meaning_fa' => 'وسوسه‌انگیز', 'pos' => 'adjective', 'example' => 'That chocolate cake looks very tempting.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'payday', 'meaning' => 'the day when you get the money for your work', 'meaning_fa' => 'روز حقوق', 'pos' => 'noun', 'example' => 'I always pay my rent on payday.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'budget', 'meaning' => 'a plan for how much money you will spend, and on what', 'meaning_fa' => 'بودجه', 'pos' => 'noun', 'example' => 'Our budget for the holiday is small.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'set aside', 'meaning' => 'to keep some money for one special thing and not spend it on other things', 'meaning_fa' => 'کنار گذاشتن (پول)', 'pos' => 'phrasal verb', 'example' => 'I set aside some money every month.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'in the long run', 'meaning' => 'over a long time in the future, not now', 'meaning_fa' => 'در درازمدت', 'pos' => 'phrase', 'example' => 'Saving is hard now, but it helps in the long run.', 'difficulty' => 'medium'],
+                                ],
+                            ],
+                            [
+                                'key' => 'listening',
+                                'label' => 'Listening',
+                                'duration_minutes' => 18,
+                                'hook' => 'Marta is an accountant, but she can\'t save money. Listen: does she buy the headphones in the end?',
+                                'source' => 'Easy English Podcast — "Why Is It So Hard to Save Money?"',
+                                'image_query' => 'woman looking at phone kitchen',
+                                'audio_url' => $audioUrl,
+                                'listening_segments' => $this->shadowTimestampsFor('M14', 'listening_segments'),
+                                // The same chunks tagged with who is talking — see
+                                // missions:align-listening-speakers. One speaker: Oliver.
+                                'listening_turns' => $this->shadowTimestampsFor('M14', 'listening_turns'),
+                                // The parts kept in the cut (0:00-0:23, 1:09-3:40, 6:08-6:17,
+                                // 6:37-6:55, 7:46-8:08, 15:05-15:17, 15:27-15:52, 16:15-16:37,
+                                // 17:27-18:22, 18:37-18:53, 21:01-21:11 and 21:19-21:49 of the
+                                // original; the poll, the ratings and Patreon parts, the brain
+                                // studies and the quiz left out), written from a Whisper pass of
+                                // the cut audio and checked by ear-level word timings.
+                                'transcript' => [
+                                    ['speaker' => 'Oliver', 'text' => 'It\'s the end of the month. You open your banking app and you look at the number, and you think, where did it all go wrong? I didn\'t buy anything big. If that is a familiar feeling, you\'re not necessarily bad with money. Your brain is doing exactly what it was built to do.'],
+                                    ['speaker' => 'Oliver', 'text' => 'Let me tell you about Marta. Marta is 38, and she lives in Krakow, in Poland. And she works in an office as an accountant. Yes, an accountant. She\'s very good with other people\'s money. It\'s Friday evening and it\'s payday. Marta makes a cup of tea. She sits down in the kitchen and she opens up her banking app, because tonight is the night. Tonight she is finally going to start saving. And the plan is simple. Every month, about 500 zloty goes into a savings account. That\'s about 100 pounds or 120 euros. It\'s not a huge amount, but she has the number ready. Her finger is on the button, ready to save.'],
+                                    ['speaker' => 'Oliver', 'text' => 'But then her phone buzzes. A message from a shop: "Black Friday starts early for you. 40% off, today only." And it\'s the headphones, the headphones that she looked at last week. They\'re normally 600 zloty, but today they are 360. And she thinks, that\'s a saving of 240. If I buy them, I\'m actually saving money, right? Her thumb moves away from the savings option and onto the shop. And before she buys them, she does one last thing. She\'s an accountant, so she can\'t help it. She opens last month\'s spending in the app, just to check.'],
+                                    ['speaker' => 'Oliver', 'text' => 'And she sees it. Coffee on the way to work: she spent 180. Food delivery: 310. Two apps that she pays for every month and never opens: that\'s 60. A dress that she probably is going to wear once. Lots of little things, nothing big, but altogether they add up to more than 700 zloty. Marta puts down her tea, and then it hits her. She thought that she didn\'t have 500 to save, but she did have it, every single month. It just left the account in small little pieces, quietly, one coffee at a time. And the headphones, they weren\'t a saving. A saving is money that stays in your account.'],
+                                    ['speaker' => 'Oliver', 'text' => 'Tempting. If something is tempting, you really want it, even though you know that you probably shouldn\'t have it. So it might be so tempting to spend a lot of money on your payday. Things that are now are always more tempting than things that are later. The headphones are now. The savings are later. So the headphones will win.'],
+                                    ['speaker' => 'Oliver', 'text' => 'But here\'s the tricky part. When you pay with a card or your phone, you don\'t feel the money leave. A coffee is just a beep, so everything feels affordable. One coffee is affordable, one delivery is affordable, but 20 of them every month? That\'s a different number.'],
+                                    ['speaker' => 'Oliver', 'text' => 'Marta said, "If I buy these headphones, I\'m saving 240 zloty." But she wasn\'t saving anything at all. She was spending 360. So how do you protect yourself? The third word is budget. Budget. A budget is a plan for how much money you will spend, and on what, in a period of time, a week or a month. You might say, "Our budget for our holiday is 2,000 euros," or, "We need to make a budget for our expenses this month." And a budget is useful on days like Black Friday, when that temptation is very high, because if your plan has a limit on spending, 200 euros per month, for example, on random items, then you\'ll not spend more than 200 euros, even if it\'s Black Friday.'],
+                                    ['speaker' => 'Oliver', 'text' => 'There are some tips and some hope for us. The first way is to save first and not last. Most people spend first, so they get paid, and then they spend for the month, and whatever they have left is what they save. On payday, at the beginning of the month, you should take your savings immediately, so what you plan to save, and move it to your savings account. You can even set this up so it\'s done automatically for you.'],
+                                    ['speaker' => 'Oliver', 'text' => 'And that\'s our fourth phrase here: set aside, to set aside. And to set aside money means to keep it for a special purpose and not spend it on other things. So you might set aside 100 euros a month. You might set aside 250 pounds a month, whatever currency you\'re using. And if the money is set aside before you see it, or at the beginning of the month, you don\'t have to fight the temptation every day. And actually, if you need to go and take some of that money, you\'ll probably feel a little bit guilty or bad, and you might think twice about using it.'],
+                                    ['speaker' => 'Oliver', 'text' => 'That brings us to the last phrase: in the long run. In the long run means over a long period of time, in the future, not immediately. And that really is the whole story of saving. Spending wins in the short run, but saving wins in the long run. So what happened in this case to Marta? She didn\'t buy the headphones, but instead she pressed the button, and 500 zloty went straight to her savings. Then she cancelled the two apps that she never really used. And it was a small start, but in the long run, it will add up and make a bigger difference.'],
+                                ],
+                                // The same 5 phrases vocabulary_builder_1 taught, each a real
+                                // substring of this transcript.
+                                'target_phrases' => [
+                                    [
+                                        'phrase' => 'payday', 'meaning' => 'the day you get the money for your work',
+                                        'gap_before' => 'It\'s Friday evening and it\'s ',
+                                        'gap_after' => '.',
+                                    ],
+                                    [
+                                        'phrase' => 'tempting', 'meaning' => 'making you want it very much',
+                                        'gap_before' => 'If something is ',
+                                        'gap_after' => ', you really want it, even though you know that you probably shouldn\'t have it.',
+                                    ],
+                                    [
+                                        'phrase' => 'budget', 'meaning' => 'a plan for how much money you will spend',
+                                        'gap_before' => 'A ',
+                                        'gap_after' => ' is a plan for how much money you will spend, and on what, in a period of time, a week or a month.',
+                                    ],
+                                    [
+                                        'phrase' => 'set aside', 'meaning' => 'keep money for one special thing',
+                                        'gap_before' => 'And to ',
+                                        'gap_after' => ' money means to keep it for a special purpose and not spend it on other things.',
+                                    ],
+                                    [
+                                        'phrase' => 'in the long run', 'meaning' => 'over a long time in the future',
+                                        'gap_before' => 'Spending wins in the short run, but saving wins ',
+                                        'gap_after' => '.',
+                                    ],
+                                ],
+                                'topic_summary' => 'Marta, an accountant, opened her banking app on payday to start saving, but a '
+                                    .'message about cheap headphones almost made her spend the money. She checked last month\'s '
+                                    .'spending and saw that small things like coffee and food delivery added up to more than 700 '
+                                    .'zloty. Oliver explains why saving is hard: things that are now are more tempting than things '
+                                    .'that are later, and paying by card doesn\'t feel like spending. His tips: make a budget, and set '
+                                    .'aside your savings first, on payday. In the end, Marta saved her 500 zloty and cancelled two '
+                                    .'apps she never used.',
+                                'comprehension_check' => [
+                                    ['statement' => 'Marta works as an accountant.', 'correct' => true, 'difficulty' => 'easy'],
+                                    ['statement' => 'The headphones were more expensive on Black Friday.', 'correct' => false, 'difficulty' => 'medium'],
+                                    ['statement' => 'Oliver says it is a good idea to save first, on payday.', 'correct' => true, 'difficulty' => 'hard'],
+                                ],
+                                'detail_question' => [
+                                    'question' => 'Where did Marta\'s money go every month?',
+                                    'options' => ['On lots of small things, like coffee and food delivery', 'On one big holiday', 'On her rent'],
+                                    'correct' => 0,
+                                ],
+                                // No shadow_lines here — Day 1 Listening is comprehension-only.
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'build',
+                        'label' => 'Day 2',
+                        'mode' => 'solo',
+                        'pair_speaking' => [
+                            ['question' => 'Do you carry cash?', 'answer' => 'Not much. If I need cash, I go to the bank.', 'words' => ['If I need', 'cash']],
+                            ['question' => 'What will you buy if you save up enough money?', 'answer' => 'If I save up enough, I\'ll buy a new laptop.', 'words' => ['save up', 'I\'ll buy']],
+                            ['question' => 'Do you lend money to friends?', 'answer' => 'Only to close friends. I don\'t lend money unless I know the person well.', 'words' => ['lend', 'unless']],
+                            ['question' => 'Do you have a bank account?', 'answer' => 'Yes. When I earn money, it goes into my bank account.', 'words' => ['earn', 'bank account', 'When']],
+                        ],
+                        'steps' => [
+                            [
+                                'key' => 'vocabulary_builder_2',
+                                'label' => 'New Words',
+                                'duration_minutes' => 10,
+                                'hook' => 'Six words for your money, from your bank account to the money you borrow.',
+                                // Vocabulary in Use unit 19 (Money, B-C), our own sentences.
+                                'story' => 'I **earn** my money in a café, and it goes into my **bank account** every Friday. I '
+                                    .'don\'t carry much **cash**. I\'m **saving up** for a new phone, so I never **borrow** money '
+                                    .'from friends. But if my brother needs some money, I\'ll **lend** him a little.',
+                                'words' => [
+                                    ['phrase' => 'bank account', 'meaning' => 'the place in a bank where your money is kept for you', 'meaning_fa' => 'حساب بانکی', 'pos' => 'noun', 'example' => 'I opened a bank account last year.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'cash', 'meaning' => 'money in notes and coins', 'meaning_fa' => 'پول نقد', 'pos' => 'noun', 'example' => 'This shop only takes cash.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'earn', 'meaning' => 'to get money for the work you do', 'meaning_fa' => 'درآمد داشتن، پول درآوردن', 'pos' => 'verb', 'example' => 'She earns good money as a nurse.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'save up', 'meaning' => 'to keep money for some time so you can buy something later', 'meaning_fa' => 'پس‌انداز کردن (برای خرید چیزی)', 'pos' => 'phrasal verb', 'example' => 'I\'m saving up for a new bike.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'borrow', 'meaning' => 'to take money or a thing from someone and give it back later', 'meaning_fa' => 'قرض گرفتن', 'pos' => 'verb', 'example' => 'Can I borrow your pen?', 'difficulty' => 'medium'],
+                                    ['phrase' => 'lend', 'meaning' => 'to give money or a thing to someone who will give it back later', 'meaning_fa' => 'قرض دادن', 'pos' => 'verb', 'example' => 'My dad lent me some money for the bus.', 'difficulty' => 'medium'],
+                                ],
+                            ],
+                            [
+                                'key' => 'grammar_in_context',
+                                'label' => 'Grammar Time',
+                                'duration_minutes' => 15,
+                                'hook' => 'If you save, you\'ll have it later. One small "if" — and one big rule: no will after it.',
+                                'focus' => 'Zero & First Conditional (unless / when / as soon as)',
+                                // Our own explanation and examples (EOS-009 §14); the order
+                                // follows Grammar in Use units 25 (when I do / if and when) and
+                                // 38A (if I do…), plus the zero conditional for things that are
+                                // always true. The result with will / won't re-checks M11's
+                                // future; the second conditional is M18's lesson.
+                                'lesson' => [
+                                    'intro' => 'Use if to say what happens: always (the zero conditional) or in one real future situation (the first conditional). After if, when, unless and as soon as, use the present — never will.',
+                                    'sections' => [
+                                        [
+                                            'heading' => 'A · If + present → present or will',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'Something <strong>always true</strong> (a fact, a habit): <strong>if + present, present</strong> — <strong>If you pay by card, you don\'t feel the money leave.</strong> <strong>One real situation</strong> in the future: <strong>if + present, will + verb</strong> — <strong>If I save 100 a month, I\'ll have 1,200 next year.</strong> When the if part comes first, put a comma after it.',
+                                                    'fa' => 'چیزی که همیشه درست است (واقعیت یا عادت): هر دو بخش حال ساده — If you pay by card, you don\'t feel the money leave. یک موقعیت واقعی در آینده: بعد از if حال ساده، در نتیجه will — If I save 100 a month, I\'ll have 1,200 next year. اگر if اول جمله بیاید، بعد از آن بخش ویرگول بگذار.',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'first conditional: if + present, will + verb',
+                                                    'parts' => [
+                                                        ['text' => 'If I save 100 a month,', 'caption' => 'if + present simple', 'tone' => 'accent'],
+                                                        ['text' => 'I\'ll have 1,200', 'caption' => 'will + verb', 'tone' => 'accent'],
+                                                        ['text' => 'next year.', 'caption' => 'when'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'If I save money, I buy a car next year.', 'right' => 'If I save money, I\'ll buy a car next year.', 'highlight' => 'I\'ll buy', 'note' => 'One future situation (next year) → will + verb in the result.', 'fa' => 'برای یک موقعیت آینده (next year) در نتیجه will لازم است.'],
+                                                        ['wrong' => 'If it rain tomorrow, I\'ll stay at home.', 'right' => 'If it rains tomorrow, I\'ll stay at home.', 'highlight' => 'rains', 'note' => 'The if part is present simple: it rains (with -s).', 'fa' => 'بخش if حال ساده است و با it فعل -s می‌گیرد: it rains.'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'pairs',
+                                                    'pairs' => [
+                                                        ['left' => 'If I go shopping hungry, I spend too much. (always)', 'right' => 'If I go shopping today, I\'ll buy some milk. (this time)', 'fa' => 'اولی عادت همیشگی است (حال + حال)، دومی یک بار در آینده (حال + will).'],
+                                                        ['left' => 'If you leave money in a bank account, it\'s safe. (a fact)', 'right' => 'If you lend me 10 euros, I\'ll pay you back tomorrow. (one time)', 'fa' => 'اولی یک واقعیت است، دومی یک قول برای فردا.'],
+                                                        ['left' => 'If I save, I\'ll have more money.', 'right' => 'I\'ll have more money if I save.', 'fa' => 'ترتیب عوض می‌شود و معنا همان است؛ وقتی if دوم بیاید ویرگول لازم نیست.'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'From the listening', 'items' => [
+                                                            ['text' => 'If something is tempting, you really want it.', 'fa' => 'اگر چیزی وسوسه‌انگیز باشد، واقعاً آن را می‌خواهی.'],
+                                                            ['text' => 'When you pay with a card or your phone, you don\'t feel the money leave.', 'fa' => 'وقتی با کارت یا گوشی پرداخت می‌کنی، رفتن پول را حس نمی‌کنی.'],
+                                                        ]],
+                                                        ['label' => 'Examples', 'items' => [
+                                                            ['text' => 'If I get paid on Friday, I\'ll pay you back on Saturday.', 'fa' => 'اگر جمعه حقوق بگیرم، شنبه پولت را پس می‌دهم.'],
+                                                            ['text' => 'If I go shopping when I\'m hungry, I spend too much.', 'fa' => 'اگر گرسنه خرید بروم، زیادی خرج می‌کنم.'],
+                                                        ]],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'B · if, when, as soon as, unless',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => '<strong>if</strong> = maybe it will happen: <strong>If I get a pay rise, I\'ll save more.</strong> <strong>when</strong> = you are sure it will happen: <strong>When I get paid on Friday, I\'ll pay you back.</strong> <strong>as soon as</strong> = right after it happens: <strong>I\'ll call you as soon as the money arrives.</strong> <strong>unless</strong> = if … not: <strong>I won\'t buy it unless it\'s on sale.</strong> (= if it isn\'t on sale)',
+                                                    'fa' => 'if یعنی «اگر» (شاید بشود، شاید نه). when یعنی «وقتی که» (مطمئنی که می‌شود؛ حقوق جمعه حتماً می‌آید). as soon as یعنی «به‌محض اینکه». unless یعنی «مگر اینکه» = if … not؛ پس فعل بعد از unless مثبت است: unless it\'s on sale.',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'unless = if … not',
+                                                    'parts' => [
+                                                        ['text' => 'I won\'t buy it', 'caption' => 'result'],
+                                                        ['text' => 'unless', 'caption' => '= if … not', 'tone' => 'accent'],
+                                                        ['text' => 'it\'s on sale.', 'caption' => 'present, positive', 'tone' => 'accent'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'I won\'t buy it unless it isn\'t on sale.', 'right' => 'I won\'t buy it unless it\'s on sale.', 'highlight' => 'unless it\'s', 'note' => 'unless already means "if … not", so the verb after it is positive.', 'fa' => 'unless خودش منفی است («مگر اینکه»)؛ بعدش فعل را منفی نکن.'],
+                                                        ['wrong' => 'I\'ll call you as soon the money arrives.', 'right' => 'I\'ll call you as soon as the money arrives.', 'highlight' => 'as soon as', 'note' => 'as soon as is three words.', 'fa' => 'as soon as سه کلمه است؛ as آخر را جا نینداز.'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'pairs',
+                                                    'pairs' => [
+                                                        ['left' => 'If I find a cheaper flat, I\'ll move. (maybe)', 'right' => 'When I get paid, I\'ll buy the tickets. (sure)', 'fa' => 'if یعنی شاید، when یعنی حتماً اتفاق می‌افتد.'],
+                                                        ['left' => 'I\'ll buy the shoes if they\'re cheap.', 'right' => 'I won\'t buy the shoes unless they\'re cheap.', 'fa' => 'unless = if … not؛ هر دو جمله یک معنا دارند.'],
+                                                        ['left' => 'When the money arrives, I\'ll call you.', 'right' => 'As soon as the money arrives, I\'ll call you.', 'fa' => 'as soon as یعنی «همان لحظه»؛ از when فوری‌تر است.'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'From the video', 'items' => [
+                                                            ['text' => 'Stickers don\'t grow in value when you hide them in a box.', 'fa' => 'وقتی برچسب‌ها را در جعبه قایم می‌کنی، ارزششان بیشتر نمی‌شود.'],
+                                                        ]],
+                                                        ['label' => 'Examples', 'items' => [
+                                                            ['text' => 'I\'ll lend you the money as soon as I get paid.', 'fa' => 'به‌محض اینکه حقوق بگیرم، پول را به تو قرض می‌دهم.'],
+                                                            ['text' => 'I never borrow money unless I really need it.', 'fa' => 'هیچ‌وقت پول قرض نمی‌گیرم، مگر اینکه واقعاً لازمش داشته باشم.'],
+                                                        ]],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'C · No will after if, when or unless',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'After <strong>if, when, unless</strong> and <strong>as soon as</strong>, use the <strong>present</strong>, even about the future: <strong>If I have money next year, I\'ll buy a car.</strong> (not <em>If I will have</em>). Put <strong>will / won\'t</strong> only in the other part, the result: <strong>I\'ll call you when I get home.</strong>',
+                                                    'fa' => 'خطای رایج فارسی‌زبان‌ها: «اگر سال بعد پول داشته باشم» حس آینده دارد، پس می‌گوییم If I will have money — غلط است! بعد از if / when / unless / as soon as همیشه حال ساده: If I have money next year, I\'ll buy a car. will و won\'t (از ماموریت ۱۱) فقط در بخش نتیجه می‌آیند: I\'ll call you when I get home.',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'present after when — will only in the result',
+                                                    'parts' => [
+                                                        ['text' => 'When I get paid,', 'caption' => 'when + present (no will)', 'tone' => 'accent'],
+                                                        ['text' => 'I\'ll pay you back.', 'caption' => 'will + verb', 'tone' => 'accent'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'If I will have money next year, I\'ll buy a car.', 'right' => 'If I have money next year, I\'ll buy a car.', 'highlight' => 'If I have', 'note' => 'After if → present, even for the future.', 'fa' => 'بعد از if حال ساده، حتی برای آینده؛ نه If I will have.'],
+                                                        ['wrong' => 'I\'ll call you as soon as I will get home.', 'right' => 'I\'ll call you as soon as I get home.', 'highlight' => 'as soon as I get', 'note' => 'After as soon as → present.', 'fa' => 'بعد از as soon as هم حال ساده؛ will فقط در بخش نتیجه.'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'From the video', 'items' => [
+                                                            ['text' => 'If you don\'t start now, you won\'t magically wake up one day knowing how.', 'fa' => 'اگر الان شروع نکنی، یک روز به‌طور جادویی بیدار نمی‌شوی و بلد باشی.'],
+                                                        ]],
+                                                        ['label' => 'Examples', 'items' => [
+                                                            ['text' => 'When I find a job, I\'ll open a bank account.', 'fa' => 'وقتی کار پیدا کنم، یک حساب بانکی باز می‌کنم.'],
+                                                            ['text' => 'Unless you set aside money on payday, you won\'t save anything.', 'fa' => 'اگر روز حقوق پول کنار نگذاری، چیزی پس‌انداز نمی‌کنی.'],
+                                                        ]],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'D · Make it personal',
+                                            'body' => 'Next you\'ll finish sentences about <strong>your</strong> money — saving, spending and borrowing — and soon use them in AI Conversation #1.',
+                                        ],
+                                    ],
+                                    'bridge_note' => 'You\'ll use this soon — in AI Conversation #1.',
+                                ],
+                                'frequency_starters' => [
+                                    'If I get some extra money this month,', 'When I get paid,', 'I won\'t buy a new phone unless',
+                                    'As soon as I have enough money,', 'If I go shopping when I\'m hungry,', 'If I lend my friend some money,',
+                                ],
+                                'grammar_judgment' => 'Judge whether the learner finished this sentence starter into '
+                                    .'a true, natural personal sentence about money (saving, spending, borrowing, lending, '
+                                    .'shopping, payday), using the zero conditional (if / when + present, present: always true, '
+                                    .'a habit) or the first conditional (if / when / unless / as soon as + present, will / won\'t + '
+                                    .'verb: one real future situation).',
+                                'grammar_major_criteria' => 'a verb with no subject, it or there left out ("If is cheap, I\'ll buy it", "Is important to save"), '
+                                    .'will or won\'t right after if / when / unless / as soon as ("If I will have money", "when I will '
+                                    .'get paid"), will + to or -ing ("I\'ll to buy", "I will buying"), "unless" + a negative verb that '
+                                    .'turns the meaning around ("unless it isn\'t on sale" meant as "if it isn\'t on sale"), a starter that '
+                                    .'needs a result left with no result, the sentence does not actually continue the given starter, '
+                                    .'or it is not a genuine personal statement. Do not mark the zero conditional wrong just because '
+                                    .'the first conditional would also be possible, or the other way round ("When I get paid, I pay my '
+                                    .'rent" and "When I get paid, I\'ll pay my rent" are both fine), and a negative result with unless '
+                                    .'("I won\'t buy it unless it\'s cheap") is right',
+                                'grammar_context' => 'continues with the present after "I won\'t buy a new phone unless" and '
+                                    .'finishes the clause; adds a result with will / won\'t after "If I get some extra money this month," '
+                                    .'"As soon as I have enough money," and "If I lend my friend some money,"; a result in the present '
+                                    .'(a habit) or with will after "When I get paid," and "If I go shopping when I\'m hungry,"',
+                                // Reminders only: SentenceChecker asks for at least "minor", never "major".
+                                'grammar_minor_criteria' => self::SLIP_ARTICLE.'; '.self::SLIP_HE_SHE.'; '.self::SLIP_WILL_CAN,
+                                'quick_check' => [
+                                    [
+                                        'wrong' => 'If I will have money, I\'ll buy a car.',
+                                        'options' => ['If I had money, I\'ll buy a car.', 'If I have money, I\'ll buying a car.', 'If I have money, I\'ll buy a car.'],
+                                        'correct' => 2,
+                                        'difficulty' => 'easy',
+                                        'why' => 'After if → present (I have), never will.',
+                                    ],
+                                    [
+                                        'wrong' => 'I won\'t buy it unless it isn\'t on sale.',
+                                        'options' => ['I won\'t buy it unless it will be on sale.', 'I won\'t buy it unless it\'s on sale.', 'I won\'t buy it unless not on sale.'],
+                                        'correct' => 1,
+                                        'difficulty' => 'medium',
+                                        'why' => 'unless = if … not, so the verb after it is positive: unless it\'s on sale.',
+                                    ],
+                                    [
+                                        'wrong' => 'I\'ll call you as soon as I will get home.',
+                                        'options' => ['I\'ll call you as soon I get home.', 'I call you as soon as I will get home.', 'I\'ll call you as soon as I get home.'],
+                                        'correct' => 2,
+                                        'difficulty' => 'medium',
+                                        'why' => 'as soon as + present (I get); will only in the result (I\'ll call).',
+                                    ],
+                                    [
+                                        'wrong' => 'If I save 100 a month, I have 1,200 next year.',
+                                        'options' => ['If I save 100 a month, I\'ll have 1,200 next year.', 'If I will save 100 a month, I have 1,200 next year.', 'If I save 100 a month, I\'ll to have 1,200 next year.'],
+                                        'correct' => 0,
+                                        'difficulty' => 'hard',
+                                        'why' => 'One future situation (next year) → will + verb in the result.',
+                                    ],
+                                ],
+                                'word_order' => [
+                                    ['words' => ['money,', 'If', 'I\'ll', 'save', 'I', 'car.', 'a', 'buy'], 'answer' => 'If I save money, I\'ll buy a car.'],
+                                    ['words' => ['soon', 'as', 'I\'ll', 'call', 'you', 'as', 'arrive.', 'I'], 'answer' => 'I\'ll call you as soon as I arrive.'],
+                                    ['words' => ['it\'s', 'won\'t', 'buy', 'I', 'cheap.', 'unless', 'it'], 'answer' => 'I won\'t buy it unless it\'s cheap.'],
+                                ],
+                            ],
+                            [
+                                // A real 17-year-old on the TEDxCNMS Youth stage in India: her
+                                // stickers, her dad, the 50-30-20 rule and a friend's grandma
+                                // who borrowed money to buy cows — cut from 12:28 to about 6
+                                // minutes (the host's introduction, the "Hunger Games" part, the
+                                // fixed-deposit and app parts and two jokes left out). Captions
+                                // written from a Whisper pass of the cut, checked against the
+                                // talk's YouTube captions.
+                                'key' => 'video_shadowing',
+                                'label' => 'Video Shadowing',
+                                'duration_minutes' => 14,
+                                'hook' => 'A 17-year-old tells a full hall what she learned about money from her stickers, her dad and a grandma with eight kids.',
+                                'source' => 'TEDxCNMS Youth — Yashvi Gangar, "The Basics of Budgeting, Saving and Investing for Young Adults"',
+                                'video_url' => $shadowingVideoUrl,
+                                'captions_url' => $shadowingCaptionsUrl,
+                                'video_segments' => $this->shadowTimestampsFor('M14', 'video_shadowing_segments'),
+                                'topic_summary' => 'Yashvi Gangar, a 17-year-old from India, kept a box of shiny stickers for '
+                                    .'years, waiting for a special day, until they weren\'t worth anything. She says money works '
+                                    .'the same way: if you only keep it, you waste it. Her dad works very hard and spends money on '
+                                    .'her, not on himself, but no matter how hard you work, if you don\'t manage your money, you '
+                                    .'lose it. She explains the 50-30-20 rule and tells the story of a friend\'s grandma, a young '
+                                    .'widow with eight children, who borrowed money to buy cows and built a business. Her message: '
+                                    .'if you don\'t start now, you won\'t learn how.',
+                                'comprehension_check' => [
+                                    ['statement' => 'Yashvi used her stickers on a special day.', 'correct' => false],
+                                    ['statement' => 'Yashvi\'s dad wore the same jeans for three years.', 'correct' => true],
+                                    ['statement' => 'The grandma borrowed money to buy cows.', 'correct' => true],
+                                ],
+                                // Real phrases Yashvi Gangar uses on stage.
+                                'target_phrases' => [
+                                    ['phrase' => 'grew out of', 'meaning' => 'became too old for something'],
+                                    ['phrase' => 'wake-up call', 'meaning' => 'something that shows you that you must change'],
+                                    ['phrase' => 'manage your money', 'meaning' => 'plan and control how you spend and save'],
+                                    ['phrase' => 'slip through your fingers', 'meaning' => 'be lost because you don\'t hold it carefully'],
+                                    ['phrase' => 'all on her own', 'meaning' => 'without help from anyone'],
+                                ],
+                                // Real verbatim lines from the video — shadowing means mimicking
+                                // the exact audio just heard, and the auto-pause timestamps
+                                // (missions:cache-shadow-timestamps) only land on words people
+                                // actually say. Chosen for this mission's grammar: when / if +
+                                // present, and if you don't…, it will / you won't….
+                                // Bold marks naturally-stressed content words (rendered by
+                                // <x-stress-marked-line>).
+                                'shadow_lines' => [
+                                    'Stickers don\'t **grow** in value when you hide them in a box.',
+                                    'If you don\'t know how to **manage** your money, it will slip through your fingers.',
+                                    'You don\'t have to be **rich** to invest.',
+                                    'Every rupee she **earned**, she saved and bought gold.',
+                                    'Seriously, if you don\'t start **now**, you won\'t magically wake up one day knowing how.',
+                                    'Don\'t work for money. Make money **work** for you.',
+                                ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M14', 'video_shadowing'),
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'practice',
+                        'label' => 'Day 3',
+                        'mode' => 'ai',
+                        'pair_speaking' => [
+                            ['question' => 'Do you owe anyone money?', 'answer' => 'No, I don\'t. If I owe money, I can\'t sleep!', 'words' => ['If I owe']],
+                            ['question' => 'When will you pay back your loan?', 'answer' => 'I\'ll pay back my loan as soon as I get a pay rise.', 'words' => ['loan', 'as soon as']],
+                            ['question' => 'Are prices going up where you live?', 'answer' => 'Yes. When prices go up, people buy less.', 'words' => ['go up', 'When']],
+                            ['question' => 'Do banks pay interest on savings?', 'answer' => 'Yes. If you leave money in the bank, you get a little interest.', 'words' => ['interest', 'If you leave']],
+                        ],
+                        'steps' => [
+                            [
+                                'key' => 'vocabulary_builder_3',
+                                'label' => 'New Words',
+                                'duration_minutes' => 10,
+                                'hook' => 'Last set — the words for debts and prices: owe, loan, interest…',
+                                // Vocabulary in Use units 19 (Money, C-D) and 40 (rise and fall,
+                                // interest), our own sentences.
+                                'story' => 'Last year I needed a car, so I got a **loan** from the bank. Now I **owe** the bank a '
+                                    .'lot of money, and I pay **interest** every month. Prices **go up** every year, so I also '
+                                    .'moved to a cheaper flat. It\'s small, but it\'s good **value for money**, and the owner only '
+                                    .'asked for a small **deposit**.',
+                                'words' => [
+                                    ['phrase' => 'owe', 'meaning' => 'to have to pay back money that someone gave you', 'meaning_fa' => 'بدهکار بودن', 'pos' => 'verb', 'example' => 'I owe my brother some money.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'loan', 'meaning' => 'money you borrow from a bank and pay back later', 'meaning_fa' => 'وام', 'pos' => 'noun', 'example' => 'They got a loan to buy a house.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'interest', 'meaning' => 'the extra money you pay when you borrow, or get when you save in a bank', 'meaning_fa' => 'سود بانکی، بهره', 'pos' => 'noun', 'example' => 'The bank pays interest on my savings.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'deposit', 'meaning' => 'money you pay first when you rent a flat; you get it back at the end', 'meaning_fa' => 'ودیعه، پول پیش', 'pos' => 'noun', 'example' => 'We paid a big deposit for the flat.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'value for money', 'meaning' => 'good for the amount of money you pay', 'meaning_fa' => 'به‌صرفه، ارزش پولش را دارد', 'pos' => 'phrase', 'example' => 'This phone is good value for money.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'go up', 'meaning' => '(of prices) to become higher', 'meaning_fa' => 'بالا رفتن (قیمت)', 'pos' => 'phrasal verb', 'example' => 'Food prices go up every year.', 'difficulty' => 'easy'],
+                                ],
+                            ],
+                            [
+                                'key' => 'ai_conversation_1',
+                                'label' => 'Talk It Out',
+                                'duration_minutes' => 18,
+                                'hook' => 'Say it here, alone, before you have to say it to the AI Instructor for real.',
+                                'warm_up_task' => 'Record 2 minutes of solo speaking about you and money: how you save, what is '
+                                    .'tempting for you, and what you will do if you get some extra money — using the new '
+                                    .'vocabulary, without reading.',
+                                'interview_questions' => [
+                                    'Do you have a budget every month?',
+                                    'What do you usually do on payday?',
+                                    'What is tempting for you in shops?',
+                                    'What will you do if you get some extra money?',
+                                    'Do you ever borrow money from friends?',
+                                    'Are prices going up where you live?',
+                                ],
+                            ],
+                            [
+                                'key' => 'reading_comprehension',
+                                'label' => 'Reading',
+                                'duration_minutes' => 12,
+                                'hook' => 'Amir wants a laptop, but prices keep going up. Will his plan work?',
+                                'passage_title' => 'Saving up for a laptop',
+                                'image_query' => 'young man using laptop',
+                                // Written fresh for this app (EOS-009 §14) — reuses the Vocabulary
+                                // Builder words in a new context, with zero and first conditionals,
+                                // unless and as soon as.
+                                'passage' => 'My brother Amir is 19, and he needs a laptop for university. He earns a little money '
+                                    .'in a coffee shop, but laptop prices go up every month. Our dad said, "If you save up for six '
+                                    .'months, I\'ll pay half." So Amir made a plan. On payday, he sets aside a third of his money '
+                                    .'in his bank account before he spends anything. He doesn\'t carry much cash, because if he has '
+                                    .'cash in his pocket, he spends it. Last month a friend asked to borrow some money. Amir said, '
+                                    .'"I\'ll lend you some as soon as I get paid, but you have to pay me back." His friend still owes '
+                                    .'him a little! A shop offered Amir a loan, but the interest was very high. "I won\'t take a loan '
+                                    .'unless there\'s no interest," he told me. Yesterday he found a good laptop online. It isn\'t new, '
+                                    .'but it\'s good value for money. If everything goes well, he\'ll buy it next week.',
+                                'highlighted_phrases' => [
+                                    ['phrase' => 'earns', 'type' => 'reused'],
+                                    ['phrase' => 'go up', 'type' => 'reused'],
+                                    ['phrase' => 'save up', 'type' => 'reused'],
+                                    ['phrase' => 'payday', 'type' => 'reused'],
+                                    ['phrase' => 'sets aside', 'type' => 'reused'],
+                                    ['phrase' => 'bank account', 'type' => 'reused'],
+                                    ['phrase' => 'cash', 'type' => 'reused'],
+                                    ['phrase' => 'borrow', 'type' => 'reused'],
+                                    ['phrase' => 'lend', 'type' => 'reused'],
+                                    ['phrase' => 'owes', 'type' => 'reused'],
+                                    ['phrase' => 'loan', 'type' => 'reused'],
+                                    ['phrase' => 'interest', 'type' => 'reused'],
+                                    ['phrase' => 'value for money', 'type' => 'reused'],
+                                    ['phrase' => 'a third', 'type' => 'new', 'definition' => 'one of three equal parts', 'pos' => 'phrase', 'example' => 'A third of the class was late today.'],
+                                    ['phrase' => 'goes well', 'type' => 'new', 'definition' => 'happens in the way you want', 'pos' => 'phrase', 'example' => 'If everything goes well, we\'ll finish today.'],
+                                ],
+                                'topic_summary' => 'Amir, a 19-year-old who works in a coffee shop, is saving up for a laptop for '
+                                    .'university. His dad will pay half if he saves for six months, so Amir sets aside part of his '
+                                    .'money on every payday. He didn\'t take a shop\'s loan because the interest was too high, and '
+                                    .'he has found a used laptop that is good value for money.',
+                                'comprehension_check' => [
+                                    ['statement' => 'Amir works in a coffee shop.', 'correct' => true, 'difficulty' => 'easy'],
+                                    ['statement' => 'Amir carries a lot of cash.', 'correct' => false, 'difficulty' => 'medium'],
+                                    ['statement' => 'Amir took a loan from a shop.', 'correct' => false, 'difficulty' => 'hard'],
+                                ],
+                                'questions' => [
+                                    'What did Amir\'s dad promise?',
+                                    'Why didn\'t Amir take the shop\'s loan?',
+                                ],
+                                // Multiple choice instead of written answers (reading task 11,
+                                // 2026-11-10): one tap each, graded in the browser like the true/false
+                                // round above. Every right answer is stated in the passage; the wrong
+                                // ones are things the passage mentions or plausibly could.
+                                'choice_questions' => [
+                                    ['prompt' => 'What will Dad do if Amir saves for six months?', 'options' => ['Pay half of the laptop', 'Buy him a new phone', 'Lend him money'], 'correct' => 0, 'difficulty' => 'easy'],
+                                    ['prompt' => 'Why doesn\'t Amir carry much cash?', 'options' => ['The bank is far away', 'If he has cash, he spends it', 'His dad says no'], 'correct' => 1, 'difficulty' => 'medium'],
+                                    ['prompt' => 'When will Amir buy the laptop?', 'options' => ['Today', 'Next month', 'Next week, if everything goes well'], 'correct' => 2, 'difficulty' => 'hard'],
+                                ],
+                            ],
+                            [
+                                'key' => 'writing',
+                                'label' => 'Writing',
+                                'duration_minutes' => 12,
+                                'hook' => 'Your money, your rules — write what you always do, and what you will do if…',
+                                'title' => 'Me and money',
+                                'prompts' => [
+                                    ['label' => 'How I save money', 'image_query' => 'piggy bank'],
+                                    ['label' => 'Something tempting I want to buy', 'image_query' => 'woman looking at shoes in store'],
+                                    ['label' => 'What I will do if I get extra money', 'image_query' => 'salary envelope cash'],
+                                    ['label' => 'My rules for spending', 'image_query' => 'budget planner notebook'],
+                                    ['label' => 'A time I borrowed or lent money', 'image_query' => 'lending money'],
+                                    ['label' => 'What I do on payday', 'image_query' => 'paying with credit card'],
+                                ],
+                                // Grammar connectors only — see M01's try_to_use note.
+                                'try_to_use' => ['If I…, I\'ll…', 'When… / As soon as…', '…unless…', 'budget', 'set aside', 'save up', 'value for money'],
+                                'min_words' => 100,
+                                'max_words' => 150,
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'challenge',
+                        'label' => 'Day 4',
+                        'mode' => 'ai',
+                        'pair_speaking' => [
+                            ['question' => 'What will you do if you get some extra money this month?', 'answer' => 'If I get extra money, I\'ll set aside half of it.', 'words' => ['If I get', 'I\'ll set aside']],
+                            ['question' => 'What do you do when something is tempting in a shop?', 'answer' => 'When something is tempting, I wait a day before I buy it.', 'words' => ['When', 'tempting']],
+                            ['question' => 'Do you borrow money from friends?', 'answer' => 'No. I don\'t borrow money unless I really need it.', 'words' => ['borrow', 'unless']],
+                            ['question' => 'Is a cheap phone good value for money?', 'answer' => 'Not always. If it breaks after a month, it isn\'t good value for money.', 'words' => ['If it breaks', 'value for money']],
+                        ],
+                        'steps' => [
+                            [
+                                'key' => 'error_log',
+                                'label' => 'My Fixes',
+                                'duration_minutes' => 7,
+                                'hook' => "Every mistake here is one you won't make in tomorrow's Final Challenge.",
+                            ],
+                            [
+                                'key' => 'ai_conversation_2',
+                                'label' => 'Final Talk',
+                                'duration_minutes' => 12,
+                                'hook' => "This one's harder on purpose — real conversations don't come with warm-up questions.",
+                                'round_pool' => [
+                                    'What do you do on payday? Do you save first or spend first?',
+                                    'What will you do if you get some extra money this month?',
+                                    'What is tempting for you? What do you do when you want something expensive?',
+                                    'Do you lend money to friends? What happens if they don\'t pay you back?',
+                                    'Prices are going up. What will you do if your rent goes up next year?',
+                                    'What will you buy as soon as you save up enough money?',
+                                ],
+                                'role_reversal_topic' => 'saving, spending, borrowing, and what will happen if…',
+                                'final_prompt' => 'Talk for 3 minutes about you and money: how you save, what tempts you, and what you will do if you get some extra money.',
+                                'requirements' => [
+                                    '5+ vocabulary expressions',
+                                    'if + present, will + verb for a future situation',
+                                    'if / when + present for something that is always true',
+                                    'when, as soon as or unless at least once',
+                                    'How you save (or don\'t!)',
+                                    'What you will do if you get extra money',
+                                ],
+                            ],
+                            [
+                                'key' => 'mission_result',
+                                'label' => 'Mission Result',
+                                'duration_minutes' => 5,
+                                'hook' => "You started this mission with a number — let's see how far it moved.",
+                                'skills' => ['Listening', 'Vocabulary', 'Grammar', 'Speaking', 'Writing'],
+                                'reflection_questions' => [
+                                    'became_easier' => ['label' => 'What became easier?', 'type' => 'skills'],
+                                    'still_difficult' => ['label' => 'What is still difficult?', 'type' => 'skills'],
+                                    'expression_to_keep' => ['label' => 'One expression I want to keep using', 'type' => 'vocabulary'],
+                                    'grammar_to_review' => ['label' => 'One grammar point I need to review', 'type' => 'errors'],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ]
+        );
+    }
+
+    /**
+     * Seeds M15 "Shopping" — the passive (present, past, present perfect and
+     * can / must + be) and have something done (the M14–M24 grammar list
+     * approved 2026-11-23), the first time the passive is taught. Built for
+     * the "Light" days like M14: 13 steps, no story_sequence,
+     * picture_description or daily_listen_2/3 (config/missions.php
+     * hidden_steps). Media: the Easy English Podcast's "Why We Buy Things We
+     * Don't Need (And How to Stop!)" (Oliver, cut from 18 to about 6
+     * minutes: impulse buys, dopamine, how shops are designed, the 72-hour
+     * rule) and Josephine Philips's TED talk "The Simple Solution to Fast
+     * Fashion" (cut from 8:25 to 5:31: her grandmother's yellow dress, her
+     * sister's jeans that have been repaired twice, trousers she has had
+     * tailored, TED's own captions). Vocabulary days 2-3 follow the subject
+     * of Vocabulary in Use units 22-23 (buying clothes, shopping), with our
+     * own word choice and sentences — not the book's text.
+     */
+    private function seedM15(): void
+    {
+        $audioUrl = $this->publishMissionAsset('M15', 'Easy English Podcast - Why We Buy Things We Dont Need.mp3');
+        $shadowingVideoUrl = $this->publishMissionAsset('M15', 'TED - Josephine Philips The Simple Solution to Fast Fashion.mp4');
+        $shadowingCaptionsUrl = $this->publishMissionAsset('M15', 'TED - Josephine Philips The Simple Solution to Fast Fashion.en.vtt');
+
+        Mission::updateOrCreate(
+            ['code' => 'M15'],
+            [
+                'title' => 'Shopping',
+                'module' => 'Shopping',
+                'outcome' => 'I can talk about shopping — where things are made and how they are sold or returned — and say "I had my phone repaired" when someone does a job for me.',
+                'phases' => [
+                    [
+                        'phase' => 'foundation',
+                        'label' => 'Day 1',
+                        'mode' => 'solo',
+                        'pair_speaking' => [
+                            ['question' => 'Do you browse online shops in the evening?', 'answer' => 'Yes, I browse online shops before bed.', 'words' => ['browse']],
+                            ['question' => 'What was your last impulse buy?', 'answer' => 'My last impulse buy was a phone case at the checkout.', 'words' => ['impulse buy', 'checkout']],
+                            ['question' => 'Do you ever regret buying something?', 'answer' => 'Yes. I regret buying a big coat. I never wear it.', 'words' => ['regret']],
+                            ['question' => 'What do you always buy in a supermarket?', 'answer' => 'Bread, milk and eggs. They\'re essential for me.', 'words' => ['essential']],
+                        ],
+                        'steps' => [
+                            [
+                                'key' => 'mission_brief',
+                                'label' => 'Get Ready',
+                                'duration_minutes' => 5,
+                                'hook' => 'Where were your clothes made? Who repairs your phone? Could you say it in English?',
+                                'image_query' => 'shopping bags store mall',
+                                'ambient_video_query' => 'shopping mall',
+                                'warm_up_questions' => [
+                                    'Do you like shopping?',
+                                    'Do you shop online?',
+                                    'What did you buy last?',
+                                    'Where do you buy your clothes?',
+                                ],
+                            ],
+                            [
+                                'key' => 'vocabulary_builder_1',
+                                'label' => 'New Words',
+                                'duration_minutes' => 9,
+                                'hook' => 'Five words Oliver uses about the things we buy and don\'t need.',
+                                // Day 1 = the Listening episode's own 5 target_phrases (see M01's
+                                // vocabulary_builder_1), so every learner meets them here first.
+                                'story' => 'On Friday evening I went to the supermarket for some **essential** things: bread, milk '
+                                    .'and soap. While I was waiting at the **checkout**, I started **browsing** the little things '
+                                    .'near it, and I bought a cheap watch. It was an **impulse buy**. Now I **regret** it, because I '
+                                    .'already have a watch!',
+                                'words' => [
+                                    ['phrase' => 'browse', 'meaning' => 'to look at things in a shop or online, with no plan to buy one thing', 'meaning_fa' => 'گشت زدن و نگاه کردن (در مغازه یا سایت)', 'pos' => 'verb', 'example' => 'I like to browse online shops in the evening.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'impulse buy', 'meaning' => 'something you buy suddenly, without thinking or planning', 'meaning_fa' => 'خرید هیجانی، خرید بی‌برنامه', 'pos' => 'noun', 'example' => 'These sunglasses were an impulse buy.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'regret', 'meaning' => 'to feel sorry or sad about something you did', 'meaning_fa' => 'پشیمان بودن', 'pos' => 'verb', 'example' => 'I regret buying that expensive coat.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'checkout', 'meaning' => 'the place in a shop where you pay', 'meaning_fa' => 'صندوق پرداخت', 'pos' => 'noun', 'example' => 'There was a long queue at the checkout.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'essential', 'meaning' => 'very important and necessary', 'meaning_fa' => 'ضروری', 'pos' => 'adjective', 'example' => 'Water and bread are essential.', 'difficulty' => 'medium'],
+                                ],
+                            ],
+                            [
+                                'key' => 'listening',
+                                'label' => 'Listening',
+                                'duration_minutes' => 18,
+                                'hook' => 'Why do we buy things we don\'t need? Listen for how shops are designed to make us spend more.',
+                                'source' => 'Easy English Podcast — "Why We Buy Things We Don\'t Need (And How to Stop!)"',
+                                'image_query' => 'woman shopping supermarket',
+                                'audio_url' => $audioUrl,
+                                'listening_segments' => $this->shadowTimestampsFor('M15', 'listening_segments'),
+                                // The same chunks tagged with who is talking — see
+                                // missions:align-listening-speakers. One speaker: Oliver.
+                                'listening_turns' => $this->shadowTimestampsFor('M15', 'listening_turns'),
+                                // The parts kept in the cut (0:01-0:40, 2:41-3:10, 4:29-4:55,
+                                // 5:53-7:14, 8:16-9:11, 9:17-10:10, 13:15-14:10 and 15:34-16:08
+                                // of the original; the poll, Patreon and subscribe parts, two of
+                                // the five words and the quiz left out), written from a Whisper
+                                // pass of the cut audio.
+                                'transcript' => [
+                                    ['speaker' => 'Oliver', 'text' => 'You\'re browsing online, or walking through a supermarket or a mall, and maybe you see a product or an item that you don\'t really need, or perhaps one that you weren\'t actually looking for at all. And perhaps at the start, you might tell yourself, "I don\'t need this." But ten minutes later, you\'re walking out of the store with something that you\'ve bought that you never actually wanted. I\'m your host Oliver, and welcome back to the Easy English Podcast, and today we are talking about why we buy things that we don\'t need.'],
+                                    ['speaker' => 'Oliver', 'text' => 'Our first piece of key vocabulary is impulse. Impulse. And an impulse is a sudden urge or desire to act without thinking. So it\'s when you just do something. You might have the impulse to buy something, and in that case, you\'re buying it without really thinking about it. And I\'m sure we\'ve all made impulse purchases today.'],
+                                    ['speaker' => 'Oliver', 'text' => 'Our final piece of key vocabulary today is regret. Regret. This can also be a verb, but as a noun, regret means a feeling of sadness or disappointment over something that has happened. So after buying something that you regret, you maybe feel disappointed, or you don\'t need it, so you regret purchasing it.'],
+                                    ['speaker' => 'Oliver', 'text' => 'Why do we make an impulse decision to buy things that we don\'t need at all? What\'s the actual reason for that? Well, it comes down to your brain chemistry. So what is actually going on with the science, essentially, in your brain, in your head? When you see something that is attractive to you, your brain releases dopamine. It releases that positive chemical, which is related to anticipation and reward. People often call dopamine the feel-good chemical. But one point to notice here is that dopamine isn\'t actually released once you own the item. Dopamine is released whenever you want it, whenever you desire it. The actual dopamine release, the thrill, it comes from the act of hunting it, chasing it and trying to get it, and the act of purchasing it. And once you take that item home, once you\'ve actually bought it and you take it home, that chemical rush of dopamine that you have, it disappears. It slows down and it goes away. And that\'s why buying new things feels very great in the short term. But in the long term, you start to maybe feel that regret, or you feel bad about it.'],
+                                    ['speaker' => 'Oliver', 'text' => 'It really isn\'t all your own biology. It\'s also the environments that we are in when we\'re shopping. When we\'re in a store, a mall, these environments, they increase and are designed to increase our temptation, that desire that we feel to buy things. In fact, companies spend billions of dollars every year studying, you know, how to actually manipulate your shopping habits, to essentially manipulate you to buy more things. Stores will place expensive items more at your eye level, so where you\'re looking, so that you\'re more likely to pick them up and buy them. Likewise, they\'ll then tend to place the cheaper items at the bottom, low down, or very high up, where you\'re less likely to look at them, so you\'re more likely to pick that expensive item.'],
+                                    ['speaker' => 'Oliver', 'text' => 'And some very simple ones that you\'ve probably seen, for example, in your local supermarket: you might notice that the bread or the milk, some of the essential items that people go into the shop for, they put them at the back of the store, so that you have to walk past lots of other things as you go to get those items. And then, once you actually get to the checkout, so to the self-checkout, or where you\'re scanning items with a person, you will notice lots of smaller items, like a chocolate bar or maybe chewing gum, and these are placed at the checkout for last-minute impulse buys: little small items that don\'t seem like much, which you\'re probably, potentially, going to add on to your purchase.'],
+                                    ['speaker' => 'Oliver', 'text' => 'And the best rule, I think, is to use the 72-hour rule. And what it means is, whenever you feel a very strong impulse to buy something that is non-essential, so something that you don\'t really need, give yourself 72 hours, so three days, and wait. Add it to your cart, maybe. You can wait a little bit and see after three days if you still want to purchase it. In many cases, that dopamine rush, that feeling that you\'re getting when you\'re going to buy it, will disappear, and that will give you the feeling that you actually need. Do you still want it? Do you still think you need it? So giving yourself that period of 72 hours is a great way to do this.'],
+                                    ['speaker' => 'Oliver', 'text' => 'Buying things isn\'t inherently bad. It\'s not bad itself, right? But when we buy for that emotion, for dopamine, often we will regret it after that initial impulse. And to make it worse, these companies are trying to manipulate us. They are actively trying to get you to spend more money. So by taking some steps and recognizing this, we can minimize that manipulation and have more control over our purchases.'],
+                                ],
+                                // The same 5 phrases vocabulary_builder_1 taught, each a real
+                                // substring of this transcript.
+                                'target_phrases' => [
+                                    [
+                                        'phrase' => 'browsing', 'meaning' => 'looking at things with no plan to buy one',
+                                        'gap_before' => 'You\'re ',
+                                        'gap_after' => ' online, or walking through a supermarket or a mall',
+                                    ],
+                                    [
+                                        'phrase' => 'regret', 'meaning' => 'feel sorry about something you did',
+                                        'gap_before' => 'So after buying something that you ',
+                                        'gap_after' => ', you maybe feel disappointed',
+                                    ],
+                                    [
+                                        'phrase' => 'essential', 'meaning' => 'very important and necessary',
+                                        'gap_before' => 'some of the ',
+                                        'gap_after' => ' items that people go into the shop for',
+                                    ],
+                                    [
+                                        'phrase' => 'checkout', 'meaning' => 'the place where you pay',
+                                        'gap_before' => 'And then, once you actually get to the ',
+                                        'gap_after' => ', so to the self-checkout, or where you\'re scanning items with a person',
+                                    ],
+                                    [
+                                        'phrase' => 'impulse buys', 'meaning' => 'things you buy suddenly, without thinking',
+                                        'gap_before' => 'these are placed at the checkout for last-minute ',
+                                        'gap_after' => ': little small items that don\'t seem like much',
+                                    ],
+                                ],
+                                'topic_summary' => 'Oliver, the host of the Easy English Podcast, explains why people often walk out '
+                                    .'of a shop with something they never wanted to buy. When we see something we want, our brain '
+                                    .'releases dopamine, the "feel-good" chemical, but the good feeling disappears once we take the '
+                                    .'item home, and then we often regret it. Shops are also designed to make us buy more: expensive '
+                                    .'items are placed at eye level, bread and milk are put at the back of the store, and sweets are '
+                                    .'placed at the checkout for impulse buys. His best tip is the 72-hour rule: wait three days, '
+                                    .'and see if you still want it.',
+                                'comprehension_check' => [
+                                    ['statement' => 'Our brain releases dopamine when we want something.', 'correct' => true, 'difficulty' => 'easy'],
+                                    ['statement' => 'Supermarkets usually put bread and milk near the door.', 'correct' => false, 'difficulty' => 'medium'],
+                                    ['statement' => 'The 72-hour rule means you wait three days before you buy something.', 'correct' => true, 'difficulty' => 'hard'],
+                                ],
+                                'detail_question' => [
+                                    'question' => 'Where are small things like chocolate bars placed?',
+                                    'options' => ['At the checkout', 'At eye level', 'At the back of the store'],
+                                    'correct' => 0,
+                                ],
+                                // No shadow_lines here — Day 1 Listening is comprehension-only.
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'build',
+                        'label' => 'Day 2',
+                        'mode' => 'solo',
+                        'pair_speaking' => [
+                            ['question' => 'Do you try on clothes before you buy them?', 'answer' => 'Yes, I always try them on in the changing room.', 'words' => ['try them on', 'changing room']],
+                            ['question' => 'Do all shoes in your size fit you?', 'answer' => 'No. My size is 42, but some shoes in 42 don\'t fit me.', 'words' => ['size', 'fit']],
+                            ['question' => 'Where are your clothes made?', 'answer' => 'Most of my clothes are made in Turkey.', 'words' => ['are made']],
+                            ['question' => 'Have you found a bargain this year?', 'answer' => 'Yes. This jacket was a bargain. It was sold at a big discount.', 'words' => ['bargain', 'was sold', 'discount']],
+                        ],
+                        'steps' => [
+                            [
+                                'key' => 'vocabulary_builder_2',
+                                'label' => 'New Words',
+                                'duration_minutes' => 10,
+                                'hook' => 'Six words for buying clothes, from the changing room to a real bargain.',
+                                // The subject of Vocabulary in Use units 22-23 (buying clothes,
+                                // shopping); our own word choice and sentences.
+                                'story' => 'Last Saturday I went to a clothes shop and found a nice jacket. I **tried it on** in '
+                                    .'the **changing room**. It was my **size**, and it **fitted** perfectly. There was a 30% '
+                                    .'**discount**, so it was a real **bargain**!',
+                                'words' => [
+                                    ['phrase' => 'try on', 'meaning' => 'to put on clothes in a shop to see if they are right for you', 'meaning_fa' => 'پرو کردن (لباس)', 'pos' => 'phrasal verb', 'example' => 'Can I try on these jeans?', 'difficulty' => 'easy'],
+                                    ['phrase' => 'changing room', 'meaning' => 'a small room in a shop where you try on clothes', 'meaning_fa' => 'اتاق پرو', 'pos' => 'noun', 'example' => 'The changing rooms are at the back of the shop.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'size', 'meaning' => 'how big or small clothes or shoes are', 'meaning_fa' => 'سایز، اندازه', 'pos' => 'noun', 'example' => 'Do you have this shirt in a bigger size?', 'difficulty' => 'easy'],
+                                    ['phrase' => 'fit', 'meaning' => '(of clothes) to be the right size for you', 'meaning_fa' => 'اندازه بودن (لباس)', 'pos' => 'verb', 'example' => 'These shoes don\'t fit me. They\'re too small.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'discount', 'meaning' => 'money that is taken off the usual price', 'meaning_fa' => 'تخفیف', 'pos' => 'noun', 'example' => 'Students get a 10% discount here.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'bargain', 'meaning' => 'something you buy for much less than its usual price', 'meaning_fa' => 'جنس ارزان و به‌صرفه، خرید خوب', 'pos' => 'noun', 'example' => 'This coat was a bargain — only 20 euros!', 'difficulty' => 'medium'],
+                                ],
+                            ],
+                            [
+                                'key' => 'grammar_in_context',
+                                'label' => 'Grammar Time',
+                                'duration_minutes' => 15,
+                                'hook' => 'It was made in Turkey. I had it repaired. Who did the job? Sometimes it doesn\'t matter.',
+                                'focus' => 'The Passive + have something done',
+                                // Our own explanation and examples (EOS-009 §14); the order
+                                // follows Grammar in Use units 42-44 (the passive: be + past
+                                // participle in different tenses, can / must be done) and 46
+                                // (have something done). The present perfect passive re-checks
+                                // M10 / M13; can / must be re-checks M03. Passive reporting
+                                // ("it is said") is in the Grammar in Use course, not here.
+                                'lesson' => [
+                                    'intro' => 'Use the passive when the thing is more important than the person who does the job: It\'s made in Turkey. Use have something done when someone else does a job for you: I had my phone repaired.',
+                                    'sections' => [
+                                        [
+                                            'heading' => 'A · be + past participle',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'The passive = <strong>be + past participle</strong>. Change <strong>be</strong> for the time: <strong>It\'s made</strong> in Turkey. <strong>It was sold</strong> in a day. <strong>It has been sold.</strong> After <strong>can / must</strong>, use <strong>be</strong>: <strong>It can be returned.</strong> <strong>The bill must be paid.</strong> Add <strong>by …</strong> only when the person is important: <strong>This shop was opened by my grandfather.</strong>',
+                                                    'fa' => 'مجهول = be + قسمت سوم فعل. زمان را با be نشان بده: is made (حال)، was sold (گذشته)، has been sold (حال کامل). بعد از can و must همیشه be می‌آید: can be returned، must be paid. by فقط وقتی می‌آید که مهم است چه کسی کار را کرده.',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'passive: be + past participle',
+                                                    'parts' => [
+                                                        ['text' => 'These shoes', 'caption' => 'thing'],
+                                                        ['text' => 'are made', 'caption' => 'be + past participle', 'tone' => 'accent'],
+                                                        ['text' => 'in Italy.', 'caption' => 'where'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'This phone made in China.', 'right' => 'This phone was made in China.', 'highlight' => 'was made', 'note' => 'No be, no passive: was made.', 'fa' => 'بدون be مجهول ساخته نمی‌شود: «ساخت چین است» = was made / is made.'],
+                                                        ['wrong' => 'The shoes can returned in 30 days.', 'right' => 'The shoes can be returned in 30 days.', 'highlight' => 'can be returned', 'note' => 'After can / must → be + past participle.', 'fa' => 'بعد از can و must اول be می‌آید: can be returned.'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'pairs',
+                                                    'pairs' => [
+                                                        ['left' => 'They make these shoes in Italy.', 'right' => 'These shoes are made in Italy.', 'fa' => 'هر دو درست؛ دومی روی کفش تأکید دارد، نه روی سازنده.'],
+                                                        ['left' => 'Someone has sold the last one.', 'right' => 'The last one has been sold.', 'fa' => 'حال کامل مجهول: has been + قسمت سوم فعل.'],
+                                                        ['left' => 'You must pay the bill by Friday.', 'right' => 'The bill must be paid by Friday.', 'fa' => 'بعد از must در مجهول: be + قسمت سوم فعل.'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'From the listening', 'items' => [
+                                                            ['text' => 'Dopamine is released whenever you want it.', 'fa' => 'دوپامین هر وقت چیزی را بخواهی ترشح می‌شود.'],
+                                                            ['text' => 'These are placed at the checkout for last-minute impulse buys.', 'fa' => 'این‌ها برای خریدهای هیجانیِ دقیقه‌ی آخر کنار صندوق گذاشته می‌شوند.'],
+                                                        ]],
+                                                        ['label' => 'Examples', 'items' => [
+                                                            ['text' => 'My jacket was made in Turkey.', 'fa' => 'کاپشنم ساخت ترکیه است.'],
+                                                            ['text' => 'This shop was opened in 1990.', 'fa' => 'این مغازه سال ۱۹۹۰ باز شد.'],
+                                                        ]],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'B · I repaired it, or I had it repaired?',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'Use the <strong>active</strong> when you say who does it: <strong>The shop sells old books.</strong> Use the <strong>passive</strong> when who does it is not known or not important: <strong>Old books are sold here.</strong> When someone else does a job <strong>for you</strong> (and you usually pay), use <strong>have + thing + past participle</strong>: <strong>I repaired my phone.</strong> (I did it.) ↔ <strong>I had my phone repaired.</strong> (A repair shop did it.)',
+                                                    'fa' => 'اگر مهم است چه کسی کار را می‌کند، جمله‌ی معلوم؛ اگر نه، مجهول. وقتی کسی کاری را برایت انجام می‌دهد (معمولاً پولش را می‌دهی): have + چیز + قسمت سوم فعل. I repaired my phone یعنی خودم درستش کردم؛ I had my phone repaired یعنی دادم برایم تعمیرش کردند.',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'have something done',
+                                                    'parts' => [
+                                                        ['text' => 'I', 'caption' => 'person'],
+                                                        ['text' => 'had', 'caption' => 'have (any tense)', 'tone' => 'accent'],
+                                                        ['text' => 'my phone', 'caption' => 'thing'],
+                                                        ['text' => 'repaired', 'caption' => 'past participle', 'tone' => 'accent'],
+                                                        ['text' => 'last week.', 'caption' => 'when'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'I had my phone repair last week.', 'right' => 'I had my phone repaired last week.', 'highlight' => 'repaired', 'note' => 'have + thing + past participle (repaired).', 'fa' => 'بعد از چیز، قسمت سوم فعل می‌آید: repaired.'],
+                                                        ['wrong' => 'I\'m having cut my hair tomorrow.', 'right' => 'I\'m having my hair cut tomorrow.', 'highlight' => 'my hair cut', 'note' => 'The thing goes before the past participle.', 'fa' => 'ترتیب: have + چیز + قسمت سوم فعل (my hair cut).'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'pairs',
+                                                    'pairs' => [
+                                                        ['left' => 'I cleaned my car. (I did it.)', 'right' => 'I had my car cleaned. (Someone did it for me.)', 'fa' => 'اولی: خودم شستم. دومی: دادم برایم شستند.'],
+                                                        ['left' => 'I\'m going to fix my bike.', 'right' => 'I\'m going to have my bike fixed.', 'fa' => 'اولی: خودم درستش می‌کنم. دومی: می‌دهم درستش کنند.'],
+                                                        ['left' => 'A tailor made this suit for me.', 'right' => 'I had this suit made.', 'fa' => 'هر دو یعنی خیاط دوخت؛ دومی روی من و کت‌وشلوار تأکید دارد.'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'From the video', 'items' => [
+                                                            ['text' => 'This pair of trousers that I\'ve had tailored to fit…', 'fa' => 'این شلواری که داده‌ام اندازه‌ام کنند…'],
+                                                        ]],
+                                                        ['label' => 'Examples', 'items' => [
+                                                            ['text' => 'I have my hair cut every month.', 'fa' => 'هر ماه موهایم را کوتاه می‌کنم (آرایشگر کوتاه می‌کند).'],
+                                                            ['text' => 'We\'re having our kitchen painted next week.', 'fa' => 'هفته‌ی بعد آشپزخانه‌مان را می‌دهیم رنگ کنند.'],
+                                                        ]],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'C · "I cut my hair" or "I had my hair cut"?',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'When someone else did the job, don\'t say <strong>I cut my hair</strong> — in English that means you did it yourself! Say <strong>I had my hair cut.</strong> The same with jobs you pay for: <strong>I had my phone repaired</strong>, <strong>I\'m having my car washed</strong>, <strong>I\'ve had my eyes tested</strong>.',
+                                                    'fa' => 'خطای رایج فارسی‌زبان‌ها: در فارسی «موهامو کوتاه کردم» را حتی وقتی آرایشگر کوتاه کرده می‌گوییم، پس می‌گوییم I cut my hair؛ ولی در انگلیسی یعنی خودم با قیچی کوتاهش کردم! بگو I had my hair cut. همین‌طور «گوشی‌ام را تعمیر کردم» در تعمیرگاه: I had my phone repaired. have در همه‌ی زمان‌ها می‌آید، حتی حال کامل: I\'ve had my eyes tested.',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'someone else did it',
+                                                    'parts' => [
+                                                        ['text' => 'I had', 'caption' => 'have', 'tone' => 'accent'],
+                                                        ['text' => 'my hair', 'caption' => 'thing'],
+                                                        ['text' => 'cut', 'caption' => 'past participle', 'tone' => 'accent'],
+                                                        ['text' => 'at the hairdresser\'s.', 'caption' => 'where'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'I cut my hair at the hairdresser\'s yesterday.', 'right' => 'I had my hair cut at the hairdresser\'s yesterday.', 'highlight' => 'had my hair cut', 'note' => 'The hairdresser did it → have + thing + past participle.', 'fa' => 'آرایشگر کوتاه کرد، نه خودت: had my hair cut.'],
+                                                        ['wrong' => 'I\'m going to repair my laptop at a repair shop.', 'right' => 'I\'m going to have my laptop repaired at a repair shop.', 'highlight' => 'have my laptop repaired', 'note' => 'The repair shop does the job → have it repaired.', 'fa' => 'تعمیرگاه کار را می‌کند، نه خودت: have my laptop repaired.'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'From the video', 'items' => [
+                                                            ['text' => 'She\'s had to use Sojo to get them repaired twice.', 'fa' => 'مجبور شده دو بار بدهد Sojo تعمیرشان کند.'],
+                                                        ]],
+                                                        ['label' => 'Examples', 'items' => [
+                                                            ['text' => 'I had my eyes tested last month.', 'fa' => 'ماه پیش چشم‌هایم را معاینه کردند (دادم معاینه کنند).'],
+                                                            ['text' => 'Where do you have your hair cut?', 'fa' => 'موهایت را کجا کوتاه می‌کنی؟ (کجا می‌دهی کوتاه کنند؟)'],
+                                                        ]],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'D · Make it personal',
+                                            'body' => 'Next you\'ll finish sentences about <strong>your</strong> shopping — where things are made, how they are sold, and the jobs you have done for you — and soon use them in AI Conversation #1.',
+                                        ],
+                                    ],
+                                    'bridge_note' => 'You\'ll use this soon — in AI Conversation #1.',
+                                ],
+                                'frequency_starters' => [
+                                    'My phone was made in', 'Last month I had my', 'Next week I\'m going to have my',
+                                    'In my home, the shopping is usually done by', 'In a good shop, broken things can be', 'In my city, fresh bread is sold',
+                                ],
+                                'grammar_judgment' => 'Judge whether the learner finished this sentence starter into '
+                                    .'a true, natural personal sentence about shopping, clothes, repairs or the things they own, '
+                                    .'using the passive (be + past participle: is made, was sold, has been repaired, can be returned) '
+                                    .'or have something done (have + thing + past participle: I had my hair cut, I\'m going to have '
+                                    .'my car repaired).',
+                                'grammar_major_criteria' => 'a verb with no subject, it or there left out ("Is made in China", "Was very cheap"), '
+                                    .'a passive with no be ("My phone made in Korea", "It sold in a day" meant as passive), a wrong '
+                                    .'past participle ("was builded", "has been sell", "had my hair cutted"), can / must + a past '
+                                    .'participle with no be ("can returned"), have + a base form instead of the past participle '
+                                    .'after "Last month I had my" or "Next week I\'m going to have my" ("I had my car repair"), the '
+                                    .'sentence does not actually continue the given starter, or it is not a genuine personal '
+                                    .'statement. Do not mark an active sentence wrong just because the passive would also be '
+                                    .'possible, and "by + person" is never required',
+                                'grammar_context' => 'continues "My phone was made in" with a place; finishes "Last month I had '
+                                    .'my" and "Next week I\'m going to have my" with a thing + past participle (hair cut, car '
+                                    .'repaired); continues "In my home, the shopping is usually done by" with a person; continues '
+                                    .'"In a good shop, broken things can be" with a past participle (returned, repaired, exchanged); '
+                                    .'continues "In my city, fresh bread is sold" with a place or a time',
+                                // Reminders only: SentenceChecker asks for at least "minor", never "major".
+                                'grammar_minor_criteria' => self::SLIP_ARTICLE.'; '.self::SLIP_HE_SHE.'; '.self::SLIP_WILL_AFTER_IF,
+                                'quick_check' => [
+                                    [
+                                        'wrong' => 'This phone made in China.',
+                                        'options' => ['This phone is make in China.', 'This phone was made in China.', 'This phone was make in China.'],
+                                        'correct' => 1,
+                                        'difficulty' => 'easy',
+                                        'why' => 'Passive = be + past participle: was made.',
+                                    ],
+                                    [
+                                        'wrong' => 'The shoes can returned within 30 days.',
+                                        'options' => ['The shoes can be returned within 30 days.', 'The shoes can be return within 30 days.', 'The shoes can been returned within 30 days.'],
+                                        'correct' => 0,
+                                        'difficulty' => 'medium',
+                                        'why' => 'can + be + past participle: can be returned.',
+                                    ],
+                                    [
+                                        'wrong' => 'I cut my hair at the hairdresser\'s yesterday.',
+                                        'options' => ['I had cut my hair at the hairdresser\'s yesterday.', 'I had my hair cut at the hairdresser\'s yesterday.', 'I had my hair cutted at the hairdresser\'s yesterday.'],
+                                        'correct' => 1,
+                                        'difficulty' => 'medium',
+                                        'why' => 'Someone else did it → have + my hair + cut.',
+                                    ],
+                                    [
+                                        'wrong' => 'My phone has repaired.',
+                                        'options' => ['My phone has be repaired.', 'My phone is been repaired.', 'My phone has been repaired.'],
+                                        'correct' => 2,
+                                        'difficulty' => 'hard',
+                                        'why' => 'Present perfect passive: has been + past participle.',
+                                    ],
+                                ],
+                                'word_order' => [
+                                    ['words' => ['in', 'are', 'Italy.', 'shoes', 'made', 'These'], 'answer' => 'These shoes are made in Italy.'],
+                                    ['words' => ['my', 'hair', 'had', 'I', 'yesterday.', 'cut'], 'answer' => 'I had my hair cut yesterday.'],
+                                    ['words' => ['be', 'returned', 'It', 'can', 'days.', 'in', '30'], 'answer' => 'It can be returned in 30 days.'],
+                                ],
+                            ],
+                            [
+                                // Josephine Philips on the TED stage: a young Londoner who started
+                                // a clothing-repair company — her grandmother's yellow dress, her
+                                // sister's jeans and the trousers she has had tailored. Cut from
+                                // 8:25 to 5:31 (the clothing-waste numbers and a joke left out);
+                                // TED's own human captions, re-timed to the cut.
+                                'key' => 'video_shadowing',
+                                'label' => 'Video Shadowing',
+                                'duration_minutes' => 14,
+                                'hook' => 'A young Londoner explains why her sister\'s 15-year-old jeans should never be thrown away.',
+                                'source' => 'TED — Josephine Philips, "The Simple Solution to Fast Fashion"',
+                                'video_url' => $shadowingVideoUrl,
+                                'captions_url' => $shadowingCaptionsUrl,
+                                'video_segments' => $this->shadowTimestampsFor('M15', 'video_shadowing_segments'),
+                                'topic_summary' => 'Josephine Philips\'s grandmother bought a yellow dress at a market in Sierra '
+                                    .'Leone in the 1950s, and 60 years later she gave it to Josephine. It taught her to value the '
+                                    .'clothes she owns. Today Josephine runs Sojo, a company that repairs and alters clothes. She '
+                                    .'says her generation buys too much and throws clothes away. Her sister has worn the same jeans '
+                                    .'for 15 years and has had them repaired twice. Her message: buy less, and look after what you buy.',
+                                'comprehension_check' => [
+                                    ['statement' => 'Josephine\'s grandmother bought her yellow dress in a shop in London.', 'correct' => false],
+                                    ['statement' => 'Josephine started a company that repairs clothes.', 'correct' => true],
+                                    ['statement' => 'Her sister\'s jeans have been repaired twice.', 'correct' => true],
+                                ],
+                                // Real phrases Josephine Philips uses on stage.
+                                'target_phrases' => [
+                                    ['phrase' => 'second-hand', 'meaning' => 'owned and used by someone before'],
+                                    ['phrase' => 'throw away', 'meaning' => 'put something in the rubbish'],
+                                    ['phrase' => 'look after', 'meaning' => 'take care of'],
+                                    ['phrase' => 'one side of the coin', 'meaning' => 'one part of a problem'],
+                                    ['phrase' => 'without a second thought', 'meaning' => 'without thinking about it at all'],
+                                ],
+                                // Real verbatim lines from the video — shadowing means mimicking
+                                // the exact audio just heard, and the auto-pause timestamps
+                                // (missions:cache-shadow-timestamps) only land on words people
+                                // actually say. Chosen for this mission's grammar: the passive in
+                                // three tenses and with a modal, and have / get something done.
+                                // Bold marks naturally-stressed content words (rendered by
+                                // <x-stress-marked-line>).
+                                'shadow_lines' => [
+                                    'This is how we\'ve been **taught** to engage with our clothes.',
+                                    'These jeans are **made** of denim, which is a natural fabric.',
+                                    'She\'s had to use Sojo to get them **repaired** twice.',
+                                    'This pair of trousers that I\'ve had **tailored** to fit.',
+                                    'They shouldn\'t be **thrown** away either.',
+                                    'We need to buy **less** stuff, and we need to look after what we buy.',
+                                ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M15', 'video_shadowing'),
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'practice',
+                        'label' => 'Day 3',
+                        'mode' => 'ai',
+                        'pair_speaking' => [
+                            ['question' => 'Do you keep your receipts?', 'answer' => 'Yes. Without a receipt, things can\'t be returned.', 'words' => ['receipt', 'can\'t be returned']],
+                            ['question' => 'Have you ever asked for a refund?', 'answer' => 'Yes. My headphones were faulty, so I got a refund.', 'words' => ['faulty', 'refund']],
+                            ['question' => 'When was your last online order delivered?', 'answer' => 'It was delivered yesterday, to my door.', 'words' => ['was delivered']],
+                            ['question' => 'Where do you have your phone repaired?', 'answer' => 'I have it repaired in a small shop near my home.', 'words' => ['have it repaired']],
+                        ],
+                        'steps' => [
+                            [
+                                'key' => 'vocabulary_builder_3',
+                                'label' => 'New Words',
+                                'duration_minutes' => 10,
+                                'hook' => 'Last set — the words for what happens after you buy: receipt, refund, exchange…',
+                                // The subject of Vocabulary in Use unit 23 (Shopping); our own
+                                // word choice and sentences.
+                                'story' => 'Last week my new headphones were **delivered**, but they were **faulty**: only one '
+                                    .'side worked! I took them back to the shop with the **receipt**. They were still under '
+                                    .'**guarantee**, so I could **exchange** them or get a **refund**. I chose the refund.',
+                                'words' => [
+                                    ['phrase' => 'receipt', 'meaning' => 'the piece of paper that shows what you bought and paid', 'meaning_fa' => 'رسید خرید', 'pos' => 'noun', 'example' => 'Keep the receipt in case you need to take it back.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'refund', 'meaning' => 'money that a shop gives back to you', 'meaning_fa' => 'پول برگشتی، بازپرداخت', 'pos' => 'noun', 'example' => 'The shop gave me a full refund.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'exchange', 'meaning' => 'to give something back to a shop and get a different one', 'meaning_fa' => 'عوض کردن (کالا)', 'pos' => 'verb', 'example' => 'Can I exchange this shirt for a bigger size?', 'difficulty' => 'medium'],
+                                    ['phrase' => 'faulty', 'meaning' => 'not working as it should', 'meaning_fa' => 'معیوب، خراب', 'pos' => 'adjective', 'example' => 'The charger was faulty, so I took it back.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'deliver', 'meaning' => 'to bring something to someone\'s home or office', 'meaning_fa' => 'تحویل دادن، رساندن (به در خانه)', 'pos' => 'verb', 'example' => 'They deliver the food in 30 minutes.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'guarantee', 'meaning' => 'a promise to repair or change a thing if it breaks', 'meaning_fa' => 'گارانتی، ضمانت', 'pos' => 'noun', 'example' => 'The laptop has a two-year guarantee.', 'difficulty' => 'medium'],
+                                ],
+                            ],
+                            [
+                                'key' => 'ai_conversation_1',
+                                'label' => 'Talk It Out',
+                                'duration_minutes' => 18,
+                                'hook' => 'Say it here, alone, before you have to say it to the AI Instructor for real.',
+                                'warm_up_task' => 'Record 2 minutes of solo speaking about you and shopping: where you buy things, '
+                                    .'where they were made, and a time you had something repaired or returned — using the new '
+                                    .'vocabulary, without reading.',
+                                'interview_questions' => [
+                                    'Where do you usually buy clothes?',
+                                    'Do you try on clothes before you buy them?',
+                                    'What was your last impulse buy?',
+                                    'Where was your phone made?',
+                                    'Have you ever taken something back to a shop?',
+                                    'Where do you have your hair cut?',
+                                ],
+                            ],
+                            [
+                                'key' => 'reading_comprehension',
+                                'label' => 'Reading',
+                                'duration_minutes' => 12,
+                                'hook' => 'An old jacket, a broken zip and a choice: throw it away, or have it repaired?',
+                                'passage_title' => 'My dad\'s old jacket',
+                                'image_query' => 'tailor sewing jacket',
+                                // Written fresh for this app (EOS-009 §14) — reuses the Vocabulary
+                                // Builder words in a new context, with the passive and have
+                                // something done.
+                                'passage' => 'My favourite jacket was made in a small shop twenty years ago. It was a present from my '
+                                    .'dad. Last winter, the zip broke, and one of the buttons came off. My friend said, "Just throw '
+                                    .'it away and buy a new one! There\'s a big discount at the mall." So I went to the mall and '
+                                    .'tried on ten jackets in the changing room. Some didn\'t fit, and the cheap ones were badly made. '
+                                    .'In the end, I decided to have my old jacket repaired. I took it to a tailor near my house, and '
+                                    .'she said, "Don\'t worry. It can be repaired in two days." When I went back, the zip was replaced, '
+                                    .'and a new button was sewn on. It looked great! I had it repaired for only fifteen euros — a real '
+                                    .'bargain. The tailor even gave me a receipt and a three-month guarantee. Next month '
+                                    .'I\'m going to have my winter boots repaired too.',
+                                'highlighted_phrases' => [
+                                    ['phrase' => 'discount', 'type' => 'reused'],
+                                    ['phrase' => 'tried on', 'type' => 'reused'],
+                                    ['phrase' => 'changing room', 'type' => 'reused'],
+                                    ['phrase' => 'fit', 'type' => 'reused'],
+                                    ['phrase' => 'bargain', 'type' => 'reused'],
+                                    ['phrase' => 'receipt', 'type' => 'reused'],
+                                    ['phrase' => 'guarantee', 'type' => 'reused'],
+                                    ['phrase' => 'zip', 'type' => 'new', 'definition' => 'the metal or plastic line of teeth that closes a jacket or a bag', 'pos' => 'noun', 'example' => 'The zip on my bag is broken.'],
+                                    ['phrase' => 'tailor', 'type' => 'new', 'definition' => 'a person whose job is to make or repair clothes', 'pos' => 'noun', 'example' => 'I had my suit made by a tailor.'],
+                                ],
+                                'topic_summary' => 'The writer\'s favourite jacket, a present from their dad, was damaged last winter, '
+                                    .'and a friend said to throw it away. At the mall, the new jackets didn\'t fit or were badly '
+                                    .'made, so the writer had the old jacket repaired by a tailor near home. It was repaired in two '
+                                    .'days for only fifteen euros, and next month the writer is going to have their winter boots '
+                                    .'repaired too.',
+                                'comprehension_check' => [
+                                    ['statement' => 'The jacket was a present from the writer\'s dad.', 'correct' => true, 'difficulty' => 'easy'],
+                                    ['statement' => 'The writer bought a new jacket at the mall.', 'correct' => false, 'difficulty' => 'medium'],
+                                    ['statement' => 'The tailor repaired the jacket in two days.', 'correct' => true, 'difficulty' => 'hard'],
+                                ],
+                                'questions' => [
+                                    'What happened to the jacket last winter?',
+                                    'Why didn\'t the writer buy a new jacket?',
+                                ],
+                                // Multiple choice instead of written answers (reading task 11,
+                                // 2026-11-10): one tap each, graded in the browser like the true/false
+                                // round above. Every right answer is stated in the passage; the wrong
+                                // ones are things the passage mentions or plausibly could.
+                                'choice_questions' => [
+                                    ['prompt' => 'Where was the jacket repaired?', 'options' => ['At a tailor\'s near the writer\'s house', 'At the mall', 'At a big jacket shop'], 'correct' => 0, 'difficulty' => 'easy'],
+                                    ['prompt' => 'How much did the repair cost?', 'options' => ['Fifty euros', 'Fifteen euros', 'Nothing'], 'correct' => 1, 'difficulty' => 'medium'],
+                                    ['prompt' => 'What is the writer going to have repaired next month?', 'options' => ['A bag', 'A phone', 'Winter boots'], 'correct' => 2, 'difficulty' => 'hard'],
+                                ],
+                            ],
+                            [
+                                'key' => 'writing',
+                                'label' => 'Writing',
+                                'duration_minutes' => 12,
+                                'hook' => 'Where your things were made, and what you had repaired — write about you and shopping.',
+                                'title' => 'Me and shopping',
+                                'prompts' => [
+                                    ['label' => 'Where I buy my clothes', 'image_query' => 'clothing store rack'],
+                                    ['label' => 'Something I had repaired', 'image_query' => 'shoe repair'],
+                                    ['label' => 'My best bargain', 'image_query' => 'flea market'],
+                                    ['label' => 'An impulse buy I regret', 'image_query' => 'woman holding shopping bags'],
+                                    ['label' => 'Something that was made by hand', 'image_query' => 'handmade pottery'],
+                                    ['label' => 'Shopping online or in a shop?', 'image_query' => 'online shopping laptop'],
+                                ],
+                                // Grammar connectors only — see M01's try_to_use note.
+                                'try_to_use' => ['…is / was made in…', '…can be returned…', 'I had my … repaired / cut', 'bargain', 'try on', 'refund', 'impulse buy'],
+                                'min_words' => 100,
+                                'max_words' => 150,
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'challenge',
+                        'label' => 'Day 4',
+                        'mode' => 'ai',
+                        'pair_speaking' => [
+                            ['question' => 'Do you cut your own hair?', 'answer' => 'No. I have my hair cut every month at a hairdresser\'s.', 'words' => ['have my hair cut']],
+                            ['question' => 'Can things be exchanged without a receipt where you live?', 'answer' => 'Usually not. Things can be exchanged only with a receipt.', 'words' => ['can be exchanged', 'receipt']],
+                            ['question' => 'Has your phone ever been repaired?', 'answer' => 'Yes, it has been repaired twice. The screen was broken.', 'words' => ['has been repaired']],
+                            ['question' => 'Do you ever regret an impulse buy?', 'answer' => 'Yes. I regret the shoes I bought last month. They don\'t fit.', 'words' => ['regret', 'fit']],
+                        ],
+                        'steps' => [
+                            [
+                                'key' => 'error_log',
+                                'label' => 'My Fixes',
+                                'duration_minutes' => 7,
+                                'hook' => "Every mistake here is one you won't make in tomorrow's Final Challenge.",
+                            ],
+                            [
+                                'key' => 'ai_conversation_2',
+                                'label' => 'Final Talk',
+                                'duration_minutes' => 12,
+                                'hook' => "This one's harder on purpose — real conversations don't come with warm-up questions.",
+                                'round_pool' => [
+                                    'Where do you buy your clothes? Where were they made?',
+                                    'What was the last thing you had repaired? Who repaired it?',
+                                    'Tell me about an impulse buy. Do you regret it?',
+                                    'Have you ever taken something back to a shop? What happened?',
+                                    'Do you shop online? How fast are things delivered where you live?',
+                                    'Should old clothes be repaired or thrown away? Why?',
+                                ],
+                                'role_reversal_topic' => 'shopping: things that are made, sold and repaired, and jobs you have done for you',
+                                'final_prompt' => 'Talk for 3 minutes about you and shopping: where you buy things, where they were made, and something you had repaired.',
+                                'requirements' => [
+                                    '5+ vocabulary expressions',
+                                    'the passive (is / was made, has been sold, can be returned)',
+                                    'have something done (I had my … repaired / cut)',
+                                    'by + a person only when it matters',
+                                    'Where your things were made',
+                                    'Something you had repaired or returned',
+                                ],
+                            ],
+                            [
+                                'key' => 'mission_result',
+                                'label' => 'Mission Result',
+                                'duration_minutes' => 5,
+                                'hook' => "You started this mission with a number — let's see how far it moved.",
+                                'skills' => ['Listening', 'Vocabulary', 'Grammar', 'Speaking', 'Writing'],
+                                'reflection_questions' => [
+                                    'became_easier' => ['label' => 'What became easier?', 'type' => 'skills'],
+                                    'still_difficult' => ['label' => 'What is still difficult?', 'type' => 'skills'],
+                                    'expression_to_keep' => ['label' => 'One expression I want to keep using', 'type' => 'vocabulary'],
+                                    'grammar_to_review' => ['label' => 'One grammar point I need to review', 'type' => 'errors'],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ]
+        );
+    }
+
+    /**
+     * Seeds M16 "Travel" — narrative tenses: the past perfect (had + past
+     * participle) beside the past simple and the past continuous (the
+     * M14–M24 grammar list approved 2026-11-23). Re-checks M07's past
+     * continuous (the background of a story). Built for the "Light" days
+     * like M14 / M15: 13 steps, no story_sequence, picture_description or
+     * daily_listen_2/3 (config/missions.php hidden_steps). Media: the Learn
+     * English Podcast's "My Trip to Dallas, Texas" (Melissa, an American
+     * teacher, cut from 23 to about 6 minutes: the solar eclipse she had
+     * never seen, sold-out tickets, an arts festival, a free museum and a
+     * bad train ride; the JFK history part left out) and Monte Montepare's
+     * story at The Moth (cut from 14:21 to 6:49: a glacier guide falls into
+     * a crevasse and is pulled out with his clients' rain jackets).
+     * Vocabulary days 2-3 follow the subject of Vocabulary in Use units 47
+     * (air travel), 46 (travel bookings) and 50 (sightseeing holidays), with
+     * our own word choice and sentences — not the book's text.
+     */
+    private function seedM16(): void
+    {
+        $audioUrl = $this->publishMissionAsset('M16', 'Learn English Podcast - My Trip to Dallas.mp3');
+        $shadowingVideoUrl = $this->publishMissionAsset('M16', 'The Moth - Monte Montepare The Glacier Does Not Care.mp4');
+        $shadowingCaptionsUrl = $this->publishMissionAsset('M16', 'The Moth - Monte Montepare The Glacier Does Not Care.en.vtt');
+
+        Mission::updateOrCreate(
+            ['code' => 'M16'],
+            [
+                'title' => 'Travel',
+                'module' => 'Travel',
+                'outcome' => 'I can tell a travel story in the right order — what happened, what was happening, and what had happened before: "When I got to the gate, the plane had already left."',
+                'phases' => [
+                    [
+                        'phase' => 'foundation',
+                        'label' => 'Day 1',
+                        'mode' => 'solo',
+                        'pair_speaking' => [
+                            ['question' => 'Is there a direct flight from your city to the capital?', 'answer' => 'Yes, there\'s a direct flight. It takes about an hour.', 'words' => ['direct flight']],
+                            ['question' => 'Do you buy concert tickets early?', 'answer' => 'Yes, I always buy them ahead of time.', 'words' => ['ahead of time']],
+                            ['question' => 'Have you ever wanted tickets for something that was full?', 'answer' => 'Yes. The football tickets were sold out, so I watched it at home.', 'words' => ['sold out']],
+                            ['question' => 'What\'s a lively place in your city?', 'answer' => 'The old bazaar is lively. I often end up staying there all evening.', 'words' => ['lively', 'end up']],
+                        ],
+                        'steps' => [
+                            [
+                                'key' => 'mission_brief',
+                                'label' => 'Get Ready',
+                                'duration_minutes' => 5,
+                                'hook' => 'The bus left — or the bus had already left? Tell your travel stories in English, in the right order.',
+                                'image_query' => 'airplane travel suitcase passport',
+                                'ambient_video_query' => 'airport travel',
+                                'warm_up_questions' => [
+                                    'Do you like travelling?',
+                                    'Where did you go on your last trip?',
+                                    'Have you ever flown?',
+                                    'Do you like the sea or the mountains?',
+                                ],
+                            ],
+                            [
+                                'key' => 'vocabulary_builder_1',
+                                'label' => 'New Words',
+                                'duration_minutes' => 9,
+                                'hook' => 'Five words Melissa uses about her trip to Dallas.',
+                                // Day 1 = the Listening episode's own 5 target_phrases (see M01's
+                                // vocabulary_builder_1), so every learner meets them here first.
+                                'story' => 'Last year I wanted to see a concert in Tehran. There was a **direct flight** from my '
+                                    .'city, so I bought my ticket **ahead of time**. Good thing: a week later, the concert was '
+                                    .'**sold out**! After the concert, my friends and I **ended up** in a **lively** café until midnight.',
+                                'words' => [
+                                    ['phrase' => 'direct flight', 'meaning' => 'a flight that goes from one place to another with no stops', 'meaning_fa' => 'پرواز مستقیم', 'pos' => 'noun', 'example' => 'There\'s a direct flight to Kish every morning.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'ahead of time', 'meaning' => 'before the time something happens; early', 'meaning_fa' => 'از قبل، زودتر از موعد', 'pos' => 'phrase', 'example' => 'Buy your train tickets ahead of time.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'sold out', 'meaning' => 'with no tickets or things left to buy', 'meaning_fa' => 'تمام‌شده، فروش‌رفته (بلیت یا جنس)', 'pos' => 'adjective', 'example' => 'The show was sold out, so we stayed at home.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'end up', 'meaning' => 'to finally be in a place or situation that you did not plan', 'meaning_fa' => 'آخرش سر از جایی درآوردن، در نهایت به کاری رسیدن', 'pos' => 'phrasal verb', 'example' => 'We missed the bus and ended up walking home.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'lively', 'meaning' => 'full of people, activity and energy', 'meaning_fa' => 'شلوغ و پرجنب‌وجوش، سرزنده', 'pos' => 'adjective', 'example' => 'The market is very lively on Friday mornings.', 'difficulty' => 'medium'],
+                                ],
+                            ],
+                            [
+                                'key' => 'listening',
+                                'label' => 'Listening',
+                                'duration_minutes' => 18,
+                                'hook' => 'Melissa flies to Dallas to see something she had never seen before. Listen for what went right — and what went wrong.',
+                                'source' => 'Learn English Podcast — "Learning English with Real Stories: My Trip to Dallas, Texas"',
+                                'image_query' => 'solar eclipse',
+                                'audio_url' => $audioUrl,
+                                'listening_segments' => $this->shadowTimestampsFor('M16', 'listening_segments'),
+                                // The same chunks tagged with who is talking — see
+                                // missions:align-listening-speakers. One speaker: Melissa.
+                                'listening_turns' => $this->shadowTimestampsFor('M16', 'listening_turns'),
+                                // The parts kept in the cut (0:10-3:29 without the airport list,
+                                // 8:47-9:12, 12:16-15:17, 17:26-18:43, 19:02-20:33 and 21:23-21:39
+                                // of the original, in short pieces; the intro, the JFK history,
+                                // the parking tip, the worst train details and the outro left
+                                // out), written from a Whisper pass of the cut audio.
+                                'transcript' => [
+                                    ['speaker' => 'Melissa', 'text' => 'I want to tell you a story about my recent trip to the city of Dallas. If you don\'t know, Dallas is in Texas, which is in the southern part of the United States, and it\'s a large city. I went to Dallas in April of this year. It is currently 2024, and the reason I went to Dallas is because in April there was an event that happened. From Mexico and up through the United States, there was a solar eclipse. And the reason I went to Dallas was because Dallas and the area right below it was in the path of this solar eclipse.'],
+                                    ['speaker' => 'Melissa', 'text' => 'I had never seen a solar eclipse before, so I really wanted to go. And I invited my mother to go along with me. She is my travel partner, and she had never seen a solar eclipse either. So we decided to go. There\'s a lot of places that were along the path, and there\'s a lot of places we could have gone. But we decided to go to Dallas because it\'s a relatively large, modern city. There\'s a lot of history involved with Dallas, which I will tell you about in a couple of minutes. And it\'s also what we call a hub. A hub means that there is a lot of transportation connections from the city. The city that I live in, the airport that\'s closest to me, has a direct flight to Dallas, and it only took us about a little over two hours to get there. So it was a very quick flight, and because of that we decided to go to Dallas. I had also listened to a podcast, a travel podcast that talked about Dallas a few months before. And for all of these reasons, we decided to go to Dallas.'],
+                                    ['speaker' => 'Melissa', 'text' => 'Now, we flew to Dallas on a Saturday, and we got there around two o\'clock. We ended up getting a car there. And the reason we got a car is because we ended up not wanting to stay in Dallas the entire time. We wanted to end up driving somewhere else. So we decided to get a car. We took the car from the airport to our apartment. We checked in at the apartment, and we ended up staying in downtown Dallas because we wanted to go to the Sixth Floor Museum. If you don\'t know what the Sixth Floor Museum is, it is a building in downtown Dallas that has a lot of history involved with it.'],
+                                    ['speaker' => 'Melissa', 'text' => 'If you do go to the museum, definitely I would recommend to get your tickets ahead of time. There\'s a website. You can order your tickets online. You pick the day and you pick the time. It is timed entry. When I went to get tickets about a month ahead of time, the day that we originally wanted was already sold out. So we had to change our plans up a little bit and go the day that we landed. We still got tickets, but I would just say, look ahead of time.'],
+                                    ['speaker' => 'Melissa', 'text' => 'After we got done with the Sixth Floor Museum, we ended up going to the Dallas Arts Festival. The location for this was in Deep Ellum. Deep Ellum is a district of Dallas that is known as being the arts district. More casually, we would call it the hipster district. It was very artsy, a lot of young energy, creative energy, a lot of fun art on the street and sculptures and graffiti art. We got to see a bunch of different art. My mom and I ended up buying some small prints that we could fit in our luggage and that we could afford. But if you had a lot of money, of course, you could get really big art pieces. There was jewelry. There was people who were singing. It was just a fun event overall.'],
+                                    ['speaker' => 'Melissa', 'text' => 'After we got done with the art festival, we ended up just walking around Deep Ellum to get dinner, find a place to eat. We walked along Main Street in Deep Ellum, and there was a lot of people on that street. There was a lot of other tourists, a lot of people going up and down the street, because there was restaurants, there was nightlife, there was clubs, and it just seemed like a very fun place to be. I would recommend staying there. If I ever went back to Dallas, I would definitely stay in Deep Ellum. It was a lot more lively and a lot more vibrant than where we stayed. It was definitely fun, and it was definitely a good first day.'],
+                                    ['speaker' => 'Melissa', 'text' => 'The next day we end up going to the Dallas Museum of Art. If you are an art person, I would definitely recommend going. The first reason is that it is completely free. The museum itself is pretty large. It does have a couple of good collections. They tend to have their collections by culture. So they had an African art museum, an Asian and Pacific Islander section, a modern art section. That was very different. I hadn\'t been to a place that had an African or Pacific Islander art section before, and that was very interesting, to see different artistic representations from different cultures. I think we spent a couple of hours at the museum.'],
+                                    ['speaker' => 'Melissa', 'text' => 'For my last piece of advice, my last thing not to do in Dallas is take the DART train. Now, the DART train is the light rail train. It is a public transportation system in Dallas. The reason we took the DART train is that we were in downtown. We were trying to go to Deep Ellum, and the art festival that was going on said on their website that it was going to be really hard to find parking in Deep Ellum. They recommended taking the DART train, so that\'s what we ended up doing. There was a station right next to the apartment we were staying at. We decided to get tickets, go on the DART train, and go to Deep Ellum.'],
+                                    ['speaker' => 'Melissa', 'text' => 'The smell on the DART train is by far the worst smell I have ever smelled in my entire life. The doors opened for the DART train, and my mom and I got in, and the smell was overwhelming. It smelled so bad. My mom actually covered her face because the smell was so bad. When we were on the train, there was a woman there who was screaming. She was yelling. My mom and I originally had planned to go from downtown to Deep Ellum to stay on the train, but because of the smell and because of the situation that was going on around us, we didn\'t feel comfortable. We didn\'t feel safe, and we decided just to get off and just walk. When my mom and I decided to go back to the apartment from Deep Ellum, we decided to get an Uber instead of taking the train. We thought that was a safer option, and it was.'],
+                                    ['speaker' => 'Melissa', 'text' => 'If you are ever in Dallas, if you ever have the chance to go, I would recommend it. I had never been. I had never been to Texas, but I had a really fun time. I like the city a lot. There was a lot of stuff to do, at least for the two days we were there, and I enjoyed it.'],
+                                ],
+                                // The same 5 phrases vocabulary_builder_1 taught, each a real
+                                // substring of this transcript.
+                                'target_phrases' => [
+                                    [
+                                        'phrase' => 'direct flight', 'meaning' => 'a flight with no stops',
+                                        'gap_before' => 'the airport that\'s closest to me, has a ',
+                                        'gap_after' => ' to Dallas',
+                                    ],
+                                    [
+                                        'phrase' => 'ahead of time', 'meaning' => 'early, before it happens',
+                                        'gap_before' => 'definitely I would recommend to get your tickets ',
+                                        'gap_after' => '. There\'s a website.',
+                                    ],
+                                    [
+                                        'phrase' => 'sold out', 'meaning' => 'with no tickets left',
+                                        'gap_before' => 'the day that we originally wanted was already ',
+                                        'gap_after' => '. So we had to change our plans',
+                                    ],
+                                    [
+                                        'phrase' => 'ended up', 'meaning' => 'finally did something you didn\'t plan',
+                                        'gap_before' => 'After we got done with the Sixth Floor Museum, we ',
+                                        'gap_after' => ' going to the Dallas Arts Festival',
+                                    ],
+                                    [
+                                        'phrase' => 'lively', 'meaning' => 'full of people and energy',
+                                        'gap_before' => 'It was a lot more ',
+                                        'gap_after' => ' and a lot more vibrant than where we stayed',
+                                    ],
+                                ],
+                                'topic_summary' => 'Melissa, an American English teacher, flew to Dallas, Texas, with her mother '
+                                    .'to see a solar eclipse, because neither of them had ever seen one. The museum tickets for '
+                                    .'the day they wanted had already sold out, so they changed their plans. They loved an arts '
+                                    .'festival in lively Deep Ellum and a free art museum, but the DART train smelled terrible and '
+                                    .'felt unsafe, so they got off, walked, and took an Uber back. She had never been to Texas '
+                                    .'before, and she had a really fun time.',
+                                'comprehension_check' => [
+                                    ['statement' => 'Melissa had seen a solar eclipse before this trip.', 'correct' => false, 'difficulty' => 'easy'],
+                                    ['statement' => 'The museum tickets for the day they wanted were sold out.', 'correct' => true, 'difficulty' => 'medium'],
+                                    ['statement' => 'Melissa and her mom stayed on the DART train all the way to Deep Ellum.', 'correct' => false, 'difficulty' => 'hard'],
+                                ],
+                                'detail_question' => [
+                                    'question' => 'Who did Melissa travel to Dallas with?',
+                                    'options' => ['Her mother', 'A friend', 'Her students'],
+                                    'correct' => 0,
+                                ],
+                                // No shadow_lines here — Day 1 Listening is comprehension-only.
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'build',
+                        'label' => 'Day 2',
+                        'mode' => 'solo',
+                        'pair_speaking' => [
+                            ['question' => 'Do you check in online?', 'answer' => 'Yes. I check in online and show my boarding pass on my phone.', 'words' => ['check in', 'boarding pass']],
+                            ['question' => 'What do you take in your hand luggage?', 'answer' => 'My hand luggage is small: a laptop, a book and some water.', 'words' => ['hand luggage']],
+                            ['question' => 'Have you ever had a long delay?', 'answer' => 'Yes. There was a five-hour delay, and by the time we took off, I had eaten twice!', 'words' => ['delay', 'took off', 'had eaten']],
+                            ['question' => 'What were you doing when your plane landed last time?', 'answer' => 'I was sleeping when the plane landed.', 'words' => ['was sleeping', 'landed']],
+                        ],
+                        'steps' => [
+                            [
+                                'key' => 'vocabulary_builder_2',
+                                'label' => 'New Words',
+                                'duration_minutes' => 10,
+                                'hook' => 'Six words for flying, from check-in to landing.',
+                                // The subject of Vocabulary in Use unit 47 (air travel); our own
+                                // word choice and sentences.
+                                'story' => 'Last month I flew to Mashhad. I **checked in** online, so I only had my **boarding '
+                                    .'pass** on my phone and a small bag of **hand luggage**. At the gate, there was a two-hour '
+                                    .'**delay**. When we finally **took off**, I was so tired that I fell asleep, and I only woke '
+                                    .'up when we **landed**.',
+                                'words' => [
+                                    ['phrase' => 'check in', 'meaning' => 'to tell the airline or hotel that you have arrived, and get your seat or room', 'meaning_fa' => 'پذیرش گرفتن، چک‌این کردن', 'pos' => 'phrasal verb', 'example' => 'You can check in online the day before your flight.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'hand luggage', 'meaning' => 'a small bag that you can take with you on the plane', 'meaning_fa' => 'بار همراه، ساک دستی', 'pos' => 'noun', 'example' => 'I only take hand luggage on short trips.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'boarding pass', 'meaning' => 'the card or paper you show to get on the plane', 'meaning_fa' => 'کارت پرواز', 'pos' => 'noun', 'example' => 'Please show your boarding pass at the gate.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'delay', 'meaning' => 'a time when something happens later than planned', 'meaning_fa' => 'تأخیر', 'pos' => 'noun', 'example' => 'There was a two-hour delay because of the snow.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'take off', 'meaning' => '(of a plane) to leave the ground and start flying', 'meaning_fa' => 'بلند شدن (هواپیما)', 'pos' => 'phrasal verb', 'example' => 'The plane took off at six in the morning.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'land', 'meaning' => '(of a plane) to come down to the ground', 'meaning_fa' => 'فرود آمدن (هواپیما)', 'pos' => 'verb', 'example' => 'We landed in Shiraz at midnight.', 'difficulty' => 'easy'],
+                                ],
+                            ],
+                            [
+                                'key' => 'grammar_in_context',
+                                'label' => 'Grammar Time',
+                                'duration_minutes' => 15,
+                                'hook' => 'The plane left. The plane had left. One word — and you missed your flight.',
+                                'focus' => 'Narrative Tenses (past perfect / past simple / past continuous)',
+                                // Our own explanation and examples (EOS-009 §14); the order
+                                // follows Grammar in Use units 5-6 (past simple, past
+                                // continuous) and 15 (past perfect). The past continuous for
+                                // the background re-checks M07. The past perfect continuous is
+                                // in the Grammar in Use course, not here.
+                                'lesson' => [
+                                    'intro' => 'A good story has three past tenses. The past simple tells the main events: We landed and took a taxi. The past continuous gives the background: It was raining. The past perfect goes one step further back: The bus had already left.',
+                                    'sections' => [
+                                        [
+                                            'heading' => 'A · had + past participle',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'The past perfect = <strong>had + past participle</strong>, the same for every person: <strong>I had seen</strong>, <strong>she had left</strong>, <strong>they had gone</strong>. In speaking: <strong>I\'d seen</strong>. Negative: <strong>hadn\'t</strong> + past participle. Question: <strong>Had you ever been</strong> there before? Use it for something that happened <strong>before</strong> another past moment in your story.',
+                                                    'fa' => 'گذشته‌ی کامل (ماضی بعید) = had + قسمت سوم فعل، برای همه‌ی شخص‌ها یکی است: I had seen، she had left. منفی: hadn\'t، سؤال: Had you…? برای کاری است که قبل از یک لحظه‌ی دیگرِ گذشته در داستان اتفاق افتاده بود.',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'past perfect: had + past participle',
+                                                    'parts' => [
+                                                        ['text' => 'I', 'caption' => 'person'],
+                                                        ['text' => 'had never seen', 'caption' => 'had + past participle', 'tone' => 'accent'],
+                                                        ['text' => 'a solar eclipse before.', 'caption' => 'what'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'When I got there, everyone had went home.', 'right' => 'When I got there, everyone had gone home.', 'highlight' => 'had gone', 'note' => 'After had → past participle (gone), not the past simple (went).', 'fa' => 'بعد از had قسمت سوم فعل می‌آید: gone، نه went.'],
+                                                        ['wrong' => 'She had saw the film before.', 'right' => 'She had seen the film before.', 'highlight' => 'had seen', 'note' => 'see – saw – seen: had + seen.', 'fa' => 'see، saw، seen: بعد از had شکل سوم (seen).'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'pairs',
+                                                    'pairs' => [
+                                                        ['left' => 'I had flown before.', 'right' => 'I hadn\'t flown before.', 'fa' => 'مثبت و منفی: had / hadn\'t + قسمت سوم فعل.'],
+                                                        ['left' => 'You had been there before.', 'right' => 'Had you been there before?', 'fa' => 'سؤال: had را اول جمله بیاور.'],
+                                                        ['left' => 'They had left.', 'right' => 'They\'d left.', 'fa' => 'در گفتار had کوتاه می‌شود: \'d.'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'From the listening', 'items' => [
+                                                            ['text' => 'I had never seen a solar eclipse before, so I really wanted to go.', 'fa' => 'تا آن موقع هیچ‌وقت خورشیدگرفتگی ندیده بودم، برای همین خیلی دلم می‌خواست بروم.'],
+                                                            ['text' => 'I hadn\'t been to a place that had an African or Pacific Islander art section before.', 'fa' => 'قبلاً به جایی نرفته بودم که بخش هنر آفریقایی یا جزایر اقیانوس آرام داشته باشد.'],
+                                                        ]],
+                                                        ['label' => 'From the video', 'items' => [
+                                                            ['text' => 'They were from New York City and had never been camping.', 'fa' => 'اهل نیویورک بودند و هیچ‌وقت کمپ نرفته بودند.'],
+                                                        ]],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'B · The bus left, or the bus had left?',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'Two past simple verbs = one after the other: <strong>When I arrived, the bus left.</strong> (I saw it go.) The past perfect = it happened <strong>before</strong>: <strong>When I arrived, the bus had left.</strong> (It wasn\'t there.) <strong>By the time …</strong> usually takes the past perfect: <strong>By the time we got there, the shop had closed.</strong> The background — what was in progress — is the past continuous: <strong>It was raining when we landed.</strong>',
+                                                    'fa' => 'دو فعل گذشته‌ی ساده یعنی پشت سر هم: When I arrived, the bus left یعنی رسیدم و اتوبوس (جلوی چشمم) راه افتاد. had left یعنی قبل از رسیدنم رفته بود. بعد از By the time معمولاً گذشته‌ی کامل می‌آید. کاری که در جریان بود (پس‌زمینه‌ی داستان) با was / were + -ing: It was raining when we landed.',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'one step further back',
+                                                    'parts' => [
+                                                        ['text' => 'When I got to the gate,', 'caption' => 'past simple (story time)'],
+                                                        ['text' => 'the plane', 'caption' => 'thing'],
+                                                        ['text' => 'had already left.', 'caption' => 'past perfect (before)', 'tone' => 'accent'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'By the time we got to the cinema, the film started.', 'right' => 'By the time we got to the cinema, the film had started.', 'highlight' => 'had started', 'note' => 'It started before we arrived → had started.', 'fa' => 'فیلم قبل از رسیدن ما شروع شده بود: had started.'],
+                                                        ['wrong' => 'I walk to the hotel when it started to rain.', 'right' => 'I was walking to the hotel when it started to rain.', 'highlight' => 'was walking', 'note' => 'In progress (the background) → was + -ing.', 'fa' => 'کاری که در جریان بود: was walking (یادآوری از ماموریت ۷).'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'pairs',
+                                                    'pairs' => [
+                                                        ['left' => 'When we arrived, the film started.', 'right' => 'When we arrived, the film had started.', 'fa' => 'اولی: رسیدیم و بعد فیلم شروع شد. دومی: قبل از رسیدنمان شروع شده بود.'],
+                                                        ['left' => 'When I got home, my sister cooked dinner.', 'right' => 'When I got home, my sister was cooking dinner.', 'fa' => 'اولی: رسیدم و بعد آشپزی کرد. دومی: وقتی رسیدم داشت آشپزی می‌کرد.'],
+                                                        ['left' => 'When I got home, my sister was cooking dinner.', 'right' => 'When I got home, my sister had cooked dinner.', 'fa' => 'اولی: وقتی رسیدم داشت آشپزی می‌کرد. دومی: قبل از رسیدنم شام آماده شده بود.'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'From the video', 'items' => [
+                                                            ['text' => 'By the time I started climbing, I had been in this crevasse for at least 20 minutes.', 'fa' => 'تا وقتی شروع به بالا رفتن کردم، دست‌کم ۲۰ دقیقه توی این شکاف یخ مانده بودم.'],
+                                                            ['text' => 'Elizabeth looked down at me through the hole that I had punched in the snow.', 'fa' => 'الیزابت از سوراخی که توی برف ایجاد کرده بودم به من نگاه کرد.'],
+                                                        ]],
+                                                        ['label' => 'From the listening', 'items' => [
+                                                            ['text' => 'When we were on the train, there was a woman there who was screaming.', 'fa' => 'وقتی توی قطار بودیم، زنی آنجا بود که داشت جیغ می‌زد.'],
+                                                        ]],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'C · "I went" or "I had gone"?',
+                                            'blocks' => [
+                                                [
+                                                    'type' => 'rule',
+                                                    'text' => 'For one plain event in the past, use the <strong>past simple</strong>, even if it was long ago: <strong>Last summer I went to Turkey.</strong> <strong>I bought this phone two years ago.</strong> Use <strong>had + past participle</strong> only when your story has another, later past moment: <strong>When we got to the hotel, I realised I had left my passport at home.</strong>',
+                                                    'fa' => 'خطای رایج فارسی‌زبان‌ها: در فارسی برای خاطره زیاد ماضی بعید می‌گوییم («پارسال رفته بودم ترکیه»)، پس می‌گوییم Last summer I had gone to Turkey؛ ولی در انگلیسی وقتی فقط یک اتفاقِ گذشته هست، گذشته‌ی ساده بگو: Last summer I went to Turkey. had + قسمت سوم فقط وقتی است که در داستان یک لحظه‌ی بعدیِ گذشته هم داری.',
+                                                ],
+                                                [
+                                                    'type' => 'formula',
+                                                    'label' => 'one plain past event',
+                                                    'parts' => [
+                                                        ['text' => 'Last summer', 'caption' => 'finished time'],
+                                                        ['text' => 'I went', 'caption' => 'past simple', 'tone' => 'accent'],
+                                                        ['text' => 'to Turkey.', 'caption' => 'where'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'do_dont',
+                                                    'items' => [
+                                                        ['wrong' => 'Last summer I had gone to Turkey with my family.', 'right' => 'Last summer I went to Turkey with my family.', 'highlight' => 'went', 'note' => 'One past event with a finished time → past simple.', 'fa' => 'فقط یک اتفاق گذشته با زمان مشخص: went، نه had gone.'],
+                                                        ['wrong' => 'I had bought this phone two years ago.', 'right' => 'I bought this phone two years ago.', 'highlight' => 'bought', 'note' => 'No later past moment → past simple.', 'fa' => 'لحظه‌ی بعدیِ گذشته‌ای در کار نیست: bought.'],
+                                                    ],
+                                                ],
+                                                [
+                                                    'type' => 'examples',
+                                                    'groups' => [
+                                                        ['label' => 'From the listening', 'items' => [
+                                                            ['text' => 'We flew to Dallas on a Saturday, and we got there around two o\'clock.', 'fa' => 'شنبه به دالاس پرواز کردیم و حدود ساعت دو رسیدیم.'],
+                                                        ]],
+                                                        ['label' => 'Examples', 'items' => [
+                                                            ['text' => 'Two years ago we went to Shiraz for a week.', 'fa' => 'دو سال پیش یک هفته رفتیم شیراز.'],
+                                                            ['text' => 'When I opened my bag, I saw that I had forgotten my charger.', 'fa' => 'وقتی کیفم را باز کردم، دیدم شارژرم را جا گذاشته بودم.'],
+                                                        ]],
+                                                    ],
+                                                ],
+                                            ],
+                                        ],
+                                        [
+                                            'heading' => 'D · Make it personal',
+                                            'body' => 'Next you\'ll finish sentences about <strong>your</strong> trips — what had happened before, what was happening, and what happened next — and soon use them in AI Conversation #1.',
+                                        ],
+                                    ],
+                                    'bridge_note' => 'You\'ll use this soon — in AI Conversation #1.',
+                                ],
+                                'frequency_starters' => [
+                                    'Before this year, I had never', 'When I got to the station, I realised I had',
+                                    'By the time I arrived, the', 'On my last trip, it was raining when',
+                                    'While I was waiting for my flight,', 'Last summer I',
+                                ],
+                                'grammar_judgment' => 'Judge whether the learner finished this sentence starter into '
+                                    .'a true, natural personal sentence about a trip, a journey or a day out, using the right past '
+                                    .'tense: the past perfect (had + past participle: had never flown, had left, had forgotten) for an '
+                                    .'earlier event, the past continuous (was / were + -ing) for the background, and the past simple '
+                                    .'for the main events.',
+                                'grammar_major_criteria' => 'a verb with no subject, it or there left out ("Was raining when we '
+                                    .'landed", "Had left already"), had + a past simple form or a base form instead of the past '
+                                    .'participle ("had went", "had saw", "had took", "had forget"), was / were + a base form ("I was '
+                                    .'wait"), a past simple main verb after "By the time I arrived, the" for something that clearly '
+                                    .'happened before the arrival ("the bus left" — it must be "had left"), the past perfect for '
+                                    .'one plain past event with a finished time and no later past moment in the sentence ("Last '
+                                    .'summer I had gone to Turkey"), the sentence does not actually continue the given starter, or '
+                                    .'it is not a genuine personal statement. Do not mark the past simple wrong where the past '
+                                    .'perfect is only one possible choice ("When I arrived, they left" and "Before I came, I bought '
+                                    .'a ticket" are correct). Be + an adjective after "By the time I arrived, the" is correct ("the shop '
+                                    .'was closed", "the party was over"), and "Before this year, I had never …" is correct with the past perfect',
+                                'grammar_context' => 'continues "Before this year, I had never" with a past participle (flown, seen, '
+                                    .'been); continues "When I got to the station, I realised I had" with a past participle '
+                                    .'(forgotten, left, lost); continues "By the time I arrived, the" with a thing + had + past '
+                                    .'participle (the train had left); continues "On my last trip, it was raining when" with the past '
+                                    .'simple (we landed); continues "While I was waiting for my flight," with the past simple (I met, I '
+                                    .'read); continues "Last summer I" with the past simple (went, visited)',
+                                // Reminders only: SentenceChecker asks for at least "minor", never "major".
+                                'grammar_minor_criteria' => self::SLIP_ARTICLE.'; '.self::SLIP_HE_SHE.'; '.self::SLIP_PASSIVE_NO_BE,
+                                'quick_check' => [
+                                    [
+                                        'wrong' => 'She had saw the film before.',
+                                        'options' => ['She had seen the film before.', 'She has saw the film before.', 'She had see the film before.'],
+                                        'correct' => 0,
+                                        'difficulty' => 'easy',
+                                        'why' => 'had + past participle: seen, not saw.',
+                                    ],
+                                    [
+                                        'wrong' => 'By the time we got to the gate, the plane left.',
+                                        'options' => ['By the time we got to the gate, the plane has left.', 'By the time we got to the gate, the plane had left.', 'By the time we got to the gate, the plane was leave.'],
+                                        'correct' => 1,
+                                        'difficulty' => 'medium',
+                                        'why' => 'It left before we got there → had left.',
+                                    ],
+                                    [
+                                        'wrong' => 'Last summer I had gone to Turkey.',
+                                        'options' => ['Last summer I have gone to Turkey.', 'Last summer I was go to Turkey.', 'Last summer I went to Turkey.'],
+                                        'correct' => 2,
+                                        'difficulty' => 'medium',
+                                        'why' => 'One past event with a finished time → past simple.',
+                                    ],
+                                    [
+                                        'wrong' => 'I walk to the hotel when it started to rain.',
+                                        'options' => ['I was walking to the hotel when it started to rain.', 'I walking to the hotel when it was start to rain.', 'I had walk to the hotel when it started to rain.'],
+                                        'correct' => 0,
+                                        'difficulty' => 'hard',
+                                        'why' => 'In progress (the background) → was + -ing.',
+                                    ],
+                                ],
+                                'word_order' => [
+                                    ['words' => ['already', 'left.', 'The', 'had', 'bus'], 'answer' => 'The bus had already left.'],
+                                    ['words' => ['never', 'I', 'flown', 'before.', 'had'], 'answer' => 'I had never flown before.'],
+                                    ['words' => ['was', 'raining', 'It', 'landed.', 'we', 'when'], 'answer' => 'It was raining when we landed.'],
+                                ],
+                            ],
+                            [
+                                // Monte Montepare at The Moth: a young glacier guide in Alaska
+                                // takes four New Yorkers who had never been camping on a fly-in
+                                // trip, falls into a crevasse and is pulled out with their
+                                // brand-new rain jackets. Cut from 14:21 to 6:49 (the landing,
+                                // the tents, the morale and the crevasse dangers left out);
+                                // captions from a Whisper pass of the cut, checked by hand.
+                                'key' => 'video_shadowing',
+                                'label' => 'Video Shadowing',
+                                'duration_minutes' => 14,
+                                'hook' => 'A young glacier guide takes four New Yorkers camping in Alaska — and falls into the ice.',
+                                'source' => 'The Moth — Monte Montepare, "A glacier guide falls into a crevasse"',
+                                'video_url' => $shadowingVideoUrl,
+                                'captions_url' => $shadowingCaptionsUrl,
+                                'video_segments' => $this->shadowTimestampsFor('M16', 'video_shadowing_segments'),
+                                'topic_summary' => 'At 23, Monte Montepare was a glacier guide in Alaska, and he took four women '
+                                    .'from New York, who had never been camping, on a fly-in camping trip. On a glacier, he stepped '
+                                    .'on some snow and fell about 20 feet into a crevasse, a deep crack in the ice. By the time he '
+                                    .'started climbing, he had been there for 20 minutes. His clients tied their brand-new rain '
+                                    .'jackets together like a rope and pulled him out. Today he tells every new guide this story, '
+                                    .'because everyone makes mistakes.',
+                                'comprehension_check' => [
+                                    ['statement' => 'The four clients had camped many times before.', 'correct' => false],
+                                    ['statement' => 'Monte fell into a crevasse in the glacier.', 'correct' => true],
+                                    ['statement' => 'The clients pulled Monte out with their rain jackets.', 'correct' => true],
+                                ],
+                                // Real phrases Monte Montepare uses on stage.
+                                'target_phrases' => [
+                                    ['phrase' => 'a red flag', 'meaning' => 'a sign that something may go wrong'],
+                                    ['phrase' => 'head to toe', 'meaning' => 'all over the body'],
+                                    ['phrase' => 'good to go', 'meaning' => 'ready to start'],
+                                    ['phrase' => 'vanish into thin air', 'meaning' => 'disappear suddenly and completely'],
+                                    ['phrase' => 'make mistakes', 'meaning' => 'do things wrong'],
+                                ],
+                                // Real verbatim lines from the video — shadowing means mimicking
+                                // the exact audio just heard, and the auto-pause timestamps
+                                // (missions:cache-shadow-timestamps) only land on words people
+                                // actually say. Chosen for this mission's grammar: the past
+                                // perfect (had never been, had punched, had been … by the time)
+                                // beside the past simple and the past continuous.
+                                // Bold marks naturally-stressed content words (rendered by
+                                // <x-stress-marked-line>).
+                                'shadow_lines' => [
+                                    'I was feeling very **confident** in my skills in the mountains.',
+                                    'They were from New York City and had **never** been camping.',
+                                    'They had never slept in a **tent**. I **lived** in a tent.',
+                                    'Finally, Elizabeth looked down at me through the **hole** that I had punched in the snow.',
+                                    'By the time I started **climbing**, I had been in this crevasse for at least **20** minutes.',
+                                    'And I had **never** been so happy.',
+                                ],
+                                'shadow_timestamps' => $this->shadowTimestampsFor('M16', 'video_shadowing'),
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'practice',
+                        'label' => 'Day 3',
+                        'mode' => 'ai',
+                        'pair_speaking' => [
+                            ['question' => 'Do you find your hotels online?', 'answer' => 'Yes. I always book my accommodation online and read the reviews.', 'words' => ['book', 'accommodation']],
+                            ['question' => 'What is your dream destination?', 'answer' => 'My dream destination is Japan. I\'ve never been there.', 'words' => ['destination']],
+                            ['question' => 'Have you ever got lost in a new city?', 'answer' => 'Yes. I got lost in Tabriz because my phone had died.', 'words' => ['got lost', 'had died']],
+                            ['question' => 'Do you buy anything when you visit a new place?', 'answer' => 'Yes. When I go sightseeing, I always buy a small souvenir for my mum.', 'words' => ['go sightseeing', 'souvenir']],
+                        ],
+                        'steps' => [
+                            [
+                                'key' => 'vocabulary_builder_3',
+                                'label' => 'New Words',
+                                'duration_minutes' => 10,
+                                'hook' => 'Last set — booking a room, seeing the sights, getting lost and bringing home a souvenir.',
+                                // The subject of Vocabulary in Use units 46 (travel bookings) and
+                                // 50 (sightseeing holidays); our own word choice and sentences.
+                                'story' => 'Before our trip to Isfahan, I **booked** our **accommodation** online: a small hotel '
+                                    .'near the old square. Our **destination** was beautiful. We **went sightseeing** every day, '
+                                    .'and one evening we **got lost** in the old bazaar! In the end, we found a little shop and '
+                                    .'bought some **souvenirs** for our family.',
+                                'words' => [
+                                    ['phrase' => 'book', 'meaning' => 'to arrange to have a room, a seat or a ticket for a certain time', 'meaning_fa' => 'رزرو کردن', 'pos' => 'verb', 'example' => 'I booked a hotel room for two nights.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'accommodation', 'meaning' => 'a place to stay, like a hotel or a flat', 'meaning_fa' => 'محل اقامت', 'pos' => 'noun', 'example' => 'We found cheap accommodation near the beach.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'destination', 'meaning' => 'the place where you are going', 'meaning_fa' => 'مقصد', 'pos' => 'noun', 'example' => 'Our final destination was a small village in the mountains.', 'difficulty' => 'medium'],
+                                    ['phrase' => 'go sightseeing', 'meaning' => 'to visit the famous places in a town or a city', 'meaning_fa' => 'گشت‌وگذار، دیدن جاهای دیدنی', 'pos' => 'phrase', 'example' => 'We went sightseeing all day and saw three museums.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'get lost', 'meaning' => 'to not know where you are or how to go somewhere', 'meaning_fa' => 'گم شدن، راه را گم کردن', 'pos' => 'phrase', 'example' => 'I got lost because my phone had no battery.', 'difficulty' => 'easy'],
+                                    ['phrase' => 'souvenir', 'meaning' => 'a small thing you buy to remember a place', 'meaning_fa' => 'سوغاتی', 'pos' => 'noun', 'example' => 'I bought a little blue plate as a souvenir.', 'difficulty' => 'medium'],
+                                ],
+                            ],
+                            [
+                                'key' => 'ai_conversation_1',
+                                'label' => 'Talk It Out',
+                                'duration_minutes' => 18,
+                                'hook' => 'Say it here, alone, before you have to say it to the AI Instructor for real.',
+                                'warm_up_task' => 'Record 2 minutes of solo speaking about a trip you remember: where you went, '
+                                    .'what was happening when you arrived, and something that had happened before — using the '
+                                    .'new vocabulary, without reading.',
+                                'interview_questions' => [
+                                    'Where did you go on your last trip?',
+                                    'Had you been there before?',
+                                    'How did you get there?',
+                                    'Has anything ever gone wrong on a trip?',
+                                    'Have you ever got lost in a new city?',
+                                    'What souvenirs do you usually buy?',
+                                ],
+                            ],
+                            [
+                                'key' => 'reading_comprehension',
+                                'label' => 'Reading',
+                                'duration_minutes' => 12,
+                                'hook' => 'An alarm set for the wrong time, a taxi in the rain, and a plane that had already taken off.',
+                                'passage_title' => 'The day I missed my flight',
+                                'image_query' => 'airplane taking off',
+                                // Written fresh for this app (EOS-009 §14) — reuses the Vocabulary
+                                // Builder words in a new context, with the three narrative tenses.
+                                'passage' => 'Last spring my sister and I booked a trip to Istanbul. It was my first time abroad, '
+                                    .'and my sister was flying from another city, so I was flying alone. I had never done that before. On the '
+                                    .'morning of the flight, I was having breakfast when my phone rang. It was my sister: "Where are '
+                                    .'you? We\'re boarding!" I had set my alarm for the wrong time! I jumped into a taxi, but it was '
+                                    .'raining, and the traffic was terrible. By the time I got to the airport, the check-in desk had '
+                                    .'closed, and my plane had already taken off. I felt awful. Luckily, the woman at the desk was '
+                                    .'kind. She found me a seat on the next flight, and I only paid a small fee. When I landed, my '
+                                    .'sister was waiting for me with a big smile. "I\'ve already checked in at our accommodation," '
+                                    .'she said. We went sightseeing for three days, got lost in the old streets twice, and bought '
+                                    .'far too many souvenirs. Now I always check my alarm twice before a trip.',
+                                'highlighted_phrases' => [
+                                    ['phrase' => 'booked', 'type' => 'reused'],
+                                    ['phrase' => 'check-in desk', 'type' => 'reused'],
+                                    ['phrase' => 'taken off', 'type' => 'reused'],
+                                    ['phrase' => 'landed', 'type' => 'reused'],
+                                    ['phrase' => 'accommodation', 'type' => 'reused'],
+                                    ['phrase' => 'went sightseeing', 'type' => 'reused'],
+                                    ['phrase' => 'got lost', 'type' => 'reused'],
+                                    ['phrase' => 'souvenirs', 'type' => 'reused'],
+                                    ['phrase' => 'abroad', 'type' => 'new', 'definition' => 'in or to another country', 'pos' => 'adverb', 'example' => 'She wants to study abroad next year.'],
+                                    ['phrase' => 'fee', 'type' => 'new', 'definition' => 'an amount of money you pay for a service', 'pos' => 'noun', 'example' => 'There is a small fee for changing your ticket.'],
+                                ],
+                                'topic_summary' => 'The writer missed a flight to Istanbul because their alarm was set for the wrong '
+                                    .'time. By the time they got to the airport in the rain, the plane had already taken off, but a '
+                                    .'kind woman at the desk found them a seat on the next flight for a small fee. In Istanbul, the '
+                                    .'writer and the sister went sightseeing, got lost twice and bought too many souvenirs.',
+                                'comprehension_check' => [
+                                    ['statement' => 'The writer had flown alone many times before.', 'correct' => false, 'difficulty' => 'easy'],
+                                    ['statement' => 'It was raining on the way to the airport.', 'correct' => true, 'difficulty' => 'medium'],
+                                    ['statement' => 'The writer had to pay a lot of money for a new ticket.', 'correct' => false, 'difficulty' => 'hard'],
+                                ],
+                                'questions' => [
+                                    'Why did the writer miss the flight?',
+                                    'What was the sister doing when the writer landed?',
+                                ],
+                                // Multiple choice instead of written answers (reading task 11,
+                                // 2026-11-10): one tap each, graded in the browser like the true/false
+                                // round above. Every right answer is stated in the passage; the wrong
+                                // ones are things the passage mentions or plausibly could.
+                                'choice_questions' => [
+                                    ['prompt' => 'What was the writer doing when the phone rang?', 'options' => ['Having breakfast', 'Sleeping', 'Waiting for a taxi'], 'correct' => 0, 'difficulty' => 'easy'],
+                                    ['prompt' => 'What had happened by the time the writer got to the airport?', 'options' => ['The sister had gone home', 'The airport had closed', 'The plane had already taken off'], 'correct' => 2, 'difficulty' => 'medium'],
+                                    ['prompt' => 'What did the writer and the sister do in Istanbul?', 'options' => ['They stayed in the hotel', 'They went sightseeing and bought souvenirs', 'They went to the beach every day'], 'correct' => 1, 'difficulty' => 'hard'],
+                                ],
+                            ],
+                            [
+                                'key' => 'writing',
+                                'label' => 'Writing',
+                                'duration_minutes' => 12,
+                                'hook' => 'A trip you remember — what happened, what was happening, and what had happened before.',
+                                'title' => 'A trip I remember',
+                                'prompts' => [
+                                    ['label' => 'A trip I will never forget', 'image_query' => 'mountain road trip car'],
+                                    ['label' => 'A time something went wrong on a trip', 'image_query' => 'tired traveler airport'],
+                                    ['label' => 'The first time I flew', 'image_query' => 'airplane window view clouds'],
+                                    ['label' => 'A place I had wanted to see for years', 'image_query' => 'old city street tourists'],
+                                    ['label' => 'A souvenir I bought', 'image_query' => 'souvenir shop'],
+                                    ['label' => 'Travelling with my family', 'image_query' => 'family travel train'],
+                                ],
+                                // Grammar connectors only — see M01's try_to_use note.
+                                'try_to_use' => ['I had never … before', 'By the time I got there, … had …', 'I was … -ing when …', 'delay', 'go sightseeing', 'get lost', 'souvenir'],
+                                'min_words' => 100,
+                                'max_words' => 150,
+                            ],
+                        ],
+                    ],
+                    [
+                        'phase' => 'challenge',
+                        'label' => 'Day 4',
+                        'mode' => 'ai',
+                        'pair_speaking' => [
+                            ['question' => 'When did you first fly?', 'answer' => 'I first flew when I was ten. I had never seen the clouds from above!', 'words' => ['had never seen']],
+                            ['question' => 'What happened the last time you missed a train or a bus?', 'answer' => 'When I got to the station, the train had already left, so I took a taxi.', 'words' => ['had already left']],
+                            ['question' => 'What were you doing when you heard some big news?', 'answer' => 'I was having dinner when my brother called with the news.', 'words' => ['was having']],
+                            ['question' => 'Do you buy train tickets early?', 'answer' => 'Yes. Once the train was sold out, so now I always book ahead of time.', 'words' => ['sold out', 'ahead of time']],
+                        ],
+                        'steps' => [
+                            [
+                                'key' => 'error_log',
+                                'label' => 'My Fixes',
+                                'duration_minutes' => 7,
+                                'hook' => "Every mistake here is one you won't make in tomorrow's Final Challenge.",
+                            ],
+                            [
+                                'key' => 'ai_conversation_2',
+                                'label' => 'Final Talk',
+                                'duration_minutes' => 12,
+                                'hook' => "This one's harder on purpose — real conversations don't come with warm-up questions.",
+                                'round_pool' => [
+                                    'What was your best trip ever?',
+                                    'Had you been to that place before?',
+                                    'Has a bus or a train ever left without you?',
+                                    'What were you doing when your last trip began?',
+                                    'Have you ever got lost on a trip?',
+                                    'What do you book ahead of time?',
+                                ],
+                                'role_reversal_topic' => 'travel stories: what happened, what was happening, and what had happened before',
+                                'final_prompt' => 'Talk for 3 minutes about a trip you remember: what happened, what was happening around you, and what had happened before.',
+                                'requirements' => [
+                                    '5+ vocabulary expressions',
+                                    'the past simple for the main events',
+                                    'the past continuous for the background (was / were + -ing)',
+                                    'the past perfect for an earlier event (had + past participle)',
+                                    'By the time … / When I got there, … had already …',
+                                    'How the trip ended',
                                 ],
                             ],
                             [

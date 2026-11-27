@@ -1,0 +1,3345 @@
+{
+ "mission": 15,
+ "items": [
+  {
+   "d": 1,
+   "k": "s",
+   "s": "browse-online",
+   "c": null,
+   "q": [
+    [
+     "بپرس در فروشگاه‌های آنلاین گشت می‌زند",
+     "بپرس زیاد",
+     "Do you browse online shops?",
+     "A lot?",
+     [],
+     [
+      [
+       "You browse online shops?",
+       "سؤال حال ساده با «Do you» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس در فروشگاه‌های آنلاین گشت می‌زند و کی",
+     "بپرس روی گوشی",
+     "Do you browse online shops, and when?",
+     "On your phone?",
+     [],
+     [
+      [
+       "Do you browse online shops, and when you do?",
+       "سؤال دوم کوتاه است: and when?"
+      ]
+     ]
+    ],
+    [
+     "بپرس شب‌ها در مغازه‌ها گشت می‌زند یا آخر هفته، و چرا",
+     "بپرس با دوستانش",
+     "Do you browse shops in the evening or at the weekend? Why?",
+     "With friends?",
+     [],
+     [
+      [
+       "Do you browse shops in the evening or in the weekend? Why?",
+       "«آخر هفته» می‌شود at the weekend."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو هر شب",
+     "Yes, I do.",
+     "Every night.",
+     [],
+     []
+    ],
+    [
+     "بگو بله، معمولاً قبل از خواب",
+     "بگو روی گوشی",
+     "Yes, I do, usually before bed.",
+     "On my phone.",
+     [],
+     [
+      [
+       "Yes, I do, usually before the bed.",
+       "«قبل از خواب» بدون the است: before bed."
+      ]
+     ]
+    ],
+    [
+     "بگو آخر هفته، چون شب‌ها خیلی خسته‌ام",
+     "بگو با خواهرم",
+     "At the weekend, because I'm too tired in the evening.",
+     "With my sister.",
+     [],
+     [
+      [
+       "At the weekend, because I'm too much tired in the evening.",
+       "قبل از صفت فقط too: too tired."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "s",
+   "s": "last-impulse-buy",
+   "c": null,
+   "q": [
+    [
+     "بپرس آخرین خرید هیجانی‌اش چه بود",
+     "بپرس گران بود",
+     "What was your last impulse buy?",
+     "Was it expensive?",
+     [],
+     [
+      [
+       "What your last impulse buy was?",
+       "سؤال: What was…?"
+      ]
+     ]
+    ],
+    [
+     "بپرس آخرین خرید هیجانی‌اش چه بود و کجا خرید",
+     "بپرس کی",
+     "What was your last impulse buy, and where did you buy it?",
+     "When?",
+     [],
+     [
+      [
+       "What was your last impulse buy, and where you bought it?",
+       "سؤال گذشته با «did» است؛ بعدش فعل ساده می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس آخرین خرید هیجانی‌اش چه بود و پشیمان است",
+     "بپرس هنوز دارد",
+     "What was your last impulse buy, and do you regret it?",
+     "Do you still have it?",
+     [],
+     [
+      [
+       "What was your last impulse buy, and do you regret about it?",
+       "regret بدون about می‌آید: regret it."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو یک عینک آفتابی",
+     "بگو ارزان بود",
+     "A pair of sunglasses.",
+     "It was cheap.",
+     [],
+     [
+      [
+       "A sunglasses.",
+       "«sunglasses» جمع است: a pair of sunglasses."
+      ]
+     ]
+    ],
+    [
+     "بگو یک عینک آفتابی؛ در فرودگاه خریدمش",
+     "بگو قبل از پرواز",
+     "A pair of sunglasses. I bought them at the airport.",
+     "Before my flight.",
+     [],
+     [
+      [
+       "A pair of sunglasses. I buyed them at the airport.",
+       "گذشته‌ی buy می‌شود bought."
+      ]
+     ]
+    ],
+    [
+     "بگو یک عینک آفتابی، ولی پشیمان نیستم؛ هر روز می‌زنمش",
+     "بگو خیلی خوب است",
+     "Some sunglasses, but I don't regret them. I wear them every day.",
+     "They're really good.",
+     [],
+     [
+      [
+       "Some sunglasses, but I don't regret it. I wear them every day.",
+       "«sunglasses» جمع است: them."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "s",
+   "s": "checkout-wait",
+   "c": null,
+   "q": [
+    [
+     "بپرس اغلب کنار صندوق منتظر می‌ماند",
+     "بپرس در سوپرمارکت",
+     "Do you often wait at the checkout?",
+     "In the supermarket?",
+     [],
+     [
+      [
+       "Do you often wait in the checkout?",
+       "«کنار صندوق» = at the checkout."
+      ]
+     ]
+    ],
+    [
+     "بپرس اغلب کنار صندوق منتظر می‌ماند و چقدر",
+     "بپرس عصرها",
+     "Do you often wait at the checkout, and for how long?",
+     "In the evening?",
+     [],
+     [
+      [
+       "Do you often wait at the checkout, and for how long you wait?",
+       "سؤال دوم کوتاه است: and for how long?"
+      ]
+     ]
+    ],
+    [
+     "بپرس از صندوق خودکار استفاده می‌کند یا صندوقدار، و چرا",
+     "بپرس همیشه",
+     "Do you use the self-checkout or a person at the checkout? Why?",
+     "Always?",
+     [],
+     [
+      [
+       "Do you use the self-checkout or a person in the checkout? Why?",
+       "«کنار صندوق» می‌شود at the checkout."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو بیشتر عصرها",
+     "Yes, I do.",
+     "Mostly in the evening.",
+     [],
+     []
+    ],
+    [
+     "بگو بله، حدود ده دقیقه",
+     "بگو گاهی بیشتر",
+     "Yes, I do, for about ten minutes.",
+     "Sometimes more.",
+     [],
+     [
+      [
+       "Yes, I do, for about ten minute.",
+       "بعد از عدد اسم جمع: ten minutes."
+      ]
+     ]
+    ],
+    [
+     "بگو از صندوق خودکار، چون سریع‌تر است",
+     "بگو منتظر نمی‌مانم",
+     "I use the self-checkout, because it's faster.",
+     "I don't wait.",
+     [],
+     [
+      [
+       "I use the self-checkout, because it's more fast.",
+       "صفت کوتاه با -er: faster."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "s",
+   "s": "essential-bag",
+   "c": null,
+   "q": [
+    [
+     "بپرس چه چیزی در کیفش ضروری است",
+     "بپرس همیشه",
+     "What is essential in your bag?",
+     "Always?",
+     [],
+     [
+      [
+       "What is the essential in your bag?",
+       "«essential» صفت است؛ the نمی‌خواهد."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه چیزی در کیفش ضروری است و چرا",
+     "بپرس برای کار",
+     "What is essential in your bag, and why?",
+     "For work?",
+     [],
+     [
+      [
+       "What is essential in your bag, and why it is?",
+       "سؤال دوم کوتاه است: and why?"
+      ]
+     ]
+    ],
+    [
+     "بپرس وقتی سفر می‌رود، کدام سه چیز برایش ضروری است",
+     "بپرس برای سفر کوتاه",
+     "What three things are essential for you when you travel?",
+     "For a short trip?",
+     [],
+     [
+      [
+       "What three things are essential for you when you will travel?",
+       "بعد از «when» حال ساده می‌آید، نه will (از ماموریت ۱۴)."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو گوشی‌ام",
+     "بگو و کلیدهایم",
+     "My phone.",
+     "And my keys.",
+     [],
+     []
+    ],
+    [
+     "بگو گوشی‌ام، چون با آن پرداخت می‌کنم",
+     "بگو کیف پولم را نمی‌برم",
+     "My phone, because I pay with it.",
+     "I don't take my wallet.",
+     [],
+     [
+      [
+       "My phone, because I pay by it.",
+       "«با آن پرداخت می‌کنم» = I pay with it."
+      ]
+     ]
+    ],
+    [
+     "بگو گوشی‌ام، گذرنامه‌ام و کمی پول نقد برایم ضروری‌اند",
+     "بگو و یک کتاب",
+     "My phone, my passport and some cash are essential for me.",
+     "And a book.",
+     [],
+     [
+      [
+       "My phone, my passport and some cash is essential for me.",
+       "سه چیز جمع است: are."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "s",
+   "s": "regret-this-year",
+   "c": null,
+   "q": [
+    [
+     "بپرس امسال از خرید چیزی پشیمان است",
+     "بپرس گران بود",
+     "Do you regret buying anything this year?",
+     "Was it expensive?",
+     [],
+     [
+      [
+       "Do you regret to buy anything this year?",
+       "بعد از regret (برای کار گذشته) فعل -ing می‌آید: regret buying."
+      ]
+     ]
+    ],
+    [
+     "بپرس امسال از خرید چیزی پشیمان است و چه چیزی",
+     "بپرس کی",
+     "Do you regret buying anything this year? What?",
+     "When?",
+     [],
+     [
+      [
+       "Do you regret buy anything this year? What?",
+       "بعد از regret فعل -ing می‌آید: regret buying."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه چیزی خرید که پشیمان است، و چرا",
+     "بپرس هنوز دارد",
+     "What did you buy that you regret, and why do you regret it?",
+     "Do you still have it?",
+     [],
+     [
+      [
+       "What did you bought that you regret, and why do you regret it?",
+       "سؤال گذشته با «did» است؛ بعدش فعل ساده می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو یک چیز",
+     "Yes, I do.",
+     "Just one thing.",
+     [],
+     []
+    ],
+    [
+     "بگو بله؛ یک کت گران",
+     "بگو در زمستان",
+     "Yes, I do. An expensive coat.",
+     "In the winter.",
+     [],
+     [
+      [
+       "Yes, I do. A expensive coat.",
+       "قبل از صدای «ای» (expensive) می‌شود an."
+      ]
+     ]
+    ],
+    [
+     "بگو یک کت گران خریدم، ولی پشیمانم، چون هیچ‌وقت نمی‌پوشمش",
+     "بگو هنوز در کمد است",
+     "I bought an expensive coat, but I regret it, because I never wear it.",
+     "It's still in my wardrobe.",
+     [],
+     [
+      [
+       "I bought an expensive coat, but I regret it, because I never wear.",
+       "wear مفعول لازم دارد: wear it."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "checkout-chocolate",
+   "c": "دوستت گفت: «کنار صندوق یک عالمه شکلات خریدم!»",
+   "q": [
+    [
+     "بپرس خرید هیجانی بود",
+     "بپرس برای خودش",
+     "Was it an impulse buy?",
+     "For you?",
+     [],
+     [
+      [
+       "It was an impulse buy?",
+       "سؤال با «Was it…?» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس خرید هیجانی بود یا لازمش داشت",
+     "بپرس همه‌اش را خورد",
+     "Was it an impulse buy, or did you need it?",
+     "Did you eat it all?",
+     [],
+     [
+      [
+       "Was it an impulse buy, or you needed it?",
+       "سؤال گذشته با «did» است؛ بعدش فعل ساده می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس اغلب کنار صندوق چیز می‌خرد، و چرا",
+     "بپرس چه چیزهایی",
+     "Do you often buy things at the checkout? Why?",
+     "What things?",
+     [],
+     [
+      [
+       "You often buy things at the checkout? Why?",
+       "سؤال حال ساده با «Do you» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو متأسفانه",
+     "Yes, it was.",
+     "Sadly.",
+     [],
+     []
+    ],
+    [
+     "بگو خرید هیجانی بود؛ لازمش نداشتم",
+     "بگو ولی خوشمزه بود",
+     "It was an impulse buy. I didn't need it.",
+     "But it was nice.",
+     [],
+     [
+      [
+       "It was an impulse buy. I didn't needed it.",
+       "بعد از didn't فعل ساده: need."
+      ]
+     ]
+    ],
+    [
+     "بگو بله، چون وقتی خرید می‌کنم همیشه گرسنه‌ام",
+     "بگو باید اول غذا بخورم",
+     "Yes, I do, because I'm always hungry when I shop.",
+     "I need to eat first.",
+     [],
+     [
+      [
+       "Yes, I do, because I always hungry when I shop.",
+       "فعل am لازم است: I'm always hungry."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "browsed-two-hours",
+   "c": "دوستت گفت: «دیشب دو ساعت توی سایت‌های خرید گشتم.»",
+   "q": [
+    [
+     "بپرس چیزی خرید",
+     "بپرس گران بود",
+     "Did you buy anything?",
+     "Was it expensive?",
+     [],
+     [
+      [
+       "Did you bought anything?",
+       "سؤال گذشته با «did» است؛ بعدش فعل ساده می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس چیزی خرید یا فقط گشت زد",
+     "بپرس خسته شد",
+     "Did you buy anything, or did you just browse?",
+     "Were you tired?",
+     [],
+     [
+      [
+       "Did you buy anything, or you just browsed?",
+       "سؤال دوم «did» می‌خواهد: or did you just browse?"
+      ]
+     ]
+    ],
+    [
+     "بپرس به چه چیزهایی نگاه کرد و چرا این‌قدر طولانی گشت زد",
+     "بپرس پیدا کرد",
+     "What did you look at, and why did you browse for so long?",
+     "Did you find it?",
+     [],
+     [
+      [
+       "What did you look, and why did you browse for so long?",
+       "«نگاه کردن به» = look at."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو نه، هیچ‌چیز",
+     "بگو فقط نگاه کردم",
+     "No, nothing.",
+     "I just looked.",
+     [],
+     []
+    ],
+    [
+     "بگو هیچ‌چیز نخریدم؛ فقط نگاه می‌کردم",
+     "بگو برای آخر ماه",
+     "I didn't buy anything. I was just looking.",
+     "Maybe at the end of the month.",
+     [],
+     [
+      [
+       "I didn't buy nothing. I was just looking.",
+       "در انگلیسی دو منفی با هم نمی‌آیند: didn't buy anything."
+      ]
+     ]
+    ],
+    [
+     "بگو به کفش نگاه کردم، چون برای کار لازم دارم",
+     "بگو هنوز پیدا نکرده‌ام",
+     "I looked at shoes, because I need some for work.",
+     "I haven't found any yet.",
+     [],
+     [
+      [
+       "I looked at shoes, because I need some for the work.",
+       "«برای کار» بدون the: for work."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "milk-at-back",
+   "c": "دوستت گفت: «فروشگاه شیر را گذاشته ته مغازه!»",
+   "q": [
+    [
+     "بپرس فکر می‌کند چرا این کار را می‌کنند",
+     "بپرس همه‌ی فروشگاه‌ها",
+     "Why do you think they do that?",
+     "All shops?",
+     [],
+     [
+      [
+       "Why you think they do that?",
+       "سؤال حال ساده با «Do you» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس فکر می‌کند چرا این کار را می‌کنند و چیز دیگری هم خرید",
+     "بپرس چه چیزی",
+     "Why do you think they do that, and did you buy other things?",
+     "What?",
+     [],
+     [
+      [
+       "Why do you think they do that, and did you bought other things?",
+       "سؤال گذشته با «did» است؛ بعدش فعل ساده می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس فقط چیزهای ضروری را خرید یا بیشتر",
+     "بپرس چقدر خرج کرد",
+     "Did you buy only the essential things, or more?",
+     "How much did you spend?",
+     [],
+     [
+      [
+       "You bought only the essential things, or more?",
+       "سؤال با «Did you…?» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو تا چیزهای بیشتری ببینیم",
+     "بگو و بخریم",
+     "So we see more things.",
+     "And buy them.",
+     [],
+     [
+      [
+       "So we see more thing.",
+       "«things» جمع است."
+      ]
+     ]
+    ],
+    [
+     "بگو تا چیزهای بیشتری ببینیم؛ و بله، کمی بیسکویت خریدم",
+     "بگو برای بچه‌ها",
+     "So we see more things. And yes, I bought some biscuits.",
+     "For the kids.",
+     [],
+     [
+      [
+       "So we see more things. And yes, I buyed some biscuits.",
+       "گذشته‌ی buy می‌شود bought."
+      ]
+     ]
+    ],
+    [
+     "بگو بیشتر خریدم؛ فقط شیر می‌خواستم، ولی با یک کیسه‌ی پر بیرون آمدم",
+     "بگو دفعه‌ی بعد فهرست می‌نویسم",
+     "I bought more. I only wanted milk, but I left with a full bag.",
+     "Next time I'll make a list.",
+     [],
+     [
+      [
+       "I bought more. I only wanted milk, but I leaved with a full bag.",
+       "گذشته‌ی leave می‌شود left."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "regret-new-phone",
+   "c": "دوستت گفت: «از خرید گوشی جدیدم پشیمونم.»",
+   "q": [
+    [
+     "بگو وای و بپرس چرا",
+     "بپرس کی خریدی",
+     "Oh no! Why?",
+     "When did you buy it?",
+     [],
+     []
+    ],
+    [
+     "بپرس چرا و بپرس بد است",
+     "بپرس کار نمی‌کند",
+     "Oh no! Why? Is it bad?",
+     "Doesn't it work?",
+     [],
+     [
+      [
+       "Oh no! Why? It is bad?",
+       "سؤال دوم با «Is it…?» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس چرا پشیمان است و می‌تواند پسش بدهد",
+     "بپرس رسید دارد",
+     "Why do you regret it? Can you take it back?",
+     "Do you have the receipt?",
+     [],
+     [
+      [
+       "Why do you regret it? You can take it back?",
+       "سؤال با «Can you…?» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو خیلی گران بود",
+     "بگو خیلی پول دادم",
+     "It was too expensive.",
+     "I paid a lot.",
+     [],
+     [
+      [
+       "It was too much expensive.",
+       "قبل از صفت فقط too: too expensive."
+      ]
+     ]
+    ],
+    [
+     "بگو بد نیست، ولی خیلی گران بود",
+     "بگو گوشی قبلی‌ام هم خوب بود",
+     "It isn't bad, but it was too expensive.",
+     "My old phone was fine too.",
+     [],
+     [
+      [
+       "It not bad, but it was too expensive.",
+       "فعل لازم است: It isn't bad."
+      ]
+     ]
+    ],
+    [
+     "بگو چون خیلی گران بود؛ نه، الان نمی‌توانم پسش بدهم",
+     "بگو دیر است",
+     "Because it was too expensive. No, I can't take it back now.",
+     "It's too late.",
+     [],
+     [
+      [
+       "Because it was too expensive. No, I can't take back it now.",
+       "ضمیر وسط phrasal verb می‌آید: take it back."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 1,
+   "k": "f",
+   "s": "essential-only",
+   "c": "دوستت گفت: «همیشه فقط چیزهای ضروری را می‌خرم.»",
+   "q": [
+    [
+     "بپرس فهرست خرید می‌نویسد",
+     "بپرس روی گوشی",
+     "Do you make a list?",
+     "On your phone?",
+     [],
+     [
+      [
+       "Do you do a list?",
+       "«فهرست نوشتن» = make a list."
+      ]
+     ]
+    ],
+    [
+     "بپرس فهرست می‌نویسد و از آن پیروی می‌کند",
+     "بپرس همیشه",
+     "Do you make a list, and do you follow it?",
+     "Always?",
+     [],
+     [
+      [
+       "Do you make a list, and you follow it?",
+       "سؤال دوم «do» می‌خواهد: and do you follow it?"
+      ]
+     ]
+    ],
+    [
+     "بپرس چطور جلوی خریدهای هیجانی کنار صندوق را می‌گیرد",
+     "بپرس سخت است",
+     "How do you stop impulse buys at the checkout?",
+     "Is it hard?",
+     [],
+     [
+      [
+       "How you stop impulse buys at the checkout?",
+       "سؤال حال ساده با «Do you» شروع می‌شود."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله، همیشه",
+     "بگو روی گوشی",
+     "Yes, always.",
+     "On my phone.",
+     [],
+     []
+    ],
+    [
+     "بگو بله، فهرست می‌نویسم و از آن پیروی می‌کنم",
+     "بگو بیشتر وقت‌ها",
+     "Yes, I make a list, and I follow it.",
+     "Most of the time.",
+     [],
+     [
+      [
+       "Yes, I make a list, and I follows it.",
+       "با «I» فعل «-s» نمی‌گیرد."
+      ]
+     ]
+    ],
+    [
+     "بگو به شیرینی‌ها نگاه نمی‌کنم؛ فقط پرداخت می‌کنم و می‌روم",
+     "بگو سخت است",
+     "I don't look at the sweets. I just pay and go.",
+     "It's hard.",
+     [],
+     [
+      [
+       "I don't look the sweets. I just pay and go.",
+       "«نگاه کردن به» = look at."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "try-on-first",
+   "c": null,
+   "q": [
+    [
+     "بپرس لباس را در مغازه پرو می‌کند",
+     "بپرس همیشه",
+     "Do you try on clothes in the shop?",
+     "Always?",
+     [],
+     [
+      [
+       "Do you try clothes in the shop?",
+       "«پرو کردن» = try on."
+      ]
+     ]
+    ],
+    [
+     "بپرس لباس را در مغازه پرو می‌کند یا در خانه",
+     "بپرس کفش هم",
+     "Do you try on clothes in the shop, or at home?",
+     "Shoes too?",
+     [],
+     [
+      [
+       "Do you try on clothes in the shop, or in home?",
+       "«در خانه» = at home."
+      ]
+     ]
+    ],
+    [
+     "بپرس چرا خوب است لباس را قبل از خرید پرو کنیم",
+     "بپرس همه‌ی لباس‌ها",
+     "Why is it a good idea to try on clothes before you buy them?",
+     "All clothes?",
+     [],
+     [
+      [
+       "Why it is a good idea to try on clothes before you buy them?",
+       "سؤال: Why is it…?"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله، همیشه",
+     "بگو حتی تی‌شرت",
+     "Yes, always.",
+     "Even T-shirts.",
+     [],
+     []
+    ],
+    [
+     "بگو در مغازه، در اتاق پرو",
+     "بگو اگر شلوغ نباشد",
+     "In the shop, in the changing room.",
+     "If it isn't busy.",
+     [],
+     [
+      [
+       "In the shop, in the change room.",
+       "«اتاق پرو» = changing room."
+      ]
+     ]
+    ],
+    [
+     "بگو چون سایزها در هر مغازه فرق دارد و بعضی لباس‌ها اندازه نیستند",
+     "بگو پس دادن سخت است",
+     "Because sizes are different in every shop, and some clothes don't fit.",
+     "Taking them back is hard.",
+     [],
+     [
+      [
+       "Because sizes are different in every shop, and some clothes doesn't fit.",
+       "«clothes» جمع است: don't fit."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "shoes-made",
+   "c": null,
+   "q": [
+    [
+     "بپرس کفش‌هایش کجا ساخته شده",
+     "بپرس نو هستند",
+     "Where are your shoes made?",
+     "Are they new?",
+     [],
+     [
+      [
+       "Where your shoes are made?",
+       "سؤال: Where are your shoes made?"
+      ]
+     ]
+    ],
+    [
+     "بپرس کفش‌هایش کجا ساخته شده و گران بود",
+     "بپرس کی خرید",
+     "Where are your shoes made, and were they expensive?",
+     "When did you buy them?",
+     [],
+     [
+      [
+       "Where are your shoes made, and they were expensive?",
+       "سؤال دوم: and were they expensive?"
+      ]
+     ]
+    ],
+    [
+     "بپرس نگاه می‌کند لباس‌هایش کجا ساخته شده، و چرا",
+     "بپرس روی برچسب",
+     "Do you check where your clothes are made? Why?",
+     "On the label?",
+     [],
+     [
+      [
+       "Do you check where your clothes made? Why?",
+       "مجهول: be + قسمت سوم فعل؛ be جا نیفتد."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو در کشور خودم ساخته شده",
+     "بگو کیفیتش خوب است",
+     "They're made in my country.",
+     "They're good quality.",
+     [],
+     [
+      [
+       "They made in my country.",
+       "مجهول: be + قسمت سوم فعل؛ be جا نیفتد."
+      ]
+     ]
+    ],
+    [
+     "بگو در کشور خودم ساخته شده و گران نبود",
+     "بگو تخفیف داشت",
+     "They're made in my country, and they weren't expensive.",
+     "There was a discount.",
+     [],
+     [
+      [
+       "They're made in my country, and they wasn't expensive.",
+       "با they می‌شود weren't."
+      ]
+     ]
+    ],
+    [
+     "بگو بله، چون لباس‌هایی را دوست دارم که در کشور خودم ساخته می‌شوند",
+     "بگو و بیشتر دوام می‌آورند",
+     "Yes, I do, because I like clothes that are made in my country.",
+     "And they last longer.",
+     [],
+     [
+      [
+       "Yes, I do, because I like clothes that made in my country.",
+       "مجهول: be + قسمت سوم فعل؛ be جا نیفتد."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "best-bargain",
+   "c": null,
+   "q": [
+    [
+     "بپرس بهترین خرید ارزانش چه بود",
+     "بپرس کی",
+     "What was your best bargain?",
+     "When?",
+     [],
+     [
+      [
+       "What your best bargain was?",
+       "سؤال: What was…?"
+      ]
+     ]
+    ],
+    [
+     "بپرس بهترین خرید ارزانش چه بود و چند بود",
+     "بپرس هنوز دارد",
+     "What was your best bargain, and how much was it?",
+     "Do you still have it?",
+     [],
+     [
+      [
+       "What was your best bargain, and how much it was?",
+       "در سؤال was قبل از it می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس بهترین خرید ارزانش چه بود و با تخفیف بزرگ فروخته شد",
+     "بپرس کجا",
+     "What was your best bargain? Was it sold at a big discount?",
+     "Where?",
+     [],
+     [
+      [
+       "What was your best bargain? It was sold at a big discount?",
+       "سؤال: Was it sold…?"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو یک کاپشن زمستانی",
+     "بگو پارسال",
+     "A winter coat.",
+     "Last year.",
+     [],
+     []
+    ],
+    [
+     "بگو یک کاپشن زمستانی؛ فقط سی یورو بود",
+     "بگو خیلی گرم است",
+     "A winter coat. It was only thirty euros.",
+     "It's very warm.",
+     [],
+     [
+      [
+       "A winter coat. It were only thirty euros.",
+       "با it می‌شود was."
+      ]
+     ]
+    ],
+    [
+     "بگو یک کاپشن زمستانی؛ بله، با ۷۰٪ تخفیف فروخته شد",
+     "بگو آخر فصل",
+     "A winter coat. Yes, it was sold at a 70% discount.",
+     "At the end of the season.",
+     [],
+     [
+      [
+       "A winter coat. Yes, it sold at a 70% discount.",
+       "مجهول: be + قسمت سوم فعل؛ be جا نیفتد."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "shoe-size",
+   "c": null,
+   "q": [
+    [
+     "بپرس سایز کفشش چند است",
+     "بپرس همیشه همان",
+     "What size are your shoes?",
+     "Always the same?",
+     [],
+     [
+      [
+       "What size is your shoes?",
+       "«shoes» جمع است: are."
+      ]
+     ]
+    ],
+    [
+     "بپرس سایز کفشش چند است و پیدا کردنش راحت است",
+     "بپرس آنلاین",
+     "What size are your shoes, and is it easy to find them?",
+     "Online?",
+     [],
+     [
+      [
+       "What size are your shoes, and it is easy to find them?",
+       "سؤال دوم: and is it easy…?"
+      ]
+     ]
+    ],
+    [
+     "بپرس وقتی کفش اندازه‌اش نیست چه کار می‌کند",
+     "بپرس پسش می‌دهد",
+     "What do you do when shoes don't fit you?",
+     "Do you take them back?",
+     [],
+     [
+      [
+       "What do you do when shoes doesn't fit you?",
+       "«shoes» جمع است: don't fit."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو سایز ۴۲",
+     "بگو معمولاً",
+     "Size 42.",
+     "Usually.",
+     [],
+     []
+    ],
+    [
+     "بگو سایز ۴۲؛ و بله، راحت است",
+     "بگو در بیشتر مغازه‌ها",
+     "Size 42, and yes, it's easy.",
+     "In most shops.",
+     [],
+     [
+      [
+       "Size 42, and yes, it easy.",
+       "فعل لازم است: it's easy."
+      ]
+     ]
+    ],
+    [
+     "بگو وقتی کفش اندازه‌ام نیست، پسش می‌برم و سایز دیگری امتحان می‌کنم",
+     "بگو اگر رسید داشته باشم",
+     "When shoes don't fit me, I take them back and try another size.",
+     "If I have the receipt.",
+     [],
+     [
+      [
+       "When shoes don't fit me, I take back them and try another size.",
+       "ضمیر وسط phrasal verb می‌آید: try it on / take them back."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "s",
+   "s": "wait-for-discount",
+   "c": null,
+   "q": [
+    [
+     "بپرس منتظر تخفیف می‌ماند",
+     "بپرس برای لباس",
+     "Do you wait for discounts?",
+     "For clothes?",
+     [],
+     [
+      [
+       "Do you wait discounts?",
+       "«منتظر چیزی ماندن» = wait for."
+      ]
+     ]
+    ],
+    [
+     "بپرس منتظر تخفیف می‌ماند یا با قیمت کامل می‌خرد",
+     "بپرس همیشه",
+     "Do you wait for discounts, or do you buy at full price?",
+     "Always?",
+     [],
+     [
+      [
+       "Do you wait for discounts, or you buy at full price?",
+       "سؤال دوم «do» می‌خواهد: or do you buy…?"
+      ]
+     ]
+    ],
+    [
+     "بپرس جایی که زندگی می‌کند، کی چیزها با تخفیف بزرگ فروخته می‌شوند",
+     "بپرس آنلاین هم",
+     "When are things sold at big discounts where you live?",
+     "Online too?",
+     [],
+     [
+      [
+       "When are things sell at big discounts where you live?",
+       "در مجهول قسمت سوم فعل می‌آید، نه شکل ساده."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو بیشتر وقت‌ها",
+     "Yes, I do.",
+     "Most of the time.",
+     [],
+     []
+    ],
+    [
+     "بگو منتظر تخفیف می‌مانم؛ هیچ‌وقت با قیمت کامل نمی‌خرم",
+     "بگو حتی کفش",
+     "I wait for discounts. I never buy at full price.",
+     "Not even shoes.",
+     [],
+     [
+      [
+       "I wait for discounts. I never buy in full price.",
+       "«با قیمت کامل» = at full price."
+      ]
+     ]
+    ],
+    [
+     "بگو چیزها آخر هر فصل با تخفیف بزرگ فروخته می‌شوند",
+     "بگو و در زمستان",
+     "Things are sold at big discounts at the end of every season.",
+     "And in the winter.",
+     [],
+     [
+      [
+       "Things sold at big discounts at the end of every season.",
+       "مجهول: be + قسمت سوم فعل؛ be جا نیفتد."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "jacket-half-price",
+   "c": "دوستت گفت: «این کاپشن را با ۵۰٪ تخفیف خریدم!»",
+   "q": [
+    [
+     "بگو چه خرید خوبی! و بپرس کجا خرید",
+     "بپرس آنلاین",
+     "What a bargain! Where did you buy it?",
+     "Online?",
+     [],
+     [
+      [
+       "What a bargain! Where you bought it?",
+       "سؤال گذشته با «did» است؛ بعدش فعل ساده می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس اول پرو کرد",
+     "بپرس سایزش",
+     "Did you try it on first?",
+     "What size is it?",
+     [],
+     [
+      [
+       "Did you try on it first?",
+       "ضمیر وسط phrasal verb می‌آید: try it on / take them back."
+      ]
+     ]
+    ],
+    [
+     "بپرس کجا ساخته شده و خوب اندازه‌اش است",
+     "بپرس رنگ دیگری داشت",
+     "Where was it made, and does it fit well?",
+     "Was there another colour?",
+     [],
+     [
+      [
+       "Where was it made, and it fits well?",
+       "سؤال دوم «does» می‌خواهد: and does it fit well?"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو در مرکز خرید",
+     "بگو نزدیک خانه",
+     "At the mall.",
+     "Near my home.",
+     [],
+     []
+    ],
+    [
+     "بگو بله، در اتاق پرو پرو کردم",
+     "بگو سایز مدیوم",
+     "Yes, I tried it on in the changing room.",
+     "A medium.",
+     [],
+     [
+      [
+       "Yes, I tried on it in the changing room.",
+       "ضمیر وسط phrasal verb می‌آید: try it on / take them back."
+      ]
+     ]
+    ],
+    [
+     "بگو در کشور خودم ساخته شده و خیلی خوب اندازه‌ام است",
+     "بگو و گرم است",
+     "It was made in my country, and it fits really well.",
+     "And it's warm.",
+     [],
+     [
+      [
+       "It made in my country, and it fits really well.",
+       "مجهول: be + قسمت سوم فعل؛ be جا نیفتد."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "shoes-online-small",
+   "c": "دوستت گفت: «کفش‌هایی که آنلاین خریدم اندازه‌ام نیست.»",
+   "q": [
+    [
+     "بپرس می‌شود پسشان فرستاد",
+     "بپرس مجانی",
+     "Can they be sent back?",
+     "For free?",
+     [],
+     [
+      [
+       "Can they sent back?",
+       "بعد از can / must / should در مجهول «be» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس می‌شود پسشان فرستاد و چقدر وقت دارد",
+     "بپرس کجا",
+     "Can they be sent back, and how long do you have?",
+     "Where?",
+     [],
+     [
+      [
+       "Can they be sent back, and how long you have?",
+       "سؤال حال ساده با «Do you» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس چه سایزی سفارش داد و چه سایزی لازم دارد",
+     "بپرس همیشه همان سایز",
+     "What size did you order, and what size do you need?",
+     "Is it always the same?",
+     [],
+     [
+      [
+       "What size did you ordered, and what size do you need?",
+       "سؤال گذشته با «did» است؛ بعدش فعل ساده می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو فکر می‌کنم",
+     "Yes, they can.",
+     "I think so.",
+     [],
+     []
+    ],
+    [
+     "بگو بله؛ سی روز وقت دارم",
+     "بگو با رسید",
+     "Yes, they can. I have 30 days.",
+     "With the receipt.",
+     [],
+     [
+      [
+       "Yes, they can be. I have 30 days.",
+       "جواب کوتاه: Yes, they can."
+      ]
+     ]
+    ],
+    [
+     "بگو سایز ۴۰ سفارش دادم، ولی سایز ۴۲ لازم دارم",
+     "بگو اشتباه کردم",
+     "I ordered size 40, but I need size 42.",
+     "My mistake.",
+     [],
+     [
+      [
+       "I ordered size 40, but I needs size 42.",
+       "با «I» فعل «-s» نمی‌گیرد."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "changing-room-queue",
+   "c": "دوستت گفت: «صف اتاق پرو خیلی طولانی بود.»",
+   "q": [
+    [
+     "بپرس منتظر ماند",
+     "بپرس چقدر",
+     "Did you wait?",
+     "How long?",
+     [],
+     []
+    ],
+    [
+     "بپرس منتظر ماند یا بدون پرو خرید",
+     "بپرس اندازه بود",
+     "Did you wait, or did you buy it without trying it on?",
+     "Did it fit?",
+     [],
+     [
+      [
+       "Did you wait, or did you buy it without try it on?",
+       "بعد از without فعل -ing می‌آید: without trying."
+      ]
+     ]
+    ],
+    [
+     "بپرس اتاق‌های پرو بسته بودند یا آدم‌ها زیاد بودند",
+     "بپرس روز تخفیف بود",
+     "Were the changing rooms closed, or were there too many people?",
+     "Was it a sale day?",
+     [],
+     [
+      [
+       "Was the changing rooms closed, or were there too many people?",
+       "«rooms» جمع است: were."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو نه",
+     "بگو وقت نداشتم",
+     "No, I didn't.",
+     "I didn't have time.",
+     [],
+     []
+    ],
+    [
+     "بگو بدون پرو خریدمش",
+     "بگو خوشبختانه اندازه است",
+     "I bought it without trying it on.",
+     "Luckily, it fits.",
+     [],
+     [
+      [
+       "I bought it without try it on.",
+       "بعد از without فعل -ing می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بگو دو اتاق پرو بسته بودند و آدم‌ها خیلی زیاد بودند",
+     "بگو روز تخفیف بود",
+     "Two changing rooms were closed, and there were too many people.",
+     "It was a sale day.",
+     [],
+     [
+      [
+       "Two changing rooms was closed, and there were too many people.",
+       "«rooms» جمع است: were closed."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "handmade-scarf",
+   "c": "دوستت گفت: «برای مادرم یک شال دست‌باف خریدم.»",
+   "q": [
+    [
+     "بپرس کجا ساخته شده",
+     "بپرس گران بود",
+     "Where was it made?",
+     "Was it expensive?",
+     [],
+     [
+      [
+       "Where it was made?",
+       "سؤال: Where was it made?"
+      ]
+     ]
+    ],
+    [
+     "بپرس گران بود و کجا فروخته می‌شد",
+     "بپرس چه رنگی",
+     "Was it expensive, and where was it sold?",
+     "What colour?",
+     [],
+     [
+      [
+       "Was it expensive, and where it was sold?",
+       "سؤال دوم: and where was it sold?"
+      ]
+     ]
+    ],
+    [
+     "بپرس کجا ساخته شده و چه کسی ساخته",
+     "بپرس مادرش دوست دارد",
+     "Where was it made, and who was it made by?",
+     "Does your mum like it?",
+     [],
+     [
+      [
+       "Where was it make, and who was it made by?",
+       "در مجهول قسمت سوم فعل می‌آید، نه شکل ساده."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو در یک روستا",
+     "بگو نزدیک شهرمان",
+     "In a village.",
+     "Near our city.",
+     [],
+     []
+    ],
+    [
+     "بگو گران نبود؛ در یک بازار فروخته می‌شد",
+     "بگو قرمز است",
+     "It wasn't expensive. It was sold at a market.",
+     "It's red.",
+     [],
+     [
+      [
+       "It wasn't expensive. It sold at a market.",
+       "مجهول: be + قسمت سوم فعل؛ be جا نیفتد."
+      ]
+     ]
+    ],
+    [
+     "بگو در یک روستای کوچک و به دست یک خانم مسن ساخته شده",
+     "بگو یک ماه طول کشید",
+     "It was made in a small village by an old woman.",
+     "It took a month.",
+     [],
+     [
+      [
+       "It made in a small village by an old woman.",
+       "مجهول: be + قسمت سوم فعل؛ be جا نیفتد."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 2,
+   "k": "f",
+   "s": "shoes-sold-out",
+   "c": "دوستت گفت: «کفش‌هایی که می‌خواستم تمام شده بود.»",
+   "q": [
+    [
+     "بگو وای و بپرس همه فروخته شده بودند",
+     "بپرس در همه‌ی سایزها",
+     "Oh no! Were they all sold?",
+     "In every size?",
+     [],
+     [
+      [
+       "Oh no! Were they all sell?",
+       "در مجهول قسمت سوم فعل می‌آید، نه شکل ساده."
+      ]
+     ]
+    ],
+    [
+     "بپرس همه فروخته شده بودند و دوباره به مغازه می‌آیند",
+     "بپرس کی",
+     "Were they all sold, and will they be in the shop again?",
+     "When?",
+     [],
+     [
+      [
+       "Were they all sold, and they will be in the shop again?",
+       "سؤال دوم: and will they be…?"
+      ]
+     ]
+    ],
+    [
+     "بپرس همه فروخته شده‌اند یا می‌شود سفارششان داد",
+     "بپرس آنلاین",
+     "Have they all been sold, or can they be ordered?",
+     "Online?",
+     [],
+     [
+      [
+       "Have they all been sold, or can they ordered?",
+       "بعد از can / must / should در مجهول «be» می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو در سایز من",
+     "Yes, they were.",
+     "In my size.",
+     [],
+     []
+    ],
+    [
+     "بگو بله، ولی هفته‌ی بعد دوباره می‌آیند",
+     "بگو به من زنگ می‌زنند",
+     "Yes, they were, but they'll be back next week.",
+     "They'll call me.",
+     [],
+     [
+      [
+       "Yes, they were, but they be back next week.",
+       "برای آینده will لازم است: they'll be back."
+      ]
+     ]
+    ],
+    [
+     "بگو همه فروخته شده‌اند، ولی می‌شود آنلاین سفارششان داد",
+     "بگو سه روزه می‌رسند",
+     "They've all been sold, but they can be ordered online.",
+     "They come in three days.",
+     [],
+     [
+      [
+       "They've all been sold, but they can ordered online.",
+       "بعد از can / must / should در مجهول «be» می‌آید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "keep-receipts",
+   "c": null,
+   "q": [
+    [
+     "بپرس وقتی چیزی می‌خرد رسیدش را نگه می‌دارد",
+     "بپرس همیشه",
+     "Do you keep the receipt when you buy something?",
+     "Always?",
+     [],
+     [
+      [
+       "You keep the receipt when you buy something?",
+       "سؤال حال ساده با «Do you» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس رسید را نگه می‌دارد و کجا",
+     "بپرس روی گوشی",
+     "Do you keep the receipt, and where?",
+     "On your phone?",
+     [],
+     [
+      [
+       "Do you keep the receipt, and where you keep?",
+       "سؤال دوم کوتاه است: and where?"
+      ]
+     ]
+    ],
+    [
+     "بپرس چرا خوب است رسید را چند هفته نگه دارد",
+     "بپرس برای همه‌چیز",
+     "Why is it good to keep the receipt for a few weeks?",
+     "For everything?",
+     [],
+     [
+      [
+       "Why it is good to keep the receipt for a few weeks?",
+       "سؤال: Why is it…?"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو گاهی",
+     "بگو برای چیزهای گران",
+     "Sometimes.",
+     "For expensive things.",
+     [],
+     []
+    ],
+    [
+     "بگو بله؛ در کیف پولم نگهش می‌دارم",
+     "بگو یک ماه",
+     "Yes, I do. I keep it in my wallet.",
+     "For a month.",
+     [],
+     [
+      [
+       "Yes, I do. I keep in my wallet.",
+       "keep مفعول لازم دارد: keep it."
+      ]
+     ]
+    ],
+    [
+     "بگو چون بدون رسید نمی‌شود چیزی را پس داد یا عوض کرد",
+     "بگو گارانتی هم لازمش دارد",
+     "Because without a receipt, things can't be returned or exchanged.",
+     "The guarantee needs it too.",
+     [],
+     [
+      [
+       "Because without a receipt, things can't returned or exchanged.",
+       "بعد از can / must / should در مجهول «be» می‌آید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "parcels-delivered",
+   "c": null,
+   "q": [
+    [
+     "بپرس سفارش‌های آنلاین دم در خانه‌اش تحویل داده می‌شوند",
+     "بپرس همیشه",
+     "Are online orders delivered to your door?",
+     "Always?",
+     [],
+     [
+      [
+       "Are online orders deliver to your door?",
+       "در مجهول قسمت سوم فعل می‌آید، نه شکل ساده."
+      ]
+     ]
+    ],
+    [
+     "بپرس سفارش‌های آنلاین دم در تحویل داده می‌شوند و چقدر سریع",
+     "بپرس صبح‌ها",
+     "Are online orders delivered to your door, and how fast?",
+     "In the morning?",
+     [],
+     [
+      [
+       "Online orders are delivered to your door, and how fast?",
+       "سؤال با «Are online orders…?» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس تا حالا سفارشی داشته که به خانه‌ی اشتباهی تحویل داده شده",
+     "بپرس پیدایش کرد",
+     "Have you ever had an order delivered to the wrong home?",
+     "Did you find it?",
+     [],
+     [
+      [
+       "Have you ever had an order deliver to the wrong home?",
+       "کاری که دیگری برایت انجام می‌دهد: have + چیز + قسمت سوم فعل."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو بیشتر وقت‌ها",
+     "Yes, they are.",
+     "Most of the time.",
+     [],
+     []
+    ],
+    [
+     "بگو بله، معمولاً در دو روز",
+     "بگو گاهی همان روز",
+     "Yes, they are, usually in two days.",
+     "Sometimes on the same day.",
+     [],
+     [
+      [
+       "Yes, they do, usually in two days.",
+       "جواب «Are…?» با «they are» است."
+      ]
+     ]
+    ],
+    [
+     "بگو بله، یک بار؛ به همسایه‌ام تحویل داده شد، ولی او آن را به من داد",
+     "بگو آدم خوبی است",
+     "Yes, once. It was delivered to my neighbour, but she gave it to me.",
+     "She's really nice.",
+     [],
+     [
+      [
+       "Yes, once. It delivered to my neighbour, but she gave it to me.",
+       "مجهول: be + قسمت سوم فعل؛ be جا نیفتد."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "hair-cut-where",
+   "c": null,
+   "q": [
+    [
+     "بپرس موهایش را کجا کوتاه می‌کند",
+     "بپرس نزدیک خانه",
+     "Where do you have your hair cut?",
+     "Near your home?",
+     [],
+     [
+      [
+       "Where do you have cut your hair?",
+       "ترتیب: have + چیز + قسمت سوم فعل (have it fixed)."
+      ]
+     ]
+    ],
+    [
+     "بپرس موهایش را کجا کوتاه می‌کند و هر چند وقت",
+     "بپرس گران است",
+     "Where do you have your hair cut, and how often?",
+     "Is it expensive?",
+     [],
+     [
+      [
+       "Where do you have your hair cutted, and how often?",
+       "قسمت سوم cut همان cut است."
+      ]
+     ]
+    ],
+    [
+     "بپرس موهایش را می‌دهد کوتاه کنند یا خودش کوتاه می‌کند، و چرا",
+     "بپرس از کی",
+     "Do you have your hair cut, or do you cut it yourself? Why?",
+     "Since when?",
+     [],
+     [
+      [
+       "Do you have your hair cut, or you cut it yourself? Why?",
+       "سؤال دوم «do» می‌خواهد: or do you cut…?"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو در یک مغازه‌ی کوچک نزدیک خانه‌ام",
+     "بگو ارزان است",
+     "At a small shop near my home.",
+     "It's cheap.",
+     [],
+     [
+      [
+       "At small shop near my home.",
+       "«مغازه» قابل شمارش است: a small shop."
+      ]
+     ]
+    ],
+    [
+     "بگو در یک مغازه‌ی کوچک نزدیک خانه‌ام، هر ماه",
+     "بگو سریع است",
+     "At a small shop near my home, every month.",
+     "It's quick.",
+     [],
+     [
+      [
+       "At a small shop near my home, every months.",
+       "بعد از every اسم مفرد می‌آید: every month."
+      ]
+     ]
+    ],
+    [
+     "بگو می‌دهم کوتاه کنند، چون خودم نمی‌توانم خوب کوتاهش کنم",
+     "بگو یک بار امتحان کردم",
+     "I have it cut, because I can't cut it well myself.",
+     "I tried once.",
+     [],
+     [
+      [
+       "I have cut it, because I can't cut it well myself.",
+       "ترتیب: have + چیز + قسمت سوم فعل (have it fixed)."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "bought-faulty",
+   "c": null,
+   "q": [
+    [
+     "بپرس تا حالا چیز معیوبی خریده",
+     "بپرس آنلاین",
+     "Have you ever bought something faulty?",
+     "Online?",
+     [],
+     [
+      [
+       "Have you ever buy something faulty?",
+       "حال کامل: have / has + قسمت سوم فعل."
+      ]
+     ]
+    ],
+    [
+     "بپرس تا حالا چیز معیوبی خریده و چه بود",
+     "بپرس گران بود",
+     "Have you ever bought something faulty? What was it?",
+     "Was it expensive?",
+     [],
+     [
+      [
+       "Have you ever bought something faulty? What it was?",
+       "سؤال: What was it?"
+      ]
+     ]
+    ],
+    [
+     "بپرس برای آن چیز معیوب پولش را پس گرفت یا عوضش کردند",
+     "بپرس راحت بود",
+     "Did you get a refund for the faulty thing, or was it exchanged?",
+     "Was it easy?",
+     [],
+     [
+      [
+       "Did you get a refund for the faulty thing, or was it exchange?",
+       "در مجهول قسمت سوم فعل می‌آید، نه شکل ساده."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو یک بار",
+     "Yes, I have.",
+     "Once.",
+     [],
+     []
+    ],
+    [
+     "بگو بله؛ یک شارژر بود",
+     "بگو کار نمی‌کرد",
+     "Yes, I have. It was a charger.",
+     "It didn't work.",
+     [],
+     [
+      [
+       "Yes, I did. It was a charger.",
+       "جواب «Have you…?» با «I have» است."
+      ]
+     ]
+    ],
+    [
+     "بگو پولم را پس گرفتم، چون رسید داشتم",
+     "بگو راحت بود",
+     "I got a refund, because I had the receipt.",
+     "It was easy.",
+     [],
+     [
+      [
+       "I got a refund, because I have had the receipt.",
+       "کار تمام‌شده در گذشته: had."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "s",
+   "s": "phone-guarantee",
+   "c": null,
+   "q": [
+    [
+     "بپرس گوشی‌اش گارانتی دارد",
+     "بپرس از مغازه",
+     "Does your phone have a guarantee?",
+     "From the shop?",
+     [],
+     [
+      [
+       "Does your phone has a guarantee?",
+       "بعد از does فعل ساده می‌آید: have."
+      ]
+     ]
+    ],
+    [
+     "بپرس گوشی‌اش گارانتی دارد و تا کی",
+     "بپرس برای صفحه هم",
+     "Does your phone have a guarantee, and for how long?",
+     "For the screen too?",
+     [],
+     [
+      [
+       "Do your phone have a guarantee, and for how long?",
+       "«your phone» مفرد است: Does."
+      ]
+     ]
+    ],
+    [
+     "بپرس اگر گوشی‌اش خراب شود، کجا می‌دهد تعمیرش کنند",
+     "بپرس گران است",
+     "If your phone breaks, where will you have it fixed?",
+     "Is it expensive?",
+     [],
+     [
+      [
+       "If your phone will break, where will you have it fixed?",
+       "بعد از «if» حال ساده می‌آید، نه will (از ماموریت ۱۴)."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو فکر می‌کنم",
+     "Yes, it does.",
+     "I think so.",
+     [],
+     []
+    ],
+    [
+     "بگو بله، برای دو سال",
+     "بگو از روز خرید",
+     "Yes, it does, for two years.",
+     "From the day I bought it.",
+     [],
+     [
+      [
+       "Yes, it does, for two year.",
+       "بعد از عدد اسم جمع: two years."
+      ]
+     ]
+    ],
+    [
+     "بگو اگر خراب شود، می‌دهم همان مغازه‌ای که از آن خریدم تعمیرش کند",
+     "بگو چون گارانتی دارد",
+     "If it breaks, I'll have it fixed at the shop where I bought it.",
+     "Because it has a guarantee.",
+     [],
+     [
+      [
+       "If it breaks, I'll have fixed it at the shop where I bought it.",
+       "ترتیب: have + چیز + قسمت سوم فعل (have it fixed)."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "cracked-screen",
+   "c": "دوستت گفت: «صفحه‌ی گوشی‌ام ترک برداشت.»",
+   "q": [
+    [
+     "بپرس می‌دهد تعمیرش کنند",
+     "بپرس امروز",
+     "Will you have it fixed?",
+     "Today?",
+     [],
+     [
+      [
+       "Will you have fixed it?",
+       "ترتیب: have + چیز + قسمت سوم فعل (have it fixed)."
+      ]
+     ]
+    ],
+    [
+     "بپرس می‌دهد تعمیرش کنند یا یک گوشی نو می‌خرد",
+     "بپرس چند ساله است",
+     "Will you have it fixed, or will you buy a new one?",
+     "How old is it?",
+     [],
+     [
+      [
+       "Will you have it fixed, or you will buy a new one?",
+       "سؤال دوم: or will you buy…?"
+      ]
+     ]
+    ],
+    [
+     "بپرس هنوز گارانتی دارد و می‌شود مجانی تعمیرش کرد",
+     "بپرس رسید دارد",
+     "Is it still under guarantee? Can it be fixed for free?",
+     "Do you have the receipt?",
+     [],
+     [
+      [
+       "Is it still under guarantee? Can it fixed for free?",
+       "بعد از can / must / should در مجهول «be» می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو همین هفته",
+     "Yes, I will.",
+     "This week.",
+     [],
+     []
+    ],
+    [
+     "بگو می‌دهم تعمیرش کنند؛ گوشی نو خیلی گران است",
+     "بگو هنوز خوب کار می‌کند",
+     "I'll have it fixed. A new one is too expensive.",
+     "It still works well.",
+     [],
+     [
+      [
+       "I'll have it fix. A new one is too expensive.",
+       "کاری که دیگری برایت انجام می‌دهد: have + چیز + قسمت سوم فعل."
+      ]
+     ]
+    ],
+    [
+     "بگو نه، ندارد؛ پس نمی‌شود مجانی تعمیرش کرد",
+     "بگو گارانتی ماه پیش تمام شد",
+     "No, it isn't, so it can't be fixed for free.",
+     "The guarantee ended last month.",
+     [],
+     [
+      [
+       "No, it isn't, so it can't fixed for free.",
+       "بعد از can / must / should در مجهول «be» می‌آید."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "order-not-here",
+   "c": "دوستت گفت: «سفارشم هنوز نرسیده.»",
+   "q": [
+    [
+     "بپرس کی سفارشش داد",
+     "بپرس آنلاین",
+     "When did you order it?",
+     "Online?",
+     [],
+     [
+      [
+       "When you ordered it?",
+       "سؤال گذشته با «did» است؛ بعدش فعل ساده می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس کی سفارشش داد و قرار است کی تحویل داده شود",
+     "بپرس از کدام فروشگاه",
+     "When did you order it, and when should it be delivered?",
+     "Which shop?",
+     [],
+     [
+      [
+       "When did you order it, and when should it delivered?",
+       "بعد از can / must / should در مجهول «be» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس به فروشگاه زنگ زده یا پولش را پس می‌خواهد",
+     "بپرس عصبانی است",
+     "Have you called the shop, or will you ask for a refund?",
+     "Are you angry?",
+     [],
+     [
+      [
+       "Have you call the shop, or will you ask for a refund?",
+       "حال کامل: have / has + قسمت سوم فعل."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو دوشنبه‌ی گذشته",
+     "بگو صبح",
+     "Last Monday.",
+     "In the morning.",
+     [],
+     []
+    ],
+    [
+     "بگو دوشنبه‌ی گذشته، و باید امروز تحویل داده شود",
+     "بگو تا ساعت شش",
+     "Last Monday, and it should be delivered today.",
+     "By six o'clock.",
+     [],
+     [
+      [
+       "Last Monday, and it should delivered today.",
+       "بعد از can / must / should در مجهول «be» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بگو زنگ زده‌ام؛ اگر فردا نرسد، پولم را پس می‌خواهم",
+     "بگو دیگر از آنجا نمی‌خرم",
+     "I've called the shop. If it doesn't come tomorrow, I'll ask for a refund.",
+     "I won't buy from them again.",
+     [],
+     [
+      [
+       "I've called the shop. If it doesn't come tomorrow, I ask for a refund.",
+       "برای تصمیم آینده will لازم است: I'll ask."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "shirt-too-small",
+   "c": "دوستت گفت: «این پیراهن برام کوچیکه.»",
+   "q": [
+    [
+     "بپرس می‌تواند عوضش کند",
+     "بپرس امروز",
+     "Can you exchange it?",
+     "Today?",
+     [],
+     [
+      [
+       "You can exchange it?",
+       "سؤال با «Can you…?» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس می‌تواند عوضش کند یا رسیدش را گم کرده",
+     "بپرس کی خرید",
+     "Can you exchange it, or have you lost the receipt?",
+     "When did you buy it?",
+     [],
+     [
+      [
+       "Can you exchange it, or have you lose the receipt?",
+       "حال کامل: have / has + قسمت سوم فعل."
+      ]
+     ]
+    ],
+    [
+     "بپرس می‌شود با سایز بزرگ‌تر عوضش کرد و پرسیده",
+     "بپرس رنگ دیگری",
+     "Can it be exchanged for a bigger size? Have you asked?",
+     "Another colour?",
+     [],
+     [
+      [
+       "Can it exchanged for a bigger size? Have you asked?",
+       "بعد از can / must / should در مجهول «be» می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو فکر می‌کنم",
+     "Yes, I can.",
+     "I think so.",
+     [],
+     []
+    ],
+    [
+     "بگو می‌توانم عوضش کنم؛ هنوز رسیدش را دارم",
+     "بگو در کیفم است",
+     "I can exchange it. I still have the receipt.",
+     "It's in my bag.",
+     [],
+     [
+      [
+       "I can exchange it. I still have the recipe.",
+       "«رسید» = receipt؛ recipe یعنی دستور پخت غذا."
+      ]
+     ]
+    ],
+    [
+     "بگو بله، می‌شود عوضش کرد؛ دیروز از مغازه پرسیدم",
+     "بگو تا آخر ماه",
+     "Yes, it can be exchanged. I asked the shop yesterday.",
+     "Until the end of the month.",
+     [],
+     [
+      [
+       "Yes, it can be exchange. I asked the shop yesterday.",
+       "در مجهول قسمت سوم فعل می‌آید، نه شکل ساده."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "washing-machine",
+   "c": "دوستت گفت: «ماشین لباسشویی‌مان خراب شد.»",
+   "q": [
+    [
+     "بپرس گارانتی دارد",
+     "بپرس از کجا خریدی",
+     "Is it under guarantee?",
+     "Where did you buy it?",
+     [],
+     [
+      [
+       "It is under guarantee?",
+       "سؤال با «Is it…?» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس گارانتی دارد و چند سالش است",
+     "بپرس قبلاً خراب شده",
+     "Is it under guarantee, and how old is it?",
+     "Has it broken before?",
+     [],
+     [
+      [
+       "Is it under guarantee, and how old it is?",
+       "در سؤال is قبل از it می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس می‌خواهند بدهند تعمیرش کنند یا یکی نو بخرند",
+     "بپرس چقدر طول می‌کشد",
+     "Are you going to have it fixed, or buy a new one?",
+     "How long will it take?",
+     [],
+     [
+      [
+       "Are you going to have fixed it, or buy a new one?",
+       "ترتیب: have + چیز + قسمت سوم فعل (have it fixed)."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو نه",
+     "بگو پارسال تمام شد",
+     "No, it isn't.",
+     "It ended last year.",
+     [],
+     []
+    ],
+    [
+     "بگو نه؛ هشت سالش است",
+     "بگو تا حالا خراب نشده بود",
+     "No, it isn't. It's eight years old.",
+     "It has never broken before.",
+     [],
+     [
+      [
+       "No, it isn't. It has eight years.",
+       "سنِ چیزها با be گفته می‌شود: It's eight years old."
+      ]
+     ]
+    ],
+    [
+     "بگو می‌خواهیم بدهیم تعمیرش کنند، چون یکی نو خیلی گران است",
+     "بگو تعمیرکار فردا می‌آید",
+     "We're going to have it fixed, because a new one is too expensive.",
+     "The repair man is coming tomorrow.",
+     [],
+     [
+      [
+       "We're going to have it fix, because a new one is too expensive.",
+       "کاری که دیگری برایت انجام می‌دهد: have + چیز + قسمت سوم فعل."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 3,
+   "k": "f",
+   "s": "bike-fixed",
+   "c": "دوستت گفت: «دوچرخه‌ام را دادم تعمیر.»",
+   "q": [
+    [
+     "بپرس کجا داد تعمیرش کنند",
+     "بپرس نزدیک خانه",
+     "Where did you have it fixed?",
+     "Near your home?",
+     [],
+     [
+      [
+       "Where did you have fixed it?",
+       "ترتیب: have + چیز + قسمت سوم فعل (have it fixed)."
+      ]
+     ]
+    ],
+    [
+     "بپرس کجا داد تعمیرش کنند و گران بود",
+     "بپرس کی آماده است",
+     "Where did you have it fixed, and was it expensive?",
+     "When will it be ready?",
+     [],
+     [
+      [
+       "Where did you have it fixed, and it was expensive?",
+       "سؤال دوم: and was it expensive?"
+      ]
+     ]
+    ],
+    [
+     "بپرس چه چیزی تعمیر شد و کی آماده می‌شود",
+     "بپرس گارانتی دارد",
+     "What was fixed, and when will it be ready?",
+     "Does it have a guarantee?",
+     [],
+     [
+      [
+       "What was fix, and when will it be ready?",
+       "در مجهول قسمت سوم فعل می‌آید، نه شکل ساده."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو در مغازه‌ای نزدیک کارم",
+     "بگو کوچک است",
+     "At a shop near my work.",
+     "It's small.",
+     [],
+     [
+      [
+       "At shop near my work.",
+       "«یک مغازه» قابل شمارش است: a shop."
+      ]
+     ]
+    ],
+    [
+     "بگو در مغازه‌ای نزدیک کارم، و گران نبود",
+     "بگو فقط ده یورو",
+     "At a shop near my work, and it wasn't expensive.",
+     "Only ten euros.",
+     [],
+     [
+      [
+       "At a shop near my work, and it not expensive.",
+       "فعل لازم است: it wasn't."
+      ]
+     ]
+    ],
+    [
+     "بگو چرخش تعمیر شد و فردا آماده است",
+     "بگو بعد از کار برش می‌دارم",
+     "The wheel was fixed, and it will be ready tomorrow.",
+     "I'll get it after work.",
+     [],
+     [
+      [
+       "The wheel fixed, and it will be ready tomorrow.",
+       "مجهول: be + قسمت سوم فعل؛ be جا نیفتد."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "handmade-thing",
+   "c": null,
+   "q": [
+    [
+     "بپرس چیزی دارد که با دست ساخته شده",
+     "بپرس در خانه",
+     "Do you have anything that was made by hand?",
+     "At home?",
+     [],
+     [
+      [
+       "Do you have anything that made by hand?",
+       "مجهول: be + قسمت سوم فعل؛ be جا نیفتد."
+      ]
+     ]
+    ],
+    [
+     "بپرس چیزی دارد که با دست ساخته شده و چیست",
+     "بپرس قدیمی است",
+     "Do you have anything that was made by hand? What is it?",
+     "Is it old?",
+     [],
+     [
+      [
+       "Do you have anything that was made by hand? What it is?",
+       "در سؤال is قبل از it می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس آن را چه کسی ساخته و کی به او داده شده",
+     "بپرس هنوز استفاده می‌کند",
+     "Who was it made by, and when was it given to you?",
+     "Do you still use it?",
+     [],
+     [
+      [
+       "Who was it made by, and when it was given to you?",
+       "سؤال دوم: when was it given…?"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو یک چیز",
+     "Yes, I do.",
+     "Just one thing.",
+     [],
+     []
+    ],
+    [
+     "بگو بله؛ یک شال کوچک است",
+     "بگو خیلی دوستش دارم",
+     "Yes, I do. It's a small scarf.",
+     "I love it.",
+     [],
+     [
+      [
+       "Yes, I do. It's small scarf.",
+       "«scarf» قابل شمارش است: a small scarf."
+      ]
+     ]
+    ],
+    [
+     "بگو مادربزرگم ساخته و ده سال پیش به من داده شد",
+     "بگو زمستان‌ها می‌پوشمش",
+     "It was made by my grandmother, and it was given to me ten years ago.",
+     "I wear it in winter.",
+     [],
+     [
+      [
+       "It made by my grandmother, and it was given to me ten years ago.",
+       "مجهول: be + قسمت سوم فعل؛ be جا نیفتد."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "car-washed",
+   "c": null,
+   "q": [
+    [
+     "بپرس ماشینش را می‌دهد بشویند",
+     "بپرس هر هفته",
+     "Do you have your car washed?",
+     "Every week?",
+     [],
+     [
+      [
+       "Do you have washed your car?",
+       "ترتیب: have + چیز + قسمت سوم فعل (have it fixed)."
+      ]
+     ]
+    ],
+    [
+     "بپرس ماشینش را می‌دهد بشویند و هر چند وقت",
+     "بپرس گران است",
+     "Do you have your car washed, and how often?",
+     "Is it expensive?",
+     [],
+     [
+      [
+       "Do you have your car wash, and how often?",
+       "کاری که دیگری برایت انجام می‌دهد: have + چیز + قسمت سوم فعل."
+      ]
+     ]
+    ],
+    [
+     "بپرس ماشینش را خودش می‌شوید یا می‌دهد بشویند، و چرا",
+     "بپرس در تابستان",
+     "Do you wash your car yourself, or do you have it washed? Why?",
+     "In summer?",
+     [],
+     [
+      [
+       "Do you wash your car yourself, or you have it washed? Why?",
+       "سؤال دوم «do» می‌خواهد: or do you have…?"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو نه",
+     "بگو ماشین ندارم",
+     "No, I don't.",
+     "I don't have a car.",
+     [],
+     []
+    ],
+    [
+     "بگو بله، ماهی یک بار",
+     "بگو نزدیک خانه",
+     "Yes, I do, once a month.",
+     "Near my home.",
+     [],
+     [
+      [
+       "Yes, I do, one time in a month.",
+       "«ماهی یک بار» = once a month."
+      ]
+     ]
+    ],
+    [
+     "بگو می‌دهم بشویند، چون سریع و ارزان است",
+     "بگو و وقت ندارم",
+     "I have it washed, because it's quick and cheap.",
+     "And I don't have time.",
+     [],
+     [
+      [
+       "I have washed it, because it's quick and cheap.",
+       "ترتیب: have + چیز + قسمت سوم فعل (have it fixed)."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "returned-something",
+   "c": null,
+   "q": [
+    [
+     "بپرس تا حالا چیزی را به مغازه پس داده",
+     "بپرس آنلاین",
+     "Have you ever returned something to a shop?",
+     "Online?",
+     [],
+     [
+      [
+       "Have you ever return something to a shop?",
+       "حال کامل: have / has + قسمت سوم فعل."
+      ]
+     ]
+    ],
+    [
+     "بپرس تا حالا چیزی را به مغازه پس داده و چه بود",
+     "بپرس چرا",
+     "Have you ever returned something to a shop? What was it?",
+     "Why?",
+     [],
+     [
+      [
+       "Have you ever returned something to a shop? What it was?",
+       "سؤال: What was it?"
+      ]
+     ]
+    ],
+    [
+     "بپرس وقتی چیزی را پس داد، پولش را به او برگرداندند",
+     "بپرس چقدر طول کشید",
+     "Were you given a refund when you returned something?",
+     "How long did it take?",
+     [],
+     [
+      [
+       "Was you given a refund when you returned something?",
+       "با you فعل were می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله، یک بار",
+     "بگو پارسال",
+     "Yes, once.",
+     "Last year.",
+     [],
+     []
+    ],
+    [
+     "بگو بله، یک بار؛ یک کاپشن بود",
+     "بگو اندازه نبود",
+     "Yes, once. It was a jacket.",
+     "It didn't fit.",
+     [],
+     [
+      [
+       "Yes, once. It were a jacket.",
+       "با it می‌شود was."
+      ]
+     ]
+    ],
+    [
+     "بگو بله؛ پول در دو روز برگردانده شد",
+     "بگو به کارتم",
+     "Yes, I was. The money was paid back in two days.",
+     "To my card.",
+     [],
+     [
+      [
+       "Yes, I was. The money paid back in two days.",
+       "مجهول: be + قسمت سوم فعل؛ be جا نیفتد."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "online-or-real",
+   "c": null,
+   "q": [
+    [
+     "بپرس آنلاین خرید می‌کند",
+     "بپرس زیاد",
+     "Do you shop online?",
+     "A lot?",
+     [],
+     [
+      [
+       "Do you shopping online?",
+       "بعد از Do you فعل ساده می‌آید: Do you shop?"
+      ]
+     ]
+    ],
+    [
+     "بپرس آنلاین خرید می‌کند یا در مغازه‌های واقعی",
+     "بپرس برای لباس",
+     "Do you shop online, or in real shops?",
+     "For clothes?",
+     [],
+     [
+      [
+       "Do you shop online, or in real shop?",
+       "«مغازه‌ها» جمع است: shops."
+      ]
+     ]
+    ],
+    [
+     "بپرس چرا حالا چیزهای بیشتری آنلاین خریده می‌شوند",
+     "بپرس خوب است",
+     "Why are more things bought online now?",
+     "Is it good?",
+     [],
+     [
+      [
+       "Why are more things buy online now?",
+       "در مجهول قسمت سوم فعل می‌آید، نه شکل ساده."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله، زیاد",
+     "بگو بیشتر غذا",
+     "Yes, a lot.",
+     "Mostly food.",
+     [],
+     []
+    ],
+    [
+     "بگو بیشتر آنلاین، چون راحت است",
+     "بگو از خانه",
+     "Mostly online, because it's easy.",
+     "From home.",
+     [],
+     [
+      [
+       "Mostly online, because it easy.",
+       "فعل لازم است: it's easy."
+      ]
+     ]
+    ],
+    [
+     "بگو چون چیزها دم در تحویل داده می‌شوند و راحت پس داده می‌شوند",
+     "بگو و اغلب ارزان‌ترند",
+     "Because things are delivered to your door, and they can be returned easily.",
+     "And they're often cheaper.",
+     [],
+     [
+      [
+       "Because things delivered to your door, and they can be returned easily.",
+       "مجهول: be + قسمت سوم فعل؛ be جا نیفتد."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "s",
+   "s": "repair-old-clothes",
+   "c": null,
+   "q": [
+    [
+     "بپرس لباس‌های کهنه‌اش را تعمیر می‌کند",
+     "بپرس خودش",
+     "Do you fix old clothes?",
+     "Yourself?",
+     [],
+     [
+      [
+       "You fix old clothes?",
+       "سؤال حال ساده با «Do you» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس لباس‌های کهنه را تعمیر می‌کند یا دور می‌اندازد",
+     "بپرس شلوار جین",
+     "Do you fix old clothes, or throw them away?",
+     "Jeans?",
+     [],
+     [
+      [
+       "Do you fix old clothes, or throw away them?",
+       "ضمیر وسط phrasal verb می‌آید: try it on / take them back."
+      ]
+     ]
+    ],
+    [
+     "بپرس لباس‌های کهنه باید تعمیر شوند یا دور انداخته شوند، و چرا",
+     "بپرس همه‌ی لباس‌ها",
+     "Should old clothes be fixed or thrown away? Why?",
+     "All clothes?",
+     [],
+     [
+      [
+       "Should old clothes fixed or thrown away? Why?",
+       "بعد از can / must / should در مجهول «be» می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو گاهی",
+     "بگو اگر خوب باشند",
+     "Sometimes.",
+     "If they're good.",
+     [],
+     []
+    ],
+    [
+     "بگو می‌دهم تعمیرشان کنند؛ دورشان نمی‌اندازم",
+     "بگو یک خیاط نزدیک خانه‌مان است",
+     "I have them fixed. I don't throw them away.",
+     "There's a tailor near my home.",
+     [],
+     [
+      [
+       "I have them fix. I don't throw them away.",
+       "کاری که دیگری برایت انجام می‌دهد: have + چیز + قسمت سوم فعل."
+      ]
+     ]
+    ],
+    [
+     "بگو باید تعمیر شوند، چون لباس خوب را می‌شود سال‌ها پوشید",
+     "بگو و پول کمتری خرج می‌کنی",
+     "They should be fixed, because good clothes can be worn for years.",
+     "And it saves money.",
+     [],
+     [
+      [
+       "They should be fix, because good clothes can be worn for years.",
+       "در مجهول قسمت سوم فعل می‌آید، نه شکل ساده."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "had-hair-cut",
+   "c": "دوستت گفت: «دیروز موهامو کوتاه کردم.»",
+   "q": [
+    [
+     "بگو چه خوب! و بپرس خودش کوتاه کرد",
+     "بپرس با قیچی",
+     "Nice! Did you cut it yourself?",
+     "With scissors?",
+     [],
+     [
+      [
+       "Nice! You cut it yourself?",
+       "سؤال با «Did you…?» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس خودش کوتاه کرد یا داد کوتاه کنند",
+     "بپرس کوتاه شد",
+     "Nice! Did you cut it yourself, or did you have it cut?",
+     "Is it short?",
+     [],
+     [
+      [
+       "Nice! Did you cut it yourself, or did you have cut it?",
+       "ترتیب: have + چیز + قسمت سوم فعل (have it fixed)."
+      ]
+     ]
+    ],
+    [
+     "بپرس کجا داد کوتاهش کنند و گران بود",
+     "بپرس دوستش دارد",
+     "Where did you have it cut, and was it expensive?",
+     "Do you like it?",
+     [],
+     [
+      [
+       "Where did you have it cut, and it was expensive?",
+       "سؤال دوم: and was it expensive?"
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو نه",
+     "بگو بلد نیستم",
+     "No, I didn't.",
+     "I can't do it.",
+     [],
+     []
+    ],
+    [
+     "بگو دادم در یک مغازه‌ی کوچک نزدیک خانه‌ام کوتاهش کنند",
+     "بگو صبح",
+     "I had it cut at a small shop near my home.",
+     "In the morning.",
+     [],
+     [
+      [
+       "I cut it at a small shop near my home.",
+       "آرایشگر کوتاه کرد، نه خودت: I had it cut."
+      ]
+     ]
+    ],
+    [
+     "بگو نزدیک خانه‌ام دادم کوتاهش کنند و گران نبود",
+     "بگو همیشه همان‌جا می‌روم",
+     "I had it cut near my home, and it wasn't expensive.",
+     "I always go there.",
+     [],
+     [
+      [
+       "I had cut it near my home, and it wasn't expensive.",
+       "ترتیب: have + چیز + قسمت سوم فعل (have it fixed)."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "new-sofa",
+   "c": "دوستت گفت: «مبل جدیدمان را امروز آوردند.»",
+   "q": [
+    [
+     "بپرس سر وقت تحویل داده شد",
+     "بپرس صبح",
+     "Was it delivered on time?",
+     "In the morning?",
+     [],
+     [
+      [
+       "Did it delivered on time?",
+       "مجهول با be ساخته می‌شود: Was it delivered?"
+      ]
+     ]
+    ],
+    [
+     "بپرس سر وقت تحویل داده شد و گران بود",
+     "بپرس چه رنگی",
+     "Was it delivered on time, and was it expensive?",
+     "What colour?",
+     [],
+     [
+      [
+       "Was it delivered on time, and it was expensive?",
+       "سؤال دوم: and was it expensive?"
+      ]
+     ]
+    ],
+    [
+     "بپرس کجا ساخته شده و می‌شود پسش داد",
+     "بپرس گارانتی",
+     "Where was it made, and can it be returned?",
+     "Does it have a guarantee?",
+     [],
+     [
+      [
+       "Where was it made, and can it returned?",
+       "بعد از can / must / should در مجهول «be» می‌آید."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله",
+     "بگو ساعت ده",
+     "Yes, it was.",
+     "At ten.",
+     [],
+     []
+    ],
+    [
+     "بگو بله، ولی خیلی گران بود",
+     "بگو ولی راحت است",
+     "Yes, it was, but it was very expensive.",
+     "But it's comfortable.",
+     [],
+     [
+      [
+       "Yes, it was, but it very expensive.",
+       "فعل لازم است: it was very expensive."
+      ]
+     ]
+    ],
+    [
+     "بگو نزدیک شهر ما ساخته شده و تا چهارده روز می‌شود پسش داد",
+     "بگو ولی دوستش داریم",
+     "It was made near our city, and it can be returned in 14 days.",
+     "But we love it.",
+     [],
+     [
+      [
+       "It made near our city, and it can be returned in 14 days.",
+       "مجهول: be + قسمت سوم فعل؛ be جا نیفتد."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "watch-gift",
+   "c": "دوستت گفت: «برای تولد خواهرم یک ساعت ارزون پیدا کردم.»",
+   "q": [
+    [
+     "بگو عالی است! و بپرس با تخفیف فروخته شد",
+     "بپرس چقدر",
+     "Great! Was it sold at a discount?",
+     "How much?",
+     [],
+     [
+      [
+       "Great! Was it sell at a discount?",
+       "در مجهول قسمت سوم فعل می‌آید، نه شکل ساده."
+      ]
+     ]
+    ],
+    [
+     "بپرس با تخفیف فروخته شد و می‌شود عوضش کرد",
+     "بپرس رسید گرفت",
+     "Was it sold at a discount, and can it be exchanged?",
+     "Did you get a receipt?",
+     [],
+     [
+      [
+       "Was it sold at a discount, and can it exchanged?",
+       "بعد از can / must / should در مجهول «be» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس اگر خواهرش دوستش نداشته باشد، می‌شود در مغازه عوضش کرد",
+     "بپرس تا کی",
+     "If your sister doesn't like it, can it be exchanged at the shop?",
+     "Until when?",
+     [],
+     [
+      [
+       "If your sister don't like it, can it be exchanged at the shop?",
+       "با your sister (مفرد) می‌شود doesn't."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو بله، ۴۰٪ تخفیف",
+     "بگو آخرین روز حراج",
+     "Yes, 40% off.",
+     "On the last sale day.",
+     [],
+     []
+    ],
+    [
+     "بگو بله، و تا سی روز می‌شود عوضش کرد",
+     "بگو با رسید",
+     "Yes, it was, and it can be exchanged in 30 days.",
+     "With the receipt.",
+     [],
+     [
+      [
+       "Yes, it was, and it can exchanged in 30 days.",
+       "بعد از can / must / should در مجهول «be» می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بگو بله؛ اگر خواهرم رسید را ببرد، می‌شود عوضش کرد",
+     "بگو رسید را به او می‌دهم",
+     "Yes. It can be exchanged if she brings the receipt.",
+     "I'll give her the receipt.",
+     [],
+     [
+      [
+       "Yes. It can be exchanged if she will bring the receipt.",
+       "بعد از «if» حال ساده می‌آید، نه will (از ماموریت ۱۴)."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "screen-changed",
+   "c": "دوستت گفت: «صفحه‌ی گوشی قدیمی‌ام عوض شد، حالا مثل نو است!»",
+   "q": [
+    [
+     "بپرس کجا داد عوضش کنند",
+     "بپرس گران بود",
+     "Where did you have it changed?",
+     "Was it expensive?",
+     [],
+     [
+      [
+       "Where did you have changed it?",
+       "ترتیب: have + چیز + قسمت سوم فعل (have it fixed)."
+      ]
+     ]
+    ],
+    [
+     "بپرس کجا داد عوضش کنند و چقدر طول کشید",
+     "بپرس همان روز",
+     "Where did you have it changed, and how long did it take?",
+     "The same day?",
+     [],
+     [
+      [
+       "Where did you have it changed, and how long it took?",
+       "سؤال گذشته با «did» است؛ بعدش فعل ساده می‌آید."
+      ]
+     ]
+    ],
+    [
+     "بپرس قبلاً هم تعمیر شده بود یا این اولین بار بود",
+     "بپرس چرا گوشی نو نمی‌خرد",
+     "Has it been fixed before, or was this the first time?",
+     "Why not buy a new one?",
+     [],
+     [
+      [
+       "Has it fixed before, or was this the first time?",
+       "حال کامل مجهول: has it been fixed."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو در یک مغازه‌ی کوچک",
+     "بگو نزدیک کارم",
+     "At a small shop.",
+     "Near my work.",
+     [],
+     [
+      [
+       "At small shop.",
+       "«یک مغازه» قابل شمارش است: a small shop."
+      ]
+     ]
+    ],
+    [
+     "بگو در یک مغازه‌ی کوچک؛ یک ساعت طول کشید",
+     "بگو منتظر ماندم",
+     "At a small shop. It took one hour.",
+     "I waited there.",
+     [],
+     [
+      [
+       "At a small shop. It taked one hour.",
+       "گذشته‌ی take می‌شود took."
+      ]
+     ]
+    ],
+    [
+     "بگو قبلاً دو بار تعمیر شده؛ این سومین بار بود",
+     "بگو هنوز دوستش دارم",
+     "It's been fixed twice before. This was the third time.",
+     "I still love it.",
+     [],
+     [
+      [
+       "It's fixed twice before. This was the third time.",
+       "حال کامل مجهول: It's been fixed."
+      ]
+     ]
+    ]
+   ]
+  },
+  {
+   "d": 4,
+   "k": "f",
+   "s": "no-buy-month",
+   "c": "دوستت گفت: «این ماه فقط چیزهای ضروری می‌خرم.»",
+   "q": [
+    [
+     "بگو فکر خوبی است و بپرس چرا",
+     "بپرس از امروز",
+     "Great idea! Why?",
+     "From today?",
+     [],
+     []
+    ],
+    [
+     "بگو فکر خوبی است و بپرس جلوی خرید هیجانی را گرفتن سخت است",
+     "بپرس کنار صندوق",
+     "Great idea! Is it hard to stop impulse buys?",
+     "At the checkout?",
+     [],
+     [
+      [
+       "Great idea! It is hard to stop impulse buys?",
+       "سؤال با «Is it…?» شروع می‌شود."
+      ]
+     ]
+    ],
+    [
+     "بپرس اگر چیز وسوسه‌انگیزی ببیند چه کار می‌کند",
+     "بپرس آنلاین",
+     "What will you do if you see something tempting?",
+     "Online?",
+     [],
+     [
+      [
+       "What will you do if you will see something tempting?",
+       "بعد از «if» حال ساده می‌آید، نه will (از ماموریت ۱۴)."
+      ]
+     ]
+    ]
+   ],
+   "a": [
+    [
+     "بگو برای پس‌انداز",
+     "بگو برای یک سفر",
+     "To save money.",
+     "For a trip.",
+     [],
+     []
+    ],
+    [
+     "بگو بله، سخت است، مخصوصاً کنار صندوق",
+     "بگو شیرینی‌ها",
+     "Yes, it is, especially at the checkout.",
+     "The sweets.",
+     [],
+     [
+      [
+       "Yes, it is, especially in the checkout.",
+       "«کنار صندوق» = at the checkout."
+      ]
+     ]
+    ],
+    [
+     "بگو اگر چیز وسوسه‌انگیزی ببینم، سه روز صبر می‌کنم",
+     "بگو قانون ۷۲ ساعت",
+     "If I see something tempting, I'll wait three days.",
+     "The 72-hour rule.",
+     [],
+     [
+      [
+       "If I will see something tempting, I'll wait three days.",
+       "بعد از «if» حال ساده می‌آید، نه will (از ماموریت ۱۴)."
+      ]
+     ]
+    ]
+   ]
+  }
+ ]
+}

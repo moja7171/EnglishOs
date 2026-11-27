@@ -185,4 +185,37 @@ return [
             ['wrong' => 'Where have you bought your new laptop?', 'right' => 'Where did you buy your new laptop?', 'why' => 'Details of the news (where, when, how) → past simple: Where did you…?'],
         ],
     ],
+    'M14' => [
+        0 => [
+            ['wrong' => 'If you heat ice, it melt.', 'right' => 'If you heat ice, it melts.', 'why' => 'Always true → present in both parts (it melts).'],
+        ],
+        1 => [
+            ['wrong' => 'I won\'t lend him money unless he doesn\'t pay me back.', 'right' => 'I won\'t lend him money unless he pays me back.', 'why' => 'unless = if … not, so the verb after it is positive.'],
+        ],
+        2 => [
+            ['wrong' => 'When I will get paid, I\'ll buy you lunch.', 'right' => 'When I get paid, I\'ll buy you lunch.', 'why' => 'After when → present, even about the future.'],
+        ],
+    ],
+    'M15' => [
+        0 => [
+            ['wrong' => 'These shoes was made in Italy.', 'right' => 'These shoes were made in Italy.', 'why' => 'shoes = plural → were made.'],
+        ],
+        1 => [
+            ['wrong' => 'I had my car wash yesterday.', 'right' => 'I had my car washed yesterday.', 'why' => 'have + thing + past participle (washed).'],
+        ],
+        2 => [
+            ['wrong' => 'I cut my hair at a hairdresser\'s last week.', 'right' => 'I had my hair cut at a hairdresser\'s last week.', 'why' => 'Someone else did it → had my hair cut.'],
+        ],
+    ],
+    'M16' => [
+        0 => [
+            ['wrong' => 'When I called, she had went to bed.', 'right' => 'When I called, she had gone to bed.', 'why' => 'had + past participle: gone, not went.'],
+        ],
+        1 => [
+            ['wrong' => 'By the time we got to the cinema, the film started.', 'right' => 'By the time we got to the cinema, the film had started.', 'why' => 'It started before we got there → had started.'],
+        ],
+        2 => [
+            ['wrong' => 'Two years ago I had travelled to Shiraz with my family.', 'right' => 'Two years ago I travelled to Shiraz with my family.', 'why' => 'One past event with a finished time → past simple.'],
+        ],
+    ],
 ];
